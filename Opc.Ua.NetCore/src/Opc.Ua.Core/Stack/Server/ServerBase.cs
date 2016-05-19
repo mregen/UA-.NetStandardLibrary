@@ -14,7 +14,6 @@ using System;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
-using Windows.ApplicationModel.Background;
 using System.Net;
 using System.Threading.Tasks;
 

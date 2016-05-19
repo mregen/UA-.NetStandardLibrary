@@ -17,7 +17,6 @@ using System.Xml.Serialization;
 using System.IO;
 using System.Reflection;
 using System.Globalization;
-using Windows.Storage;
 using System.Threading.Tasks;
 
 namespace Opc.Ua.Schema

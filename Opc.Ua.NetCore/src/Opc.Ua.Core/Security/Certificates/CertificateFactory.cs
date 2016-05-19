@@ -15,9 +15,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Diagnostics;
 using System.IO;
-using Windows.Storage;
 using System.Threading.Tasks;
 
 namespace Opc.Ua

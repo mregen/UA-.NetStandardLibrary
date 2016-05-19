@@ -20,15 +20,11 @@ using System.Security.Cryptography.X509Certificates;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.IO;
-using Windows.Storage;
 using System.Linq;
-using Windows.ApplicationModel;
-using Windows.Networking;
-using Windows.Networking.Sockets;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using System.Diagnostics;
-using Windows.Networking.Connectivity;
 using System.Security.Cryptography;
 using System.Xml.Linq;
 

@@ -13,9 +13,6 @@
 using System;
 using System.Text;
 using System.IO;
-using Windows.Security.Cryptography.Core;
-using Windows.Storage.Streams;
-using Windows.Security.Cryptography;
 using System.Security.Cryptography;
 
 namespace Opc.Ua.Bindings

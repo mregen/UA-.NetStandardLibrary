@@ -11,11 +11,7 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using Windows.Security.Cryptography.Core;
 
 namespace Opc.Ua.Bindings
 {

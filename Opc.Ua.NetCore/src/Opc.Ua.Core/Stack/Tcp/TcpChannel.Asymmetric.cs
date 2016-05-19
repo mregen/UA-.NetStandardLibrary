@@ -14,8 +14,6 @@ using System;
 using System.Text;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
-using Windows.Security.Cryptography;
-using Windows.Storage.Streams;
 
 namespace Opc.Ua.Bindings
 {
