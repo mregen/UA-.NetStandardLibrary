@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Xml.Linq;
+using System.Runtime.InteropServices;
 
 namespace Opc.Ua
 {
@@ -951,24 +952,11 @@ namespace Opc.Ua
             return null;
         }
 
-        public static bool HasIPAddresses(HostNameType hnt)
-        {
-            foreach (HostName localHostInfo in NetworkInformation.GetHostNames())
-            {
-                if (localHostInfo.Type == hnt)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-
         public static async Task<IPAddress[]> GetHostAddresses(string remoteHostName)
         {
             IPAddress[] addresses = null;
             IReadOnlyList<EndpointPair> data = null;
-
+            
             if (remoteHostName == GetHostName() && NetworkInformation.GetHostNames().Count > 0)
             {
                 addresses = GetIPAddresses();
@@ -1003,20 +991,14 @@ namespace Opc.Ua
         }
 
 
-        static HostName hostName;
         public static string GetHostName()
         {
-            if (hostName == null)
-            {
-                var hostNames = NetworkInformation.GetHostNames();
-                hostName = hostNames.FirstOrDefault(name => name.Type == HostNameType.DomainName);
-            }
-            return hostName.CanonicalName.Split('.')[0];
+            return Environment.MachineName;
         }
 
         /// <summary>
-         /// Replaces the localhost domain with the current host name.
-         /// </summary>
+        /// Replaces the localhost domain with the current host name.
+        /// </summary>
         public static string ReplaceLocalhost(string uri, string hostname = null)
         {
             // ignore nulls.

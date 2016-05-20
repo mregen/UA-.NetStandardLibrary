@@ -218,4 +218,8 @@ namespace Opc.Ua.Bindings
         private CryptographicKey m_serverEncryptor;
         #endregion
     }
+    // TODO: implement interface
+    public class CryptographicKey
+    {
+    }
 }

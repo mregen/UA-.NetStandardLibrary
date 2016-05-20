@@ -1685,4 +1685,8 @@ namespace Opc.Ua
         private RequestQueue m_requestQueue;
 #endregion
     }
+    // TODO: implement interface
+    public interface IBackgroundTask
+    {
+    }
 }

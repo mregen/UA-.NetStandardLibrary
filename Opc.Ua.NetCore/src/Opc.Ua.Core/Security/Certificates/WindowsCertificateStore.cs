@@ -19,21 +19,23 @@ using System.Threading.Tasks;
 
 namespace Opc.Ua
 {
+
+#if TODO
     /// <summary>
     /// Provides access to a simple file based certificate store.
     /// </summary>
     public class WindowsCertificateStore : ICertificateStore
     {
-        #region Constructors
+#region Constructors
         /// <summary>
         /// Initializes a store.
         /// </summary>
         public WindowsCertificateStore()
         {
         }
-        #endregion
+#endregion
         
-        #region IDisposable Members
+#region IDisposable Members
         /// <summary>
         /// May be called by the application to clean up resources.
         /// </summary>
@@ -53,9 +55,9 @@ namespace Opc.Ua
                 Close();
             }
         }
-        #endregion
+#endregion
 
-        #region ICertificateStore Members
+#region ICertificateStore Members
         /// <summary cref="ICertificateStore.Open(string)" />
 		/// <remarks>
 		/// Syntax (items enclosed in [] are optional):
@@ -268,9 +270,9 @@ namespace Opc.Ua
         {
             return StatusCodes.BadNotSupported;
         }
-        #endregion
+#endregion
         
-        #region Public Methods
+#region Public Methods
         /// <summary>
         /// Returns the string representation of the store.
         /// </summary>
@@ -324,9 +326,9 @@ namespace Opc.Ua
 
 	        return buffer.ToString();
         }
-        #endregion
+#endregion
 
-        #region Private Methods
+#region Private Methods
         /// <summary>
         /// Opens the certificate store.
         /// </summary>
@@ -490,9 +492,9 @@ namespace Opc.Ua
                     location);
             }
         }
-        #endregion
+#endregion
         
-        #region Public Properties
+#region Public Properties
         /// <summary>
         /// The symbolic name for the store.
         /// </summary>
@@ -532,16 +534,16 @@ namespace Opc.Ua
         {
             get { return m_displayName; }
         }
-        #endregion
+#endregion
                 
-        #region Private Fields
+#region Private Fields
         private object m_lock = new object();
 		private string m_symbolicName;
 		private WindowsStoreType m_storeType;
 		private string m_hostName;
 		private string m_serviceNameOrUserSid;
 		private string m_displayName;
-        #endregion
+#endregion
     }
     
     /// <summary>
@@ -569,4 +571,6 @@ namespace Opc.Ua
         /// </summary>
 	    Service
     }
+
+#endif
 }
