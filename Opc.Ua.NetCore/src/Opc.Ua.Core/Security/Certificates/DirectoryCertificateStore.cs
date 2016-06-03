@@ -80,6 +80,7 @@ namespace Opc.Ua
         public async Task Open(string location)
         {
             bool certsInRemovableStorageRootFound = false;
+#if TODO
             IReadOnlyList<StorageFolder> folders = new List<StorageFolder>();
 
             try
@@ -98,9 +99,10 @@ namespace Opc.Ua
             {
                 // do nothing
             }
-
+#endif
             lock (m_lock)
             {
+#if TODO
                 if (certsInRemovableStorageRootFound && (folders.Count > 0))
                 {
                     m_directory = new DirectoryInfo(folders[0].Path);
@@ -108,6 +110,7 @@ namespace Opc.Ua
                     m_privateKeySubdir = m_directory;
                 }
                 else
+#endif
                 {
                     location = Utils.ReplaceSpecialFolderNames(location);
                     m_directory = new DirectoryInfo(location);
@@ -483,9 +486,9 @@ namespace Opc.Ua
             // can't find a valid CRL.
             return StatusCodes.BadCertificateRevocationUnknown;
         }
-        #endregion
+#endregion
 
-        #region Private Methods
+#region Private Methods
         /// <summary>
         /// Reads the current contents of the directory from disk.
         /// </summary>
@@ -722,9 +725,9 @@ namespace Opc.Ua
             m_certificateSubdir.Refresh();
             m_privateKeySubdir.Refresh();
         }
-        #endregion
+#endregion
 
-        #region Private Fields
+#region Private Fields
         private class Entry
         {
             public FileInfo CertificateFile;
@@ -732,15 +735,15 @@ namespace Opc.Ua
             public FileInfo PrivateKeyFile;
             public X509Certificate2 CertificateWithPrivateKey;
         }
-        #endregion
+#endregion
 
-        #region Private Fields
+#region Private Fields
         private object m_lock = new object();
         private DirectoryInfo m_directory;
         private DirectoryInfo m_certificateSubdir;
         private DirectoryInfo m_privateKeySubdir;
         private Dictionary<string, Entry> m_certificates;
         private DateTime m_lastDirectoryCheck;
-        #endregion
+#endregion
     }
 }

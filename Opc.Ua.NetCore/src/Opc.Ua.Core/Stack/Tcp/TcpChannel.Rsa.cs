@@ -100,13 +100,15 @@ namespace Opc.Ua.Bindings
                   
             // compute the hash of message.
             MemoryStream istrm = new MemoryStream(dataToSign.Array, dataToSign.Offset, dataToSign.Count, false);
-
+#if TODO
             HashAlgorithmProvider sha1Provider = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha1);
             IBuffer buffer = CryptographicBuffer.CreateFromByteArray(istrm.ToArray());
             buffer = sha1Provider.HashData(buffer);
             byte[] digest = new byte[buffer.Length];
             CryptographicBuffer.CopyToByteArray(buffer, out digest);
-
+#else
+            byte[] digest = new byte[123];
+#endif
             istrm.Dispose();
             
             // create the signature.
@@ -131,13 +133,15 @@ namespace Opc.Ua.Bindings
 
             // compute the hash of message.
             MemoryStream istrm = new MemoryStream(dataToVerify.Array, dataToVerify.Offset, dataToVerify.Count, false);
-
+#if TODO
             HashAlgorithmProvider sha1Provider = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Sha1);
             IBuffer buffer = CryptographicBuffer.CreateFromByteArray(istrm.ToArray());
             buffer = sha1Provider.HashData(buffer);
             byte[] digest = new byte[buffer.Length];
             CryptographicBuffer.CopyToByteArray(buffer, out digest);
-
+#else
+            byte[] digest = new byte[123];
+#endif
             istrm.Dispose();
 
             // verify signature.

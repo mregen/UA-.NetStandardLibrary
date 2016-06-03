@@ -97,10 +97,10 @@ namespace Opc.Ua.Bindings
         protected byte[] CreateNonce()
         {
             byte[] bytes = new byte[GetNonceLength()];
-
+#if TODO
             IBuffer buffer = CryptographicBuffer.GenerateRandom((uint) GetNonceLength());
             CryptographicBuffer.CopyToByteArray(buffer, out bytes);
-
+#endif
             return bytes;
         }
 
@@ -181,9 +181,9 @@ namespace Opc.Ua.Bindings
                     (actual != null) ? actual.Thumbprint : "(null)");
             }
         }
-        #endregion
+#endregion
 
-        #region Asymmetric Cryptography Functions
+#region Asymmetric Cryptography Functions
         /// <summary>
         /// Returns the length of the symmetric encryption key.
         /// </summary>
@@ -1068,9 +1068,9 @@ namespace Opc.Ua.Bindings
                     }
             }
         }
-        #endregion
+#endregion
 
-        #region Private Fields 
+#region Private Fields 
         private EndpointDescriptionCollection m_endpoints;
         private MessageSecurityMode m_securityMode;
         private string m_securityPolicyUri;
@@ -1079,6 +1079,6 @@ namespace Opc.Ua.Bindings
         private X509Certificate2 m_serverCertificate;   
         private X509Certificate2 m_clientCertificate;
         private bool m_uninitialized;
-        #endregion
+#endregion
     }
 }

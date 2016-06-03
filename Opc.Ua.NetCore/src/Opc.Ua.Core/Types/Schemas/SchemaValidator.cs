@@ -161,7 +161,7 @@ namespace Opc.Ua.Schema
             {
                 return m_loadedFiles[namespaceUri];
             }
-
+#if TODO // todo
             // check if a valid path provided.
             StorageFile fileInfo = null;
 
@@ -200,7 +200,7 @@ namespace Opc.Ua.Schema
                 fileInfo = await StorageFile.GetFileFromPathAsync(Windows.Storage.ApplicationData.Current.LocalFolder + "\\" + fileInfo.Name);
                 return LoadFile(type, fileInfo.Path);
             }            
-            
+#endif            
             throw Exception("Cannot import file '{0}' from '{1}'.", namespaceUri, path);    
         }
 
@@ -209,6 +209,7 @@ namespace Opc.Ua.Schema
         /// </summary>
         protected static async Task<object> LoadFile(System.Type type, string path)
         {
+#if TODO // todo
             StorageFile file = await StorageFile.GetFileFromPathAsync(path);
             StreamReader reader = new StreamReader(await file.OpenStreamForReadAsync());
 
@@ -221,6 +222,9 @@ namespace Opc.Ua.Schema
             {
                 reader.Dispose();
             }
+#else
+            return null;
+#endif
         }
 
         /// <summary>
@@ -282,9 +286,9 @@ namespace Opc.Ua.Schema
                 }
             }
         }
-        #endregion
+#endregion
                 
-        #region Public Methods
+#region Public Methods
         /// <summary>
         /// Returns the schema for the specified type (returns the entire schema if null).
         /// </summary>
@@ -292,12 +296,12 @@ namespace Opc.Ua.Schema
         {
             return null;
         } 
-        #endregion
+#endregion
 
-        #region Private Fields
+#region Private Fields
         private string m_inputPath;
         private Dictionary<string,string> m_knownFiles; 
         private Dictionary<string,object> m_loadedFiles; 
-        #endregion
+#endregion
     }
 }

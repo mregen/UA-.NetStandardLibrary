@@ -777,7 +777,7 @@ namespace Opc.Ua
             ApplicationDataContainer settings = ApplicationData.Current.LocalSettings.CreateContainer(applicationName, ApplicationDataCreateDisposition.Always);
             return (List<string>) settings.Values["Recent File List"];
         }
-        
+#if TODO
         /// <summary>
         /// Updates the contents of the recent file list for the application.
         /// </summary>
@@ -810,7 +810,7 @@ namespace Opc.Ua
             ApplicationDataContainer settings = ApplicationData.Current.LocalSettings.CreateContainer(applicationName, ApplicationDataCreateDisposition.Always);
             settings.Values["Recent File List"] = files;
         }
-        
+#endif
         /// <summary>
         /// Truncates a file path so it can be displayed in a limited width view.
         /// </summary>
@@ -847,8 +847,8 @@ namespace Opc.Ua
             // format the result.
             return Utils.Format("{0}...{1}", filePath.Substring(0, start+1), filePath.Substring(end));
         }
-        #endregion
-        #region String, Object and Data Convienence Functions
+#endregion
+#region String, Object and Data Convienence Functions
         private const int MAX_MESSAGE_LENGTH = 1024;
 
 		private const uint FORMAT_MESSAGE_IGNORE_INSERTS = 0x00000200;
@@ -870,16 +870,16 @@ namespace Opc.Ua
                 {
                     disposable.Dispose();
                 }
-                #if DEBUG
+#if DEBUG
                 catch (Exception e)
                 {
                     Utils.Trace(e, "Error disposing object: {0}", disposable.GetType().Name);
                 }
-                #else
+#else
                 catch (Exception)
                 {
                 }
-                #endif
+#endif
             }
         }
         
@@ -925,12 +925,12 @@ namespace Opc.Ua
 
 			return (int)timeSpan.TotalMilliseconds;
         }
-
+#if TODO
         public static IPAddress[] GetIPAddresses()
         {
             IPAddress[] addresses = null;
 
-            if (NetworkInformation.GetHostNames().Count > 0)
+            if (System.Net.NetworkInformation.GetHostNames().Count > 0)
             {
                 int count = 0;
                 addresses = new IPAddress[NetworkInformation.GetHostNames().Count];
@@ -951,13 +951,12 @@ namespace Opc.Ua
 
             return null;
         }
-
+#endif
         public static async Task<IPAddress[]> GetHostAddresses(string remoteHostName)
         {
             IPAddress[] addresses = null;
-            IReadOnlyList<EndpointPair> data = null;
-            
-            if (remoteHostName == GetHostName() && NetworkInformation.GetHostNames().Count > 0)
+#if TODO
+            if (remoteHostName == GetHostName() && System.Net.NetworkInformation.GetHostNames().Count > 0)
             {
                 addresses = GetIPAddresses();
                 if (addresses != null)
@@ -966,6 +965,7 @@ namespace Opc.Ua
                 }
             }
 
+            IReadOnlyList<EndpointPair> data = null;
             try
             {
                 data = await DatagramSocket.GetEndpointPairsAsync(new HostName(remoteHostName), "0");
@@ -986,7 +986,7 @@ namespace Opc.Ua
                     }
                 }
             }
-
+#endif
             return addresses;
         }
 
@@ -2300,7 +2300,7 @@ namespace Opc.Ua
         {
             return DateTime.Now;
         }
-
+#if TODO
         /// <summary>
         /// Returns the major/minor version number for an assembly formatted as a string.
         /// </summary>
@@ -2318,6 +2318,7 @@ namespace Opc.Ua
             PackageVersion version = Package.Current.Id.Version;
             return Utils.Format("{0}.{1}", version.Build, (version.Revision << 16) + version.Build);
         }
+#endif
 #endregion
         
 #region Security Helper Functions

@@ -149,6 +149,7 @@ namespace Opc.Ua.Bindings
                 case SecurityPolicies.Basic128Rsa15:
                 case SecurityPolicies.Basic256:
                 {
+#if TODO
                     // create encryptors. 
                     SymmetricKeyAlgorithmProvider AesCbcProvider = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithmNames.AesCbc);
 
@@ -157,7 +158,7 @@ namespace Opc.Ua.Bindings
 
                     buffer = CryptographicBuffer.CreateFromByteArray(token.ServerEncryptingKey);
                     token.ServerEncryptor = AesCbcProvider.CreateSymmetricKey(buffer);
-
+#endif
                     // create HMACs.
                     token.ServerHmac = new HMACSHA1(token.ServerSigningKey);
                     token.ClientHmac = new HMACSHA1(token.ClientSigningKey);
@@ -655,6 +656,7 @@ namespace Opc.Ua.Bindings
             ArraySegment<byte> dataToEncrypt,
             bool               useClientKeys)
         {
+#if TODO
             // get the encrypting key.
             CryptographicKey encryptingKey = (useClientKeys)? token.ClientEncryptor : token.ServerEncryptor;
             IBuffer IV = (useClientKeys) ? CryptographicBuffer.CreateFromByteArray(token.ClientInitializationVector) : CryptographicBuffer.CreateFromByteArray(token.ServerInitializationVector);
@@ -678,6 +680,7 @@ namespace Opc.Ua.Bindings
             CryptographicBuffer.CopyToByteArray(encryptedBuffer, out blockToEncrypt);
 
             Array.ConstrainedCopy(blockToEncrypt, 0, dataToEncrypt.Array, dataToEncrypt.Offset, dataToEncrypt.Count);
+#endif
         }
 
         /// <summary>
@@ -688,6 +691,7 @@ namespace Opc.Ua.Bindings
             ArraySegment<byte> dataToDecrypt,
             bool               useClientKeys)
         {
+#if TODO
             // get the decrypting key.
             CryptographicKey decryptingKey = (useClientKeys) ? token.ClientEncryptor : token.ServerEncryptor;
             IBuffer IV = (useClientKeys) ? CryptographicBuffer.CreateFromByteArray(token.ClientInitializationVector) : CryptographicBuffer.CreateFromByteArray(token.ServerInitializationVector);
@@ -711,16 +715,17 @@ namespace Opc.Ua.Bindings
             CryptographicBuffer.CopyToByteArray(encryptedBuffer, out blockToDecrypt);
 
             Array.ConstrainedCopy(blockToDecrypt, 0, dataToDecrypt.Array, dataToDecrypt.Offset, dataToDecrypt.Count);
+#endif
         }
-        #endregion
+#endregion
 
-        #region Private Fields
+#region Private Fields
         private TcpChannelToken m_currentToken;
         private TcpChannelToken m_previousToken;
         private int m_hmacHashSize;
         private int m_signatureKeySize;
         private int m_encryptionKeySize;
         private int m_encryptionBlockSize;
-        #endregion
+#endregion
     }            
 }
