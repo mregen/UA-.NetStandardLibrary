@@ -19,7 +19,7 @@
     <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
@@ -65,11 +65,8 @@
     <Reference Include="Opc.Ua.Client">
       <HintPath>..\..\SampleApplications\SDK\Opc.Ua.Client\bin\Release\net46\Opc.Ua.Client.dll</HintPath>
     </Reference>
-    <Reference Include="Opc.Ua.ClientControls">
-      <HintPath>..\..\SampleApplications\Samples\ClientControls.Net4\bin\Release\Opc.Ua.ClientControls.dll</HintPath>
-    </Reference>
     <Reference Include="Opc.Ua.Configuration">
-      <HintPath>..\..\SampleApplications\SDK\Opc.Ua.Configuration\bin\Release\net46\Opc.Ua.Configuration.dll</HintPath>
+      <HintPath>..\..\SampleApplications\SDK\Opc.Ua.Configuration\bin\Debug\net461\Opc.Ua.Configuration.dll</HintPath>
     </Reference>
     <Reference Include="Opc.Ua.Core">
       <HintPath>..\..\Stack\Opc.Ua.Core\bin\Release\net46\Opc.Ua.Core.dll</HintPath>
@@ -146,6 +143,25 @@
     </Compile>
     <Compile Include="FirewallAccessDlg.Designer.cs">
       <DependentUpon>FirewallAccessDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PseudoComServer.cs" />
+    <Compile Include="PseudoComServerDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PseudoComServerDlg.designer.cs">
+      <DependentUpon>PseudoComServerDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PseudoComServerListCtrl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PseudoComServerListCtrl.designer.cs">
+      <DependentUpon>PseudoComServerListCtrl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PseudoComServerListDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PseudoComServerListDlg.designer.cs">
+      <DependentUpon>PseudoComServerListDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="SelectApplicationDlg.cs">
       <SubType>Form</SubType>
@@ -311,6 +327,15 @@
       <DependentUpon>FirewallAccessDlg.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="PseudoComServerDlg.resx">
+      <DependentUpon>PseudoComServerDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PseudoComServerListCtrl.resx">
+      <DependentUpon>PseudoComServerListCtrl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PseudoComServerListDlg.resx">
+      <DependentUpon>PseudoComServerListDlg.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SelectApplicationDlg.resx">
       <DependentUpon>SelectApplicationDlg.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -419,6 +444,16 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\ComIOP\Common\UA COM Interop Library.csproj">
+      <Project>{24d3c616-ed4c-4af9-b529-7b418ec8acc4}</Project>
+      <Name>UA COM Interop Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\SampleApplications\Samples\ClientControls.Net4\UA Client Controls.csproj">
+      <Project>{a247d2ee-14fc-463d-a9ba-6cff1ef22b7a}</Project>
+      <Name>UA Client Controls</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

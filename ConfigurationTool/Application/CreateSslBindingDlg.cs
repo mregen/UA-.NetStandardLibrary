@@ -98,7 +98,7 @@ namespace Opc.Ua.Configuration
             return result == DialogResult.Yes;
         }
 
-        private void OkBTN_Click(object sender, EventArgs e)
+        private async void OkBTN_Click(object sender, EventArgs e)
         {
             try
             {
@@ -110,7 +110,7 @@ namespace Opc.Ua.Configuration
                     throw new ArgumentException("You must specify a certificate.");
                 }
 
-                X509Certificate2 certificate = m_certificate.Find(true);
+                X509Certificate2 certificate = await m_certificate.Find(true);
 
                 if (certificate == null)
                 {
@@ -225,7 +225,7 @@ namespace Opc.Ua.Configuration
                 if (!m_store.StorePath.EndsWith("\\My"))
                 {
                     int index = m_store.StorePath.LastIndexOf("\\");
-                    binding.StoreName = m_store.StorePath.Substring(index+1);
+                    binding.StoreName = m_store.StorePath.Substring(index + 1);
                 }
 
                 HttpAccessRule.SetSslCertificateBinding(binding);

@@ -181,7 +181,7 @@ namespace Opc.Ua.Com.Client
                     if (bAvailable != 0)
                     {
                         bool logoff = true;
-
+#if TODO
                         if (identity != null && identity.TokenType == UserTokenType.UserName)
                         {
                             UserNameSecurityToken securityToken = identity.GetSecurityToken() as UserNameSecurityToken;
@@ -192,7 +192,7 @@ namespace Opc.Ua.Com.Client
                                 logoff = false;
                             }
                         }
-
+#endif
                         if (logoff)
                         {
                             server.Logoff();
@@ -293,23 +293,23 @@ namespace Opc.Ua.Com.Client
         {
             Dispose();
         }
-        #endregion
+#endregion
 
-        #region Protected Members
+#region Protected Members
         /// <summary>
         /// Called immediately after connecting to the server.
         /// </summary>
         protected virtual void OnConnected()
         {
         }
-        #endregion
+#endregion
 
-        #region Private Methods
-        #endregion
+#region Private Methods
+#endregion
 
-        #region Private Fields
+#region Private Fields
         private object m_lock = new object();
         private string m_url;
-        #endregion
+#endregion
     }
 }
