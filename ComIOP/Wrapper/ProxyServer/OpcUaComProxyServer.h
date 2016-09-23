@@ -4,7 +4,7 @@
 
 
  /* File created by MIDL compiler version 8.00.0603 */
-/* at Thu Sep 15 17:19:06 2016
+/* at Thu Sep 22 13:51:38 2016
  */
 /* Compiler settings for OpcUaComProxyServer.idl:
     Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 8.00.0603 

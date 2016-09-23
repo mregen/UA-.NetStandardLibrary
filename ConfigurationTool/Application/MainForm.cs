@@ -2011,7 +2011,7 @@ namespace Opc.Ua.Configuration
         /// <param name="application2">The application2.</param>
         private bool SetupTrustRelationship(ManagedApplication application1, ManagedApplication application2)
         {
-            X509Certificate2 certificate1 = application1.Certificate.Find();
+            X509Certificate2 certificate1 = await application1.Certificate.Find();
 
             if (certificate1 == null)
             {
@@ -2019,7 +2019,7 @@ namespace Opc.Ua.Configuration
                 return false;
             }
 
-            X509Certificate2 certificate2 = application2.Certificate.Find();
+            X509Certificate2 certificate2 = await application2.Certificate.Find();
 
             if (certificate2 == null)
             {
@@ -2110,7 +2110,7 @@ namespace Opc.Ua.Configuration
             }
         }
 
-        private void ExportApplicationCertificateBTN_Click(object sender, EventArgs e)
+        private async void ExportApplicationCertificateBTN_Click(object sender, EventArgs e)
         {
             try
             {
@@ -2131,7 +2131,7 @@ namespace Opc.Ua.Configuration
                     return;
                 }
 
-                X509Certificate2 certificate = application.Certificate.Find(false);
+                X509Certificate2 certificate = await application.Certificate.Find(false);
 
                 if (certificate == null)
                 {

@@ -988,7 +988,7 @@ namespace Opc.Ua.Configuration
         private System.Windows.Forms.TabControl TabsPN;
         private System.Windows.Forms.TabPage CertificatesTAB;
         private System.Windows.Forms.TabPage ComServersTAB;
-        private Opc.Ua.Client.Controls.PseudoComServerListCtrl ComServersCTRL;
+        private Client.Controls.PseudoComServerListCtrl ComServersCTRL;
         private System.Windows.Forms.TabPage HttpAccessRulesTAB;
         private HttpAccessRulelListCtrl HttpAccessRuleCTRL;
         private System.Windows.Forms.Button ViewCertificatesBTN;

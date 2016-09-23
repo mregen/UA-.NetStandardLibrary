@@ -56,6 +56,7 @@ namespace Opc.Ua.Com.Client
 
             try
             {
+#if TODO
                 // process and command line arguments.
                 if (application.ProcessCommandLine())
                 {
@@ -68,7 +69,7 @@ namespace Opc.Ua.Com.Client
                     application.StartAsService(new ComWrapperServer());
                     return;
                 }
-
+#endif
                 // load the application configuration.
                 application.LoadApplicationConfiguration(false);
 
@@ -76,14 +77,14 @@ namespace Opc.Ua.Com.Client
                 application.CheckApplicationInstanceCertificate(false, 0);
 
                 // start the server.
-                application.Start(new ComWrapperServer());
+                // TODO application.Start(new ComWrapperServer());
 
                 // run the application interactively.
                 Application.Run(new ServerForm(application));
             }
             catch (Exception e)
             {
-                ExceptionDlg.Show(application.ApplicationName, e);
+                // TODO ExceptionDlg.Show(application.ApplicationName, e);
                 return;
             }
         }

@@ -31,6 +31,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+#if TODO
+
 namespace CubicOrange.Windows.Forms.ActiveDirectory
 {
     /// <summary>
@@ -76,3 +78,4 @@ namespace CubicOrange.Windows.Forms.ActiveDirectory
         }
     }
 }
+#endif

@@ -62,7 +62,7 @@ namespace Opc.Ua.Com.Client
         /// </summary>
         public UserNameValidator(string applicationName)
         {
-            m_UserNameIdentityTokens = UserNameCreator.LoadUserName(applicationName);
+            // TODO m_UserNameIdentityTokens = UserNameCreator.LoadUserName(applicationName);
         }
         #endregion
 
