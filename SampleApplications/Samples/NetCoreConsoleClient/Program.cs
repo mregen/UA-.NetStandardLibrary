@@ -36,8 +36,7 @@ namespace NetCoreConsoleClient
             }
             try
             {
-                Task t = ConsoleSampleClient(endpointURL);
-                t.Wait();
+                ConsoleSampleClient(endpointURL).Wait();
             }
             catch (Exception e)
             {
@@ -53,13 +52,13 @@ namespace NetCoreConsoleClient
             {
                 ApplicationName = "UA Core Sample Client",
                 ApplicationType = ApplicationType.Client,
-                ApplicationUri = "urn:"+Utils.GetHostName()+":OPCFoundation:CoreSampleClient",
+                ApplicationUri = "urn:" + Utils.GetHostName() + ":OPCFoundation:CoreSampleClient",
                 SecurityConfiguration = new SecurityConfiguration
                 {
                     ApplicationCertificate = new CertificateIdentifier
                     {
                         StoreType = "X509Store",
-                        StorePath = "CurrentUser\\UA_MachineDefault",
+                        StorePath = "CurrentUser\\My",
                         SubjectName = "UA Core Sample Client"
                     },
                     TrustedPeerCertificates = new CertificateTrustList
@@ -131,8 +130,8 @@ namespace NetCoreConsoleClient
             }
 
             Console.WriteLine("2 - Discover endpoints of {0}.", endpointURL);
-            var selectedEndpoint = CoreClientUtils.SelectEndpoint(endpointURL, haveAppCertificate);
-            Console.WriteLine("    Selected endpoint uses: {0}", 
+            var selectedEndpoint = CoreClientUtils.SelectEndpoint(endpointURL, haveAppCertificate, 15000);
+            Console.WriteLine("    Selected endpoint uses: {0}",
                 selectedEndpoint.SecurityPolicyUri.Substring(selectedEndpoint.SecurityPolicyUri.LastIndexOf('#') + 1));
 
             Console.WriteLine("3 - Create a session with OPC UA server.");
@@ -189,7 +188,7 @@ namespace NetCoreConsoleClient
             var list = new List<MonitoredItem> {
                 new MonitoredItem(subscription.DefaultItem)
                 {
-                    DisplayName = "ServerStatusCurrentTime", StartNodeId = "i=2258"
+                    DisplayName = "ServerStatusCurrentTime", StartNodeId = "i="+Variables.Server_ServerStatus_CurrentTime.ToString()
                 }
             };
             list.ForEach(i => i.Notification += OnNotification);
