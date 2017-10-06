@@ -24,7 +24,7 @@ script:
   - echo "========== run .Net Core samples ============"
   - cd SampleApplications/Samples/NetCoreConsoleServer/bin/Debug/netcoreapp2.0
   - dotnet NetCoreConsoleServer.dll -t 10 -a
-  - cd $
+  - cd $TRAVIS_BUILD_DIR
 
 after_script:
   - echo "========== build done ============"
