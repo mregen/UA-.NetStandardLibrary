@@ -21,8 +21,8 @@ script:
   - dotnet restore "SampleApplications/Workshop/Reference/UA Reference.sln"
   - dotnet build -c Debug SampleApplications/Workshop/Reference/ConsoleReferenceServer
   - dotnet build -c Release SampleApplications/Workshop/Reference/ConsoleReferenceServer
-  - dotnet SampleApplications/Samples/NetCoreConsoleServer/bin/Debug/netcoreapp2.0/NetCoreConsoleServer.dll -t 10
-  - dotnet SampleApplications/Samples/NetCoreConsoleServer/bin/Debug/netcoreapp2.0/NetCoreConsoleServer.dll -t 60 -a && SampleApplications/Samples/NetCoreConsoleClient/bin/Debug/netcoreapp2.0/NetCoreConsoleClient.dll -t 20
+  - echo "========== run .Net Core server for 10 seconds ============"
+  - dotnet run SampleApplications/Samples/NetCoreConsoleServer -t 10
 
 after_script:
   - echo "========== build done ============"
