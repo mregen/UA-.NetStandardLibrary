@@ -31,7 +31,7 @@ script:
   - echo $(pwd)
   - cd $TRAVIS_BUILD_DIR
   - echo $(pwd)
-  - testclientserver.sh
+  - ./testclientserver.sh
 
 after_script:
   - echo "========== build done ============"
