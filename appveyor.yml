@@ -64,7 +64,7 @@ test_script:
   - cmd: cd %APPVEYOR_BUILD_FOLDER%
 
 # to disable automatic tests
-test: off
+test: on_success
 
 #---------------------------------#
 #        global handlers          #
