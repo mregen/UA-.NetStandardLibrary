@@ -22,7 +22,9 @@ script:
   - dotnet build -c Debug SampleApplications/Workshop/Reference/ConsoleReferenceServer
   - dotnet build -c Release SampleApplications/Workshop/Reference/ConsoleReferenceServer
   - echo "========== run .Net Core samples ============"
-  - dotnet SampleApplications/Samples/NetCoreConsoleServer/bin/Debug/netcoreapp2.0/NetCoreConsoleServer.dll -t 10 -a
+  - cd SampleApplications/Samples/NetCoreConsoleServer/bin/Debug/netcoreapp2.0
+  - dotnet NetCoreConsoleServer.dll -t 10 -a
+  - cd $
 
 after_script:
   - echo "========== build done ============"
