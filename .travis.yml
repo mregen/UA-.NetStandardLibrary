@@ -22,9 +22,12 @@ script:
   - dotnet build -c Debug SampleApplications/Workshop/Reference/ConsoleReferenceServer
   - dotnet build -c Release SampleApplications/Workshop/Reference/ConsoleReferenceServer
   - echo "========== run .Net Core samples ============"
+  - echo $(pwd)
   - cd SampleApplications/Samples/NetCoreConsoleServer/bin/Debug/netcoreapp2.0
   - dotnet NetCoreConsoleServer.dll -t 10 -a
+  - echo $(pwd)
   - cd $TRAVIS_BUILD_DIR
+  - echo $(pwd)
   - testclientserver.sh
 
 after_script:
