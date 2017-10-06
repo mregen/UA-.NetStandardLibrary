@@ -32,7 +32,7 @@ clone_depth: 5                      # clone entire repository history if not def
 
 environment:
   matrix:
-  - solution_name: UA-NetStandard.sln
+  - solution_name: "UA-NetStandard.sln"
   - solution_name: "UA Global Discovery Server.sln"
   - solution_name: "UA Universal Windows.sln"
   - solution_name: "SampleApplications/Workshop/Aggregation/UA Aggregation.sln"
@@ -56,7 +56,13 @@ after_build:
 build_script:
   - msbuild "%solution_name%" /p:Configuration=Debug /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
   - msbuild "%solution_name%" /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
-  
+
+test_script:
+  - cmd: ECHO Test the console server
+  - cmd: cd SampleApplications/Samples/NetCoreConsoleServer/bin/Debug/netcoreapp2.0
+  - cmd: dotnet NetCoreConsoleServer.dll -t 10
+  - cmd: cd %APPVEYOR_BUILD_FOLDER%
+
 # to disable automatic tests
 test: off
 
