@@ -58,17 +58,8 @@ build_script:
   - msbuild "%solution_name%" /p:Configuration=Debug /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
   - msbuild "%solution_name%" /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
-test_script:
-  - cmd: ECHO Test the console server
-  - cmd: cd SampleApplications/Samples/NetCoreConsoleServer
-  - cmd: dotnet run --no-restore --no-build -t 10
-  - cmd: cd %APPVEYOR_BUILD_FOLDER%
-
-# to disable automatic tests
-test:
-  assemblies:
-    only:
-      - NetCoreConsoleServer.dll
+  # to disable automatic tests
+test: off
 
 # build cache to preserve files/folders between builds
 cache:
