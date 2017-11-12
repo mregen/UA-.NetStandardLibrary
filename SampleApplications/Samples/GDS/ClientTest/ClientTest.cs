@@ -846,7 +846,7 @@ namespace NUnit.Opc.Ua.Gds.Test
 
         private void DisconnectGDS()
         {
-            _gdsClient.GDSClient.Session?.Close();
+            _gdsClient.GDSClient.Disconnect();
         }
 
         #endregion

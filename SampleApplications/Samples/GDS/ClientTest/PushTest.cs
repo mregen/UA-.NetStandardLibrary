@@ -54,13 +54,18 @@ namespace NUnit.Opc.Ua.Gds.Test
             _dataGenerator = new DataGenerator(_randomSource);
             _server = new GlobalDiscoveryTestServer(true);
             _server.StartServer().Wait();
-            Thread.Sleep(1000);
+
             _gdsClient = new GlobalDiscoveryTestClient(true);
             _gdsClient.LoadClientConfiguration().Wait();
-            _gdsClient.GDSClient.Connect(_gdsClient.GDSClient.EndpointUrl);
+
             _pushClient = new ServerConfigurationPushTestClient(true);
             _pushClient.LoadClientConfiguration().Wait();
+
+            Thread.Sleep(1000);
+            _gdsClient.GDSClient.Connect(_gdsClient.GDSClient.EndpointUrl);
             _pushClient.PushClient.Connect(_pushClient.PushClient.EndpointUrl);
+
+            Thread.Sleep(500);
             DisconnectGDSClient();
             DisconnectPushClient();
         }
