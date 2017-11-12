@@ -58,11 +58,8 @@ build_script:
   - msbuild "%solution_name%" /p:Configuration=Debug /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
   - msbuild "%solution_name%" /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
-# only assemblies to test
-test: 
-  assemblies:
-    only:
-      - **\*Test.dll
+# test automatic
+test: auto
 
 # build cache to preserve files/folders between builds
 cache:
