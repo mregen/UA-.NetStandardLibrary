@@ -62,7 +62,7 @@ build_script:
 test: 
   assemblies:
     only:
-      - '**\*test.dll'
+      - **\*Test.dll
 
 # build cache to preserve files/folders between builds
 cache:
