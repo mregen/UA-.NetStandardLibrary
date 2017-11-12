@@ -183,7 +183,7 @@ namespace Opc.Ua.Gds.Client
         /// </summary>
         public void Connect()
         {
-            Connect(EndpointUrl);
+            Connect(m_endpoint);
         }
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace Opc.Ua.Gds.Client
         {
             if (String.IsNullOrEmpty(endpointUrl))
             {
-                throw new ArgumentNullException("endpointUrl");
+                throw new ArgumentNullException(nameof(endpointUrl));
             }
 
             if (!Uri.IsWellFormedUriString(endpointUrl, UriKind.Absolute))
@@ -206,7 +206,7 @@ namespace Opc.Ua.Gds.Client
 
             EndpointDescription endpointDescription = CoreClientUtils.SelectEndpoint(endpointUrl, true);
             EndpointConfiguration endpointConfiguration = EndpointConfiguration.Create(m_application.ApplicationConfiguration);
-            ConfiguredEndpoint endpoint = new ConfiguredEndpoint(null, endpointDescription, endpointConfiguration);
+            var endpoint = new ConfiguredEndpoint(null, endpointDescription, endpointConfiguration);
 
             Connect(endpoint);
         }

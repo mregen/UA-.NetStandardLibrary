@@ -57,8 +57,12 @@ namespace NUnit.Opc.Ua.Gds.Test
             Thread.Sleep(1000);
             _gdsClient = new GlobalDiscoveryTestClient(true);
             _gdsClient.LoadClientConfiguration().Wait();
+            _gdsClient.GDSClient.Connect(_gdsClient.GDSClient.EndpointUrl);
             _pushClient = new ServerConfigurationPushTestClient(true);
             _pushClient.LoadClientConfiguration().Wait();
+            _pushClient.PushClient.Connect(_pushClient.PushClient.EndpointUrl);
+            DisconnectGDSClient();
+            DisconnectPushClient();
         }
 
         /// <summary>
@@ -240,12 +244,12 @@ namespace NUnit.Opc.Ua.Gds.Test
         private void ConnectPushClient(bool sysAdmin)
         {
             _pushClient.PushClient.AdminCredentials = new UserIdentity(sysAdmin ? "sysadmin" : "appuser", "demo");
-            _pushClient.PushClient.Connect(_pushClient.PushClient.EndpointUrl);
+            _pushClient.PushClient.Connect();
         }
 
         private void DisconnectPushClient()
         {
-            _pushClient.PushClient.Session?.Close();
+            _pushClient.PushClient.Disconnect();
         }
 
         private void ConnectGDSClient(bool admin)
@@ -256,7 +260,7 @@ namespace NUnit.Opc.Ua.Gds.Test
 
         private void DisconnectGDSClient()
         {
-            _gdsClient.GDSClient.Session?.Close();
+            _gdsClient.GDSClient.Disconnect();
         }
 
         private X509Certificate2Collection CreateCertCollection(ByteStringCollection certList)
