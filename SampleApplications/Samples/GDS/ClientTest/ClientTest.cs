@@ -37,7 +37,7 @@ using Opc.Ua.Gds;
 using Opc.Ua.Gds.Client;
 using Opc.Ua.Gds.Test;
 using Opc.Ua.Test;
-
+using System.Threading.Tasks;
 
 namespace NUnit.Opc.Ua.Gds.Test
 {
@@ -89,25 +89,23 @@ namespace NUnit.Opc.Ua.Gds.Test
         /// Set up a Global Discovery Server and Client instance and connect the session
         /// </summary>
         [OneTimeSetUp]
-        protected void OneTimeSetUp()
+        protected async Task OneTimeSetUp()
         {
             _serverCapabilities = new ServerCapabilities();
             _randomSource = new RandomSource(randomStart);
             _dataGenerator = new DataGenerator(_randomSource);
             _server = new GlobalDiscoveryTestServer(true);
-            _server.StartServer(true).Wait();
+            await _server.StartServer(true);
 
             // load client
             _gdsClient = new GlobalDiscoveryTestClient(true);
-            _gdsClient.LoadClientConfiguration().Wait();
+            await _gdsClient.LoadClientConfiguration();
 
-            Thread.Sleep(5000);
-            _gdsClient.GDSClient.Connect(_gdsClient.GDSClient.EndpointUrl).Wait();
+            await _gdsClient.GDSClient.Connect(_gdsClient.GDSClient.EndpointUrl);
 
             // good applications test set
             _goodApplicationTestSet = ApplicationTestSet(goodApplicationsTestCount, false);
             _invalidApplicationTestSet = ApplicationTestSet(invalidApplicationsTestCount, true);
-
         }
 
         /// <summary>
@@ -120,7 +118,6 @@ namespace NUnit.Opc.Ua.Gds.Test
             _gdsClient = null;
             _server.StopServer();
             _server = null;
-            Thread.Sleep(5000);
         }
 
         [TearDown]

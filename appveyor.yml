@@ -37,7 +37,7 @@ environment:
   - solution_name: "UA-NetStandard.sln"
     test_name: "none"
   - solution_name: "UA Global Discovery Server.sln"
-    test_name: "GlobalDiscoveryClientTest.dll"
+    test_name: "SampleApplications\Samples\GDS\ClientTest\bin\Debug\netcoreapp2.0\GlobalDiscoveryClientTest.dll"
   - solution_name: "UA Universal Windows.sln"
     test_name: "none"
   - solution_name: "SampleApplications/Workshop/Aggregation/UA Aggregation.sln"
