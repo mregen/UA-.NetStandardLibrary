@@ -60,7 +60,7 @@ build_script:
 
 # test automatic
 test: 
-  assemblies: **\*Test.dll
+  assemblies: GlobalDiscoveryClientTest.dll
 
 # build cache to preserve files/folders between builds
 cache:
