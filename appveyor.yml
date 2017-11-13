@@ -33,11 +33,17 @@ clone_depth: 5                      # clone entire repository history if not def
 environment:
   matrix:
   - solution_name: "UA Core Library.sln"
+    test_name: ""
   - solution_name: "UA-NetStandard.sln"
+    test_name: ""
   - solution_name: "UA Global Discovery Server.sln"
+    test_name: "SampleApplications/Samples/GDS/ClientTest/GlobalDiscoveryClientTest.csproj"
   - solution_name: "UA Universal Windows.sln"
+    test_name: ""
   - solution_name: "SampleApplications/Workshop/Aggregation/UA Aggregation.sln"
+    test_name: ""
   - solution_name: "SampleApplications/Workshop/Reference/UA Reference.sln"  
+    test_name: ""
   
 # this is how to allow failing jobs in the matrix
 matrix:
@@ -58,13 +64,11 @@ build_script:
   - msbuild "%solution_name%" /p:Configuration=Debug /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
   - msbuild "%solution_name%" /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
-# test automatic
+# test 
 test:
-  assemblies:
-    - '**\*Test.dll'
 
 test_script:
-  - nunit3-console --result=myresults.xml;format=AppVeyor
+  - nunit3-console "%test_name%" --result=myresults.xml;format=AppVeyor
 #  - dotnet test SampleApplications\Samples\GDS\ClientTest\GlobalDiscoveryClientTest.csproj
 
 # build cache to preserve files/folders between builds
