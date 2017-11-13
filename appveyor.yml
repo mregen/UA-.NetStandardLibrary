@@ -60,7 +60,11 @@ build_script:
 
 # test automatic
 test: 
-  assemblies: GlobalDiscoveryClientTest.dll
+  assemblies: 
+    - GlobalDiscoveryClientTest.dll
+
+test_script:
+  - dotnet test SampleApplications\Samples\GDS\ClientTest\GlobalDiscoveryClientTest.csproj
 
 # build cache to preserve files/folders between builds
 cache:
