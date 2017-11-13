@@ -59,12 +59,13 @@ build_script:
   - msbuild "%solution_name%" /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
 # test automatic
-test: 
-  assemblies: 
-    - GlobalDiscoveryClientTest.dll
+test:
+  assemblies:
+    - '**\*Test.dll'
 
 test_script:
-  - dotnet test SampleApplications\Samples\GDS\ClientTest\GlobalDiscoveryClientTest.csproj
+  - nunit3-console "%solution_name%" --result=myresults.xml;format=AppVeyor
+#  - dotnet test SampleApplications\Samples\GDS\ClientTest\GlobalDiscoveryClientTest.csproj
 
 # build cache to preserve files/folders between builds
 cache:
