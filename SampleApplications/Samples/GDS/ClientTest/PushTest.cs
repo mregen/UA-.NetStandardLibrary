@@ -35,6 +35,7 @@ using Opc.Ua.Test;
 using System;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace NUnit.Opc.Ua.Gds.Test
 {
@@ -47,7 +48,7 @@ namespace NUnit.Opc.Ua.Gds.Test
         /// Set up a Global Discovery Server and Client instance and connect the session
         /// </summary>
         [OneTimeSetUp]
-        protected void OneTimeSetUp()
+        protected async Task OneTimeSetUp()
         {
             _serverCapabilities = new ServerCapabilities();
             _randomSource = new RandomSource(randomStart);
@@ -57,18 +58,15 @@ namespace NUnit.Opc.Ua.Gds.Test
 
             // load clients
             _gdsClient = new GlobalDiscoveryTestClient(true);
-            _gdsClient.LoadClientConfiguration().Wait();
+            await _gdsClient.LoadClientConfiguration();
             _pushClient = new ServerConfigurationPushTestClient(true);
-            _pushClient.LoadClientConfiguration().Wait();
+            await _pushClient.LoadClientConfiguration();
 
             // connect once
-            Thread.Sleep(500);
-            _gdsClient.GDSClient.Connect(_gdsClient.GDSClient.EndpointUrl).Wait();
-            _pushClient.PushClient.Connect(_pushClient.PushClient.EndpointUrl).Wait();
+            await Task.Delay(5000);
+            await _gdsClient.GDSClient.Connect(_gdsClient.GDSClient.EndpointUrl);
+            await _pushClient.PushClient.Connect(_pushClient.PushClient.EndpointUrl);
 
-            Thread.Sleep(500);
-            DisconnectGDSClient();
-            DisconnectPushClient();
         }
 
         /// <summary>
@@ -80,7 +78,7 @@ namespace NUnit.Opc.Ua.Gds.Test
             _gdsClient.DisconnectClient();
             _pushClient.DisconnectClient();
             _server.StopServer();
-            Thread.Sleep(1000);
+            Thread.Sleep(5000);
         }
 
         [TearDown]

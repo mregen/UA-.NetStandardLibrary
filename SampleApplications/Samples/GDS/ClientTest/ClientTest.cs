@@ -101,8 +101,7 @@ namespace NUnit.Opc.Ua.Gds.Test
             _gdsClient = new GlobalDiscoveryTestClient(true);
             _gdsClient.LoadClientConfiguration().Wait();
 
-            // connect once
-            Thread.Sleep(500);
+            Thread.Sleep(5000);
             _gdsClient.GDSClient.Connect(_gdsClient.GDSClient.EndpointUrl).Wait();
 
             // good applications test set
@@ -121,7 +120,7 @@ namespace NUnit.Opc.Ua.Gds.Test
             _gdsClient = null;
             _server.StopServer();
             _server = null;
-            Thread.Sleep(1000);
+            Thread.Sleep(5000);
         }
 
         [TearDown]
