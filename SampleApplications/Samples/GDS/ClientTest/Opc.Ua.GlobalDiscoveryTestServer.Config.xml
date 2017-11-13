@@ -121,7 +121,7 @@
       <ua:String>Global Discovery and Certificate Management Server</ua:String>
     </ServerProfileArray>
 
-    <ShutdownDelay>5</ShutdownDelay>
+    <ShutdownDelay>0</ShutdownDelay>
     <ServerCapabilities>
       <ua:String>GDS</ua:String>
     </ServerCapabilities>

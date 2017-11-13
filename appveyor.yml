@@ -64,7 +64,7 @@ test:
     - '**\*Test.dll'
 
 test_script:
-  - nunit3-console "%solution_name%" --result=myresults.xml;format=AppVeyor
+  - nunit3-console --result=myresults.xml;format=AppVeyor
 #  - dotnet test SampleApplications\Samples\GDS\ClientTest\GlobalDiscoveryClientTest.csproj
 
 # build cache to preserve files/folders between builds

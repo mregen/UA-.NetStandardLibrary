@@ -37,7 +37,7 @@ using Opc.Ua.Gds;
 using Opc.Ua.Gds.Client;
 using Opc.Ua.Gds.Test;
 using Opc.Ua.Test;
-using System.Threading.Tasks;
+
 
 namespace NUnit.Opc.Ua.Gds.Test
 {
