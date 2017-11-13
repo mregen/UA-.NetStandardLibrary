@@ -47,7 +47,7 @@ namespace Opc.Ua.Gds.Test
             autoAccept = _autoAccept;
         }
 
-        public async Task StartServer()
+        public async Task StartServer(bool clean)
         {
             ApplicationInstance.MessageDlg = new ApplicationMessageDlg();
             ApplicationInstance application = new ApplicationInstance
@@ -59,6 +59,24 @@ namespace Opc.Ua.Gds.Test
 
             // load the application configuration.
             ApplicationConfiguration config = await application.LoadApplicationConfiguration(false);
+
+            if (clean)
+            {
+                //ApplicationInstance.DeleteApplicationInstanceCertificate(config).Wait();
+                string thumbprint = config.SecurityConfiguration.ApplicationCertificate.Thumbprint;
+                if (thumbprint != null)
+                {
+                    using (var store = config.SecurityConfiguration.ApplicationCertificate.OpenStore())
+                    {
+                        await store.Delete(thumbprint);
+                    }
+                }
+
+                // always start with clean cert store
+                TestUtils.CleanupTrustList(config.SecurityConfiguration.TrustedIssuerCertificates.OpenStore());
+                TestUtils.CleanupTrustList(config.SecurityConfiguration.TrustedPeerCertificates.OpenStore());
+                TestUtils.CleanupTrustList(config.SecurityConfiguration.RejectedCertificateStore.OpenStore());
+            }
 
             // check the application certificate.
             bool haveAppCertificate = await application.CheckApplicationInstanceCertificate(false, 0);
@@ -74,12 +92,23 @@ namespace Opc.Ua.Gds.Test
 
             // get the DatabaseStorePath configuration parameter.
             GlobalDiscoveryServerConfiguration gdsConfiguration = config.ParseExtension<GlobalDiscoveryServerConfiguration>();
-            string databaseStorePath = gdsConfiguration.DatabaseStorePath;
+            string databaseStorePath = Utils.ReplaceSpecialFolderNames(gdsConfiguration.DatabaseStorePath);
 
-            // clean up database
-            if (File.Exists(databaseStorePath))
+            if (clean)
             {
-                File.Delete(databaseStorePath);
+                // clean up database
+                if (File.Exists(databaseStorePath))
+                {
+                    File.Delete(databaseStorePath);
+                }
+
+                // clean up GDS stores
+                TestUtils.DeleteDirectory(gdsConfiguration.AuthoritiesStorePath);
+                TestUtils.DeleteDirectory(gdsConfiguration.ApplicationCertificatesStorePath);
+                foreach (var group in gdsConfiguration.CertificateGroups)
+                {
+                    TestUtils.DeleteDirectory(group.BaseStorePath);
+                }
             }
 
             // start the server.

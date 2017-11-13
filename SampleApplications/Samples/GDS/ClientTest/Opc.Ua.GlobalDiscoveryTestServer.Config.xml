@@ -38,7 +38,7 @@
     <!-- WARNING: SHA1 signed certficates are by default rejected and should be phased out. -->
     <RejectSHA1SignedCertificates>false</RejectSHA1SignedCertificates>
     <MinimumCertificateKeySize>1024</MinimumCertificateKeySize>
-
+    <AddAppCertToTrustedStore>false</AddAppCertToTrustedStore>
   </SecurityConfiguration>
   
   <TransportConfigurations></TransportConfigurations>
@@ -150,8 +150,7 @@
           </CertificateGroupConfiguration>
         </CertificateGroups>
         <KnownHostNames/>
-        <ShutdownDelay>5</ShutdownDelay>
-        <DatabaseStorePath>gdsdb.json</DatabaseStorePath>
+        <DatabaseStorePath>%LocalApplicationData%/OPC/GDS/gdsdb.json</DatabaseStorePath>
       </GlobalDiscoveryServerConfiguration>
     </ua:XmlElement>
   </Extensions>

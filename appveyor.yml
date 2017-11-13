@@ -4,7 +4,7 @@
 #---------------------------------#
 
 # version format
-version: 0.2.0.{build}-{branch}
+version: 0.4.0.{build}-{branch}
 
 
 # branches to build
@@ -59,7 +59,8 @@ build_script:
   - msbuild "%solution_name%" /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
 # test automatic
-test: auto
+test: 
+  assemblies: **\*Test.dll
 
 # build cache to preserve files/folders between builds
 cache:

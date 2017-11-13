@@ -37,6 +37,7 @@ using Opc.Ua.Gds;
 using Opc.Ua.Gds.Client;
 using Opc.Ua.Gds.Test;
 using Opc.Ua.Test;
+using System.Threading.Tasks;
 
 namespace NUnit.Opc.Ua.Gds.Test
 {
@@ -94,9 +95,15 @@ namespace NUnit.Opc.Ua.Gds.Test
             _randomSource = new RandomSource(randomStart);
             _dataGenerator = new DataGenerator(_randomSource);
             _server = new GlobalDiscoveryTestServer(true);
-            _server.StartServer().Wait();
+            _server.StartServer(true).Wait();
+
+            // load client
             _gdsClient = new GlobalDiscoveryTestClient(true);
             _gdsClient.LoadClientConfiguration().Wait();
+
+            // connect once
+            Thread.Sleep(500);
+            _gdsClient.GDSClient.Connect(_gdsClient.GDSClient.EndpointUrl).Wait();
 
             // good applications test set
             _goodApplicationTestSet = ApplicationTestSet(goodApplicationsTestCount, false);
@@ -841,7 +848,7 @@ namespace NUnit.Opc.Ua.Gds.Test
         private void ConnectGDS(bool admin)
         {
             _gdsClient.GDSClient.AdminCredentials = new UserIdentity(admin?"appadmin":"appuser", "demo");
-            _gdsClient.GDSClient.Connect(_gdsClient.GDSClient.EndpointUrl);
+            _gdsClient.GDSClient.Connect();
         }
 
         private void DisconnectGDS()
