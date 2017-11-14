@@ -49,17 +49,18 @@ namespace NUnit.Opc.Ua.Gds.Test
         [OneTimeSetUp]
         protected async Task OneTimeSetUp()
         {
+            const int basePort = 58820;
             _serverCapabilities = new ServerCapabilities();
             _randomSource = new RandomSource(randomStart);
             _dataGenerator = new DataGenerator(_randomSource);
             _server = new GlobalDiscoveryTestServer(true);
-            await _server.StartServer(false);
+            await _server.StartServer(false, basePort);
 
             // load clients
             _gdsClient = new GlobalDiscoveryTestClient(true);
-            await _gdsClient.LoadClientConfiguration();
+            await _gdsClient.LoadClientConfiguration(basePort);
             _pushClient = new ServerConfigurationPushTestClient(true);
-            await _pushClient.LoadClientConfiguration();
+            await _pushClient.LoadClientConfiguration(basePort);
 
             // connect once
             await _gdsClient.GDSClient.Connect(_gdsClient.GDSClient.EndpointUrl);

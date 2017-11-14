@@ -47,7 +47,7 @@ namespace Opc.Ua.Gds.Test
             autoAccept = _autoAccept;
         }
 
-        public async Task StartServer(bool clean)
+        public async Task StartServer(bool clean, int basePort = -1)
         {
             ApplicationInstance.MessageDlg = new ApplicationMessageDlg();
             ApplicationInstance application = new ApplicationInstance
@@ -59,10 +59,10 @@ namespace Opc.Ua.Gds.Test
 
             // load the application configuration.
             ApplicationConfiguration config = await application.LoadApplicationConfiguration(false);
+            TestUtils.PatchBaseAddressesPorts(config, basePort);
 
             if (clean)
             {
-                //ApplicationInstance.DeleteApplicationInstanceCertificate(config).Wait();
                 string thumbprint = config.SecurityConfiguration.ApplicationCertificate.Thumbprint;
                 if (thumbprint != null)
                 {

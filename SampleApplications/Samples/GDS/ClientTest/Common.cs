@@ -102,6 +102,34 @@ namespace Opc.Ua.Gds.Test
             }
         }
 
-}
+        const int MaxPort = 64000;
+        const int MinPort = Opc.Ua.Utils.UaTcpDefaultPort;
+        public static void PatchBaseAddressesPorts(ApplicationConfiguration config, int basePort)
+        {
+            if (basePort >= MinPort && basePort <= MaxPort)
+            {
+                StringCollection newBaseAddresses = new StringCollection();
+                foreach (var baseAddress in config.ServerConfiguration.BaseAddresses)
+                {
+                    UriBuilder baseAddressUri = new UriBuilder(baseAddress);
+                    baseAddressUri.Port = basePort++;
+                    newBaseAddresses.Add(baseAddressUri.Uri.AbsoluteUri);
+                }
+                config.ServerConfiguration.BaseAddresses = newBaseAddresses;
+            }
+        }
+
+        public static string PatchEndpointUrlPort(string url, int port)
+        {
+            if (port >= MinPort && port <= MaxPort)
+            {
+                UriBuilder newUrl = new UriBuilder(url);
+                newUrl.Port = port;
+                return newUrl.Uri.AbsoluteUri;
+            }
+            return url;
+        }
+
+    }
 
 }
