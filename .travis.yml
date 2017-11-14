@@ -4,7 +4,7 @@ dotnet: 2.0.0
 os:
   - linux
   - osx
-sudo: required
+sudo: false
 dist: trusty
 osx_image: xcode9.1
 
@@ -43,8 +43,8 @@ after_script:
   - echo "========== build done ============"
 
 after_failure:
-  - cat /home/travis/.local/share/OPC/Logs/GlobalDiscoveryTestClient.log
-  - cat /home/travis/.local/share/OPC/Logs/ServerConfigurationPushTestClient.log
-  - cat /home/travis/.local/share/OPC/Logs/GlobalDiscoveryTestServer.log
+  - cat $($HOME)/.local/share/OPC/Logs/GlobalDiscoveryTestClient.log
+  - cat $($HOME)/home/travis/.local/share/OPC/Logs/ServerConfigurationPushTestClient.log
+  - cat $($HOME)/home/travis/.local/share/OPC/Logs/GlobalDiscoveryTestServer.log
 
 
