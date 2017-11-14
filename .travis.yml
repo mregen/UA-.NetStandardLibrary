@@ -42,4 +42,9 @@ script:
 after_script:
   - echo "========== build done ============"
 
+after_failure:
+  - cat /home/travis/.local/share/OPC/Logs/GlobalDiscoveryTestClient.log
+  - cat /home/travis/.local/share/OPC/Logs/ServerConfigurationPushTestClient.log
+  - cat /home/travis/.local/share/OPC/Logs/GlobalDiscoveryTestServer.log
+
 

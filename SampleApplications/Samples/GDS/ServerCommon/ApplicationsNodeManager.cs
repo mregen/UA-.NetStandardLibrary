@@ -477,8 +477,6 @@ namespace Opc.Ua.Gds.Server
                     catch (Exception e)
                     {
                         Utils.Trace(e, "Unexpected error initializing certificateGroup: " + certificateGroupConfiguration.Id + "\r\n" + e.StackTrace);
-                        // TODO macOS remove
-                        Console.WriteLine("Unexpected error initializing certificateGroup: " + certificateGroupConfiguration.Id + "\r\n" + e.StackTrace);
                     }
                 }
             }
@@ -849,8 +847,6 @@ namespace Opc.Ua.Gds.Server
             CertificateGroup certificateGroup = null;
             if (!m_certificateGroups.TryGetValue(certificateGroupId, out certificateGroup))
             {
-                // TODO macOS: remove debug output
-                Console.WriteLine("certificateGroup: {0} count: {1}", certificateGroupId.ToString(), m_certificateGroups.Count);
                 return new ServiceResult(StatusCodes.BadInvalidArgument, "The certificateGroup is not supported.");
             }
 
