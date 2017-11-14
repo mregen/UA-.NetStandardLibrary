@@ -96,6 +96,7 @@ namespace NUnit.Opc.Ua.Gds.Test
             _dataGenerator = new DataGenerator(_randomSource);
             _server = new GlobalDiscoveryTestServer(true);
             await _server.StartServer(true);
+            await Task.Delay(1000);
 
             // load client
             _gdsClient = new GlobalDiscoveryTestClient(true);
@@ -852,7 +853,6 @@ namespace NUnit.Opc.Ua.Gds.Test
         }
 
         #endregion
-
         #region Private Fields
         private const int goodApplicationsTestCount = 10;
         private const int invalidApplicationsTestCount = 10;

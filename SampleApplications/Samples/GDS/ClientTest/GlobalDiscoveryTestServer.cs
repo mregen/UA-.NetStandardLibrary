@@ -114,6 +114,13 @@ namespace Opc.Ua.Gds.Test
             // start the server.
             m_server = new GlobalDiscoveryServer(JsonApplicationsDatabase.Load(databaseStorePath));
             await application.Start(m_server);
+
+            ServerState serverState = Server.GetStatus().State;
+            if ((serverState = Server.GetStatus().State) != ServerState.Running)
+            {
+                throw new ServiceResultException("Server failed to start");
+            }
+
         }
 
         public void StopServer()
@@ -124,7 +131,6 @@ namespace Opc.Ua.Gds.Test
 
                 using (GlobalDiscoveryServer server = m_server)
                 {
-                    // Stop status thread
                     m_server = null;
                     // Stop server and dispose
                     server.Stop();

@@ -55,6 +55,7 @@ namespace NUnit.Opc.Ua.Gds.Test
             _dataGenerator = new DataGenerator(_randomSource);
             _server = new GlobalDiscoveryTestServer(true);
             await _server.StartServer(false, basePort);
+            await Task.Delay(1000);
 
             // load clients
             _gdsClient = new GlobalDiscoveryTestClient(true);
