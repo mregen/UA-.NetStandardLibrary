@@ -37,7 +37,7 @@ environment:
   - solution_name: "UA-NetStandard.sln"
     test_name: "none"
   - solution_name: "UA Global Discovery Server.sln"
-    test_name: "SampleApplications/Samples/GDS/ClientTest/bin/Debug/netcoreapp2.0/GlobalDiscoveryClientTest.dll"
+    test_name: "SampleApplications/Samples/GDS/ClientTest/GlobalDiscoveryClientTest.csproj"
   - solution_name: "UA Universal Windows.sln"
     test_name: "none"
   - solution_name: "SampleApplications/Workshop/Aggregation/UA Aggregation.sln"
@@ -70,8 +70,8 @@ test:
 test_script:
   - if NOT "%test_name%" == "none" ( dotnet test "%test_name%" )
   - if NOT "%test_name%" == "none" ( nunit3-console "%test_name%" --result=./myresults.xml;format=AppVeyor )
-  - $wc = New-Object 'System.Net.WebClient'
-  - $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit3/$($env:APPVEYOR_JOB_ID)", (Resolve-Path ./myresults.xml))
+#  - $wc = New-Object 'System.Net.WebClient'
+#  - $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit3/$($env:APPVEYOR_JOB_ID)", (Resolve-Path ./myresults.xml))
 
 # build cache to preserve files/folders between builds
 cache:
