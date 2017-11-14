@@ -47,9 +47,9 @@ after_failure:
   - cd .local/share/OPC
   - ls -R
   - cd Logs
-  - cat GlobalDiscoveryTestClient.log
-  - cat ServerConfigurationPushTestClient.log
-  - cat GlobalDiscoveryTestServer.log
+  - cat GlobalDiscoveryTestClient.log.txt
+  - cat ServerConfigurationPushTestClient.log.txt
+  - cat GlobalDiscoveryTestServer.log.txt
   - cd $TRAVIS_BUILD_DIR
 
 
