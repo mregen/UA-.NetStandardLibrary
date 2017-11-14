@@ -43,8 +43,13 @@ after_script:
   - echo "========== build done ============"
 
 after_failure:
-  - cat $($HOME)/.local/share/OPC/Logs/GlobalDiscoveryTestClient.log
-  - cat $($HOME)/home/travis/.local/share/OPC/Logs/ServerConfigurationPushTestClient.log
-  - cat $($HOME)/home/travis/.local/share/OPC/Logs/GlobalDiscoveryTestServer.log
+  - cd $HOME
+  - cd .local/share/OPC
+  - ls -R
+  - cd Logs
+  - cat GlobalDiscoveryTestClient.log
+  - cat ServerConfigurationPushTestClient.log
+  - cat GlobalDiscoveryTestServer.log
+  - cd $TRAVIS_BUILD_DIR
 
 
