@@ -100,7 +100,6 @@ namespace NUnit.Opc.Ua.Gds.Test
             // load client
             _gdsClient = new GlobalDiscoveryTestClient(true);
             await _gdsClient.LoadClientConfiguration();
-
             await _gdsClient.GDSClient.Connect(_gdsClient.GDSClient.EndpointUrl);
 
             // good applications test set

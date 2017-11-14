@@ -34,13 +34,12 @@ using Opc.Ua.Gds.Test;
 using Opc.Ua.Test;
 using System;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace NUnit.Opc.Ua.Gds.Test
 {
 
-    [TestFixture]
+    [TestFixture, Category("GDS")]
     public class PushTest
     {
         #region Test Setup
