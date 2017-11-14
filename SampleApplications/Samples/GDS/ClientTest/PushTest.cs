@@ -34,6 +34,7 @@ using Opc.Ua.Gds.Test;
 using Opc.Ua.Test;
 using System;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NUnit.Opc.Ua.Gds.Test
@@ -49,19 +50,24 @@ namespace NUnit.Opc.Ua.Gds.Test
         [OneTimeSetUp]
         protected async Task OneTimeSetUp()
         {
-            const int basePort = 58820;
+#if DEBUG
+            // make sure all servers started in travis use a different port, or test will fail
+            const int testPort = 58820;
+#else
+            const int testPort = 58830;
+#endif
             _serverCapabilities = new ServerCapabilities();
             _randomSource = new RandomSource(randomStart);
             _dataGenerator = new DataGenerator(_randomSource);
             _server = new GlobalDiscoveryTestServer(true);
-            await _server.StartServer(false, basePort);
+            await _server.StartServer(false, testPort);
             await Task.Delay(1000);
 
             // load clients
             _gdsClient = new GlobalDiscoveryTestClient(true);
-            await _gdsClient.LoadClientConfiguration(basePort);
+            await _gdsClient.LoadClientConfiguration(testPort);
             _pushClient = new ServerConfigurationPushTestClient(true);
-            await _pushClient.LoadClientConfiguration(basePort);
+            await _pushClient.LoadClientConfiguration(testPort);
 
             // connect once
             await _gdsClient.GDSClient.Connect(_gdsClient.GDSClient.EndpointUrl);
@@ -75,8 +81,12 @@ namespace NUnit.Opc.Ua.Gds.Test
         protected void OneTimeTearDown()
         {
             _gdsClient.DisconnectClient();
+            _gdsClient = null;
             _pushClient.DisconnectClient();
+            _pushClient = null;
             _server.StopServer();
+            _server = null;
+            Thread.Sleep(1000);
         }
 
         [TearDown]
@@ -86,8 +96,8 @@ namespace NUnit.Opc.Ua.Gds.Test
             DisconnectPushClient();
         }
 
-        #endregion
-        #region Test Methods
+#endregion
+#region Test Methods
         [Test, Order(100)]
         public void GetSupportedKeyFormats()
         {
@@ -157,6 +167,7 @@ namespace NUnit.Opc.Ua.Gds.Test
         public void CreateCertificateRequest()
         {
             ConnectPushClient(true);
+            ConnectGDSClient(true);
             NodeId invalidCertGroup = new NodeId(333);
             NodeId invalidCertType = new NodeId(Guid.NewGuid());
             Assert.That(() => { _pushClient.PushClient.CreateCertificateRequest(invalidCertGroup, null, null, false, null); }, Throws.Exception);
@@ -164,6 +175,7 @@ namespace NUnit.Opc.Ua.Gds.Test
             Assert.That(() => { _pushClient.PushClient.CreateCertificateRequest(invalidCertGroup, invalidCertType, null, false, null); }, Throws.Exception);
             byte[] csr = _pushClient.PushClient.CreateCertificateRequest(null, null, null, false, null);
             Assert.IsNotNull(csr);
+
         }
 
         [Test, Order(500)]
@@ -241,8 +253,8 @@ namespace NUnit.Opc.Ua.Gds.Test
             Assert.That(() => { _pushClient.PushClient.CreateCertificateRequest(null, null, null, false, null); }, Throws.Exception);
             Assert.That(() => { _pushClient.PushClient.ReadTrustList(); }, Throws.Exception);
         }
-        #endregion
-        #region Private Methods
+#endregion
+#region Private Methods
         private void ConnectPushClient(bool sysAdmin)
         {
             _pushClient.PushClient.AdminCredentials = new UserIdentity(sysAdmin ? "sysadmin" : "appuser", "demo");
@@ -274,9 +286,9 @@ namespace NUnit.Opc.Ua.Gds.Test
             }
             return result;
         }
-        #endregion
+#endregion
 
-        #region Private Fields
+#region Private Fields
         private const int randomStart = 1;
         private RandomSource _randomSource;
         private DataGenerator _dataGenerator;
@@ -284,6 +296,6 @@ namespace NUnit.Opc.Ua.Gds.Test
         private GlobalDiscoveryTestClient _gdsClient;
         private ServerConfigurationPushTestClient _pushClient;
         private ServerCapabilities _serverCapabilities;
-        #endregion
+#endregion
     }
 }

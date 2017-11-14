@@ -91,7 +91,11 @@ namespace NUnit.Opc.Ua.Gds.Test
         [OneTimeSetUp]
         protected void OneTimeSetUp()
         {
-            int testPort = 60000;
+#if DEBUG
+            const int testPort = 60000;
+#else
+            const int testPort = 60010;
+#endif
             _serverCapabilities = new ServerCapabilities();
             _randomSource = new RandomSource(randomStart);
             _dataGenerator = new DataGenerator(_randomSource);
