@@ -89,19 +89,18 @@ namespace NUnit.Opc.Ua.Gds.Test
         /// Set up a Global Discovery Server and Client instance and connect the session
         /// </summary>
         [OneTimeSetUp]
-        protected async Task OneTimeSetUp()
+        protected void OneTimeSetUp()
         {
+            int testPort = 60000;
             _serverCapabilities = new ServerCapabilities();
             _randomSource = new RandomSource(randomStart);
             _dataGenerator = new DataGenerator(_randomSource);
             _server = new GlobalDiscoveryTestServer(true);
-            await _server.StartServer(true);
-            await Task.Delay(1000);
+            _server.StartServer(true, testPort).Wait();
 
             // load client
             _gdsClient = new GlobalDiscoveryTestClient(true);
-            await _gdsClient.LoadClientConfiguration();
-            await _gdsClient.GDSClient.Connect(_gdsClient.GDSClient.EndpointUrl);
+            _gdsClient.LoadClientConfiguration(testPort).Wait();
 
             // good applications test set
             _goodApplicationTestSet = ApplicationTestSet(goodApplicationsTestCount, false);
@@ -118,6 +117,7 @@ namespace NUnit.Opc.Ua.Gds.Test
             _gdsClient = null;
             _server.StopServer();
             _server = null;
+            Thread.Sleep(1000);
         }
 
         [TearDown]
@@ -844,7 +844,7 @@ namespace NUnit.Opc.Ua.Gds.Test
         private void ConnectGDS(bool admin)
         {
             _gdsClient.GDSClient.AdminCredentials = new UserIdentity(admin?"appadmin":"appuser", "demo");
-            _gdsClient.GDSClient.Connect();
+            _gdsClient.GDSClient.Connect(_gdsClient.GDSClient.EndpointUrl).Wait();
         }
 
         private void DisconnectGDS()
