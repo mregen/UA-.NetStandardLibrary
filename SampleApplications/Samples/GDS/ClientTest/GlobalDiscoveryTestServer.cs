@@ -59,7 +59,6 @@ namespace Opc.Ua.Gds.Test
 
             // load the application configuration.
             ApplicationConfiguration config = await application.LoadApplicationConfiguration(false);
-            TestUtils.PatchBaseAddressesPorts(config, basePort);
 
             if (clean)
             {
@@ -73,10 +72,14 @@ namespace Opc.Ua.Gds.Test
                 }
 
                 // always start with clean cert store
+                TestUtils.CleanupTrustList(config.SecurityConfiguration.ApplicationCertificate.OpenStore());
                 TestUtils.CleanupTrustList(config.SecurityConfiguration.TrustedIssuerCertificates.OpenStore());
                 TestUtils.CleanupTrustList(config.SecurityConfiguration.TrustedPeerCertificates.OpenStore());
                 TestUtils.CleanupTrustList(config.SecurityConfiguration.RejectedCertificateStore.OpenStore());
+                config = await application.LoadApplicationConfiguration(false);
             }
+
+            TestUtils.PatchBaseAddressesPorts(config, basePort);
 
             // check the application certificate.
             bool haveAppCertificate = await application.CheckApplicationInstanceCertificate(false, 0);
