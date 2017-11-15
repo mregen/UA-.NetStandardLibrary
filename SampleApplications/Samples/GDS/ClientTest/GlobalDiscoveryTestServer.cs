@@ -59,6 +59,24 @@ namespace Opc.Ua.Gds.Test
 
             // load the application configuration.
             ApplicationConfiguration config = await application.LoadApplicationConfiguration(false);
+            TestUtils.PatchBaseAddressesPorts(config, basePort);
+
+            if (clean)
+            {
+                string thumbprint = config.SecurityConfiguration.ApplicationCertificate.Thumbprint;
+                if (thumbprint != null)
+                {
+                    using (var store = config.SecurityConfiguration.ApplicationCertificate.OpenStore())
+                    {
+                        await store.Delete(thumbprint);
+                    }
+                }
+
+                // always start with clean cert store
+                TestUtils.CleanupTrustList(config.SecurityConfiguration.TrustedIssuerCertificates.OpenStore());
+                TestUtils.CleanupTrustList(config.SecurityConfiguration.TrustedPeerCertificates.OpenStore());
+                TestUtils.CleanupTrustList(config.SecurityConfiguration.RejectedCertificateStore.OpenStore());
+            }
 
             if (clean)
             {
