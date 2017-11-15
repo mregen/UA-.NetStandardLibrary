@@ -490,7 +490,7 @@ namespace NUnit.Opc.Ua.Gds.Test
             Thread.Sleep(500);
             _gdsClient.GDSClient.AdminCredentials = new UserIdentity("appadmin", "demo");
             _pushClient.PushClient.Connect(_pushClient.PushClient.EndpointUrl).Wait();
-#if mist
+#if TODO
             Assert.AreEqual(
                 certificate,
                 _pushClient.PushClient.Session.ConfiguredEndpoint.Description.ServerCertificate
