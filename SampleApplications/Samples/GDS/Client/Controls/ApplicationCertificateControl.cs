@@ -168,6 +168,49 @@ namespace Opc.Ua.Gds.Client
 
         private async void RequestNewButton_Click(object sender, EventArgs e)
         {
+            if (m_application.RegistrationType == RegistrationType.ServerPush)
+            {
+                RequestNewCertificatePushMode(sender, e);
+            }
+            else
+            {
+                await RequestNewCertificatePullMode(sender, e);
+            }
+        }
+
+        private void RequestNewCertificatePushMode(object sender, EventArgs e)
+        {
+            try
+            {
+                //TODO : remove parameter for Ua Ansi C server
+                byte[] nonce = new byte[0];
+                byte[] certificateRequest = m_server.CreateSigningRequest(
+                    m_server.DefaultApplicationGroup,
+                    m_server.ApplicationCertificateType,
+                    "",
+                    false,
+                    nonce);
+
+                var domainNames = m_application.GetDomainNames(m_certificate);
+                NodeId requestId = m_gds.StartSigningRequest(
+                    m_application.ApplicationId,
+                    null,
+                    null,
+                    certificateRequest);
+
+                m_application.CertificateRequestId = requestId.ToString();
+                CertificateRequestTimer.Enabled = true;
+                RequestProgressLabel.Visible = true;
+                WarningLabel.Visible = false;
+            }
+            catch (Exception ex)
+            {
+                Opc.Ua.Client.Controls.ExceptionDlg.Show(Text, ex);
+            }
+
+        }
+        private async Task RequestNewCertificatePullMode(object sender, EventArgs e)
+        {
             try
             {
                 // check if we already have a private key
@@ -407,7 +450,15 @@ namespace Opc.Ua.Gds.Client
                         var x509 = new X509Certificate2(privateKeyPFX, m_certificatePassword, X509KeyStorageFlags.Exportable);
                         privateKeyPFX = x509.Export(X509ContentType.Pfx);
                     }
-                    bool applyChanges = m_server.UpdateCertificate(null, null, certificate, (privateKeyPFX != null) ? "PFX" : null, privateKeyPFX, issuerCertificates);
+                    // todo: remove parameter for ansi c server
+                    byte[] mockPrivateKey = new byte[0];
+                    bool applyChanges = m_server.UpdateCertificate(
+                        m_server.DefaultApplicationGroup,
+                        m_server.ApplicationCertificateType,
+                        certificate,
+                        (privateKeyPFX != null) ? "PFX" : "",
+                        privateKeyPFX ?? mockPrivateKey,
+                        issuerCertificates);
 
                     if (applyChanges)
                     {
@@ -439,6 +490,7 @@ namespace Opc.Ua.Gds.Client
 
         private void ApplyChangesButton_Click(object sender, EventArgs e)
         {
+            ApplyChangesButton.Enabled = false;
             try
             {
                 m_server.ApplyChanges();
