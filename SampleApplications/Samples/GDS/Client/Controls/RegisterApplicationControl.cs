@@ -1858,6 +1858,8 @@ namespace Opc.Ua.Gds.Client
             List<string> list = new List<string>();
             list.Add("opc.tcp://192.168.200.1:48010");
             list.Add("opc.tcp://192.168.200.1:48020");
+            list.Add("opc.tcp://localhost:48020");
+            list.Add("opc.tcp://localhost:58800/GlobalDiscoveryServer");
             list.Add("opc.tcp://localhost:62541/Quickstarts/ReferenceServer");
             string uri = new SelectPushServerDialog().ShowDialog(null, m_pushClient, list);
             if (uri != null && m_pushClient.IsConnected)
