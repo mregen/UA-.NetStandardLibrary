@@ -37,7 +37,7 @@ using Opc.Ua.Gds.Server.Database;
 using Opc.Ua.Server;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Pkcs;
-
+using System.Reflection;
 
 namespace Opc.Ua.Gds.Server
 {
@@ -118,7 +118,7 @@ namespace Opc.Ua.Gds.Server
                 Utils.Trace("Database Initialized!");
             }
 
-            Server.MessageContext.Factory.AddEncodeableTypes(typeof(Opc.Ua.Gds.ObjectIds).Assembly);
+            Server.MessageContext.Factory.AddEncodeableTypes(typeof(Opc.Ua.Gds.ObjectIds).GetTypeInfo().Assembly);
         }
         #endregion
 
@@ -490,7 +490,7 @@ namespace Opc.Ua.Gds.Server
         protected override NodeStateCollection LoadPredefinedNodes(ISystemContext context)
         {
             NodeStateCollection predefinedNodes = new NodeStateCollection();
-            predefinedNodes.LoadFromBinaryResource(context, "Opc.Ua.Gds.Server.Model.Opc.Ua.Gds.PredefinedNodes.uanodes", typeof(ApplicationsNodeManager).Assembly, true);
+            predefinedNodes.LoadFromBinaryResource(context, "Opc.Ua.Gds.Server.Model.Opc.Ua.Gds.PredefinedNodes.uanodes", typeof(ApplicationsNodeManager).GetTypeInfo().Assembly, true);
             return predefinedNodes;
         }
 

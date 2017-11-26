@@ -34,6 +34,7 @@ using Opc.Ua.Client;
 using Opc.Ua.Configuration;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using System.Reflection;
 
 namespace Opc.Ua.Gds.Client
 {
@@ -258,7 +259,7 @@ namespace Opc.Ua.Gds.Client
 
             if (m_session.Factory.GetSystemType(Opc.Ua.DataTypeIds.TrustListDataType) == null)
             {
-                m_session.Factory.AddEncodeableTypes(typeof(Opc.Ua.DataTypeIds).Assembly);
+                m_session.Factory.AddEncodeableTypes(typeof(Opc.Ua.DataTypeIds).GetTypeInfo().Assembly);
             }
 
             RaiseConnectionStatusChangedEvent();
