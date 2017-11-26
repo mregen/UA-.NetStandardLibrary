@@ -262,40 +262,12 @@ namespace Opc.Ua.Gds.Client
                 m_session.Factory.AddEncodeableTypes(typeof(Opc.Ua.DataTypeIds).GetTypeInfo().Assembly);
             }
 
+            m_session.KeepAlive += Session_KeepAlive;
+            m_session.KeepAlive += KeepAlive;
+
             RaiseConnectionStatusChangedEvent();
 
             m_session.ReturnDiagnostics = DiagnosticsMasks.SymbolicIdAndText;
-            m_session.KeepAlive += Session_KeepAlive;
-
-            Subscription subscription = new Subscription
-            {
-                Handle = this,
-                DisplayName = null,
-                PublishingInterval = 1000,
-                KeepAliveCount = 10,
-                LifetimeCount = 100,
-                MaxNotificationsPerPublish = 1000,
-                PublishingEnabled = true,
-                TimestampsToReturn = TimestampsToReturn.Neither
-            };
-
-            m_session.AddSubscription(subscription);
-            subscription.Create();
-
-            MonitoredItem monitoredItem = new MonitoredItem
-            {
-                StartNodeId = Opc.Ua.VariableIds.Server_ServerStatus,
-                AttributeId = Attributes.Value,
-                SamplingInterval = 1000,
-                QueueSize = 0,
-                DiscardOldest = true,
-                Handle = typeof(ServerStatusDataType)
-            };
-
-            monitoredItem.Notification += ServerStatus_Notification;
-
-            subscription.AddItem(monitoredItem);
-            subscription.ApplyChanges();
 
             // init some helpers
             DefaultApplicationGroup = ExpandedNodeId.ToNodeId(Opc.Ua.ObjectIds.ServerConfiguration_CertificateGroups_DefaultApplicationGroup, m_session.NamespaceUris);
@@ -477,6 +449,12 @@ namespace Opc.Ua.Gds.Client
             {
                 MemoryStream strm = new MemoryStream();
                 BinaryEncoder encoder = new BinaryEncoder(strm, m_session.MessageContext);
+                // TODO hack hack for Ua server, which can't handle zero length lists
+                trustList.SpecifiedLists = (uint)(
+                    (trustList.TrustedCrls.Count > 0 ? TrustListMasks.TrustedCrls : 0) |
+                    (trustList.TrustedCertificates.Count > 0 ? TrustListMasks.TrustedCertificates : 0) |
+                    (trustList.IssuerCrls.Count > 0 ? TrustListMasks.IssuerCrls : 0) |
+                    (trustList.IssuerCertificates.Count > 0 ? TrustListMasks.IssuerCertificates : 0));
                 encoder.WriteEncodeable(null, trustList, null);
                 strm.Position = 0;
 
@@ -518,7 +496,7 @@ namespace Opc.Ua.Gds.Client
 
                     return (bool)outputArguments[0];
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     if (IsConnected)
                     {
@@ -528,7 +506,7 @@ namespace Opc.Ua.Gds.Client
                             fileHandle);
                     }
 
-                    throw;
+                    throw e;
                 }
             }
             finally
@@ -651,7 +629,7 @@ namespace Opc.Ua.Gds.Client
                 X509Certificate2Collection collection = new X509Certificate2Collection();
                 foreach (var rawCertificate in rawCertificates)
                 {
-                    collection.Add(new X509Certificate(rawCertificate));
+                    collection.Add(new X509Certificate2(rawCertificate));
                 }
                 return collection;
             }
