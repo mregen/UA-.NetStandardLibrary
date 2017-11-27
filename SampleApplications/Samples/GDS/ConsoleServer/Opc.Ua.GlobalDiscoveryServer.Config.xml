@@ -138,7 +138,7 @@
     <ua:XmlElement>
       <GlobalDiscoveryServerConfiguration xmlns="http://opcfoundation.org/UA/GDS/Configuration.xsd">
         <AuthoritiesStorePath>%LocalApplicationData%/OPC Foundation/GDS/PKI/authorities</AuthoritiesStorePath>
-        <ApplicationCertificatesStorePath>%CommonApplicationData%/OPC Foundation/GDS/PKI/applications</ApplicationCertificatesStorePath>
+        <ApplicationCertificatesStorePath>%LocalApplicationData%/OPC Foundation/GDS/PKI/applications</ApplicationCertificatesStorePath>
         <DefaultSubjectNameContext>O=Microsoft Corp.</DefaultSubjectNameContext>
         <CertificateGroups>
           <CertificateGroupConfiguration>
@@ -171,7 +171,7 @@
     <!-- Show Only Security, Service Calls, Errors and Trace -->
     <!-- <TraceMasks>523</TraceMasks> -->
     <!-- Show Only Security, ServiceResultExceptions, Errors and Trace -->
-    <TraceMasks>519</TraceMasks>
+    <TraceMasks>517</TraceMasks>
   </TraceConfiguration>
   
 </ApplicationConfiguration>
