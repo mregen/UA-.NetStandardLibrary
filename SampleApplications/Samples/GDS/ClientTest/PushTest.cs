@@ -259,6 +259,7 @@ namespace NUnit.Opc.Ua.Gds.Test
             Assert.That(() => { _pushClient.PushClient.UpdateCertificate(null, null, null, null, null, new byte[][] { serverCert.RawData, invalidCert.RawData }); }, Throws.Exception);
             Assert.That(() => { _pushClient.PushClient.UpdateCertificate(null, null, invalidRawCert, null, null, new byte[][] { serverCert.RawData, invalidCert.RawData }); }, Throws.Exception);
             Assert.That(() => { _pushClient.PushClient.UpdateCertificate(null, null, serverCert.RawData, null, null, new byte[][] { serverCert.RawData, invalidRawCert }); }, Throws.Exception);
+#if ANSIC
             // positive test, update server with its own cert...
             byte[] mockPrivateKey = new byte[0];
             byte[][] issuerCerts = new byte[0][];
@@ -269,6 +270,15 @@ namespace NUnit.Opc.Ua.Gds.Test
                 "",
                 mockPrivateKey,
                 issuerCerts);
+#else
+            var success = _pushClient.PushClient.UpdateCertificate(
+                null,
+                null,
+                serverCert.RawData,
+                null,
+                null,
+                null);
+#endif
             if (success)
             {
                 _pushClient.PushClient.ApplyChanges();
@@ -281,6 +291,7 @@ namespace NUnit.Opc.Ua.Gds.Test
         {
             ConnectPushClient(true);
             ConnectGDSClient(true);
+#if ANSIC
             byte[] nonce = new byte[0];
             byte[] csr = _pushClient.PushClient.CreateSigningRequest(
                 _pushClient.PushClient.DefaultApplicationGroup,
@@ -288,6 +299,14 @@ namespace NUnit.Opc.Ua.Gds.Test
                 "",
                 false,
                 nonce);
+#else
+            byte[] csr = _pushClient.PushClient.CreateSigningRequest(
+                null,
+                null,
+                null,
+                false,
+                null);
+#endif
             Assert.IsNotNull(csr);
             NodeId requestId = _gdsClient.GDSClient.StartSigningRequest(
                 _applicationRecord.ApplicationId,
@@ -312,7 +331,7 @@ namespace NUnit.Opc.Ua.Gds.Test
             Assert.NotNull(issuerCertificates);
             Assert.IsNull(privateKey);
             DisconnectGDSClient();
-
+#if ANSIC
             byte[] mockPrivateKey = new byte[0];
             var success = _pushClient.PushClient.UpdateCertificate(
                 _pushClient.PushClient.DefaultApplicationGroup,
@@ -321,6 +340,15 @@ namespace NUnit.Opc.Ua.Gds.Test
                 "",
                 mockPrivateKey, 
                 issuerCertificates);
+#else
+            var success = _pushClient.PushClient.UpdateCertificate(
+                null,
+                null,
+                certificate,
+                null,
+                null,
+                issuerCertificates);
+#endif
             if (success)
             {
                 _pushClient.PushClient.ApplyChanges();
@@ -482,8 +510,8 @@ namespace NUnit.Opc.Ua.Gds.Test
             Assert.That(() => { _pushClient.PushClient.CreateSigningRequest(null, null, null, false, null); }, Throws.Exception);
             Assert.That(() => { _pushClient.PushClient.ReadTrustList(); }, Throws.Exception);
         }
-        #endregion
-        #region Private Methods
+#endregion
+#region Private Methods
         private void ConnectPushClient(bool sysAdmin)
         {
             _pushClient.PushClient.AdminCredentials = sysAdmin ? _pushClient.SysAdminUser : _pushClient.AppUser;
@@ -715,9 +743,9 @@ namespace NUnit.Opc.Ua.Gds.Test
             return result;
         }
 
-        #endregion
+#endregion
 
-        #region Private Fields
+#region Private Fields
         private const int randomStart = 1;
         private RandomSource _randomSource;
         private DataGenerator _dataGenerator;
@@ -728,6 +756,6 @@ namespace NUnit.Opc.Ua.Gds.Test
         private ApplicationRecordDataType _applicationRecord;
         private X509Certificate2 _selfSignedServerCert;
         private string[] _domainNames;
-        #endregion
+#endregion
     }
 }

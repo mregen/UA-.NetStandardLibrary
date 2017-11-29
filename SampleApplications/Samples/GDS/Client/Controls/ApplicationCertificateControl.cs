@@ -182,6 +182,7 @@ namespace Opc.Ua.Gds.Client
         {
             try
             {
+#if ANSIC
                 //TODO : remove parameter for Ua Ansi C server
                 byte[] nonce = new byte[0];
                 byte[] certificateRequest = m_server.CreateSigningRequest(
@@ -190,7 +191,14 @@ namespace Opc.Ua.Gds.Client
                     "",
                     false,
                     nonce);
-
+#else
+                byte[] certificateRequest = m_server.CreateSigningRequest(
+                    null,
+                    null,
+                    null,
+                    false,
+                    null);
+#endif
                 var domainNames = m_application.GetDomainNames(m_certificate);
                 NodeId requestId = m_gds.StartSigningRequest(
                     m_application.ApplicationId,
@@ -450,6 +458,7 @@ namespace Opc.Ua.Gds.Client
                         var x509 = new X509Certificate2(privateKeyPFX, m_certificatePassword, X509KeyStorageFlags.Exportable);
                         privateKeyPFX = x509.Export(X509ContentType.Pfx);
                     }
+#if ANSIC
                     // todo: remove parameter for ansi c server
                     byte[] mockPrivateKey = new byte[0];
                     bool applyChanges = m_server.UpdateCertificate(
@@ -459,7 +468,15 @@ namespace Opc.Ua.Gds.Client
                         (privateKeyPFX != null) ? "PFX" : "",
                         privateKeyPFX ?? mockPrivateKey,
                         issuerCertificates);
-
+#else                    // todo: remove parameter for ansi c server
+                    bool applyChanges = m_server.UpdateCertificate(
+                        null,
+                        null,
+                        certificate,
+                        (privateKeyPFX != null) ? "PFX" : null,
+                        privateKeyPFX,
+                        issuerCertificates);
+#endif
                     if (applyChanges)
                     {
                         MessageBox.Show(
