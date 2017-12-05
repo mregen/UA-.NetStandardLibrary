@@ -57,7 +57,8 @@ namespace Opc.Ua.Gds.Client
         public NodeId DefaultApplicationGroup { get; private set; }
         public NodeId DefaultHttpsGroup { get; private set; }
         public NodeId DefaultUserTokenGroup { get; private set; }
-        public NodeId ApplicationCertificateType { get => Opc.Ua.ObjectTypeIds.ApplicationCertificateType; }
+        // TODO: currently only sha256 cert is supported
+        public NodeId ApplicationCertificateType { get => Opc.Ua.ObjectTypeIds.RsaSha256ApplicationCertificateType; }
 
         /// <summary>
         /// Gets the application instance.
@@ -448,14 +449,6 @@ namespace Opc.Ua.Gds.Client
             {
                 MemoryStream strm = new MemoryStream();
                 BinaryEncoder encoder = new BinaryEncoder(strm, m_session.MessageContext);
-#ifdef ANSIC
-                // TODO hack hack for Ua server, which can't handle zero length lists
-                trustList.SpecifiedLists = (uint)(
-                    (trustList.TrustedCrls.Count > 0 ? TrustListMasks.TrustedCrls : 0) |
-                    (trustList.TrustedCertificates.Count > 0 ? TrustListMasks.TrustedCertificates : 0) |
-                    (trustList.IssuerCrls.Count > 0 ? TrustListMasks.IssuerCrls : 0) |
-                    (trustList.IssuerCertificates.Count > 0 ? TrustListMasks.IssuerCertificates : 0));
-#endif
                 encoder.WriteEncodeable(null, trustList, null);
                 strm.Position = 0;
 
@@ -517,6 +510,85 @@ namespace Opc.Ua.Gds.Client
         }
 
         /// <summary>
+        /// Add certificate.
+        /// </summary>
+        public void AddCertificate(X509Certificate2 certificate, bool isTrustedCertificate)
+        {
+            if (!IsConnected)
+            {
+                Connect();
+            }
+
+            IUserIdentity oldUser = ElevatePermissions();
+            try
+            {
+                m_session.Call(
+                    ExpandedNodeId.ToNodeId(Opc.Ua.ObjectIds.ServerConfiguration_CertificateGroups_DefaultApplicationGroup_TrustList, m_session.NamespaceUris),
+                    ExpandedNodeId.ToNodeId(Opc.Ua.MethodIds.ServerConfiguration_CertificateGroups_DefaultApplicationGroup_TrustList_AddCertificate, m_session.NamespaceUris),
+                    certificate.RawData,
+                    isTrustedCertificate
+                    );
+            }
+            finally
+            {
+                RevertPermissions(oldUser);
+            }
+        }
+
+        /// <summary>
+        /// Add certificate.
+        /// </summary>
+        public void AddCrl(X509CRL crl, bool isTrustedCertificate)
+        {
+            if (!IsConnected)
+            {
+                Connect();
+            }
+
+            IUserIdentity oldUser = ElevatePermissions();
+            try
+            {
+                m_session.Call(
+                    ExpandedNodeId.ToNodeId(Opc.Ua.ObjectIds.ServerConfiguration_CertificateGroups_DefaultApplicationGroup_TrustList, m_session.NamespaceUris),
+                    ExpandedNodeId.ToNodeId(Opc.Ua.MethodIds.ServerConfiguration_CertificateGroups_DefaultApplicationGroup_TrustList_AddCertificate, m_session.NamespaceUris),
+                    crl.RawData,
+                    isTrustedCertificate
+                    );
+            }
+            finally
+            {
+                RevertPermissions(oldUser);
+            }
+        }
+
+
+        /// <summary>
+        /// Remove certificate.
+        /// </summary>
+        public void RemoveCertificate(string thumbprint, bool isTrustedCertificate)
+        {
+            if (!IsConnected)
+            {
+                Connect();
+            }
+
+            IUserIdentity oldUser = ElevatePermissions();
+            try
+            {
+                m_session.Call(
+                    ExpandedNodeId.ToNodeId(Opc.Ua.ObjectIds.ServerConfiguration_CertificateGroups_DefaultApplicationGroup_TrustList, m_session.NamespaceUris),
+                    ExpandedNodeId.ToNodeId(Opc.Ua.MethodIds.ServerConfiguration_CertificateGroups_DefaultApplicationGroup_TrustList_RemoveCertificate, m_session.NamespaceUris),
+                    thumbprint,
+                    isTrustedCertificate
+                    );
+            }
+            finally
+            {
+                RevertPermissions(oldUser);
+            }
+        }
+
+        /// <summary>
         /// Creates the CSR.
         /// </summary>
         /// <param name="certificateGroupId">The certificate group identifier.</param>
@@ -526,10 +598,10 @@ namespace Opc.Ua.Gds.Client
         /// <param name="nonce">The nonce.</param>
         /// <returns></returns>
         public byte[] CreateSigningRequest(
-            NodeId certificateGroupId, 
-            NodeId certificateTypeId, 
-            string subjectName, 
-            bool regeneratePrivateKey, 
+            NodeId certificateGroupId,
+            NodeId certificateTypeId,
+            string subjectName,
+            bool regeneratePrivateKey,
             byte[] nonce)
         {
             if (!IsConnected)
@@ -568,11 +640,11 @@ namespace Opc.Ua.Gds.Client
         /// </summary>
         /// <param name="certificate">The certificate.</param>
         public bool UpdateCertificate(
-            NodeId certificateGroupId, 
-            NodeId certificateTypeId, 
-            byte[] certificate, 
-            string privateKeyFormat, 
-            byte[] privateKey, 
+            NodeId certificateGroupId,
+            NodeId certificateTypeId,
+            byte[] certificate,
+            string privateKeyFormat,
+            byte[] privateKey,
             byte[][] issuerCertificates)
         {
             if (!IsConnected)
@@ -657,9 +729,9 @@ namespace Opc.Ua.Gds.Client
                 ExpandedNodeId.ToNodeId(Opc.Ua.ObjectIds.ServerConfiguration, m_session.NamespaceUris),
                 ExpandedNodeId.ToNodeId(Opc.Ua.MethodIds.ServerConfiguration_ApplyChanges, m_session.NamespaceUris));
         }
-#endregion
+        #endregion
 
-#region Private Methods
+        #region Private Methods
         private IUserIdentity ElevatePermissions()
         {
             IUserIdentity oldUser = m_session.Identity;
@@ -763,15 +835,15 @@ namespace Opc.Ua.Gds.Client
                 }
             }
         }
-#endregion  
+        #endregion
 
-#region Private Fields
+        #region Private Fields
         private ApplicationInstance m_application;
         private ConfiguredEndpoint m_endpoint;
         private string m_endpointUrl;
         private string[] m_preferredLocales;
         private Session m_session;
         private IUserIdentity m_adminCredentials;
-#endregion
+        #endregion
     }
 }
