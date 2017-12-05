@@ -319,18 +319,7 @@ namespace NUnit.Opc.Ua.Gds.Test
             Assert.That(() => { _pushClient.PushClient.UpdateCertificate(null, null, null, null, null, new byte[][] { serverCert.RawData, invalidCert.RawData }); }, Throws.Exception);
             Assert.That(() => { _pushClient.PushClient.UpdateCertificate(null, null, invalidRawCert, null, null, new byte[][] { serverCert.RawData, invalidCert.RawData }); }, Throws.Exception);
             Assert.That(() => { _pushClient.PushClient.UpdateCertificate(null, null, serverCert.RawData, null, null, new byte[][] { serverCert.RawData, invalidRawCert }); }, Throws.Exception);
-#if ANSIC
-            // positive test, update server with its own cert...
-            byte[] mockPrivateKey = new byte[0];
-            byte[][] issuerCerts = new byte[0][];
-            var success = _pushClient.PushClient.UpdateCertificate(
-                _pushClient.PushClient.DefaultApplicationGroup,
-                _pushClient.PushClient.ApplicationCertificateType,
-                serverCert.RawData,
-                "",
-                mockPrivateKey,
-                issuerCerts);
-#else
+            Assert.That(() => { _pushClient.PushClient.UpdateCertificate(null, null, serverCert.RawData, null, null, null); }, Throws.Exception);
             var success = _pushClient.PushClient.UpdateCertificate(
                 null,
                 _pushClient.PushClient.ApplicationCertificateType,
@@ -338,7 +327,6 @@ namespace NUnit.Opc.Ua.Gds.Test
                 null,
                 null,
                 null);
-#endif
             if (success)
             {
                 _pushClient.PushClient.ApplyChanges();
