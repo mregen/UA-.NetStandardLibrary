@@ -58,7 +58,8 @@ namespace Opc.Ua.Gds.Client
         public NodeId DefaultApplicationGroup { get; private set; }
         public NodeId DefaultHttpsGroup { get; private set; }
         public NodeId DefaultUserTokenGroup { get; private set; }
-        public NodeId ApplicationCertificateType { get => Opc.Ua.ObjectTypeIds.ApplicationCertificateType; }
+        // TODO: currently only sha256 cert is supported
+        public NodeId ApplicationCertificateType { get => Opc.Ua.ObjectTypeIds.RsaSha256ApplicationCertificateType; }
 
         /// <summary>
         /// Gets the application instance.
@@ -327,13 +328,13 @@ namespace Opc.Ua.Gds.Client
             try
             {
                 ReadValueIdCollection nodesToRead = new ReadValueIdCollection
-            {
-                new ReadValueId()
                 {
-                    NodeId = ExpandedNodeId.ToNodeId(Opc.Ua.VariableIds.ServerConfiguration_SupportedPrivateKeyFormats, m_session.NamespaceUris),
-                    AttributeId = Attributes.Value
-                }
-            };
+                    new ReadValueId()
+                    {
+                        NodeId = ExpandedNodeId.ToNodeId(Opc.Ua.VariableIds.ServerConfiguration_SupportedPrivateKeyFormats, m_session.NamespaceUris),
+                        AttributeId = Attributes.Value
+                    }
+                };
 
                 DataValueCollection results = null;
                 DiagnosticInfoCollection diagnosticInfos = null;
@@ -516,6 +517,85 @@ namespace Opc.Ua.Gds.Client
         }
 
         /// <summary>
+        /// Add certificate.
+        /// </summary>
+        public void AddCertificate(X509Certificate2 certificate, bool isTrustedCertificate)
+        {
+            if (!IsConnected)
+            {
+                Connect();
+            }
+
+            IUserIdentity oldUser = ElevatePermissions();
+            try
+            {
+                m_session.Call(
+                    ExpandedNodeId.ToNodeId(Opc.Ua.ObjectIds.ServerConfiguration_CertificateGroups_DefaultApplicationGroup_TrustList, m_session.NamespaceUris),
+                    ExpandedNodeId.ToNodeId(Opc.Ua.MethodIds.ServerConfiguration_CertificateGroups_DefaultApplicationGroup_TrustList_AddCertificate, m_session.NamespaceUris),
+                    certificate.RawData,
+                    isTrustedCertificate
+                    );
+            }
+            finally
+            {
+                RevertPermissions(oldUser);
+            }
+        }
+
+        /// <summary>
+        /// Add certificate.
+        /// </summary>
+        public void AddCrl(X509CRL crl, bool isTrustedCertificate)
+        {
+            if (!IsConnected)
+            {
+                Connect();
+            }
+
+            IUserIdentity oldUser = ElevatePermissions();
+            try
+            {
+                m_session.Call(
+                    ExpandedNodeId.ToNodeId(Opc.Ua.ObjectIds.ServerConfiguration_CertificateGroups_DefaultApplicationGroup_TrustList, m_session.NamespaceUris),
+                    ExpandedNodeId.ToNodeId(Opc.Ua.MethodIds.ServerConfiguration_CertificateGroups_DefaultApplicationGroup_TrustList_AddCertificate, m_session.NamespaceUris),
+                    crl.RawData,
+                    isTrustedCertificate
+                    );
+            }
+            finally
+            {
+                RevertPermissions(oldUser);
+            }
+        }
+
+
+        /// <summary>
+        /// Remove certificate.
+        /// </summary>
+        public void RemoveCertificate(string thumbprint, bool isTrustedCertificate)
+        {
+            if (!IsConnected)
+            {
+                Connect();
+            }
+
+            IUserIdentity oldUser = ElevatePermissions();
+            try
+            {
+                m_session.Call(
+                    ExpandedNodeId.ToNodeId(Opc.Ua.ObjectIds.ServerConfiguration_CertificateGroups_DefaultApplicationGroup_TrustList, m_session.NamespaceUris),
+                    ExpandedNodeId.ToNodeId(Opc.Ua.MethodIds.ServerConfiguration_CertificateGroups_DefaultApplicationGroup_TrustList_RemoveCertificate, m_session.NamespaceUris),
+                    thumbprint,
+                    isTrustedCertificate
+                    );
+            }
+            finally
+            {
+                RevertPermissions(oldUser);
+            }
+        }
+
+        /// <summary>
         /// Creates the CSR.
         /// </summary>
         /// <param name="certificateGroupId">The certificate group identifier.</param>
@@ -525,10 +605,10 @@ namespace Opc.Ua.Gds.Client
         /// <param name="nonce">The nonce.</param>
         /// <returns></returns>
         public byte[] CreateSigningRequest(
-            NodeId certificateGroupId, 
-            NodeId certificateTypeId, 
-            string subjectName, 
-            bool regeneratePrivateKey, 
+            NodeId certificateGroupId,
+            NodeId certificateTypeId,
+            string subjectName,
+            bool regeneratePrivateKey,
             byte[] nonce)
         {
             if (!IsConnected)
@@ -567,11 +647,11 @@ namespace Opc.Ua.Gds.Client
         /// </summary>
         /// <param name="certificate">The certificate.</param>
         public bool UpdateCertificate(
-            NodeId certificateGroupId, 
-            NodeId certificateTypeId, 
-            byte[] certificate, 
-            string privateKeyFormat, 
-            byte[] privateKey, 
+            NodeId certificateGroupId,
+            NodeId certificateTypeId,
+            byte[] certificate,
+            string privateKeyFormat,
+            byte[] privateKey,
             byte[][] issuerCertificates)
         {
             if (!IsConnected)
