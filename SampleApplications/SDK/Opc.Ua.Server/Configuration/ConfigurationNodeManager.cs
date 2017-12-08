@@ -393,7 +393,6 @@ namespace Opc.Ua.Server
             string password = "";
             X509Certificate2 certWithPrivateKey = certificateGroup.ApplicationCertificate.LoadPrivateKey(password).Result;
             certificateRequest = CertificateFactory.CreateSigningRequest(certWithPrivateKey, Utils.GetDomainsFromCertficate(certWithPrivateKey));
-
             return ServiceResult.Good;
         }
 
@@ -418,8 +417,9 @@ namespace Opc.Ua.Server
                         {
                             using (ICertificateStore appStore = CertificateStoreIdentifier.OpenStore(certificateGroup.ApplicationCertificate.StorePath))
                             {
-                                appStore.Delete(certificateGroup.ApplicationCertificate.Thumbprint);
-                                appStore.Add(updateCertificate.CertificateWithPrivateKey);
+                                appStore.Delete(certificateGroup.ApplicationCertificate.Thumbprint).Wait();
+                                appStore.Add(updateCertificate.CertificateWithPrivateKey).Wait();
+                                updateCertificate.CertificateWithPrivateKey = null;
                             }
                             using (ICertificateStore issuerStore = CertificateStoreIdentifier.OpenStore(certificateGroup.IssuerStorePath))
                             {

@@ -512,6 +512,7 @@ namespace NUnit.Opc.Ua.Gds.Test
                     csrCertificate = CertificateFactory.CreateCertificateWithPEMPrivateKey(new X509Certificate2(application.Certificate), application.PrivateKey, application.PrivateKeyPassword);
                 }
                 byte[] certificateRequest = CertificateFactory.CreateSigningRequest(csrCertificate, application.DomainNames);
+                csrCertificate.Dispose();
                 NodeId requestId = _gdsClient.GDSClient.StartSigningRequest(
                     application.ApplicationRecord.ApplicationId,
                     application.CertificateGroupId,
