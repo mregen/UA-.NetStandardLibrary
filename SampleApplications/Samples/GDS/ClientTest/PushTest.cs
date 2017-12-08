@@ -762,7 +762,7 @@ namespace NUnit.Opc.Ua.Gds.Test
                     }
                     foreach (var cert in updatedCerts)
                     {
-                        store.Add(cert);
+                        store.Add(cert).Wait();
                     }
                 }
             }
