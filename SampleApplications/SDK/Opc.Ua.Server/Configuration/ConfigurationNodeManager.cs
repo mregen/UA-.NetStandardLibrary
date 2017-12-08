@@ -330,7 +330,7 @@ namespace Opc.Ua.Server
             var updateCertificate = new UpdateCertificateData();
             try
             {
-                string password = "";
+                string password = String.Empty;
                 switch (privateKeyFormat)
                 {
                     case null:
@@ -390,7 +390,7 @@ namespace Opc.Ua.Server
             // TODO: implement regeneratePrivateKey
             // TODO: use nonce for generating the private key
 
-            string password = "";
+            string password = String.Empty;
             X509Certificate2 certWithPrivateKey = certificateGroup.ApplicationCertificate.LoadPrivateKey(password).Result;
             certificateRequest = CertificateFactory.CreateSigningRequest(certWithPrivateKey, Utils.GetDomainsFromCertficate(certWithPrivateKey));
             return ServiceResult.Good;
@@ -451,8 +451,9 @@ namespace Opc.Ua.Server
             {
                 Task.Run(async () =>
                     {
+                        // give the client some time to receive the response
+                        // before the certificate update may disconnect all sessions
                         await Task.Delay(1000);
-                        // update certificates
                         await m_configuration.CertificateValidator.UpdateCertificate(m_configuration.SecurityConfiguration);
                     }
                 );
@@ -495,7 +496,7 @@ namespace Opc.Ua.Server
 
                 // allow access to system configuration only through special identity
                 SystemConfigurationIdentity user = context.UserIdentity as SystemConfigurationIdentity;
-                if (user == null || user?.TokenType == UserTokenType.Anonymous)
+                if (user == null || user.TokenType == UserTokenType.Anonymous)
                 {
                     throw new ServiceResultException(StatusCodes.BadUserAccessDenied, "System Configuration Administrator access required.");
                 }
