@@ -90,7 +90,7 @@ namespace Opc.Ua.Gds.Server.Database
     {
         public Guid RequestId { get; set; }
         public int? State { get; set; }
-        [JsonConverter(typeof(ByteArrayConverter))]
+        [JsonConverter(typeof(ByteArrayConverter)), JsonRequired]
         public byte[] Certificate { get; set; }
         [JsonConverter(typeof(ByteArrayConverter))]
         public byte[] PrivateKey { get; set; }
@@ -176,14 +176,6 @@ namespace Opc.Ua.Gds.Server.Database
             return new NodeId(applicationId, NamespaceIndex);
         }
 
-        private enum CertificateRequestState
-        {
-            New,
-            Approved,
-            Rejected,
-            Accepted
-        }
-
         public override NodeId CreateCertificateRequest(
             NodeId applicationId,
             byte[] certificate,
@@ -200,8 +192,8 @@ namespace Opc.Ua.Gds.Server.Database
                 request.RequestId = Guid.NewGuid();
                 request.AuthorityId = authorityId;
                 request.State = (int)CertificateRequestState.New;
-                request.Certificate = certificate;
-                request.PrivateKey = privateKey;
+                request.Certificate = certificate ?? new byte[0];
+                request.PrivateKey = privateKey ?? new byte[0];
 
                 string twinPatch = TwinPatchFromRecord(request);
                 twin = _IoTHubDeviceRegistry.UpdateTwinAsync(twin.DeviceId, twinPatch, twin.ETag).Result;
@@ -287,6 +279,10 @@ namespace Opc.Ua.Gds.Server.Database
                         cert += ((JProperty)part).Value;
                     }
                     certificate = Convert.FromBase64String(cert);
+                    if (certificate.Length == 0)
+                    {
+                        privateKey = null;
+                    }
                 }
                 catch (Exception)
                 {
@@ -302,6 +298,10 @@ namespace Opc.Ua.Gds.Server.Database
                         pKey += ((JProperty)part).Value;
                     }
                     privateKey = Convert.FromBase64String(pKey);
+                    if (privateKey.Length == 0)
+                    {
+                        privateKey = null;
+                    }
                 }
                 catch (Exception)
                 {
@@ -316,7 +316,6 @@ namespace Opc.Ua.Gds.Server.Database
                 {
                     throw new Exception("IoTHub certificate accept failed.");
                 }
-
             }
             else
             {
