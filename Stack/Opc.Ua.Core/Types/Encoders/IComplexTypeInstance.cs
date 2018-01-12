@@ -1,4 +1,4 @@
-/* Copyright (c) 1996-2016, OPC Foundation. All rights reserved.
+﻿/* Copyright (c) 1996-2016, OPC Foundation. All rights reserved.
    The source code in this file is covered under a dual-license scenario:
      - RCL: for OPC Foundation members in good-standing
      - GPL V2: everybody else
@@ -10,27 +10,19 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-/// <summary>
-/// Defines string constants for SDK version information.
-/// </summary>
-internal static class AssemblyVersionInfo
+namespace Opc.Ua
 {
     /// <summary>
-    /// The current copy right notice.
+    /// Interface implemented by complex data type instances.
     /// </summary>
-    public const string Copyright = "Copyright © 2004-2017 OPC Foundation, Inc";
-
-    /// <summary>
-    /// The current build version.
-    /// </summary>
-    public const string CurrentVersion = "1.03.350.0";
-
-    /// <summary>
-    /// The current build file version.
-    /// </summary>
-    public const string CurrentFileVersion = "1.03.350.0";
+    public interface IComplexTypeInstance
+    {
+        /// <summary>
+        /// Gets or sets the UA type identifier for the encodeable type.
+        /// </summary>
+        /// <value>
+        /// The UA type identifier.
+        /// </value>
+        ExpandedNodeId TypeId { get; set; }
+    }
 }
