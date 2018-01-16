@@ -450,12 +450,6 @@ namespace Opc.Ua.Gds.Client
             {
                 MemoryStream strm = new MemoryStream();
                 BinaryEncoder encoder = new BinaryEncoder(strm, m_session.MessageContext);
-                // TODO hack hack for Ua server, which can't handle zero length lists
-                trustList.SpecifiedLists = (uint)(
-                    (trustList.TrustedCrls.Count > 0 ? TrustListMasks.TrustedCrls : 0) |
-                    (trustList.TrustedCertificates.Count > 0 ? TrustListMasks.TrustedCertificates : 0) |
-                    (trustList.IssuerCrls.Count > 0 ? TrustListMasks.IssuerCrls : 0) |
-                    (trustList.IssuerCertificates.Count > 0 ? TrustListMasks.IssuerCertificates : 0));
                 encoder.WriteEncodeable(null, trustList, null);
                 strm.Position = 0;
 
