@@ -245,10 +245,10 @@ namespace Opc.Ua.Gds.Server
             GlobalDiscoveryServerConfiguration gdsConfiguration = config.ParseExtension<GlobalDiscoveryServerConfiguration>();
             string databaseStorePath = Utils.ReplaceSpecialFolderNames(gdsConfiguration.DatabaseStorePath);
 
-            IoTHubApplicationsDatabase database = new IoTHubApplicationsDatabase(databaseStorePath);
-
             // start the server.
-            server = new GlobalDiscoverySampleServer(database);
+            server = new GlobalDiscoverySampleServer(
+                JsonApplicationsDatabase.Load(databaseStorePath),
+                new CertificateGroup());
             await application.Start(server);
 
             // start the status thread
