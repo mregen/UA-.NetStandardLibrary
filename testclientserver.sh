@@ -19,7 +19,7 @@ echo build client
 rm -r obj
 dotnet build NetCoreConsoleClient.csproj
 echo start client
-dotnet run --no-restore --no-build --project NetCoreConsoleClient.csproj -t 20 -a &
+dotnet run --no-restore --no-build --project NetCoreConsoleClient.csproj -t 10 -a &
 clientpid="$!"
 cd $workdir
 
@@ -58,7 +58,8 @@ else
 	echo "FAILED - Server test failed with a status of $serverresult"
 fi
 
-exit $(testresult + serverresult + testresulthttps)
+echo "Test results: Client:$testresult Server:$serverresult ClientHttps:$testresulthttps"
+exit $((testresult + serverresult + testresulthttps))
 
 
 
