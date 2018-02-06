@@ -188,7 +188,7 @@ namespace Opc.Ua.Bindings
             httpsOptions.SslProtocols = SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12;
             m_host.UseKestrel(options =>
             {
-                options.Listen(IPAddress.Loopback, m_uri.Port, listenOptions =>
+                options.Listen(IPAddress.Any, m_uri.Port, listenOptions =>
                 {
                     listenOptions.NoDelay = true;
                     listenOptions.UseHttps(httpsOptions);
