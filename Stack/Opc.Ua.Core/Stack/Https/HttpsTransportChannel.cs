@@ -67,11 +67,18 @@ namespace Opc.Ua.Bindings
                 // auto approve server cert
                 var handler = new HttpClientHandler();
                 handler.ClientCertificateOptions = ClientCertificateOption.Manual;
-                handler.ServerCertificateCustomValidationCallback =
-                    (httpRequestMessage, cert, chain, policyErrors) =>
-                    {
-                        return true;
-                    };
+                try
+                {
+                    handler.ServerCertificateCustomValidationCallback =
+                        (httpRequestMessage, cert, chain, policyErrors) =>
+                        {
+                            return true;
+                        };
+                }
+                catch (PlatformNotSupportedException)
+                {
+                    handler.ServerCertificateCustomValidationCallback = null;
+                }
                 m_client = new HttpClient(handler);
             }
             catch (Exception ex)
