@@ -920,6 +920,41 @@ namespace Opc.Ua
             return Dns.GetHostName().Split('.')[0].ToLowerInvariant();
         }
 
+        public static string GetFullQualifiedDomainName()
+        {
+            string domainName = null;
+            try
+            {
+#if !NETSTANDARD1_4 && !NETSTANDARD1_3
+                domainName = Dns.GetHostEntry("localhost").HostName;
+#endif
+            }
+            catch
+            {
+            }
+            if (String.IsNullOrEmpty(domainName))
+            {
+                return Dns.GetHostName();
+            }
+            return domainName;
+        }
+
+        /// <summary>
+        /// Normalize ipv4/ipv6 address for comparisons.
+        /// </summary>
+        public static string NormalizedIPAddress(string ipAddress)
+        {
+            try
+            {
+                IPAddress normalizedAddress = IPAddress.Parse(ipAddress);
+                return normalizedAddress.ToString();
+            }
+            catch
+            {
+                return ipAddress;
+            }
+        }
+
         /// <summary>
         /// Replaces the localhost domain with the current host name.
         /// </summary>
@@ -2437,30 +2472,15 @@ namespace Opc.Ua
         /// </summary>
         public static DateTime GetAssemblyTimestamp()
         {
-#if !NETSTANDARD1_4 && !NETSTANDARD1_3
-            const int PeHeaderOffset = 60;
-            const int LinkerTimestampOffset = 8;
-
-            byte[] bytes = new byte[2048];
-
-            using (Stream istrm = new FileStream(Assembly.GetCallingAssembly().Location, FileMode.Open, FileAccess.Read))
+            try
             {
-                istrm.Read(bytes, 0, bytes.Length);
-            }
-
-            // get the location of te PE header.
-            int index = BitConverter.ToInt32(bytes, PeHeaderOffset);
-
-            // get the timestamp from the linker.
-            int secondsSince1970 = BitConverter.ToInt32(bytes, index + LinkerTimestampOffset);
-
-            // convert to DateTime value.
-            DateTime timestamp = new DateTime(1970, 1, 1, 0, 0, 0);
-            timestamp = timestamp.AddSeconds(secondsSince1970);
-            return timestamp;
-#else
-            return DateTime.Now;
+#if !NETSTANDARD1_4 && !NETSTANDARD1_3
+                return File.GetLastWriteTimeUtc(typeof(Utils).GetTypeInfo().Assembly.Location);
 #endif
+            }
+            catch
+            { }
+            return new DateTime(1970, 1, 1, 0, 0, 0);
         }
 
         /// <summary>
@@ -3104,6 +3124,23 @@ namespace Opc.Ua
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Lazy helper to allow runtime check for Mono.
+        /// </summary>
+        private static readonly Lazy<bool> IsRunningOnMonoValue = new Lazy<bool>(() =>
+        {
+            return Type.GetType("Mono.Runtime") != null;
+        });
+
+        /// <summary>
+        /// Determine if assembly uses mono runtime.
+        /// </summary>
+        /// <returns>true if running on Mono runtime</returns>
+        public static bool IsRunningOnMono()
+        {
+            return IsRunningOnMonoValue.Value;
         }
         #endregion
     }
