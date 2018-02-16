@@ -164,12 +164,10 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="System.Diagnostics.DiagnosticSource">
-      <Version>4.4.1</Version>
-    </PackageReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+    <PackageReference Include="System.Net.Http">
+      <Version>4.3.3</Version>
+    </PackageReference>
   <PropertyGroup>
     <PostBuildEvent>
     </PostBuildEvent>
