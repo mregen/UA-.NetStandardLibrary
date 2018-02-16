@@ -5,15 +5,15 @@
   xmlns="http://opcfoundation.org/UA/SDK/Configuration.xsd"
 >
   <ApplicationName>UA Global Discovery Server</ApplicationName>
-  <ApplicationUri>urn:localhost:microsoft.com:GlobalDiscoveryServer</ApplicationUri>
-  <ProductUri>http://microsoft.com/GlobalDiscoveryServer</ProductUri>
+  <ApplicationUri>urn:localhost:somecompany.com:GlobalDiscoveryServer</ApplicationUri>
+  <ProductUri>http://somecompany.com/GlobalDiscoveryServer</ProductUri>
   <ApplicationType>Server_0</ApplicationType>
   
   <SecurityConfiguration>
     <ApplicationCertificate>
       <StoreType>Directory</StoreType>
       <StorePath>%LocalApplicationData%/OPC Foundation/GDS/PKI/own</StorePath>
-      <SubjectName>CN=Global Discovery Server, O=Microsoft, DC=localhost</SubjectName>
+      <SubjectName>CN=Global Discovery Server, O=somecompany, DC=localhost</SubjectName>
     </ApplicationCertificate>
 
     <TrustedIssuerCertificates>
@@ -31,8 +31,7 @@
       <StorePath>%LocalApplicationData%/OPC Foundation/GDS/PKI/rejected</StorePath>
     </RejectedCertificateStore>
 
-    <!-- WARNING: The following setting (to automatically accept untrusted certificates) should be used
-    for easy debugging purposes ONLY and turned off for production deployments! -->
+    <!-- The GDS server must accept connections from any client -->
     <AutoAcceptUntrustedCertificates>true</AutoAcceptUntrustedCertificates>
     
     <!-- WARNING: SHA1 signed certficates are by default rejected and should be phased out. -->
@@ -62,16 +61,16 @@
     <SecurityPolicies>
       <ServerSecurityPolicy>
         <SecurityMode>SignAndEncrypt_3</SecurityMode>
+        <SecurityPolicyUri>http://opcfoundation.org/UA/SecurityPolicy#Basic256Sha256</SecurityPolicyUri>
+      </ServerSecurityPolicy>
+      <ServerSecurityPolicy>
+        <SecurityMode>SignAndEncrypt_3</SecurityMode>
         <SecurityPolicyUri>http://opcfoundation.org/UA/SecurityPolicy#Basic128Rsa15</SecurityPolicyUri>
       </ServerSecurityPolicy>
       <ServerSecurityPolicy>
         <SecurityMode>SignAndEncrypt_3</SecurityMode>
         <SecurityPolicyUri>http://opcfoundation.org/UA/SecurityPolicy#Basic256</SecurityPolicyUri>
       </ServerSecurityPolicy>      
-      <ServerSecurityPolicy>
-        <SecurityMode>SignAndEncrypt_3</SecurityMode>
-        <SecurityPolicyUri>http://opcfoundation.org/UA/SecurityPolicy#Basic256Sha256</SecurityPolicyUri>
-      </ServerSecurityPolicy>
     </SecurityPolicies>
     <UserTokenPolicies>
       <ua:UserTokenPolicy>
@@ -115,7 +114,7 @@
       <ua:UserIdentityTokens />
     </RegistrationEndpoint>
     
-    <MaxRegistrationInterval>0</MaxRegistrationInterval>
+    <MaxRegistrationInterval>30000</MaxRegistrationInterval>
 
     <!-- see https://opcfoundation-onlineapplications.org/profilereporting/ for list of available profiles -->
     <ServerProfileArray>
@@ -140,11 +139,11 @@
       <GlobalDiscoveryServerConfiguration xmlns="http://opcfoundation.org/UA/GDS/Configuration.xsd">
         <AuthoritiesStorePath>%LocalApplicationData%/OPC Foundation/GDS/PKI/authorities</AuthoritiesStorePath>
         <ApplicationCertificatesStorePath>%LocalApplicationData%/OPC Foundation/GDS/PKI/applications</ApplicationCertificatesStorePath>
-        <DefaultSubjectNameContext>O=Microsoft Corp.</DefaultSubjectNameContext>
+        <DefaultSubjectNameContext>O=SomeCompany Inc.</DefaultSubjectNameContext>
         <CertificateGroups>
           <CertificateGroupConfiguration>
             <Id>Default</Id>
-            <SubjectName>CN=SPS-2017 CA, O=Microsoft</SubjectName>
+            <SubjectName>CN=IOP-2018 CA, O=OPC Foundation</SubjectName>
             <BaseStorePath>%LocalApplicationData%/OPC Foundation/GDS/PKI/CA/default</BaseStorePath>
             <DefaultCertificateLifetime>60</DefaultCertificateLifetime>
             <DefaultCertificateKeySize>2048</DefaultCertificateKeySize>
@@ -153,7 +152,7 @@
         </CertificateGroups>
         <KnownHostNames/>
         <ShutdownDelay>5</ShutdownDelay>
-        <DatabaseStorePath>HostName=iopgds.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=/s6sIO3+Bm0V6SlOaU8Y9sW4Subq/JsgEalXWu/msyU=</DatabaseStorePath>
+        <DatabaseStorePath>%LocalApplicationData%/OPC Foundation/GDS/gdsdb.json</DatabaseStorePath>
       </GlobalDiscoveryServerConfiguration>
     </ua:XmlElement>
   </Extensions>
@@ -172,7 +171,7 @@
     <!-- Show Only Security, Service Calls, Errors and Trace -->
     <!-- <TraceMasks>523</TraceMasks> -->
     <!-- Show Only Security, ServiceResultExceptions, Errors and Trace -->
-    <TraceMasks>517</TraceMasks>
+    <TraceMasks>519</TraceMasks>
   </TraceConfiguration>
   
 </ApplicationConfiguration>
