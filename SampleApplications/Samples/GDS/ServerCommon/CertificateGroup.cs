@@ -76,7 +76,8 @@ namespace Opc.Ua.Gds.Server
                         if (Certificate != null)
                         {
                             // always use latest issued cert in store
-                            if (Certificate.NotBefore > certificate.NotBefore)
+                            if (certificate.NotBefore > DateTime.UtcNow ||
+                                Certificate.NotBefore > certificate.NotBefore)
                             {
                                 continue;
                             }

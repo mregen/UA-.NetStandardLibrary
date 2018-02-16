@@ -4,7 +4,7 @@
   xmlns:ua="http://opcfoundation.org/UA/2008/02/Types.xsd"
   xmlns="http://opcfoundation.org/UA/SDK/Configuration.xsd"
 >
-  <ApplicationName>UA Global Discovery Server</ApplicationName>
+  <ApplicationName>Cloud Global Discovery Server</ApplicationName>
   <ApplicationUri>urn:localhost:microsoft.com:GlobalDiscoveryServer</ApplicationUri>
   <ProductUri>http://microsoft.com/GlobalDiscoveryServer</ProductUri>
   <ApplicationType>Server_0</ApplicationType>
@@ -13,7 +13,7 @@
     <ApplicationCertificate>
       <StoreType>Directory</StoreType>
       <StorePath>%LocalApplicationData%/OPC Foundation/GDS/PKI/own</StorePath>
-      <SubjectName>CN=Global Discovery Server, O=Microsoft, DC=localhost</SubjectName>
+      <SubjectName>CN=Cloud Global Discovery Server, O=Microsoft</SubjectName>
     </ApplicationCertificate>
 
     <TrustedIssuerCertificates>
@@ -56,7 +56,7 @@
   
   <ServerConfiguration>
     <BaseAddresses>
-      <ua:String>opc.tcp://localhost:58800/GlobalDiscoveryServer</ua:String>
+      <ua:String>opc.tcp://localhost:58810/GlobalDiscoveryServer</ua:String>
     </BaseAddresses>
     <SecurityPolicies>
       <ServerSecurityPolicy>
@@ -143,7 +143,7 @@
         <CertificateGroups>
           <CertificateGroupConfiguration>
             <Id>Default</Id>
-            <SubjectName>CN=SPS-2017 CA, O=Microsoft</SubjectName>
+            <SubjectName>CN=IOP-2018 CA, O=Microsoft</SubjectName>
             <BaseStorePath>%LocalApplicationData%/OPC Foundation/GDS/PKI/CA/default</BaseStorePath>
             <DefaultCertificateLifetime>60</DefaultCertificateLifetime>
             <DefaultCertificateKeySize>2048</DefaultCertificateKeySize>

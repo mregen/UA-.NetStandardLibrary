@@ -63,7 +63,10 @@ namespace Opc.Ua.Gds.Client
 
             m_filters = new QueryServersFilter();
             m_identity = new UserIdentity();
-            m_gds = new GlobalDiscoveryServerClient(m_application, m_configuration.GlobalDiscoveryServerUrl);
+            // todo remove demo only
+            IUserIdentity gdsAdminCredentials = new UserIdentity("appadmin", "demo");
+            // todo remove
+            m_gds = new GlobalDiscoveryServerClient(m_application, m_configuration.GlobalDiscoveryServerUrl, gdsAdminCredentials);
             m_gds.KeepAlive += GdsServer_KeepAlive;
             m_gds.ServerStatusChanged += GdsServer_StatusNotification;
             m_lds = new LocalDiscoveryServerClient(m_application.ApplicationConfiguration);
