@@ -135,7 +135,6 @@ namespace Opc.Ua.Bindings
                 content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
 
                 AsyncResult result = new AsyncResult(callback, callbackData, m_operationTimeout, request, null);
-                m_client.Timeout = TimeSpan.FromMilliseconds(m_operationTimeout);
                 Task.Run( async () =>
                 {
                     try
@@ -233,7 +232,7 @@ namespace Opc.Ua.Bindings
         
         private void SaveSettings(Uri url, TransportChannelSettings settings)
         {
-            m_url = new Uri(Utils.ReplaceLocalhost(url.ToString()));
+            m_url = new Uri(url.ToString());
 
             m_settings = settings;
             m_operationTimeout = settings.Configuration.OperationTimeout;
