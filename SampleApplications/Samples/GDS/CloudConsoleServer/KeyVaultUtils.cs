@@ -29,9 +29,11 @@
 
 using System;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.KeyVault.Models;
+using Microsoft.Azure.KeyVault.WebKey;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
@@ -120,19 +122,43 @@ namespace Opc.Ua.Gds.Server
         }
 
 
-        public async Task CreateCACertificateAsync(string name, string subjectName)
+        public async Task CreateCACertificateAsync(
+            string name, 
+            string subjectName, 
+            int keySize)
         {
-            CertificatePolicy policy = new CertificatePolicy();
-            CertificateAttributes attributes = new CertificateAttributes();
+            CertificateAttributes attributes = new CertificateAttributes { Enabled = true };
 
-            await _keyVaultClient.CreateCertificateAsync(
-                _vaultBaseUrl,
-                name,
-                policy,
-                attributes
-                );
+            var policy = new CertificatePolicy
+            {
+                IssuerParameters = new IssuerParameters
+                {
+                    Name = "Self",
+                },
+                KeyProperties = new KeyProperties
+                {
+                    Exportable = true,
+                    KeySize = keySize,
+                    KeyType = "RSA"
+                },
+                SecretProperties = new SecretProperties
+                {
+                    ContentType = CertificateContentType.Pem
+                },
+                X509CertificateProperties = new X509CertificateProperties
+                {
+                    Subject = subjectName
+                }
+            };
+
+            var pendingCertificate = await _keyVaultClient.CreateCertificateAsync(
+                _vaultBaseUrl, name, policy, attributes);
+            // TODO: wait for operation
+            var pendingCertificateResponse = await _keyVaultClient.GetCertificateOperationAsync(
+                _vaultBaseUrl, pendingCertificate.CertificateOperationIdentifier.Name);
         }
 
+#if testcode
         public async Task<SecretBundle> ReadKeyWithCertAsync()
         {
             AzureServiceTokenProvider azureServiceTokenProvider = new AzureServiceTokenProvider();
@@ -160,30 +186,34 @@ namespace Opc.Ua.Gds.Server
 
             return null;
         }
+#endif
 
-        /// <summary>
-        /// load the authority signing key.
-        /// </summary>
-        public async Task<KeyBundle> LoadSigningKeyAsync(string signingCertificateKey, string signingKeyPassword)
+        public async Task<KeyBundle> LoadSigningKeyAsync(string signingCertificateKey)
         {
             return await _keyVaultClient.GetKeyAsync(signingCertificateKey);
         }
 
-        public async Task<X509Certificate2> LoadSigningCertificateAsync(X509Certificate2 publicCert, string signingCertificateKey, string signingKeyPassword)
+        public async Task<X509Certificate2> LoadSigningCertificateAsync(string signingCertificateKey, X509Certificate2 publicCert)
         {
             var secret = await _keyVaultClient.GetSecretAsync(signingCertificateKey);
-            if (secret.ContentType == "application/x-pkcs12")
+            if (secret.ContentType == CertificateContentType.Pfx)
             {
                 var certBlob = Convert.FromBase64String(secret.Value);
                 return CertificateFactory.CreateCertificateFromPKCS12(certBlob, string.Empty);
             }
-            // TODO: test the pem certs
-            else if (secret.ContentType == "application/x-pem")
+            else if (secret.ContentType == CertificateContentType.Pem)
             {
-                return CertificateFactory.CreateCertificateWithPEMPrivateKey(publicCert, null /*secret.Value.ToByteArray()*/, string.Empty);
+                Encoding encoder = Encoding.UTF8;
+                var privateKey = encoder.GetBytes(secret.Value.ToCharArray());
+                return CertificateFactory.CreateCertificateWithPEMPrivateKey(publicCert, privateKey, string.Empty);
             }
 
-            throw new NotImplementedException("Can not decode Private Key with content type: " + secret.ContentType);
+            throw new NotImplementedException("Unknown content type: " + secret.ContentType);
+        }
+
+        public async Task SignDigestAsync(string signingKey, byte [] digest)
+        {
+            var result = await _keyVaultClient.SignAsync(signingKey, JsonWebKeySignatureAlgorithm.RS256, digest);
         }
 
     }

@@ -39,6 +39,7 @@ namespace Opc.Ua.Gds.Server
         private KeyVaultHandler _keyVaultHandler;
         // CA cert private key and pfx location
         private string _caCertSecretIdentifier;
+        private string _caCertKeyIdentifier;
 
         private KeyVaultCertificateGroup(
             KeyVaultHandler keyVaultHandler,
@@ -74,6 +75,9 @@ namespace Opc.Ua.Gds.Server
                 {
                     Certificate = cloudCert;
                     _caCertSecretIdentifier = result.SecretIdentifier.Identifier;
+                    _caCertKeyIdentifier = result.KeyIdentifier.Identifier;
+                    await _keyVaultHandler.LoadSigningCertificateAsync(_caCertSecretIdentifier, Certificate);
+                    //await _keyVaultHandler.SignDigestAsync(_caCertKeyIdentifier, digest);
                 }
                 else
                 {
@@ -158,9 +162,8 @@ namespace Opc.Ua.Gds.Server
         public override async Task<X509Certificate2> LoadSigningKeyAsync(X509Certificate2 signingCertificate, string signingKeyPassword)
         {
             return await _keyVaultHandler.LoadSigningCertificateAsync(
-                Certificate,
                 _caCertSecretIdentifier,
-                string.Empty);
+                Certificate);
         }
         #endregion
     }
