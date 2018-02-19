@@ -58,20 +58,20 @@ namespace Opc.Ua.Gds.Server
             m_authoritiesStorePath = authoritiesStorePath;
             m_authoritiesStoreType = CertificateStoreIdentifier.DetermineStoreType(m_authoritiesStorePath);
             Configuration = certificateGroupConfiguration;
+            m_subjectName = Configuration.SubjectName.Replace("localhost", Utils.GetHostName());
         }
 
         #region ICertificateGroupProvider
         public virtual async Task Init()
         {
-            string subjectName = Configuration.SubjectName.Replace("localhost", Utils.GetHostName());
-            Utils.Trace(Utils.TraceMasks.Information, "InitializeCertificateGroup: {0}", subjectName);
+            Utils.Trace(Utils.TraceMasks.Information, "InitializeCertificateGroup: {0}", m_subjectName);
 
             using (ICertificateStore store = CertificateStoreIdentifier.OpenStore(m_authoritiesStorePath))
             {
                 X509Certificate2Collection certificates = await store.Enumerate();
                 foreach (var certificate in certificates)
                 {
-                    if (Utils.CompareDistinguishedName(certificate.Subject, subjectName))
+                    if (Utils.CompareDistinguishedName(certificate.Subject, m_subjectName))
                     {
                         if (Certificate != null)
                         {
@@ -91,12 +91,12 @@ namespace Opc.Ua.Gds.Server
             {
                 Utils.Trace(Utils.TraceMasks.Security,
                     "Create new CA Certificate: {0}, KeySize: {1}, HashSize: {2}, LifeTime: {3} months",
-                    subjectName,
+                    m_subjectName,
                     Configuration.DefaultCertificateKeySize,
                     Configuration.DefaultCertificateHashSize,
                     Configuration.DefaultCertificateLifetime
                     );
-                X509Certificate2 newCertificate = await CreateCACertificateAsync(subjectName);
+                X509Certificate2 newCertificate = await CreateCACertificateAsync(m_subjectName);
                 Certificate = new X509Certificate2(newCertificate.RawData);
             }
         }
@@ -198,12 +198,11 @@ namespace Opc.Ua.Gds.Server
             return Certificate;
         }
         #endregion
-
-        #region Private Methods
+        #region Public Methods
         /// <summary>
         /// load the authority signing key.
         /// </summary>
-        private async Task<X509Certificate2> LoadSigningKeyAsync(X509Certificate2 signingCertificate, string signingKeyPassword)
+        public virtual async Task<X509Certificate2> LoadSigningKeyAsync(X509Certificate2 signingCertificate, string signingKeyPassword)
         {
             CertificateIdentifier certIdentifier = new CertificateIdentifier(signingCertificate)
             {
@@ -212,38 +211,44 @@ namespace Opc.Ua.Gds.Server
             };
             return await certIdentifier.LoadPrivateKey(signingKeyPassword);
         }
-
+        #endregion
+        #region Private Methods
         /// <summary>
         /// Updates the certificate authority certificate and CRL in the trusted list.
         /// </summary>
-        private async Task UpdateAuthorityCertInTrustedList()
+        protected async Task UpdateAuthorityCertInTrustedList()
         {
             string trustedListStorePath = Configuration.TrustedListPath;
             if (!String.IsNullOrEmpty(Configuration.TrustedListPath))
             {
-                using (ICertificateStore store = CertificateStoreIdentifier.OpenStore(trustedListStorePath))
+                using (ICertificateStore authorityStore = CertificateStoreIdentifier.OpenStore(m_authoritiesStorePath))
+                using (ICertificateStore trustedStore = CertificateStoreIdentifier.OpenStore(trustedListStorePath))
                 {
-                    X509Certificate2Collection certs = await store.FindByThumbprint(Certificate.Thumbprint);
-                    if (certs.Count == 0)
+                    X509Certificate2Collection certificates = await authorityStore.Enumerate();
+                    foreach (var certificate in certificates)
                     {
-                        await store.Add(Certificate);
-                    }
-
-                    // delete existing CRL in trusted list
-                    foreach (var crl in store.EnumerateCRLs(Certificate, false))
-                    {
-                        if (crl.VerifySignature(Certificate, false))
+                        if (Utils.CompareDistinguishedName(certificate.Subject, m_subjectName))
                         {
-                            store.DeleteCRL(crl);
-                        }
-                    }
+                            X509Certificate2Collection certs = await trustedStore.FindByThumbprint(certificate.Thumbprint);
+                            if (certs.Count == 0)
+                            {
+                                await trustedStore.Add(certificate);
+                            }
 
-                    // copy latest CRL to trusted list
-                    using (ICertificateStore storeAuthority = CertificateStoreIdentifier.OpenStore(m_authoritiesStorePath))
-                    {
-                        foreach (var crl in storeAuthority.EnumerateCRLs(Certificate, true))
-                        {
-                            store.AddCRL(crl);
+                            // delete existing CRL in trusted list
+                            foreach (var crl in trustedStore.EnumerateCRLs(certificate, false))
+                            {
+                                if (crl.VerifySignature(certificate, false))
+                                {
+                                    trustedStore.DeleteCRL(crl);
+                                }
+                            }
+
+                            // copy latest CRL to trusted list
+                            foreach (var crl in authorityStore.EnumerateCRLs(certificate, true))
+                            {
+                                trustedStore.AddCRL(crl);
+                            }
                         }
                     }
                 }
@@ -252,6 +257,7 @@ namespace Opc.Ua.Gds.Server
         #endregion
 
         #region Protected Fields
+        protected readonly string m_subjectName;
         protected readonly string m_authoritiesStorePath;
         protected readonly string m_authoritiesStoreType;
         #endregion 

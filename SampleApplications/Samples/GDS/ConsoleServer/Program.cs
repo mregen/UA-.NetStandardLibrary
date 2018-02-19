@@ -96,11 +96,9 @@ namespace Opc.Ua.Gds.Server
 
             // command line options
             bool showHelp = false;
-            bool autoAccept = false;
 
             Mono.Options.OptionSet options = new Mono.Options.OptionSet {
                 { "h|help", "show this message and exit", h => showHelp = h != null },
-                { "a|autoaccept", "auto accept certificates (for testing only)", a => autoAccept = a != null }
             };
 
             try
@@ -128,7 +126,7 @@ namespace Opc.Ua.Gds.Server
                 return (int)ExitCode.ErrorInvalidCommandLine;
             }
 
-            NetCoreGlobalDiscoveryServer server = new NetCoreGlobalDiscoveryServer(autoAccept);
+            NetCoreGlobalDiscoveryServer server = new NetCoreGlobalDiscoveryServer();
             server.Run();
 
             return (int)NetCoreGlobalDiscoveryServer.ExitCode;
@@ -140,12 +138,10 @@ namespace Opc.Ua.Gds.Server
         GlobalDiscoverySampleServer server;
         Task status;
         DateTime lastEventTime;
-        static bool autoAccept = false;
         static ExitCode exitCode;
 
-        public NetCoreGlobalDiscoveryServer(bool _autoAccept)
+        public NetCoreGlobalDiscoveryServer()
         {
-            autoAccept = _autoAccept;
         }
 
         public void Run()
@@ -204,15 +200,9 @@ namespace Opc.Ua.Gds.Server
         {
             if (e.Error.StatusCode == StatusCodes.BadCertificateUntrusted)
             {
-                e.Accept = autoAccept;
-                if (autoAccept)
-                {
-                    Console.WriteLine("Accepted Certificate: {0}", e.Certificate.Subject);
-                }
-                else
-                {
-                    Console.WriteLine("Rejected Certificate: {0}", e.Certificate.Subject);
-                }
+                // GDS accepts any client certificate
+                e.Accept = true;
+                Console.WriteLine("Accepted Certificate: {0}", e.Certificate.Subject);
             }
         }
 
