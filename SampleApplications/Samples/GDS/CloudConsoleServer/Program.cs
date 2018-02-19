@@ -92,15 +92,13 @@ namespace Opc.Ua.Gds.Server
 
         public static int Main(string[] args)
         {
-            Console.WriteLine(".Net Core OPC UA Global Discovery Server");
+            Console.WriteLine(".Net Core Cloud OPC UA Global Discovery Server");
 
             // command line options
             bool showHelp = false;
-            bool autoAccept = false;
 
             Mono.Options.OptionSet options = new Mono.Options.OptionSet {
                 { "h|help", "show this message and exit", h => showHelp = h != null },
-                { "a|autoaccept", "auto accept certificates (for testing only)", a => autoAccept = a != null }
             };
 
             try
@@ -120,7 +118,7 @@ namespace Opc.Ua.Gds.Server
 
             if (showHelp)
             {
-                Console.WriteLine("Usage: dotnet NetCoreGlobalDiscoveryServer.dll [OPTIONS]");
+                Console.WriteLine("Usage: dotnet CloudGlobalDiscoveryServer.dll [OPTIONS]");
                 Console.WriteLine();
 
                 Console.WriteLine("Options:");
@@ -128,24 +126,22 @@ namespace Opc.Ua.Gds.Server
                 return (int)ExitCode.ErrorInvalidCommandLine;
             }
 
-            NetCoreGlobalDiscoveryServer server = new NetCoreGlobalDiscoveryServer(autoAccept);
+            CloudGlobalDiscoveryServer server = new CloudGlobalDiscoveryServer();
             server.Run();
 
-            return (int)NetCoreGlobalDiscoveryServer.ExitCode;
+            return (int)CloudGlobalDiscoveryServer.ExitCode;
         }
     }
 
-    public class NetCoreGlobalDiscoveryServer
+    public class CloudGlobalDiscoveryServer
     {
         GlobalDiscoverySampleServer server;
         Task status;
         DateTime lastEventTime;
-        static bool autoAccept = false;
         static ExitCode exitCode;
 
-        public NetCoreGlobalDiscoveryServer(bool _autoAccept)
+        public CloudGlobalDiscoveryServer()
         {
-            autoAccept = _autoAccept;
         }
 
         public void Run()
@@ -169,7 +165,8 @@ namespace Opc.Ua.Gds.Server
             ManualResetEvent quitEvent = new ManualResetEvent(false);
             try
             {
-                Console.CancelKeyPress += (sender, eArgs) => {
+                Console.CancelKeyPress += (sender, eArgs) =>
+                {
                     quitEvent.Set();
                     eArgs.Cancel = true;
                 };
@@ -204,15 +201,9 @@ namespace Opc.Ua.Gds.Server
         {
             if (e.Error.StatusCode == StatusCodes.BadCertificateUntrusted)
             {
-                e.Accept = autoAccept;
-                if (autoAccept)
-                {
-                    Console.WriteLine("Accepted Certificate: {0}", e.Certificate.Subject);
-                }
-                else
-                {
-                    Console.WriteLine("Rejected Certificate: {0}", e.Certificate.Subject);
-                }
+                // GDS accepts any client certificate
+                e.Accept = true;
+                Console.WriteLine("Accepted Certificate: {0}", e.Certificate.Subject);
             }
         }
 
@@ -243,10 +234,29 @@ namespace Opc.Ua.Gds.Server
 
             // get the DatabaseStorePath configuration parameter.
             GlobalDiscoveryServerConfiguration gdsConfiguration = config.ParseExtension<GlobalDiscoveryServerConfiguration>();
-            string databaseStorePath = Utils.ReplaceSpecialFolderNames(gdsConfiguration.DatabaseStorePath);
 
-            var database = new IoTHubApplicationsDatabase(databaseStorePath);
-            var certGroup = new KeyVaultCertificateGroup();
+            // extract appId and vault name from database storage path
+            string[] keyVaultConfig = gdsConfiguration.DatabaseStorePath.Split(',');
+
+            // The vault
+            var keyVaultHandler = new KeyVaultHandler(keyVaultConfig[0]);
+            if (keyVaultConfig.Length == 1)
+            {
+                // authenticate key vault with MSI (web app) or developer user account
+                keyVaultHandler.SetTokenProvider();
+            }
+            else
+            {
+                // authenticate key vault with app cert
+                keyVaultHandler.SetAssertionCertificate(keyVaultConfig[1], await config.SecurityConfiguration.ApplicationCertificate.LoadPrivateKey(string.Empty));
+            }
+
+            // read connection string for IoTHub
+            var connectionString = await keyVaultHandler.GetIotHubSecretAsync();
+
+            // initialize database and certificate group handler
+            var database = new IoTHubApplicationsDatabase(connectionString);
+            var certGroup = new KeyVaultCertificateGroup(keyVaultHandler);
 
             // start the server.
             server = new GlobalDiscoverySampleServer(database, certGroup);
