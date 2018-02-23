@@ -232,7 +232,7 @@ namespace Opc.Ua.Gds.Server
                             X509Certificate2Collection certs = await trustedStore.FindByThumbprint(certificate.Thumbprint);
                             if (certs.Count == 0)
                             {
-                                await trustedStore.Add(certificate);
+                                await trustedStore.Add(new X509Certificate2(certificate.RawData));
                             }
 
                             // delete existing CRL in trusted list
