@@ -55,8 +55,8 @@
   
   <ServerConfiguration>
     <BaseAddresses>
-      <ua:String>opc.tcp://localhost:58820/GlobalDiscoveryServer</ua:String>
-      <ua:String>https://localhost:58822/GlobalDiscoveryServer</ua:String>
+      <ua:String>opc.tcp://localhost:58840/GlobalDiscoveryServer</ua:String>
+      <ua:String>https://localhost:58842/GlobalDiscoveryServer</ua:String>
     </BaseAddresses>
     <SecurityPolicies>
       <ServerSecurityPolicy>
@@ -79,7 +79,6 @@
       </ua:UserTokenPolicy>
       <ua:UserTokenPolicy>
         <ua:TokenType>UserName_1</ua:TokenType>
-        <ua:SecurityPolicyUri>http://opcfoundation.org/UA/SecurityPolicy#Basic256</ua:SecurityPolicyUri>
       </ua:UserTokenPolicy>
     </UserTokenPolicies>
     <DiagnosticsEnabled>true</DiagnosticsEnabled>
