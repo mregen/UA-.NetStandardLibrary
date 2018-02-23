@@ -27,6 +27,7 @@
  * http://opcfoundation.org/License/MIT/1.00/
  * ======================================================================*/
 
+using System;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
@@ -35,53 +36,134 @@ namespace Opc.Ua.Gds.Server
 
     public class KeyVaultCertificateGroup : CertificateGroup
     {
+        private KeyVaultHandler _keyVaultHandler;
+        // CA cert private key and pfx location
+        private string _caCertSecretIdentifier;
+        private string _caCertKeyIdentifier;
 
         private KeyVaultCertificateGroup(
+            KeyVaultHandler keyVaultHandler,
             string authoritiesStorePath,
-            CertificateGroupConfiguration certificateGroupConfiguration):
+            CertificateGroupConfiguration certificateGroupConfiguration) :
             base(authoritiesStorePath, certificateGroupConfiguration)
         {
+            _keyVaultHandler = keyVaultHandler;
         }
 
-        public KeyVaultCertificateGroup()
+        public KeyVaultCertificateGroup(KeyVaultHandler keyVaultHandler)
         {
+            _keyVaultHandler = keyVaultHandler;
         }
 
         #region ICertificateGroupProvider
-        public override Task Init()
+        public override CertificateGroup Create(
+            string storePath,
+            CertificateGroupConfiguration certificateGroupConfiguration)
         {
-            return Task.CompletedTask;
+            return new KeyVaultCertificateGroup(_keyVaultHandler, storePath, certificateGroupConfiguration);
         }
 
-        public override Task<X509Certificate2> NewKeyPairRequestAsync(
-            ApplicationRecordDataType application, 
-            string subjectName, 
-            string[] domainNames, 
-            string privateKeyFormat, 
-            string privateKeyPassword)
+        public override async Task Init()
         {
-            return null;
+            Utils.Trace(Utils.TraceMasks.Information, "InitializeCertificateGroup: {0}", m_subjectName);
+
+            try
+            {
+                var result = await _keyVaultHandler.GetCertificateAsync(Configuration.Id).ConfigureAwait(false);
+                var cloudCert = new X509Certificate2(result.Cer);
+                if (Utils.CompareDistinguishedName(cloudCert.Subject, m_subjectName))
+                {
+                    Certificate = cloudCert;
+                    _caCertSecretIdentifier = result.SecretIdentifier.Identifier;
+                    _caCertKeyIdentifier = result.KeyIdentifier.Identifier;
+                    await _keyVaultHandler.LoadSigningCertificateAsync(_caCertSecretIdentifier, Certificate);
+                    //await _keyVaultHandler.SignDigestAsync(_caCertKeyIdentifier, digest);
+                }
+                else
+                {
+                    throw new ServiceResultException("Key Vault certificate subject(" + cloudCert.Subject + ") does not match cert group subject " + m_subjectName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utils.Trace("Failed to load CA certificate " + Configuration.Id + " from key Vault ");
+                Utils.Trace(ex.Message);
+                throw ex;
+            }
+
+            // add all existing cert versions for trust list
+            var allCerts = await _keyVaultHandler.GetCertificateVersionsAsync(Configuration.Id);
+
+            // erase old certs
+            using (ICertificateStore store = CertificateStoreIdentifier.OpenStore(m_authoritiesStorePath))
+            {
+                try
+                {
+                    X509Certificate2Collection certificates = await store.Enumerate();
+                    foreach (var certificate in certificates)
+                    {
+                        if (Utils.CompareDistinguishedName(certificate.Subject, m_subjectName))
+                        {
+                            if (null == allCerts.Find(X509FindType.FindByThumbprint, certificate.Thumbprint, false))
+                            {
+                                Utils.Trace("Delete CA certificate from authority store: " + certificate.Thumbprint);
+
+                                // delete existing CRL in trusted list
+                                foreach (var crl in store.EnumerateCRLs(certificate, false))
+                                {
+                                    if (crl.VerifySignature(certificate, false))
+                                    {
+                                        store.DeleteCRL(crl);
+                                    }
+                                }
+
+                                await store.Delete(certificate.Thumbprint);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Utils.Trace("Failed to Delete existing certificates from authority store: " + ex.Message);
+                }
+
+                foreach (var certificate in allCerts)
+                {
+                    X509Certificate2Collection certs = await store.FindByThumbprint(certificate.Thumbprint);
+                    if (certs.Count == 0)
+                    {
+                        await store.Add(certificate);
+                        Utils.Trace("Added CA certificate to authority store: " + certificate.Thumbprint);
+                    }
+                    else
+                    {
+                        Utils.Trace("CA certificate already exists in authority store: " + certificate.Thumbprint);
+                    }
+                }
+
+                await UpdateAuthorityCertInTrustedList();
+            }
         }
 
         public override Task RevokeCertificateAsync(
             X509Certificate2 certificate)
         {
+            // revocation is not yet supported
             return Task.CompletedTask;
-        }
-
-        public override Task<X509Certificate2> SigningRequestAsync(
-            ApplicationRecordDataType application,
-            string[] domainNames,
-            byte[] certificateRequest)
-        {
-            return null;
         }
 
         public override Task<X509Certificate2> CreateCACertificateAsync(
             string subjectName
             )
         {
-            return null;
+            throw new NotImplementedException("CA creation not supported with key vault. Certificate is created and managed by keyVault administrator.");
+        }
+
+        public override async Task<X509Certificate2> LoadSigningKeyAsync(X509Certificate2 signingCertificate, string signingKeyPassword)
+        {
+            return await _keyVaultHandler.LoadSigningCertificateAsync(
+                _caCertSecretIdentifier,
+                Certificate);
         }
         #endregion
     }

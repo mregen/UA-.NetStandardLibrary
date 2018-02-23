@@ -14,6 +14,8 @@
       <StoreType>Directory</StoreType>
       <StorePath>%LocalApplicationData%/OPC Foundation/GDS/PKI/own</StorePath>
       <SubjectName>CN=Cloud Global Discovery Server, O=Microsoft</SubjectName>
+      <!-- this cert is used to authenticate to the cloud service -->
+      <Thumbprint>0E8AE68C817AA37C75E5A886645BF6844655345D</Thumbprint>
     </ApplicationCertificate>
 
     <TrustedIssuerCertificates>
@@ -142,7 +144,7 @@
         <CertificateGroups>
           <CertificateGroupConfiguration>
             <Id>Default</Id>
-            <SubjectName>CN=IOP-2018 CA, O=Microsoft</SubjectName>
+            <SubjectName>CN=IOPGDS-2018 CA, O=Microsoft Corp.</SubjectName>
             <BaseStorePath>%LocalApplicationData%/OPC Foundation/GDS/PKI/CA/default</BaseStorePath>
             <DefaultCertificateLifetime>60</DefaultCertificateLifetime>
             <DefaultCertificateKeySize>2048</DefaultCertificateKeySize>
@@ -151,7 +153,8 @@
         </CertificateGroups>
         <KnownHostNames/>
         <ShutdownDelay>5</ShutdownDelay>
-        <DatabaseStorePath>HostName=iopgds.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=/s6sIO3+Bm0V6SlOaU8Y9sW4Subq/JsgEalXWu/msyU=</DatabaseStorePath>
+        <!--<DatabaseStorePath>https://iopgds.vault.azure.net</DatabaseStorePath>-->
+        <DatabaseStorePath>https://iopgds.vault.azure.net,bd273a41-0a42-44b2-9fa0-9aef127504fc</DatabaseStorePath>
       </GlobalDiscoveryServerConfiguration>
     </ua:XmlElement>
   </Extensions>
@@ -170,7 +173,7 @@
     <!-- Show Only Security, Service Calls, Errors and Trace -->
     <!-- <TraceMasks>523</TraceMasks> -->
     <!-- Show Only Security, ServiceResultExceptions, Errors and Trace -->
-    <TraceMasks>517</TraceMasks>
+    <TraceMasks>519</TraceMasks>
   </TraceConfiguration>
   
 </ApplicationConfiguration>

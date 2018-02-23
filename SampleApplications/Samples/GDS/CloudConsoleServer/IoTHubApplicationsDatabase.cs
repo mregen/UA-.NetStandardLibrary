@@ -450,26 +450,30 @@ namespace Opc.Ua.Gds.Server.Database
             RegistryStatistics stats = _IoTHubDeviceRegistry.GetRegistryStatisticsAsync().Result;
             if (stats != null)
             {
+                // TODO use CreateQuery("select * from devices", (int)stats.TotalDeviceCount);
                 var list = _IoTHubDeviceRegistry.GetDevicesAsync((int)stats.TotalDeviceCount).Result;
                 uint i = 0;
                 foreach (Device device in list)
                 {
-                    ApplicationRecordDataType record = GetApplication(new NodeId(new Guid(device.Id), NamespaceIndex));
-                    if (record != null)
+                    if (Guid.TryParse(device.Id, out Guid deviceIdGuid))
                     {
-                        ServerOnNetwork server = new ServerOnNetwork();
-                        server.RecordId = i++;
-                        server.ServerName = record.ApplicationNames[0].Text;
-                        if (record.DiscoveryUrls.Count > 0)
+                        ApplicationRecordDataType record = GetApplication(new NodeId(deviceIdGuid, NamespaceIndex));
+                        if (record != null)
                         {
-                            server.DiscoveryUrl = record.DiscoveryUrls[0];
+                            ServerOnNetwork server = new ServerOnNetwork();
+                            server.RecordId = i++;
+                            server.ServerName = record.ApplicationNames[0].Text;
+                            if (record.DiscoveryUrls.Count > 0)
+                            {
+                                server.DiscoveryUrl = record.DiscoveryUrls[0];
+                            }
+                            else
+                            {
+                                server.DiscoveryUrl = string.Empty;
+                            }
+                            server.ServerCapabilities = record.ServerCapabilities;
+                            records.Add(server);
                         }
-                        else
-                        {
-                            server.DiscoveryUrl = string.Empty;
-                        }
-                        server.ServerCapabilities = record.ServerCapabilities;
-                        records.Add(server);
                     }
                 }
             }
