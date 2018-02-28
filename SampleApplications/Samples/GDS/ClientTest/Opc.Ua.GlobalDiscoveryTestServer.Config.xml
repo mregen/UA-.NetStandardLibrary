@@ -31,7 +31,8 @@
       <StorePath>%LocalApplicationData%/OPC/GDS/rejected</StorePath>
     </RejectedCertificateStore>
 
-    <!--GDS server always accepts certificates -->
+    <!-- WARNING: The following setting (to automatically accept untrusted certificates) should be used
+    for easy debugging purposes ONLY and turned off for production deployments! -->
     <AutoAcceptUntrustedCertificates>true</AutoAcceptUntrustedCertificates>
     
     <!-- WARNING: SHA1 signed certficates are by default rejected and should be phased out. -->
@@ -60,16 +61,16 @@
     <SecurityPolicies>
       <ServerSecurityPolicy>
         <SecurityMode>SignAndEncrypt_3</SecurityMode>
-        <SecurityPolicyUri>http://opcfoundation.org/UA/SecurityPolicy#Basic256Sha256</SecurityPolicyUri>
-      </ServerSecurityPolicy>
-      <ServerSecurityPolicy>
-        <SecurityMode>SignAndEncrypt_3</SecurityMode>
         <SecurityPolicyUri>http://opcfoundation.org/UA/SecurityPolicy#Basic128Rsa15</SecurityPolicyUri>
       </ServerSecurityPolicy>
       <ServerSecurityPolicy>
         <SecurityMode>SignAndEncrypt_3</SecurityMode>
         <SecurityPolicyUri>http://opcfoundation.org/UA/SecurityPolicy#Basic256</SecurityPolicyUri>
-      </ServerSecurityPolicy>      
+      </ServerSecurityPolicy>
+      <ServerSecurityPolicy>
+        <SecurityMode>SignAndEncrypt_3</SecurityMode>
+        <SecurityPolicyUri>http://opcfoundation.org/UA/SecurityPolicy#Basic256Sha256</SecurityPolicyUri>
+      </ServerSecurityPolicy>
     </SecurityPolicies>
     <UserTokenPolicies>
       <ua:UserTokenPolicy>
