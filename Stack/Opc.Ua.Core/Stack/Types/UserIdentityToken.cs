@@ -116,7 +116,6 @@ namespace Opc.Ua
             
             // decrypt.
             EncryptedData encryptedData = new EncryptedData();
-
             encryptedData.Data = m_password;
             encryptedData.Algorithm = m_encryptionAlgorithm;
 
@@ -136,17 +135,21 @@ namespace Opc.Ua
 
             if (senderNonce != null)
             {
-                 startOfNonce -= senderNonce.Length;
+                startOfNonce -= senderNonce.Length;
 
-                for (int ii = 0; ii < senderNonce.Length; ii++)
+                int result = 0;
+                int v = startOfNonce;
+                for (int i = 0; i < senderNonce.Length; i++)
                 {
-                    if (senderNonce[ii] != decryptedPassword[ii+startOfNonce])
-                    {
-                        throw new ServiceResultException(StatusCodes.BadIdentityTokenRejected);
-                    }
+                    result |= senderNonce[i] ^ decryptedPassword[v++];
                 }
-            }            
-                     
+
+                if (result != 0)
+                {
+                    throw new ServiceResultException(StatusCodes.BadIdentityTokenRejected);
+                }
+            }
+
             // convert to UTF-8.
             m_decryptedPassword = new UTF8Encoding().GetString(decryptedPassword, 0, startOfNonce);
         }
