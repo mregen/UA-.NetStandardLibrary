@@ -143,7 +143,8 @@ namespace Opc.Ua.Gds.Server
                 UserIdentityToken securityToken = context.UserIdentity.GetIdentityToken();
 
                 // check for a user name token.
-                if (securityToken is UserNameIdentityToken userNameToken)
+                UserNameIdentityToken userNameToken = securityToken as UserNameIdentityToken;
+                if (userNameToken != null)
                 {
                     lock (m_lock)
                     {
@@ -179,7 +180,8 @@ namespace Opc.Ua.Gds.Server
         private void SessionManager_ImpersonateUser(Session session, ImpersonateEventArgs args)
         {
             // check for a user name token
-            if (args.NewIdentity is UserNameIdentityToken userNameToken)
+            UserNameIdentityToken userNameToken = args.NewIdentity as UserNameIdentityToken;
+            if (userNameToken != null)
             {
                 if (VerifyPassword(userNameToken))
                 {
@@ -213,7 +215,8 @@ namespace Opc.Ua.Gds.Server
             }
 
             // check for x509 user token.
-            if (args.NewIdentity is X509IdentityToken x509Token)
+            X509IdentityToken x509Token = args.NewIdentity as X509IdentityToken;
+            if (x509Token != null)
             {
                 GdsRole role = GdsRole.ApplicationUser;
                 VerifyUserTokenCertificate(x509Token.Certificate);
@@ -249,7 +252,8 @@ namespace Opc.Ua.Gds.Server
             {
                 TranslationInfo info;
                 StatusCode result = StatusCodes.BadIdentityTokenRejected;
-                if (e is ServiceResultException se && se.StatusCode == StatusCodes.BadCertificateUseNotAllowed)
+                ServiceResultException se = e as ServiceResultException;
+                if (se != null && se.StatusCode == StatusCodes.BadCertificateUseNotAllowed)
                 {
                     info = new TranslationInfo(
                         "InvalidCertificate",

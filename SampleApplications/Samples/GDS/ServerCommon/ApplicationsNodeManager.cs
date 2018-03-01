@@ -96,7 +96,8 @@ namespace Opc.Ua.Gds.Server
 
             try
             {
-                var results = m_database.QueryServers(0, 5, null, null, null, null, out DateTime lastResetTime);
+                DateTime lastResetTime;
+                var results = m_database.QueryServers(0, 5, null, null, null, null, out lastResetTime);
                 Utils.Trace("QueryServers Returned: {0} records", results.Length);
 
                 foreach (var result in results)
@@ -146,7 +147,8 @@ namespace Opc.Ua.Gds.Server
         public override NodeId New(ISystemContext context, NodeState node)
         {
             // generate a numeric node id if the node has a parent and no node id assigned.
-            if (node is BaseInstanceState instance && instance.Parent != null)
+            BaseInstanceState instance = node as BaseInstanceState;
+            if (instance != null && instance.Parent != null)
             {
                 return GenerateNodeId();
             }
@@ -485,7 +487,9 @@ namespace Opc.Ua.Gds.Server
 
             Utils.Trace(Utils.TraceMasks.Information, "OnUnregisterApplication: {0}", applicationId.ToString());
 
-            m_database.UnregisterApplication(applicationId, out byte[] certificate, out byte[] privateKey);
+            byte[] certificate;
+            byte[] privateKey;
+            m_database.UnregisterApplication(applicationId, out certificate, out privateKey);
 
             if (certificate != null)
             {
