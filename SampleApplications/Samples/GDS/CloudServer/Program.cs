@@ -35,7 +35,7 @@ using Mono.Options;
 using Opc.Ua.Configuration;
 using Opc.Ua.Server;
 using Opc.Ua.Gds.Server.Database;
-
+using Newtonsoft.Json;
 
 namespace Opc.Ua.Gds.Server
 {
@@ -253,6 +253,9 @@ namespace Opc.Ua.Gds.Server
 
             // read connection string for IoTHub
             var connectionString = await keyVaultHandler.GetIotHubSecretAsync();
+            string json = await keyVaultHandler.GetCertificateConfigurationGroupsAsync();
+            List<CertificateGroupConfiguration> certificateGroups = JsonConvert.DeserializeObject<List<CertificateGroupConfiguration>>(json);
+            gdsConfiguration.CertificateGroups = new CertificateGroupConfigurationCollection(certificateGroups);
 
             // initialize database and certificate group handler
             var database = new IoTHubApplicationsDatabase(connectionString);
