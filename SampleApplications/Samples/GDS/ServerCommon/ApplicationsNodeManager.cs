@@ -759,7 +759,9 @@ namespace Opc.Ua.Gds.Server
                 newCertificate = certificateGroup.NewKeyPairRequestAsync(
                     application,
                     subjectName,
-                    domainNames).Result;
+                    domainNames,
+                    privateKeyFormat,
+                    privateKeyPassword).Result;
             }
             catch (Exception e)
             {

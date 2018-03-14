@@ -60,7 +60,9 @@ namespace Opc.Ua.Gds.Server
         Task<X509Certificate2> NewKeyPairRequestAsync(
             ApplicationRecordDataType application,
             string subjectName,
-            string[] domainNames
+            string[] domainNames,
+            string privateKeyFormat,
+            string privateKeyPassword
             );
     }
 }
