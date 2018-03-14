@@ -753,10 +753,10 @@ namespace Opc.Ua.Gds.Server
                 domainNames = GetDefaultDomainNames(application);
             }
 
-            X509Certificate2 newCertificate = null;
+            X509Certificate2KeyPair newKeyPair = null;
             try
             {
-                newCertificate = certificateGroup.NewKeyPairRequestAsync(
+                newKeyPair = certificateGroup.NewKeyPairRequestAsync(
                     application,
                     subjectName,
                     domainNames,
@@ -774,30 +774,16 @@ namespace Opc.Ua.Gds.Server
                 return new ServiceResult(StatusCodes.BadConfigurationError, error.ToString());
             }
 
-            byte[] privateKey;
-            if (privateKeyFormat == "PFX")
-            {
-                privateKey = newCertificate.Export(X509ContentType.Pfx, privateKeyPassword);
-            }
-            else if (privateKeyFormat == "PEM")
-            {
-                privateKey = CertificateFactory.ExportPrivateKeyAsPEM(newCertificate);
-            }
-            else
-            {
-                return new ServiceResult(StatusCodes.BadInvalidArgument, "Invalid private key format");
-            }
-
             // store only app certificate
             using (ICertificateStore store = CertificateStoreIdentifier.OpenStore(m_configuration.ApplicationCertificatesStorePath))
             {
-                store.Add(new X509Certificate2(newCertificate.RawData)).Wait();
+                store.Add(newKeyPair.Certificate).Wait();
             }
 
             requestId = m_database.CreateCertificateRequest(
                 applicationId,
-                newCertificate.RawData,
-                privateKey,
+                newKeyPair.Certificate.RawData,
+                newKeyPair.PrivateKey,
                 certificateGroup.Id.Identifier as string);
 
             if (m_autoApprove)

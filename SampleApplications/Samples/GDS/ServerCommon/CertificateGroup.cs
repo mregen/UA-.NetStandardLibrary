@@ -107,14 +107,15 @@ namespace Opc.Ua.Gds.Server
             return new CertificateGroup(storePath, certificateGroupConfiguration);
         }
 
-        public virtual async Task<X509Certificate2> NewKeyPairRequestAsync(
+        public virtual async Task<X509Certificate2KeyPair> NewKeyPairRequestAsync(
             ApplicationRecordDataType application,
             string subjectName,
             string[] domainNames,
             string privateKeyFormat,
             string privateKeyPassword)
         {
-            return CertificateFactory.CreateCertificate(
+            using (var signingKey = await LoadSigningKeyAsync(Certificate, string.Empty))
+            using (var certificate = CertificateFactory.CreateCertificate(
                  null,
                  null,
                  null,
@@ -127,8 +128,24 @@ namespace Opc.Ua.Gds.Server
                  Configuration.DefaultCertificateLifetime,
                  Configuration.DefaultCertificateHashSize,
                  false,
-                 await LoadSigningKeyAsync(Certificate, string.Empty),
-                 null);
+                 signingKey,
+                 null))
+            {
+                byte[] privateKey;
+                if (privateKeyFormat == "PFX")
+                {
+                    privateKey = certificate.Export(X509ContentType.Pfx, privateKeyPassword);
+                }
+                else if (privateKeyFormat == "PEM")
+                {
+                    privateKey = CertificateFactory.ExportPrivateKeyAsPEM(certificate);
+                }
+                else
+                {
+                    throw new ServiceResultException(StatusCodes.BadInvalidArgument, "Invalid private key format");
+                }
+                return new X509Certificate2KeyPair(new X509Certificate2(certificate.RawData), privateKeyFormat, privateKey);
+            }
         }
 
         public virtual async Task RevokeCertificateAsync(
@@ -162,8 +179,8 @@ namespace Opc.Ua.Gds.Server
                     {
                         if (!altNameExtension.Uris.Contains(application.ApplicationUri))
                         {
-                            throw new ServiceResultException(StatusCodes.BadCertificateUriInvalid, 
-                                "CSR AltNameExtension does not match "+ application.ApplicationUri);
+                            throw new ServiceResultException(StatusCodes.BadCertificateUriInvalid,
+                                "CSR AltNameExtension does not match " + application.ApplicationUri);
                         }
                     }
 
@@ -177,21 +194,24 @@ namespace Opc.Ua.Gds.Server
                 }
 
                 DateTime yesterday = DateTime.UtcNow.AddDays(-1);
-                return CertificateFactory.CreateCertificate(
-                    null,
-                    null,
-                    null,
-                    application.ApplicationUri ?? "urn:ApplicationURI",
-                    application.ApplicationNames.Count > 0 ? application.ApplicationNames[0].Text : "ApplicationName",
-                    info.Subject.ToString(),
-                    domainNames,
-                    Configuration.DefaultCertificateKeySize,
-                    yesterday,
-                    Configuration.DefaultCertificateLifetime,
-                    Configuration.DefaultCertificateHashSize,
-                    false,
-                    await LoadSigningKeyAsync(Certificate, string.Empty),
-                    info.SubjectPublicKeyInfo.GetEncoded());
+                using (var signingKey = await LoadSigningKeyAsync(Certificate, string.Empty))
+                {
+                    return CertificateFactory.CreateCertificate(
+                        null,
+                        null,
+                        null,
+                        application.ApplicationUri ?? "urn:ApplicationURI",
+                        application.ApplicationNames.Count > 0 ? application.ApplicationNames[0].Text : "ApplicationName",
+                        info.Subject.ToString(),
+                        domainNames,
+                        Configuration.DefaultCertificateKeySize,
+                        yesterday,
+                        Configuration.DefaultCertificateLifetime,
+                        Configuration.DefaultCertificateHashSize,
+                        false,
+                        signingKey,
+                        info.SubjectPublicKeyInfo.GetEncoded());
+                }
             }
             catch (Exception ex)
             {
