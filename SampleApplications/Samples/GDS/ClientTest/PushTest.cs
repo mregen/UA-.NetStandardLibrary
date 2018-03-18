@@ -540,8 +540,8 @@ namespace NUnit.Opc.Ua.Gds.Test
             Assert.That(() => { _pushClient.PushClient.CreateSigningRequest(null, null, null, false, null); }, Throws.Exception);
             Assert.That(() => { _pushClient.PushClient.ReadTrustList(); }, Throws.Exception);
         }
-#endregion
-#region Private Methods
+        #endregion
+        #region Private Methods
         private void ConnectPushClient(bool sysAdmin)
         {
             _pushClient.PushClient.AdminCredentials = sysAdmin ? _pushClient.SysAdminUser : _pushClient.AppUser;
@@ -595,7 +595,7 @@ namespace NUnit.Opc.Ua.Gds.Test
             NodeId id = _gdsClient.GDSClient.RegisterApplication(_applicationRecord);
             Assert.IsNotNull(id);
             _applicationRecord.ApplicationId = id;
-            
+
             // add issuer and trusted certs to client stores
             NodeId trustListId = _gdsClient.GDSClient.GetTrustList(id, null);
             var trustList = _gdsClient.GDSClient.ReadTrustList(trustListId);

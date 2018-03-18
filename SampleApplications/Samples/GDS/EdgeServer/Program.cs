@@ -239,24 +239,25 @@ namespace Opc.Ua.Gds.Server
             string[] keyVaultConfig = gdsConfiguration.DatabaseStorePath.Split(',');
 
             // The vault
-            var keyVaultHandler = new KeyVaultHandler(keyVaultConfig[0]);
+            var gdsVaultHandler = new OpcGdsVaultClientHandler(keyVaultConfig[0]);
             if (keyVaultConfig.Length == 1)
             {
                 // authenticate key vault with MSI (web app) or developer user account
-                keyVaultHandler.SetTokenProvider();
+                gdsVaultHandler.SetTokenProvider();
             }
             else
             {
                 // authenticate key vault with app cert
-                keyVaultHandler.SetAssertionCertificate(keyVaultConfig[1], await config.SecurityConfiguration.ApplicationCertificate.LoadPrivateKey(string.Empty));
+                gdsVaultHandler.SetAssertionCertificate(keyVaultConfig[1], await config.SecurityConfiguration.ApplicationCertificate.LoadPrivateKey(string.Empty));
             }
 
-            // read connection string for IoTHub
-            var connectionString = await keyVaultHandler.GetIotHubSecretAsync();
+            // read configurations from GDS Vault
+            var connectionString = await gdsVaultHandler.GetIotHubSecretAsync();
+            gdsConfiguration.CertificateGroups = await gdsVaultHandler.GetCertificateConfigurationGroupsAsync();
 
             // initialize database and certificate group handler
             var database = new IoTHubApplicationsDatabase(connectionString);
-            var certGroup = new KeyVaultCertificateGroup(keyVaultHandler);
+            var certGroup = new GdsVaultCertificateGroup(gdsVaultHandler);
 
             // start the server.
             server = new GlobalDiscoverySampleServer(database, certGroup);

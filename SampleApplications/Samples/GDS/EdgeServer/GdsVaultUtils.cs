@@ -31,25 +31,24 @@ using System;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Azure.KeyVault;
-using Microsoft.Azure.KeyVault.Models;
-using Microsoft.Azure.KeyVault.WebKey;
+using Microsoft.Azure.IoTSolutions.OpcGdsVault.WebService.Client;
+using Microsoft.Azure.IoTSolutions.OpcGdsVault.WebService.Client.Models;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace Opc.Ua.Gds.Server
 {
 
-    public class KeyVaultHandler
+    public class OpcGdsVaultClientHandler
     {
         string _vaultBaseUrl;
         string _appId;
-        IKeyVaultClient _keyVaultClient;
+        IOpcGdsVaultClient _gdsVaultClient;
         ClientAssertionCertificate _assertionCert;
 
-        public IKeyVaultClient KeyVaultClient { get => _keyVaultClient; }
+        public IOpcGdsVaultClient GdsVaultClient { get => _gdsVaultClient; }
 
-        public KeyVaultHandler(string vaultBaseUrl)
+        public OpcGdsVaultClientHandler(string vaultBaseUrl)
         {
             _vaultBaseUrl = vaultBaseUrl;
         }
@@ -60,15 +59,15 @@ namespace Opc.Ua.Gds.Server
         {
             _appId = appId;
             _assertionCert = new ClientAssertionCertificate(appId, clientAssertionCertPfx);
-            _keyVaultClient = new KeyVaultClient(
-                new KeyVaultClient.AuthenticationCallback(GetAccessTokenAsync));
+            _gdsVaultClient = new OpcGdsVaultClient(
+                new AuthenticationCallback(GetAccessTokenAsync));
         }
 
         public void SetTokenProvider()
         {
             AzureServiceTokenProvider azureServiceTokenProvider = new AzureServiceTokenProvider();
-            _keyVaultClient = new KeyVaultClient(
-                new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+            _gdsVaultClient = new OpcGdsVaultClient(
+                new AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
         }
 
         private async Task<string> GetAccessTokenAsync(string authority, string resource, string scope)
@@ -80,10 +79,30 @@ namespace Opc.Ua.Gds.Server
 
         public async Task<string> GetIotHubSecretAsync()
         {
-            SecretBundle secret = await _keyVaultClient.GetSecretAsync(_vaultBaseUrl + "/secrets/iothub").ConfigureAwait(false);
-            return secret.Value;
+            var secret = await _gdsVaultClient.GetIotHubSecretAsync().ConfigureAwait(false);
+            return secret.Secret;
         }
 
+        public async Task<CertificateGroupConfigurationCollection> GetCertificateConfigurationGroupsAsync()
+        {
+            var groups = await _gdsVaultClient.GetCertificateGroupConfiguration().ConfigureAwait(false);
+            var groupCollection = new CertificateGroupConfigurationCollection();
+            foreach (var group in groups.Groups)
+            {
+                var newGroup = new CertificateGroupConfiguration()
+                {
+                    Id = group.Id,
+                    SubjectName = group.SubjectName,
+                    DefaultCertificateHashSize = group.DefaultCertificateHashSize,
+                    DefaultCertificateKeySize = group.DefaultCertificateKeySize,
+                    DefaultCertificateLifetime = group.DefaultCertificateLifetime
+                };
+                groupCollection.Add(newGroup);
+            }
+            return groupCollection;
+        }
+
+#if mist
         public async Task<CertificateBundle> GetCertificateAsync(string name)
         {
             return await _keyVaultClient.GetCertificateAsync(_vaultBaseUrl, name).ConfigureAwait(false);
@@ -215,7 +234,7 @@ namespace Opc.Ua.Gds.Server
         {
             var result = await _keyVaultClient.SignAsync(signingKey, JsonWebKeySignatureAlgorithm.RS256, digest);
         }
-
+#endif
     }
 }
 

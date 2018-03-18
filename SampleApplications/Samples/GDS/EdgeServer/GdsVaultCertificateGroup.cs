@@ -34,25 +34,25 @@ using System.Threading.Tasks;
 namespace Opc.Ua.Gds.Server
 {
 
-    public class KeyVaultCertificateGroup : CertificateGroup
+    public class GdsVaultCertificateGroup : CertificateGroup
     {
-        private KeyVaultHandler _keyVaultHandler;
+        private OpcGdsVaultClientHandler _gdsVaultHandler;
         // CA cert private key and pfx location
         private string _caCertSecretIdentifier;
         private string _caCertKeyIdentifier;
 
-        private KeyVaultCertificateGroup(
-            KeyVaultHandler keyVaultHandler,
+        private GdsVaultCertificateGroup(
+            OpcGdsVaultClientHandler gdsVaultHandler,
             string authoritiesStorePath,
             CertificateGroupConfiguration certificateGroupConfiguration) :
             base(authoritiesStorePath, certificateGroupConfiguration)
         {
-            _keyVaultHandler = keyVaultHandler;
+            _gdsVaultHandler = gdsVaultHandler;
         }
 
-        public KeyVaultCertificateGroup(KeyVaultHandler keyVaultHandler)
+        public GdsVaultCertificateGroup(OpcGdsVaultClientHandler gdsVaultHandler)
         {
-            _keyVaultHandler = keyVaultHandler;
+            _gdsVaultHandler = gdsVaultHandler;
         }
 
         #region ICertificateGroupProvider
@@ -60,23 +60,24 @@ namespace Opc.Ua.Gds.Server
             string storePath,
             CertificateGroupConfiguration certificateGroupConfiguration)
         {
-            return new KeyVaultCertificateGroup(_keyVaultHandler, storePath, certificateGroupConfiguration);
+            return new GdsVaultCertificateGroup(_gdsVaultHandler, storePath, certificateGroupConfiguration);
         }
 
-        public override async Task Init()
+        public override Task Init()
         {
             Utils.Trace(Utils.TraceMasks.Information, "InitializeCertificateGroup: {0}", m_subjectName);
 
+#if mist
             try
             {
-                var result = await _keyVaultHandler.GetCertificateAsync(Configuration.Id).ConfigureAwait(false);
+                var result = await _gdsVaultHandler.GetCertificateAsync(Configuration.Id).ConfigureAwait(false);
                 var cloudCert = new X509Certificate2(result.Cer);
                 if (Utils.CompareDistinguishedName(cloudCert.Subject, m_subjectName))
                 {
                     Certificate = cloudCert;
                     _caCertSecretIdentifier = result.SecretIdentifier.Identifier;
                     _caCertKeyIdentifier = result.KeyIdentifier.Identifier;
-                    await _keyVaultHandler.LoadSigningCertificateAsync(_caCertSecretIdentifier, Certificate);
+                    await _gdsVaultHandler.LoadSigningCertificateAsync(_caCertSecretIdentifier, Certificate);
                     //await _keyVaultHandler.SignDigestAsync(_caCertKeyIdentifier, digest);
                 }
                 else
@@ -92,7 +93,7 @@ namespace Opc.Ua.Gds.Server
             }
 
             // add all existing cert versions for trust list
-            var allCerts = await _keyVaultHandler.GetCertificateVersionsAsync(Configuration.Id);
+            var allCerts = await _gdsVaultHandler.GetCertificateVersionsAsync(Configuration.Id);
 
             // erase old certs
             using (ICertificateStore store = CertificateStoreIdentifier.OpenStore(m_authoritiesStorePath))
@@ -143,6 +144,9 @@ namespace Opc.Ua.Gds.Server
 
                 await UpdateAuthorityCertInTrustedList();
             }
+#endif
+            //throw new NotImplementedException("CA creation not supported with key vault. Certificate is created and managed by keyVault administrator.");
+            return Task.CompletedTask;
         }
 
         public override Task RevokeCertificateAsync(
@@ -158,14 +162,6 @@ namespace Opc.Ua.Gds.Server
         {
             throw new NotImplementedException("CA creation not supported with key vault. Certificate is created and managed by keyVault administrator.");
         }
-
-        public override async Task<X509Certificate2> LoadSigningKeyAsync(X509Certificate2 signingCertificate, string signingKeyPassword)
-        {
-            return await _keyVaultHandler.LoadSigningCertificateAsync(
-                _caCertSecretIdentifier,
-                Certificate);
-        }
-        #endregion
     }
-
+    #endregion
 }
