@@ -37,9 +37,6 @@ namespace Opc.Ua.Gds.Server
     public class GdsVaultCertificateGroup : CertificateGroup
     {
         private OpcGdsVaultClientHandler _gdsVaultHandler;
-        // CA cert private key and pfx location
-        private string _caCertSecretIdentifier;
-        private string _caCertKeyIdentifier;
 
         private GdsVaultCertificateGroup(
             OpcGdsVaultClientHandler gdsVaultHandler,
@@ -63,26 +60,26 @@ namespace Opc.Ua.Gds.Server
             return new GdsVaultCertificateGroup(_gdsVaultHandler, storePath, certificateGroupConfiguration);
         }
 
-        public override Task Init()
+        public override async Task Init()
         {
             Utils.Trace(Utils.TraceMasks.Information, "InitializeCertificateGroup: {0}", m_subjectName);
 
-#if mist
             try
             {
-                var result = await _gdsVaultHandler.GetCertificateAsync(Configuration.Id).ConfigureAwait(false);
-                var cloudCert = new X509Certificate2(result.Cer);
-                if (Utils.CompareDistinguishedName(cloudCert.Subject, m_subjectName))
+                // read root CA chain for certificate group
+                var rootCACertificateChain = await _gdsVaultHandler.GetCACertificateChainAsync(Configuration.Id).ConfigureAwait(false);
+                var rootCACrlChain = await _gdsVaultHandler.GetCACrlChainAsync(Configuration.Id).ConfigureAwait(false);
+                var rootCaCert = rootCACertificateChain[0];
+                var rootCaCrl = rootCACrlChain[0];
+
+                if (Utils.CompareDistinguishedName(rootCaCert.Subject, m_subjectName))
                 {
-                    Certificate = cloudCert;
-                    _caCertSecretIdentifier = result.SecretIdentifier.Identifier;
-                    _caCertKeyIdentifier = result.KeyIdentifier.Identifier;
-                    await _gdsVaultHandler.LoadSigningCertificateAsync(_caCertSecretIdentifier, Certificate);
-                    //await _keyVaultHandler.SignDigestAsync(_caCertKeyIdentifier, digest);
+                    Certificate = rootCaCert;
+                    rootCaCrl.VerifySignature(rootCaCert, true);
                 }
                 else
                 {
-                    throw new ServiceResultException("Key Vault certificate subject(" + cloudCert.Subject + ") does not match cert group subject " + m_subjectName);
+                    throw new ServiceResultException("Key Vault certificate subject(" + rootCaCert.Subject + ") does not match cert group subject " + m_subjectName);
                 }
             }
             catch (Exception ex)
@@ -93,7 +90,7 @@ namespace Opc.Ua.Gds.Server
             }
 
             // add all existing cert versions for trust list
-            var allCerts = await _gdsVaultHandler.GetCertificateVersionsAsync(Configuration.Id);
+            // var allCerts = await _gdsVaultHandler.GetCertificateVersionsAsync(Configuration.Id);
 
             // erase old certs
             using (ICertificateStore store = CertificateStoreIdentifier.OpenStore(m_authoritiesStorePath))
@@ -105,7 +102,7 @@ namespace Opc.Ua.Gds.Server
                     {
                         if (Utils.CompareDistinguishedName(certificate.Subject, m_subjectName))
                         {
-                            if (null == allCerts.Find(X509FindType.FindByThumbprint, certificate.Thumbprint, false))
+                            if (true /*null == allCerts.Find(X509FindType.FindByThumbprint, certificate.Thumbprint, false)*/)
                             {
                                 Utils.Trace("Delete CA certificate from authority store: " + certificate.Thumbprint);
 
@@ -127,7 +124,7 @@ namespace Opc.Ua.Gds.Server
                 {
                     Utils.Trace("Failed to Delete existing certificates from authority store: " + ex.Message);
                 }
-
+#if mist
                 foreach (var certificate in allCerts)
                 {
                     X509Certificate2Collection certs = await store.FindByThumbprint(certificate.Thumbprint);
@@ -143,13 +140,13 @@ namespace Opc.Ua.Gds.Server
                 }
 
                 await UpdateAuthorityCertInTrustedList();
-            }
 #endif
-            //throw new NotImplementedException("CA creation not supported with key vault. Certificate is created and managed by keyVault administrator.");
-            return Task.CompletedTask;
+            }
+
         }
 
-        public override Task RevokeCertificateAsync(
+#if mist
+    public override Task RevokeCertificateAsync(
             X509Certificate2 certificate)
         {
             // revocation is not yet supported
@@ -162,6 +159,7 @@ namespace Opc.Ua.Gds.Server
         {
             throw new NotImplementedException("CA creation not supported with key vault. Certificate is created and managed by keyVault administrator.");
         }
+#endif
     }
-    #endregion
+#endregion
 }

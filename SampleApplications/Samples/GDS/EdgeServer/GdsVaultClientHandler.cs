@@ -28,6 +28,7 @@
  * ======================================================================*/
 
 using System;
+using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -83,6 +84,30 @@ namespace Opc.Ua.Gds.Server
             return secret.Secret;
         }
 
+        public async Task<X509Certificate2Collection> GetCACertificateChainAsync(string id)
+        {
+            var result = new X509Certificate2Collection();
+            var chainApiModel = await _gdsVaultClient.GetCACertificateChainAsync(id).ConfigureAwait(false);
+            foreach (var certApiModel in chainApiModel.Chain)
+            {
+                var cert = new X509Certificate2(Convert.FromBase64String(certApiModel.Certificate));
+                result.Add(cert);
+            }
+            return result;
+        }
+
+        public async Task<IList<Opc.Ua.X509CRL>> GetCACrlChainAsync(string id)
+        {
+            var result = new List<Opc.Ua.X509CRL>();
+            var chainApiModel = await _gdsVaultClient.GetCACrlChainAsync(id).ConfigureAwait(false);
+            foreach (var certApiModel in chainApiModel.Chain)
+            {
+                var crl = new Opc.Ua.X509CRL(Convert.FromBase64String(certApiModel.Crl));
+                result.Add(crl);
+            }
+            return result;
+        }
+
         public async Task<CertificateGroupConfigurationCollection> GetCertificateConfigurationGroupsAsync()
         {
             var groups = await _gdsVaultClient.GetCertificateGroupConfiguration().ConfigureAwait(false);
@@ -93,6 +118,7 @@ namespace Opc.Ua.Gds.Server
                 {
                     Id = group.Id,
                     SubjectName = group.SubjectName,
+                    BaseStorePath = "./baseStorePath",
                     DefaultCertificateHashSize = group.DefaultCertificateHashSize,
                     DefaultCertificateKeySize = group.DefaultCertificateKeySize,
                     DefaultCertificateLifetime = group.DefaultCertificateLifetime

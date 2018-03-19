@@ -35,7 +35,9 @@ using Mono.Options;
 using Opc.Ua.Configuration;
 using Opc.Ua.Server;
 using Opc.Ua.Gds.Server.Database;
-
+using System.Xml.Serialization;
+using System.Xml;
+using System.Runtime.Serialization;
 
 namespace Opc.Ua.Gds.Server
 {
@@ -255,6 +257,8 @@ namespace Opc.Ua.Gds.Server
             var connectionString = await gdsVaultHandler.GetIotHubSecretAsync();
             gdsConfiguration.CertificateGroups = await gdsVaultHandler.GetCertificateConfigurationGroupsAsync();
 
+            UpdateGDSConfigurationDocument(config.Extensions, gdsConfiguration);
+
             // initialize database and certificate group handler
             var database = new IoTHubApplicationsDatabase(connectionString);
             var certGroup = new GdsVaultCertificateGroup(gdsVaultHandler);
@@ -272,6 +276,29 @@ namespace Opc.Ua.Gds.Server
             server.CurrentInstance.SessionManager.SessionCreated += EventStatus;
 
         }
+
+        /// <summary>
+        /// Updates the config extension with the new configuration information.
+        /// </summary>
+        private static void UpdateGDSConfigurationDocument(XmlElementCollection extensions, GlobalDiscoveryServerConfiguration gdsConfiguration)
+        {
+            XmlDocument gdsDoc = new XmlDocument();
+            var qualifiedName = EncodeableFactory.GetXmlName(typeof(GlobalDiscoveryServerConfiguration));
+            XmlSerializer gdsSerializer = new XmlSerializer(typeof(GlobalDiscoveryServerConfiguration), qualifiedName.Namespace);
+            using (XmlWriter writer = gdsDoc.CreateNavigator().AppendChild())
+            {
+                gdsSerializer.Serialize(writer, gdsConfiguration);
+            }
+
+            foreach (var extension in extensions)
+            {
+                if (extension.Name == qualifiedName.Name)
+                {
+                    extension.InnerXml = gdsDoc.DocumentElement.InnerXml;
+                }
+            }
+        }
+
 
         private void EventStatus(Session session, SessionEventReason reason)
         {
