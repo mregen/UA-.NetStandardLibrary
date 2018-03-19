@@ -145,11 +145,11 @@ namespace Opc.Ua.Gds.Server
             }
         }
 
-        public override Task RevokeCertificateAsync(
+        public override Task<X509CRL> RevokeCertificateAsync(
             X509Certificate2 certificate)
         {
             // revocation is not yet supported
-            return Task.CompletedTask;
+            return null;
         }
 
         public override Task<X509Certificate2> CreateCACertificateAsync(

@@ -90,6 +90,7 @@ namespace Opc.Ua.Gds.Server
             }
 
             // add all existing cert versions for trust list
+            // TODO GetAllVersions + CRL
             // var allCerts = await _gdsVaultHandler.GetCertificateVersionsAsync(Configuration.Id);
 
             // erase old certs
@@ -100,6 +101,7 @@ namespace Opc.Ua.Gds.Server
                     X509Certificate2Collection certificates = await store.Enumerate();
                     foreach (var certificate in certificates)
                     {
+                        // TODO: Subject may have changed over time
                         if (Utils.CompareDistinguishedName(certificate.Subject, m_subjectName))
                         {
                             if (true /*null == allCerts.Find(X509FindType.FindByThumbprint, certificate.Thumbprint, false)*/)
@@ -145,12 +147,94 @@ namespace Opc.Ua.Gds.Server
 
         }
 
-#if mist
-    public override Task RevokeCertificateAsync(
+        public override async Task<X509Certificate2KeyPair> NewKeyPairRequestAsync(
+            ApplicationRecordDataType application,
+            string subjectName,
+            string[] domainNames,
+            string privateKeyFormat,
+            string privateKeyPassword)
+        {
+            try
+            {
+                return await _gdsVaultHandler.NewKeyPairRequestAsync(
+                    Configuration.Id,
+                    application,
+                    subjectName,
+                    domainNames,
+                    privateKeyFormat,
+                    privateKeyPassword
+                    ).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                if (ex is ServiceResultException)
+                {
+                    throw ex as ServiceResultException;
+                }
+                throw new ServiceResultException(StatusCodes.BadInvalidArgument, ex.Message);
+            }
+        }
+
+        public override async Task<X509Certificate2> SigningRequestAsync(
+            ApplicationRecordDataType application,
+            string[] domainNames,
+            byte[] certificateRequest)
+        {
+            try
+            {
+                var pkcs10CertificationRequest = new Org.BouncyCastle.Pkcs.Pkcs10CertificationRequest(certificateRequest);
+                if (!pkcs10CertificationRequest.Verify())
+                {
+                    throw new ServiceResultException(StatusCodes.BadInvalidArgument, "CSR signature invalid.");
+                }
+
+                var info = pkcs10CertificationRequest.GetCertificationRequestInfo();
+                var altNameExtension = GetAltNameExtensionFromCSRInfo(info);
+                if (altNameExtension != null)
+                {
+                    if (altNameExtension.Uris.Count > 0)
+                    {
+                        if (!altNameExtension.Uris.Contains(application.ApplicationUri))
+                        {
+                            throw new ServiceResultException(StatusCodes.BadCertificateUriInvalid,
+                                "CSR AltNameExtension does not match " + application.ApplicationUri);
+                        }
+                    }
+                }
+                return await _gdsVaultHandler.SigningRequestAsync(
+                    Configuration.Id,
+                    application,
+                    certificateRequest).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                if (ex is ServiceResultException)
+                {
+                    throw ex as ServiceResultException;
+                }
+                throw new ServiceResultException(StatusCodes.BadInvalidArgument, ex.Message);
+            }
+
+        }
+
+
+        public override async Task<Opc.Ua.X509CRL> RevokeCertificateAsync(
             X509Certificate2 certificate)
         {
-            // revocation is not yet supported
-            return Task.CompletedTask;
+            try
+            {
+                return await _gdsVaultHandler.RevokeCertificateAsync(
+                    Configuration.Id,
+                    certificate).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                if (ex is ServiceResultException)
+                {
+                    throw ex as ServiceResultException;
+                }
+                throw new ServiceResultException(StatusCodes.BadInvalidArgument, ex.Message);
+            }
         }
 
         public override Task<X509Certificate2> CreateCACertificateAsync(
@@ -159,7 +243,7 @@ namespace Opc.Ua.Gds.Server
         {
             throw new NotImplementedException("CA creation not supported with key vault. Certificate is created and managed by keyVault administrator.");
         }
-#endif
+
     }
 #endregion
 }

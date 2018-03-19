@@ -148,10 +148,10 @@ namespace Opc.Ua.Gds.Server
             }
         }
 
-        public virtual async Task RevokeCertificateAsync(
+        public virtual async Task<Opc.Ua.X509CRL> RevokeCertificateAsync(
             X509Certificate2 certificate)
         {
-            await CertificateFactory.RevokeCertificateAsync(
+            return await CertificateFactory.RevokeCertificateAsync(
                 m_authoritiesStorePath,
                 certificate,
                 null);
@@ -313,7 +313,7 @@ namespace Opc.Ua.Gds.Server
             }
         }
 
-        private X509SubjectAltNameExtension GetAltNameExtensionFromCSRInfo(Org.BouncyCastle.Asn1.Pkcs.CertificationRequestInfo info)
+        protected X509SubjectAltNameExtension GetAltNameExtensionFromCSRInfo(Org.BouncyCastle.Asn1.Pkcs.CertificationRequestInfo info)
         {
             try
             {

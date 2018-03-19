@@ -255,7 +255,7 @@ namespace Opc.Ua.Gds.Server
 
             // read configurations from GDS Vault
             var connectionString = await gdsVaultHandler.GetIotHubSecretAsync();
-            gdsConfiguration.CertificateGroups = await gdsVaultHandler.GetCertificateConfigurationGroupsAsync();
+            gdsConfiguration.CertificateGroups = await gdsVaultHandler.GetCertificateConfigurationGroupsAsync(gdsConfiguration.ApplicationCertificatesStorePath);
 
             UpdateGDSConfigurationDocument(config.Extensions, gdsConfiguration);
 
