@@ -114,6 +114,7 @@ namespace NUnit.Opc.Ua.Gds.Test
 
             _goodRegistrationOk = false;
             _invalidRegistrationOk = false;
+            _goodNewKeyPairRequestOk = false;
         }
 
         /// <summary>
@@ -280,7 +281,7 @@ namespace NUnit.Opc.Ua.Gds.Test
             {
                 var result = _gdsClient.GDSClient.FindApplication(application.ApplicationRecord.ApplicationUri);
                 Assert.NotNull(result);
-                Assert.GreaterOrEqual(1, result.Length, "Couldn't find good application");
+                Assert.GreaterOrEqual(result.Length, 1, "Couldn't find good application");
             }
         }
 
@@ -407,6 +408,7 @@ namespace NUnit.Opc.Ua.Gds.Test
                 Assert.NotNull(requestId);
                 application.CertificateRequestId = requestId;
             }
+            _goodNewKeyPairRequestOk = true;
         }
 
         [Test, Order(501)]
@@ -435,6 +437,7 @@ namespace NUnit.Opc.Ua.Gds.Test
         public void FinishGoodNewKeyPairRequests()
         {
             AssertIgnoreTestWithoutGoodRegistration();
+            AssertIgnoreTestWithoutGoodNewKeyPairRequest();
             ConnectGDS(true);
             bool requestBusy;
             do
@@ -499,6 +502,7 @@ namespace NUnit.Opc.Ua.Gds.Test
         public void StartGoodSigningRequests()
         {
             AssertIgnoreTestWithoutGoodRegistration();
+            AssertIgnoreTestWithoutGoodNewKeyPairRequest();
             ConnectGDS(true);
             foreach (var application in _goodApplicationTestSet)
             {
@@ -928,6 +932,15 @@ namespace NUnit.Opc.Ua.Gds.Test
                 Assert.Ignore("Test requires invalid application registration.");
             }
         }
+
+        private void AssertIgnoreTestWithoutGoodNewKeyPairRequest()
+        {
+            if (!_goodNewKeyPairRequestOk)
+            {
+                Assert.Ignore("Test requires good new key pair request.");
+            }
+        }
+
         #endregion
         #region Private Fields
         private const int goodApplicationsTestCount = 10;
@@ -942,6 +955,7 @@ namespace NUnit.Opc.Ua.Gds.Test
         private ServerCapabilities _serverCapabilities;
         private bool _goodRegistrationOk;
         private bool _invalidRegistrationOk;
+        private bool _goodNewKeyPairRequestOk;
         #endregion
     }
 
