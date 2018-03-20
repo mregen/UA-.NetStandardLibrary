@@ -36,6 +36,9 @@ using Opc.Ua.Configuration;
 using Opc.Ua.Server;
 using Opc.Ua.Gds.Server.Database;
 using Newtonsoft.Json;
+using System.Linq;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace Opc.Ua.Gds.Server
 {
@@ -257,6 +260,8 @@ namespace Opc.Ua.Gds.Server
             List<CertificateGroupConfiguration> certificateGroups = JsonConvert.DeserializeObject<List<CertificateGroupConfiguration>>(json);
             gdsConfiguration.CertificateGroups = new CertificateGroupConfigurationCollection(certificateGroups);
 
+            UpdateGDSConfigurationDocument(config.Extensions, gdsConfiguration);
+
             // initialize database and certificate group handler
             var database = new IoTHubApplicationsDatabase(connectionString);
             var certGroup = new KeyVaultCertificateGroup(keyVaultHandler);
@@ -264,6 +269,13 @@ namespace Opc.Ua.Gds.Server
             // start the server.
             server = new GlobalDiscoverySampleServer(database, certGroup);
             await application.Start(server);
+
+            // print endpoint info
+            var endpoints = application.Server.GetEndpoints().Select(e => e.EndpointUrl).Distinct();
+            foreach (var endpoint in endpoints)
+            {
+                Console.WriteLine(endpoint);
+            }
 
             // start the status thread
             status = Task.Run(new Action(StatusThread));
@@ -274,6 +286,29 @@ namespace Opc.Ua.Gds.Server
             server.CurrentInstance.SessionManager.SessionCreated += EventStatus;
 
         }
+
+        /// <summary>
+        /// Updates the config extension with the new configuration information.
+        /// </summary>
+        private static void UpdateGDSConfigurationDocument(XmlElementCollection extensions, GlobalDiscoveryServerConfiguration gdsConfiguration)
+        {
+            XmlDocument gdsDoc = new XmlDocument();
+            var qualifiedName = EncodeableFactory.GetXmlName(typeof(GlobalDiscoveryServerConfiguration));
+            XmlSerializer gdsSerializer = new XmlSerializer(typeof(GlobalDiscoveryServerConfiguration), qualifiedName.Namespace);
+            using (XmlWriter writer = gdsDoc.CreateNavigator().AppendChild())
+            {
+                gdsSerializer.Serialize(writer, gdsConfiguration);
+            }
+
+            foreach (var extension in extensions)
+            {
+                if (extension.Name == qualifiedName.Name)
+                {
+                    extension.InnerXml = gdsDoc.DocumentElement.InnerXml;
+                }
+            }
+        }
+
 
         private void EventStatus(Session session, SessionEventReason reason)
         {

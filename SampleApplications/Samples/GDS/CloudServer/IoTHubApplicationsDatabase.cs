@@ -73,6 +73,8 @@ namespace Opc.Ua.Gds.Server.Database
         public string ApplicationUri { get; set; }
         [JsonConverter(typeof(StringArrayConverter))]
         public string[] ApplicationNames { get; set; }
+        [JsonConverter(typeof(StringArrayConverter))]
+        public string[] ApplicationNamesLocale { get; set; }
         public int ApplicationType { get; set; }
         public string ProductUri { get; set; }
         [JsonConverter(typeof(StringArrayConverter))]
@@ -101,7 +103,7 @@ namespace Opc.Ua.Gds.Server.Database
     {
         RegistryManager _IoTHubDeviceRegistry = null;
 
-        public IoTHubApplicationsDatabase(string databaseStorePath, bool clean = false)
+        public IoTHubApplicationsDatabase(string databaseStorePath, bool clean = true)
         {
             _IoTHubDeviceRegistry = RegistryManager.CreateFromConnectionString(databaseStorePath);
 
@@ -151,11 +153,14 @@ namespace Opc.Ua.Gds.Server.Database
                 ApplicationTwinRecord record = new ApplicationTwinRecord() { ApplicationId = applicationId };
                 record.ApplicationUri = application.ApplicationUri;
                 List<string> applicationNames = new List<string>();
+                List<string> applicationNamesLocale = new List<string>();
                 foreach (var name in application.ApplicationNames)
                 {
                     applicationNames.Add(name.Text);
+                    applicationNamesLocale.Add(name.Locale);
                 }
                 record.ApplicationNames = applicationNames.ToArray();
+                record.ApplicationNamesLocale = applicationNamesLocale.ToArray();
                 record.ApplicationType = (int)application.ApplicationType;
                 record.ProductUri = application.ProductUri;
                 record.ServerCapabilities = capabilities;
@@ -365,9 +370,13 @@ namespace Opc.Ua.Gds.Server.Database
                     try
                     {
                         JObject appNamesParts = (JObject)twin.Tags["ApplicationNames"];
+                        JObject appNamesPartsLocale = (JObject)twin.Tags["ApplicationNamesLocale"];
+                        var localeEnumerator = appNamesPartsLocale.Children().GetEnumerator();
+                        localeEnumerator.MoveNext();
                         foreach (JToken part in appNamesParts.Children())
                         {
-                            record.ApplicationNames.Add(new LocalizedText(((JProperty)part).Value.ToString()));
+                            var locale = localeEnumerator.Current;
+                            record.ApplicationNames.Add(new LocalizedText(((JProperty)locale).Value.ToString(), ((JProperty)part).Value.ToString()));
                         }
                     }
                     catch { }

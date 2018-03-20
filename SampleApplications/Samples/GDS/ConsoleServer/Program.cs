@@ -35,7 +35,7 @@ using Mono.Options;
 using Opc.Ua.Configuration;
 using Opc.Ua.Server;
 using Opc.Ua.Gds.Server.Database;
-
+using System.Linq;
 
 namespace Opc.Ua.Gds.Server
 {
@@ -240,6 +240,13 @@ namespace Opc.Ua.Gds.Server
                 JsonApplicationsDatabase.Load(databaseStorePath),
                 new CertificateGroup());
             await application.Start(server);
+
+            // print endpoint info
+            var endpoints = application.Server.GetEndpoints().Select(e => e.EndpointUrl).Distinct();
+            foreach (var endpoint in endpoints)
+            {
+                Console.WriteLine(endpoint);
+            }
 
             // start the status thread
             status = Task.Run(new Action(StatusThread));

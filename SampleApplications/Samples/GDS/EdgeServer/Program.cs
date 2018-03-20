@@ -38,6 +38,7 @@ using Opc.Ua.Gds.Server.Database;
 using System.Xml.Serialization;
 using System.Xml;
 using System.Runtime.Serialization;
+using System.Linq;
 
 namespace Opc.Ua.Gds.Server
 {
@@ -260,12 +261,20 @@ namespace Opc.Ua.Gds.Server
             UpdateGDSConfigurationDocument(config.Extensions, gdsConfiguration);
 
             // initialize database and certificate group handler
-            var database = new IoTHubApplicationsDatabase(connectionString);
+            //var database = new IoTHubApplicationsDatabase(connectionString);
+            var database = JsonApplicationsDatabase.Load("./dbStore.json");
             var certGroup = new GdsVaultCertificateGroup(gdsVaultHandler);
 
             // start the server.
             server = new GlobalDiscoverySampleServer(database, certGroup);
             await application.Start(server);
+
+            // print endpoint info
+            var endpoints = application.Server.GetEndpoints().Select(e => e.EndpointUrl).Distinct();
+            foreach (var endpoint in endpoints)
+            {
+                Console.WriteLine(endpoint);
+            }
 
             // start the status thread
             status = Task.Run(new Action(StatusThread));
