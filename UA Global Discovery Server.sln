@@ -45,6 +45,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudGlobalDiscoveryServer"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EdgeGlobalDiscoveryServer", "SampleApplications\Samples\GDS\EdgeServer\EdgeGlobalDiscoveryServer.csproj", "{7471B15D-0909-420C-BCEB-4523A4FE6527}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebService.Client", "..\pcs-template-microservice-dotnet\WebService.Client\WebService.Client.csproj", "{EF9FBCDE-5321-46E8-A414-66A49496CB7C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Common", "..\pcs-template-microservice-dotnet\Services.Common\Services.Common.csproj", "{3A604CAF-21B1-4CAB-A076-3E1F541AD191}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -111,6 +115,14 @@ Global
 		{7471B15D-0909-420C-BCEB-4523A4FE6527}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7471B15D-0909-420C-BCEB-4523A4FE6527}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7471B15D-0909-420C-BCEB-4523A4FE6527}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF9FBCDE-5321-46E8-A414-66A49496CB7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF9FBCDE-5321-46E8-A414-66A49496CB7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF9FBCDE-5321-46E8-A414-66A49496CB7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF9FBCDE-5321-46E8-A414-66A49496CB7C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A604CAF-21B1-4CAB-A076-3E1F541AD191}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A604CAF-21B1-4CAB-A076-3E1F541AD191}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A604CAF-21B1-4CAB-A076-3E1F541AD191}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A604CAF-21B1-4CAB-A076-3E1F541AD191}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
