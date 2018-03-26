@@ -55,12 +55,8 @@ namespace NUnit.Opc.Ua.Gds.Test
         [OneTimeSetUp]
         protected async Task OneTimeSetUp()
         {
-#if DEBUG
             // make sure all servers started in travis use a different port, or test will fail
-            const int testPort = 58820;
-#else
-            const int testPort = 58830;
-#endif
+            int testPort = 50000 + (((Int32)DateTime.UtcNow.ToFileTimeUtc() / 10000) & 0x1fff);
             _serverCapabilities = new ServerCapabilities();
             _randomSource = new RandomSource(randomStart);
             _dataGenerator = new DataGenerator(_randomSource);
