@@ -120,18 +120,24 @@ namespace Opc.Ua.Gds.Server.Database
                 }
             }
 
-            Guid applicationId = Guid.Empty;
+            NodeId nodeId = new NodeId();
             if (!NodeId.IsNull(application.ApplicationId))
             {
-                if (application.ApplicationId.IdType != IdType.Guid)
+                // verify node integrity
+                switch (application.ApplicationId.IdType)
                 {
-                    throw new ArgumentException("The ApplicationId has not the type Guid.", "ApplicationId");
+                    case IdType.Guid:
+                        nodeId = new NodeId((Guid)application.ApplicationId.Identifier, NamespaceIndex);
+                        break;
+                    case IdType.String:
+                        nodeId = new NodeId((string)application.ApplicationId.Identifier, NamespaceIndex);
+                        break;
+                    default:
+                        throw new ArgumentException("The ApplicationId has invalid type {0}", application.ApplicationId.ToString());
                 }
-
-                applicationId = (Guid)application.ApplicationId.Identifier;
             }
 
-            return new NodeId(applicationId, NamespaceIndex);
+            return nodeId;
         }
 
         public virtual NodeId CreateCertificateRequest(
@@ -140,12 +146,13 @@ namespace Opc.Ua.Gds.Server.Database
             byte[] privateKey,
             string authorityId)
         {
-            Guid id = GetNodeIdGuid(applicationId);
+            ValidateApplicationNodeId(applicationId);
             return new NodeId(Guid.Empty, NamespaceIndex);
         }
 
         public virtual void ApproveCertificateRequest(NodeId requestId, bool isRejected)
         {
+            // Request Id must be Guid Id
             Guid id = GetNodeIdGuid(requestId);
         }
 
@@ -157,7 +164,7 @@ namespace Opc.Ua.Gds.Server.Database
         {
             certificate = null;
             privateKey = null;
-            Guid appId = GetNodeIdGuid(applicationId);
+            ValidateApplicationNodeId(applicationId);
             Guid reqId = GetNodeIdGuid(requestId);
             return false;
         }
@@ -169,14 +176,14 @@ namespace Opc.Ua.Gds.Server.Database
         {
             certificate = null;
             httpsCertificate = null;
-            Guid id = GetNodeIdGuid(applicationId);
+            ValidateApplicationNodeId(applicationId);
         }
 
         public virtual ApplicationRecordDataType GetApplication(
             NodeId applicationId
             )
         {
-            Guid id = GetNodeIdGuid(applicationId);
+            ValidateApplicationNodeId(applicationId);
             return null;
         }
 
@@ -205,7 +212,7 @@ namespace Opc.Ua.Gds.Server.Database
             byte[] certificate,
             bool isHttpsCertificate)
         {
-            Guid id = GetNodeIdGuid(applicationId);
+            ValidateApplicationNodeId(applicationId);
             return false;
         }
 
@@ -214,12 +221,7 @@ namespace Opc.Ua.Gds.Server.Database
             NodeId trustListId,
             NodeId httpsTrustListId)
         {
-            Guid id = GetNodeIdGuid(applicationId);
-            if (NodeId.IsNull(applicationId))
-            {
-                throw new ArgumentNullException(nameof(applicationId));
-            }
-
+            ValidateApplicationNodeId(applicationId);
             return false;
         }
         #endregion
@@ -295,7 +297,8 @@ namespace Opc.Ua.Gds.Server.Database
 
             return capabilities.ToString();
         }
-        public Guid GetNodeIdGuid(
+
+        protected Guid GetNodeIdGuid(
             NodeId nodeId
             )
         {
@@ -315,11 +318,59 @@ namespace Opc.Ua.Gds.Server.Database
             {
                 throw new ServiceResultException(StatusCodes.BadNodeIdUnknown);
             }
-            else
+            return (Guid)id;
+        }
+
+        protected string GetNodeIdString(
+            NodeId nodeId
+            )
+        {
+            if (NodeId.IsNull(nodeId))
             {
-                return (Guid)id;
+                return null;
+            }
+
+            if (nodeId.IdType != IdType.String || NamespaceIndex != nodeId.NamespaceIndex)
+            {
+                throw new ServiceResultException(StatusCodes.BadNodeIdUnknown);
+            }
+
+            string id = nodeId.Identifier as string;
+
+            if (id == null)
+            {
+                throw new ServiceResultException(StatusCodes.BadNodeIdUnknown);
+            }
+            return id;
+        }
+
+        protected void ValidateApplicationNodeId(
+            NodeId nodeId
+            )
+        {
+            if (NodeId.IsNull(nodeId))
+            {
+                throw new ArgumentNullException(nameof(nodeId));
+            }
+
+            if ((nodeId.IdType != IdType.Guid && nodeId.IdType != IdType.String) || 
+                NamespaceIndex != nodeId.NamespaceIndex)
+            {
+                throw new ServiceResultException(StatusCodes.BadNodeIdUnknown);
+            }
+
+            if (nodeId.IdType == IdType.Guid)
+            {
+                // test if identifier is a valid Guid
+                Guid? id = nodeId.Identifier as Guid?;
+
+                if (id == null)
+                {
+                    throw new ServiceResultException(StatusCodes.BadNodeIdUnknown);
+                }
             }
         }
+
         #endregion
         #region Private Members
         private static List<string> Parse(string pattern)
