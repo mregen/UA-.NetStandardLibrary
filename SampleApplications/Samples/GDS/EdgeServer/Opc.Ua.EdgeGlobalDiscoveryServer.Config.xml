@@ -153,8 +153,8 @@
         </CertificateGroups>
         <KnownHostNames/>
         <ShutdownDelay>5</ShutdownDelay>
-        <!--<DatabaseStorePath>https://iopgds.vault.azure.net</DatabaseStorePath>-->
-        <DatabaseStorePath>https://iopgds.vault.azure.net,bd273a41-0a42-44b2-9fa0-9aef127504fc</DatabaseStorePath>
+        <DatabaseStorePath>https://iopgds.vault.azure.net</DatabaseStorePath>
+        <!--<DatabaseStorePath>https://iopgds.vault.azure.net,bd273a41-0a42-44b2-9fa0-9aef127504fc</DatabaseStorePath>-->
       </GlobalDiscoveryServerConfiguration>
     </ua:XmlElement>
   </Extensions>

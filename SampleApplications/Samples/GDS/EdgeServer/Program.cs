@@ -262,7 +262,8 @@ namespace Opc.Ua.Gds.Server
 
             // initialize database and certificate group handler
             //var database = new IoTHubApplicationsDatabase(connectionString);
-            var database = JsonApplicationsDatabase.Load("./dbStore.json");
+            //var database = JsonApplicationsDatabase.Load("./dbStore.json");
+            var database = new OpcTwinApplicationsDatabase("http://localhost:9042/v1");
             var certGroup = new GdsVaultCertificateGroup(gdsVaultHandler);
 
             // start the server.

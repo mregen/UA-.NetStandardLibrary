@@ -1,176 +1,112 @@
-﻿using Microsoft.Azure.Devices;
-using Microsoft.Azure.Devices.Shared;
+﻿using Microsoft.Azure.IoTSolutions.Common.Diagnostics;
+using Microsoft.Azure.IoTSolutions.Common.Exceptions;
+using Microsoft.Azure.IoTSolutions.Common.Http;
+using Microsoft.Azure.IoTSolutions.OpcTwin.WebService.Client;
+using Microsoft.Azure.IoTSolutions.OpcTwin.WebService.Client.Models;
+using Microsoft.Azure.IoTSolutions.OpcTwin.WebService.Client.Services;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 
 namespace Opc.Ua.Gds.Server.Database
 {
 
-    class ByteArrayConverter : JsonConverter
+    public class OpcTwinConfig : IOpcTwinConfig
     {
-        const int TwinTagsMaxBlobSize = 512;
-
-        public override bool CanConvert(Type objectType)
+        public string OpcTwinServiceApiUrl { get; }
+        public OpcTwinConfig(string url)
         {
-            return objectType == typeof(byte[]);
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            byte[] blob = (byte[])value;
-            string base64 = Convert.ToBase64String(blob);
-            int i = 0;
-            writer.WriteStartObject();
-            for (i = 0; i < base64.Length / TwinTagsMaxBlobSize; i++)
-            {
-                writer.WritePropertyName(i.ToString());
-                writer.WriteValue(base64.Substring(i * TwinTagsMaxBlobSize, TwinTagsMaxBlobSize));
-            }
-            writer.WritePropertyName(i.ToString());
-            writer.WriteValue(base64.Substring(i * TwinTagsMaxBlobSize));
-            writer.WriteEndObject();
+            OpcTwinServiceApiUrl = url;
         }
     }
-
-    class StringArrayConverter : JsonConverter
+    public class OpcTwinApplicationsDatabase : ApplicationsDatabaseBase
     {
-        public override bool CanConvert(Type objectType)
+        IOpcTwinService _opcTwinServiceHandler = null;
+        IHttpClient _httpClient = null;
+        ILogger _logger = null;
+
+        public OpcTwinApplicationsDatabase(string databaseStorePath, bool clean = true)
         {
-            return objectType == typeof(string[]);
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            string[] blob = (string[])value;
-            int i = 0;
-            writer.WriteStartObject();
-            for (i = 0; i < blob.Length; i++)
-            {
-                writer.WritePropertyName(i.ToString());
-                writer.WriteValue(blob[i]);
-            }
-            writer.WriteEndObject();
-        }
-    }
-
-    [Serializable]
-    class ApplicationTwinRecord
-    {
-        //public uint? ID { get; set; }
-        public Guid ApplicationId { get; set; }
-        public string ApplicationUri { get; set; }
-        [JsonConverter(typeof(StringArrayConverter))]
-        public string[] ApplicationNames { get; set; }
-        public int ApplicationType { get; set; }
-        public string ProductUri { get; set; }
-        [JsonConverter(typeof(StringArrayConverter))]
-        public string[] DiscoveryUrls { get; set; }
-        public string ServerCapabilities { get; set; }
-        [JsonConverter(typeof(ByteArrayConverter))]
-        public byte[] Certificate { get; set; }
-        [JsonConverter(typeof(ByteArrayConverter))]
-        public byte[] HttpsCertificate { get; set; }
-        public Guid? TrustListId { get; set; }
-        public Guid? HttpsTrustListId { get; set; }
-    }
-    [Serializable]
-    class CertificateRequestTwinRecord
-    {
-        public Guid RequestId { get; set; }
-        public int? State { get; set; }
-        [JsonConverter(typeof(ByteArrayConverter)), JsonRequired]
-        public byte[] Certificate { get; set; }
-        [JsonConverter(typeof(ByteArrayConverter))]
-        public byte[] PrivateKey { get; set; }
-        public string AuthorityId { get; set; }
-    }
-
-    public class IoTHubApplicationsDatabase : ApplicationsDatabaseBase
-    {
-        RegistryManager _IoTHubDeviceRegistry = null;
-
-        public IoTHubApplicationsDatabase(string databaseStorePath, bool clean = false)
-        {
-            _IoTHubDeviceRegistry = RegistryManager.CreateFromConnectionString(databaseStorePath);
-
+            _logger = new Logger("OpcTwin", LogLevel.Debug);
+            _httpClient = new HttpClient(_logger);
+            _opcTwinServiceHandler = new OpcTwinServiceClient(_httpClient, new OpcTwinConfig(databaseStorePath), _logger);
+            var result = _opcTwinServiceHandler.ListAllApplicationsAsync().Result;
             if (clean)
             {
-                var query = _IoTHubDeviceRegistry.CreateQuery("SELECT * FROM devices", 10);
-                while (query.HasMoreResults)
+                foreach(var app in result)
                 {
-                    var page = query.GetNextAsTwinAsync().Result;
-                    foreach (var twin in page)
-                    {
-                        Utils.Trace("Remove Device:" + twin.DeviceId);
-                        _IoTHubDeviceRegistry.RemoveDeviceAsync(twin.DeviceId).Wait();
-                    }
+                    _opcTwinServiceHandler.UnregisterApplicationAsync(app.ApplicationId).Wait();
                 }
             }
         }
+
         public override NodeId RegisterApplication(
             ApplicationRecordDataType application
             )
         {
             NodeId appNodeId = base.RegisterApplication(application);
-            Guid applicationId = GetNodeIdGuid(appNodeId);
-            string capabilities = base.ServerCapabilities(application);
+            string applicationId = GetNodeIdString(appNodeId);
 
-            Device device = null;
-
-            if (applicationId != Guid.Empty)
+            if (String.IsNullOrEmpty(applicationId))
             {
-                device = _IoTHubDeviceRegistry.GetDeviceAsync(applicationId.ToString()).Result;
-            }
-
-            if (device == null)
-            {
-                applicationId = Guid.NewGuid();
-                device = _IoTHubDeviceRegistry.AddDeviceAsync(new Device(applicationId.ToString())).Result;
-
-                if (device == null)
+                var request = new ApplicationRegistrationRequestApiModel()
                 {
-                    throw new Exception("IoTHub register application failed.");
+                    ApplicationUri = application.ApplicationUri,
+                    ApplicationName = application.ApplicationNames[0].Text,
+                    ProductUri = application.ProductUri,
+                    ApplicationType = (Microsoft.Azure.IoTSolutions.OpcTwin.WebService.Client.Models.ApplicationType?)application.ApplicationType,
+                    Capabilities = application.ServerCapabilities,
+                    DiscoveryUrls = application.DiscoveryUrls
+                };
+
+                try
+                {
+                    var response = _opcTwinServiceHandler.RegisterAsync(request).Result;
+                    return new NodeId(response.Id, NamespaceIndex);
+                }
+                catch (ConflictingResourceException cre)
+                {
+                    // resource already exists, fall through and patch
+                    // _logger.Debug(cre.Message);
+                }
+                catch (Exception e)
+                {
+                    throw e;
                 }
             }
 
-            Twin twin = _IoTHubDeviceRegistry.GetTwinAsync(applicationId.ToString()).Result;
-            if (twin != null)
+            if (String.IsNullOrEmpty(applicationId))
             {
-                ApplicationTwinRecord record = new ApplicationTwinRecord() { ApplicationId = applicationId };
-                record.ApplicationUri = application.ApplicationUri;
-                List<string> applicationNames = new List<string>();
-                foreach (var name in application.ApplicationNames)
+                var request = new ApplicationRegistrationQueryApiModel()
                 {
-                    applicationNames.Add(name.Text);
-                }
-                record.ApplicationNames = applicationNames.ToArray();
-                record.ApplicationType = (int)application.ApplicationType;
-                record.ProductUri = application.ProductUri;
-                record.ServerCapabilities = capabilities;
-                record.DiscoveryUrls = application.DiscoveryUrls.ToArray();
+                    ApplicationUri = application.ApplicationUri
+                };
 
-                string twinPatch = TwinPatchFromRecord(record);
-                twin = _IoTHubDeviceRegistry.UpdateTwinAsync(twin.DeviceId, twinPatch, twin.ETag).Result;
-                if (twin == null)
+                var response = _opcTwinServiceHandler.QueryApplicationsAsync(request).Result;
+                if (response.Items.Count > 0)
                 {
-                    throw new Exception("IoTHub registration update failed.");
+                    applicationId = response.Items[0].ApplicationId;
                 }
             }
-            else
+
+            if (!String.IsNullOrEmpty(applicationId))
             {
-                throw new Exception("IoTHub twin retrieval failed");
+                var request = new ApplicationRegistrationUpdateApiModel()
+                {
+                    Id = applicationId,
+                    // TODO: handle case when new app uri was assigned?
+                    // ApplicationUri = application.ApplicationUri,
+                    ApplicationName = application.ApplicationNames[0].Text,
+                    ProductUri = application.ProductUri,
+                    // TODO: handle change?
+                    //ApplicationType = (Microsoft.Azure.IoTSolutions.OpcTwin.WebService.Client.Models.ApplicationType?)application.ApplicationType,
+                    Capabilities = application.ServerCapabilities,
+                    DiscoveryUrls = application.DiscoveryUrls,
+                    Certificate = null,
+                    DiscoveryProfileUri = null
+                };
+
+                _opcTwinServiceHandler.UpdateApplicationAsync(request).Wait();
             }
 
             return new NodeId(applicationId, NamespaceIndex);
@@ -182,8 +118,8 @@ namespace Opc.Ua.Gds.Server.Database
             byte[] privateKey,
             string authorityId)
         {
-            Guid id = GetNodeIdGuid(applicationId);
-
+            ValidateApplicationNodeId(applicationId);
+#if mist
             // add cert and private key to device twin as tags
             Twin twin = _IoTHubDeviceRegistry.GetTwinAsync(id.ToString()).Result;
             if (twin != null)
@@ -208,11 +144,14 @@ namespace Opc.Ua.Gds.Server.Database
             {
                 throw new Exception("IoTHub application id not found.");
             }
+#endif
+            return null;
         }
 
         public override void ApproveCertificateRequest(NodeId requestId, bool isRejected)
         {
-            Guid id = GetNodeIdGuid(requestId);
+            Guid reqId = GetNodeIdGuid(requestId);
+#if mist
             string requestIdQuery = String.Format("SELECT * FROM devices WHERE tags.RequestId = '{0}'", id.ToString());
             var query = _IoTHubDeviceRegistry.CreateQuery(requestIdQuery, 10);
             bool done = false;
@@ -237,6 +176,7 @@ namespace Opc.Ua.Gds.Server.Database
             {
                 throw new ServiceResultException(StatusCodes.BadNodeIdUnknown);
             }
+#endif
         }
 
         public override bool CompleteCertificateRequest(
@@ -248,8 +188,8 @@ namespace Opc.Ua.Gds.Server.Database
             certificate = null;
             privateKey = null;
             Guid reqId = GetNodeIdGuid(requestId);
-            Guid appId = GetNodeIdGuid(applicationId);
-
+            ValidateApplicationNodeId(applicationId);
+#if mist
             Twin twin = _IoTHubDeviceRegistry.GetTwinAsync(appId.ToString()).Result;
             if ((twin != null) && (twin.Tags.Count > 0))
             {
@@ -321,6 +261,7 @@ namespace Opc.Ua.Gds.Server.Database
             {
                 throw new Exception("IoTHub twin retrieval failed");
             }
+#endif
             return true;
         }
 
@@ -331,108 +272,42 @@ namespace Opc.Ua.Gds.Server.Database
         {
             certificate = null;
             httpsCertificate = null;
-
-            Guid id = GetNodeIdGuid(applicationId);
-
-            List<byte[]> certificates = new List<byte[]>();
-
-            Twin twin = _IoTHubDeviceRegistry.GetTwinAsync(id.ToString()).Result;
-            if ((twin != null) && (twin.Tags.Count > 0))
-            {
-                // todo: return certs
-            }
-
-            _IoTHubDeviceRegistry.RemoveDeviceAsync(id.ToString()).Wait();
+            _opcTwinServiceHandler.UnregisterApplicationAsync(GetNodeIdString(applicationId));
         }
 
         public override ApplicationRecordDataType GetApplication(NodeId applicationId)
         {
-            Guid id = GetNodeIdGuid(applicationId);
-
-            Twin twin = _IoTHubDeviceRegistry.GetTwinAsync(id.ToString()).Result;
-            if ((twin != null) && (twin.Tags.Count > 0))
-            {
-                try
-                {
-                    ApplicationRecordDataType record = new ApplicationRecordDataType();
-
-                    record.ApplicationId = applicationId;
-                    record.ApplicationUri = twin.Tags["ApplicationUri"].Value;
-                    record.ApplicationType = (ApplicationType)twin.Tags["ApplicationType"].Value;
-                    record.ProductUri = twin.Tags["ProductUri"].Value;
-
-                    record.ApplicationNames = new LocalizedTextCollection();
-                    try
-                    {
-                        JObject appNamesParts = (JObject)twin.Tags["ApplicationNames"];
-                        foreach (JToken part in appNamesParts.Children())
-                        {
-                            record.ApplicationNames.Add(new LocalizedText(((JProperty)part).Value.ToString()));
-                        }
-                    }
-                    catch { }
-
-
-                    record.ServerCapabilities = new StringCollection();
-                    string serverCapabilities = twin.Tags["ServerCapabilities"];
-                    if (!String.IsNullOrWhiteSpace(serverCapabilities))
-                    {
-                        record.ServerCapabilities.AddRange(serverCapabilities.Split(','));
-                    }
-
-                    record.DiscoveryUrls = new StringCollection();
-                    try
-                    {
-                        JObject discoURLsParts = (JObject)twin.Tags["DiscoveryUrls"];
-                        foreach (JToken part in discoURLsParts.Children())
-                        {
-                            record.DiscoveryUrls.Add(((JProperty)part).Value.ToString());
-                        }
-                    }
-                    catch { }
-                    return record;
-                }
-                catch (Exception)
-                {
-                    return null;
-                }
-            }
-            else
-            {
-                return null;
-            }
+            ValidateApplicationNodeId(applicationId);
+            var result = _opcTwinServiceHandler.GetApplicationAsync(GetNodeIdString(applicationId)).Result;
+            return ToApplicationRecord(result.Application);
         }
 
         public override ApplicationRecordDataType[] FindApplications(string applicationUri)
         {
-            List<ApplicationRecordDataType> records = new List<ApplicationRecordDataType>();
             try
             {
-                string requestIdQuery = String.Format("SELECT * FROM devices WHERE tags.ApplicationUri = '{0}'", applicationUri);
-                var query = _IoTHubDeviceRegistry.CreateQuery(requestIdQuery, 10);
-                while (query.HasMoreResults)
+                var records = new List<ApplicationRecordDataType>();
+                var request = new ApplicationRegistrationQueryApiModel()
                 {
-                    var page = query.GetNextAsTwinAsync().Result;
-                    foreach (var twin in page)
+                    ApplicationUri = applicationUri
+                };
+
+                var result = _opcTwinServiceHandler.QueryApplicationsAsync(request).Result;
+                if (result.Items.Count > 0)
+                {
+                    foreach (var record in result.Items)
                     {
-                        try
-                        {
-                            Guid appGuid = new Guid(twin.Tags["ApplicationId"].Value);
-                            ApplicationRecordDataType record = GetApplication(new NodeId(appGuid, NamespaceIndex));
-                            if (record != null)
-                            {
-                                records.Add(record);
-                            }
-                        }
-                        catch { }
+                        records.Add(ToApplicationRecord(record));
                     }
+                    return records.ToArray();
                 }
             }
             catch
             {
-
+                // intentionally continue
+                // return null instead of exception if an error occurred 
             }
-            return records.ToArray();
+            return null;
         }
 
         public override ServerOnNetwork[] QueryServers(
@@ -444,69 +319,85 @@ namespace Opc.Ua.Gds.Server.Database
             string[] serverCapabilities,
             out DateTime lastCounterResetTime)
         {
-            lastCounterResetTime = DateTime.MinValue;
+            lastCounterResetTime = DateTime.UtcNow;
             List<ServerOnNetwork> records = new List<ServerOnNetwork>();
 
-            RegistryStatistics stats = _IoTHubDeviceRegistry.GetRegistryStatisticsAsync().Result;
-            if (stats != null)
+            bool applicationNamePattern = IsMatchPattern(applicationName);
+            bool applicationUriPattern = IsMatchPattern(applicationUri);
+            bool productUriPattern = IsMatchPattern(productUri);
+
+            var request = new ApplicationRegistrationQueryApiModel()
             {
-                // TODO use CreateQuery("select * from devices", (int)stats.TotalDeviceCount);
-                var list = _IoTHubDeviceRegistry.GetDevicesAsync((int)stats.TotalDeviceCount).Result;
-                uint i = 0;
-                foreach (Device device in list)
+                ApplicationName = applicationNamePattern ? null : applicationName,
+                ApplicationUri = applicationUriPattern ? null : applicationUri,
+                ProductUri = productUriPattern ? null : productUri,
+                Capabilities = serverCapabilities != null ? new List<string>(serverCapabilities) : null
+            };
+
+            var result = _opcTwinServiceHandler.QueryApplicationsAsync(request).Result;
+            if (result.Items.Count > startingRecordId)
+            {
+                if (startingRecordId > 0)
                 {
-                    if (Guid.TryParse(device.Id, out Guid deviceIdGuid))
+                    result.Items.RemoveRange(0, (int)startingRecordId - 1);
+                }
+                uint id = startingRecordId;
+                foreach (var item in result.Items)
+                {
+                    ServerOnNetwork server = new ServerOnNetwork();
+                    server.RecordId = id++;
+                    ApplicationRecordDataType record = ToApplicationRecord(item);
+                    if (record.ApplicationType == ApplicationType.Client)
                     {
-                        ApplicationRecordDataType record = GetApplication(new NodeId(deviceIdGuid, NamespaceIndex));
-                        if (record != null)
-                        {
-                            ServerOnNetwork server = new ServerOnNetwork();
-                            server.RecordId = i++;
-                            server.ServerName = record.ApplicationNames[0].Text;
-                            if (record.DiscoveryUrls.Count > 0)
-                            {
-                                server.DiscoveryUrl = record.DiscoveryUrls[0];
-                            }
-                            else
-                            {
-                                server.DiscoveryUrl = string.Empty;
-                            }
-                            server.ServerCapabilities = record.ServerCapabilities;
-                            records.Add(server);
-                        }
+                        continue;
+                    }
+                    if (applicationNamePattern && !Match(record.ApplicationNames[0].Text, applicationName))
+                    {
+                        continue;
+                    }
+                    if (applicationUriPattern && !Match(record.ApplicationUri, applicationUri))
+                    {
+                        continue;
+                    }
+                    if (productUriPattern && !Match(record.ProductUri, productUri))
+                    {
+                        continue;
+                    }
+
+                    server.ServerName = record.ApplicationNames[0].Text;
+                    if (record.DiscoveryUrls.Count > 0)
+                    {
+                        server.DiscoveryUrl = record.DiscoveryUrls[0];
+                    }
+                    else
+                    {
+                        server.DiscoveryUrl = string.Empty;
+                    }
+                    server.ServerCapabilities = record.ServerCapabilities;
+                    records.Add(server);
+
+                    if (maxRecordsToReturn != 0 && records.Count >= maxRecordsToReturn)
+                    {
+                        break;
                     }
                 }
             }
-
             return records.ToArray();
         }
 
-        private string TwinPatchFromRecord(ApplicationTwinRecord record)
+        private ApplicationRecordDataType ToApplicationRecord(ApplicationInfoApiModel record)
         {
-            string twinPatch = "{ tags: " +
-                JsonConvert.SerializeObject(
-                    record,
-                    Newtonsoft.Json.Formatting.Indented,
-                    new JsonSerializerSettings
-                    {
-                        NullValueHandling = NullValueHandling.Ignore
-                    }) +
-                "}";
-            return twinPatch;
-        }
-
-        private string TwinPatchFromRecord(CertificateRequestTwinRecord record)
-        {
-            string twinPatch = "{ tags: " +
-                JsonConvert.SerializeObject(
-                    record,
-                    Newtonsoft.Json.Formatting.Indented,
-                    new JsonSerializerSettings
-                    {
-                        NullValueHandling = NullValueHandling.Ignore
-                    }) +
-                "}";
-            return twinPatch;
+            return new ApplicationRecordDataType()
+            {
+                ApplicationId = new NodeId(record.ApplicationId, NamespaceIndex),
+                ApplicationNames = new LocalizedTextCollection() { new LocalizedText("en-us", record.ApplicationName) },
+                ApplicationType = (Ua.ApplicationType)record.ApplicationType,
+                ApplicationUri = record.ApplicationUri,
+                DiscoveryUrls = record.DiscoveryUrls != null ? new StringCollection(record.DiscoveryUrls) : null,
+                ProductUri = record.ProductUri,
+                ServerCapabilities = record.Capabilities != null ? new StringCollection(record.Capabilities) : null
+            };
         }
     }
 }
+
