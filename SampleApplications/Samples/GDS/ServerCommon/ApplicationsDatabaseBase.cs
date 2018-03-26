@@ -29,6 +29,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 
@@ -266,6 +267,30 @@ namespace Opc.Ua.Gds.Server.Database
 
             return true;
         }
+
+        /// <summary>
+        /// Returns true if the pattern string contains a UA pattern. 
+        /// The pattern string may include UA wildcards %_\[]!
+        /// </summary>
+
+        public bool IsMatchPattern(string pattern)
+        {
+            var patternChars = new char[] { '%', '_', '\\', '[', ']', '!' };
+            if (String.IsNullOrEmpty(pattern))
+            {
+                return false;
+            }
+
+            foreach (var patternChar in patternChars)
+            {
+                if (pattern.Contains(patternChar))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public string ServerCapabilities(ApplicationRecordDataType application)
         {
             if (application.ApplicationType != ApplicationType.Client)
@@ -279,6 +304,7 @@ namespace Opc.Ua.Gds.Server.Database
             StringBuilder capabilities = new StringBuilder();
             if (application.ServerCapabilities != null)
             {
+                application.ServerCapabilities.Sort();
                 foreach (var capability in application.ServerCapabilities)
                 {
                     if (String.IsNullOrEmpty(capability))

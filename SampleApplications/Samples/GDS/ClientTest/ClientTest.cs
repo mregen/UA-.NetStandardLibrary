@@ -1,5 +1,5 @@
 ﻿/* ========================================================================
- * Copyright (c) 2005-2017 The OPC Foundation, Inc. All rights reserved.
+ * Copyright (c) 2005-2018 The OPC Foundation, Inc. All rights reserved.
  *
  * OPC Foundation MIT License 1.00
  * 
@@ -92,12 +92,8 @@ namespace NUnit.Opc.Ua.Gds.Test
         [OneTimeSetUp]
         protected void OneTimeSetUp()
         {
-#if DEBUG
             // work around travis issue by selecting different ports on every run
-            const int testPort = 60000;
-#else
-            const int testPort = 60010;
-#endif
+            int testPort = 50000 + (((Int32)DateTime.UtcNow.ToFileTimeUtc()/10000) & 0x1fff);
             _serverCapabilities = new ServerCapabilities();
             _randomSource = new RandomSource(randomStart);
             _dataGenerator = new DataGenerator(_randomSource);
@@ -150,7 +146,7 @@ namespace NUnit.Opc.Ua.Gds.Test
                 NodeId id = _gdsClient.GDSClient.RegisterApplication(application.ApplicationRecord);
                 Assert.NotNull(id);
                 Assert.IsFalse(id.IsNullNodeId);
-                Assert.AreEqual(id.IdType, IdType.Guid);
+                Assert.That(id.IdType == IdType.Guid || id.IdType == IdType.String);
                 application.ApplicationRecord.ApplicationId = id;
             }
             _goodRegistrationOk = true;
@@ -239,6 +235,19 @@ namespace NUnit.Opc.Ua.Gds.Test
             }
         }
 
+        [Test, Order(210)]
+        public void UpdateGoodApplicationsWithNewString()
+        {
+            AssertIgnoreTestWithoutGoodRegistration();
+            ConnectGDS(true);
+            foreach (var application in _goodApplicationTestSet)
+            {
+                var testApplicationRecord = (ApplicationRecordDataType)application.ApplicationRecord.MemberwiseClone();
+                testApplicationRecord.ApplicationId = new NodeId(_dataGenerator.GetRandomString("en"));
+                Assert.That(() => { _gdsClient.GDSClient.UpdateApplication(testApplicationRecord); }, Throws.Exception);
+            }
+        }
+
         [Test, Order(211)]
         public void UpdateGoodApplicationsWithNewGuidAuditEvents()
         {
@@ -293,8 +302,11 @@ namespace NUnit.Opc.Ua.Gds.Test
             foreach (var application in _invalidApplicationTestSet)
             {
                 var result = _gdsClient.GDSClient.FindApplication(application.ApplicationRecord.ApplicationUri);
-                Assert.NotNull(result);
-                Assert.AreEqual(0, result.Length, "Found invalid application on server");
+                if (result != null)
+                {
+                    Assert.NotNull(result);
+                    Assert.AreEqual(0, result.Length, "Found invalid application on server");
+                }
             }
         }
 
@@ -308,6 +320,97 @@ namespace NUnit.Opc.Ua.Gds.Test
                 var result = _gdsClient.GDSClient.GetApplication(application.ApplicationRecord.ApplicationId);
                 Assert.NotNull(result);
                 Assert.IsTrue(Utils.IsEqual(application.ApplicationRecord, result));
+            }
+        }
+
+        [Test, Order(401)]
+        public void GetGoodApplicationsTestApplicationId()
+        {
+            AssertIgnoreTestWithoutGoodRegistration();
+            ConnectGDS(false);
+            foreach (var application in _goodApplicationTestSet)
+            {
+                var result = _gdsClient.GDSClient.GetApplication(application.ApplicationRecord.ApplicationId);
+                Assert.NotNull(result);
+                Assert.IsTrue(Utils.IsEqual(application.ApplicationRecord.ApplicationId, result.ApplicationId));
+            }
+        }
+
+        [Test, Order(401)]
+        public void GetGoodApplicationsTestApplicationNames()
+        {
+            AssertIgnoreTestWithoutGoodRegistration();
+            ConnectGDS(false);
+            foreach (var application in _goodApplicationTestSet)
+            {
+                var result = _gdsClient.GDSClient.GetApplication(application.ApplicationRecord.ApplicationId);
+                Assert.NotNull(result);
+                Assert.IsTrue(Utils.IsEqual(application.ApplicationRecord.ApplicationNames, result.ApplicationNames));
+            }
+        }
+
+        [Test, Order(401)]
+        public void GetGoodApplicationsTestApplicationType()
+        {
+            AssertIgnoreTestWithoutGoodRegistration();
+            ConnectGDS(false);
+            foreach (var application in _goodApplicationTestSet)
+            {
+                var result = _gdsClient.GDSClient.GetApplication(application.ApplicationRecord.ApplicationId);
+                Assert.NotNull(result);
+                Assert.IsTrue(Utils.IsEqual(application.ApplicationRecord.ApplicationType, result.ApplicationType));
+            }
+        }
+
+        [Test, Order(401)]
+        public void GetGoodApplicationsTestApplicationUri()
+        {
+            AssertIgnoreTestWithoutGoodRegistration();
+            ConnectGDS(false);
+            foreach (var application in _goodApplicationTestSet)
+            {
+                var result = _gdsClient.GDSClient.GetApplication(application.ApplicationRecord.ApplicationId);
+                Assert.NotNull(result);
+                Assert.IsTrue(Utils.IsEqual(application.ApplicationRecord.ApplicationUri, result.ApplicationUri));
+            }
+        }
+
+        [Test, Order(401)]
+        public void GetGoodApplicationsTestDiscoveryUrls()
+        {
+            AssertIgnoreTestWithoutGoodRegistration();
+            ConnectGDS(false);
+            foreach (var application in _goodApplicationTestSet)
+            {
+                var result = _gdsClient.GDSClient.GetApplication(application.ApplicationRecord.ApplicationId);
+                Assert.NotNull(result);
+                Assert.IsTrue(Utils.IsEqual(application.ApplicationRecord.DiscoveryUrls, result.DiscoveryUrls));
+            }
+        }
+
+        [Test, Order(401)]
+        public void GetGoodApplicationsTestProductUri()
+        {
+            AssertIgnoreTestWithoutGoodRegistration();
+            ConnectGDS(false);
+            foreach (var application in _goodApplicationTestSet)
+            {
+                var result = _gdsClient.GDSClient.GetApplication(application.ApplicationRecord.ApplicationId);
+                Assert.NotNull(result);
+                Assert.IsTrue(Utils.IsEqual(application.ApplicationRecord.ProductUri, result.ProductUri));
+            }
+        }
+
+        [Test, Order(401)]
+        public void GetGoodApplicationsTestServerCapabilities()
+        {
+            AssertIgnoreTestWithoutGoodRegistration();
+            ConnectGDS(false);
+            foreach (var application in _goodApplicationTestSet)
+            {
+                var result = _gdsClient.GDSClient.GetApplication(application.ApplicationRecord.ApplicationId);
+                Assert.NotNull(result);
+                Assert.IsTrue(Utils.IsEqual(application.ApplicationRecord.ServerCapabilities, result.ServerCapabilities));
             }
         }
 
@@ -532,6 +635,7 @@ namespace NUnit.Opc.Ua.Gds.Test
         public void FinishGoodSigningRequests()
         {
             AssertIgnoreTestWithoutGoodRegistration();
+            AssertIgnoreTestWithoutGoodNewKeyPairRequest();
             ConnectGDS(true);
             bool requestBusy;
             do
@@ -577,6 +681,7 @@ namespace NUnit.Opc.Ua.Gds.Test
         public void StartGoodSigningRequestWithInvalidAppURI()
         {
             AssertIgnoreTestWithoutGoodRegistration();
+            AssertIgnoreTestWithoutGoodNewKeyPairRequest();
             ConnectGDS(true);
             var application = _goodApplicationTestSet[0];
             Assert.Null(application.CertificateRequestId);
@@ -700,6 +805,7 @@ namespace NUnit.Opc.Ua.Gds.Test
         [Test, Order(900)]
         public void UnregisterGoodApplications()
         {
+            AssertIgnoreTestWithoutGoodRegistration();
             ConnectGDS(true);
             foreach (var application in _goodApplicationTestSet)
             {
@@ -800,6 +906,7 @@ namespace NUnit.Opc.Ua.Gds.Test
 
         private ApplicationTestData RandomApplicationTestData()
         {
+            // TODO: set to discoveryserver
             ApplicationType appType = (ApplicationType)_randomSource.NextInt32((int)ApplicationType.ClientAndServer);
             string pureAppName = _dataGenerator.GetRandomString("en");
             pureAppName = Regex.Replace(pureAppName, @"[^\w\d\s]", "");
@@ -812,6 +919,7 @@ namespace NUnit.Opc.Ua.Gds.Test
             string prodUri = "http://opcfoundation.org/UA/" + pureAppUri;
             StringCollection discoveryUrls = new StringCollection();
             StringCollection serverCapabilities = new StringCollection();
+            int port = (_dataGenerator.GetRandomInt16() & 0x1fff) + 50000;
             switch (appType)
             {
                 case ApplicationType.Client:
@@ -820,9 +928,13 @@ namespace NUnit.Opc.Ua.Gds.Test
                 case ApplicationType.ClientAndServer:
                     appName += " Client and";
                     goto case ApplicationType.Server;
+                case ApplicationType.DiscoveryServer:
+                    appName += " DiscoveryServer";
+                    discoveryUrls = RandomDiscoveryUrl(domainNames, 4840, pureAppUri);
+                    serverCapabilities.Add("LDS");
+                    break;
                 case ApplicationType.Server:
                     appName += " Server";
-                    int port = (_dataGenerator.GetRandomInt16() & 0x1fff) + 50000;
                     discoveryUrls = RandomDiscoveryUrl(domainNames, port, pureAppUri);
                     serverCapabilities = RandomServerCapabilities();
                     break;
