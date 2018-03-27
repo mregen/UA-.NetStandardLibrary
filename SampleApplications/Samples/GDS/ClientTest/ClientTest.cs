@@ -426,43 +426,78 @@ namespace NUnit.Opc.Ua.Gds.Test
         }
 
         [Test, Order(410)]
-        public void QueryGoodServers()
+        public void QueryAllGoodServers()
         {
             AssertIgnoreTestWithoutGoodRegistration();
             ConnectGDS(false);
             // get all servers
-            var allServers = _gdsClient.GDSClient.QueryServers(0, "", "", "", null);
+            var allServers = _gdsClient.GDSClient.QueryServers(0, "", "", "", new List<string>());
             int totalCount = 0;
             uint firstID = uint.MaxValue, lastID = 0;
             Assert.IsNotNull(allServers);
             foreach (var server in allServers)
             {
-                var oneServers = _gdsClient.GDSClient.QueryServers(server.RecordId, 1, "", "", "", null);
+                var oneServers = _gdsClient.GDSClient.QueryServers(server.RecordId, 1, "", "", "", new List<string>());
+                Assert.IsNotNull(oneServers);
+                Assert.AreEqual(oneServers.Count, 1);
+                Assert.AreEqual(oneServers[0].RecordId, server.RecordId);
                 firstID = Math.Min(firstID, server.RecordId);
                 lastID = Math.Max(lastID, server.RecordId);
                 totalCount++;
             }
+            Assert.LessOrEqual(totalCount, goodApplicationsTestCount);
+        }
 
+        [Test, Order(411)]
+        public void QueryAllGoodServersNull()
+        {
+            AssertIgnoreTestWithoutGoodRegistration();
+            ConnectGDS(false);
+            // get all servers
+            var allServers = _gdsClient.GDSClient.QueryServers(0, null, null, null, null);
+            int totalCount = 0;
+            uint firstID = uint.MaxValue, lastID = 0;
+            Assert.IsNotNull(allServers);
+            foreach (var server in allServers)
+            {
+                var oneServers = _gdsClient.GDSClient.QueryServers(server.RecordId, 1, null, null, null, null);
+                Assert.IsNotNull(oneServers);
+                Assert.AreEqual(oneServers.Count, 1);
+                Assert.AreEqual(oneServers[0].RecordId, server.RecordId);
+                firstID = Math.Min(firstID, server.RecordId);
+                lastID = Math.Max(lastID, server.RecordId);
+                totalCount++;
+            }
+            Assert.LessOrEqual(totalCount, goodApplicationsTestCount);
+        }
+
+        [Test, Order(420)]
+        public void QueryGoodServersBatches()
+        {
             // repeating queries to get all servers
             uint nextID = 0;
-            const uint iterationCount = 10;
+            uint iterationCount = Math.Min(10, (uint)(goodApplicationsTestCount / 2));
             int serversQueried = 0;
             while (true)
             {
-                var tenServers = _gdsClient.GDSClient.QueryServers(nextID, iterationCount, "", "", "", null);
-                Assert.IsNotNull(tenServers);
-                serversQueried += tenServers.Count;
-                if (tenServers.Count == 0)
+                var iterServers = _gdsClient.GDSClient.QueryServers(nextID, iterationCount, "", "", "", null);
+                Assert.IsNotNull(iterServers);
+                serversQueried += iterServers.Count;
+                if (iterServers.Count == 0)
                 {
                     break;
                 }
-                Assert.LessOrEqual(tenServers.Count, iterationCount);
+                Assert.LessOrEqual(iterServers.Count, iterationCount);
                 uint previousID = nextID;
-                nextID = tenServers[tenServers.Count - 1].RecordId + 1;
+                nextID = iterServers[iterServers.Count - 1].RecordId + 1;
                 Assert.Greater(nextID, previousID);
             }
-            Assert.AreEqual(serversQueried, totalCount);
+            Assert.LessOrEqual(serversQueried, goodApplicationsTestCount);
+        }
 
+        [Test, Order(430)]
+        public void QueryServersByName()
+        {
             // search aplications by name
             const int searchPatternLength = 5;
             foreach (var application in _goodApplicationTestSet)
@@ -484,6 +519,70 @@ namespace NUnit.Opc.Ua.Gds.Test
                     searchName = searchName.Substring(0, searchPatternLength) + "%";
                 }
                 atLeastOneServer = _gdsClient.GDSClient.QueryServers(1, searchName, "", "", null);
+                Assert.IsNotNull(atLeastOneServer);
+                if (application.ApplicationRecord.ApplicationType != ApplicationType.Client)
+                {
+                    Assert.GreaterOrEqual(atLeastOneServer.Count, 1);
+                }
+            }
+        }
+
+        [Test, Order(440)]
+        public void QueryServersByAppUri()
+        {
+            // search aplications by name
+            const int searchPatternLength = 5;
+            foreach (var application in _goodApplicationTestSet)
+            {
+                var atLeastOneServer = _gdsClient.GDSClient.QueryServers(1, null, application.ApplicationRecord.ApplicationUri, null, null);
+                Assert.IsNotNull(atLeastOneServer);
+                if (application.ApplicationRecord.ApplicationType != ApplicationType.Client)
+                {
+                    Assert.GreaterOrEqual(atLeastOneServer.Count, 1);
+                }
+                else
+                {
+                    Assert.AreEqual(atLeastOneServer.Count, 0);
+                }
+
+                string searchName = application.ApplicationRecord.ApplicationUri;
+                if (searchName.Length > searchPatternLength)
+                {
+                    searchName = searchName.Substring(0, searchPatternLength) + "%";
+                }
+                atLeastOneServer = _gdsClient.GDSClient.QueryServers(1, null, searchName, null, null);
+                Assert.IsNotNull(atLeastOneServer);
+                if (application.ApplicationRecord.ApplicationType != ApplicationType.Client)
+                {
+                    Assert.GreaterOrEqual(atLeastOneServer.Count, 1);
+                }
+            }
+        }
+
+        [Test, Order(450)]
+        public void QueryServersByProductUri()
+        {
+            // search aplications by name
+            const int searchPatternLength = 5;
+            foreach (var application in _goodApplicationTestSet)
+            {
+                var atLeastOneServer = _gdsClient.GDSClient.QueryServers(1, null, null, application.ApplicationRecord.ProductUri, null);
+                Assert.IsNotNull(atLeastOneServer);
+                if (application.ApplicationRecord.ApplicationType != ApplicationType.Client)
+                {
+                    Assert.GreaterOrEqual(atLeastOneServer.Count, 1);
+                }
+                else
+                {
+                    Assert.AreEqual(atLeastOneServer.Count, 0);
+                }
+
+                string searchName = application.ApplicationRecord.ProductUri;
+                if (searchName.Length > searchPatternLength)
+                {
+                    searchName = searchName.Substring(0, searchPatternLength) + "%";
+                }
+                atLeastOneServer = _gdsClient.GDSClient.QueryServers(1, null, null, searchName, null);
                 Assert.IsNotNull(atLeastOneServer);
                 if (application.ApplicationRecord.ApplicationType != ApplicationType.Client)
                 {
