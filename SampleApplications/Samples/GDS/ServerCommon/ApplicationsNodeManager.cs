@@ -55,6 +55,7 @@ namespace Opc.Ua.Gds.Server
             IServerInternal server,
             ApplicationConfiguration configuration,
             IApplicationsDatabase database,
+            ICertificateRequest request,
             ICertificateGroupProvider certificateGroupProvider
             )
             : base(server, configuration)
@@ -91,6 +92,7 @@ namespace Opc.Ua.Gds.Server
 
             m_autoApprove = true;
             m_database = database;
+            m_request = request;
             m_certificateGroupProvider = certificateGroupProvider;
             m_certificateGroups = new Dictionary<NodeId, CertificateGroup>();
 
@@ -789,42 +791,19 @@ namespace Opc.Ua.Gds.Server
                 domainNames = GetDefaultDomainNames(application);
             }
 
-            X509Certificate2KeyPair newKeyPair = null;
-            try
-            {
-                newKeyPair = certificateGroup.NewKeyPairRequestAsync(
-                    application,
-                    subjectName,
-                    domainNames,
-                    privateKeyFormat,
-                    privateKeyPassword).Result;
-            }
-            catch (Exception e)
-            {
-                StringBuilder error = new StringBuilder();
-
-                error.Append("Error Generating New Key Pair Certificate=" + e.Message);
-                error.Append("\r\nApplicationId=" + applicationId.ToString());
-                error.Append("\r\nApplicationUri=" + application.ApplicationUri);
-
-                return new ServiceResult(StatusCodes.BadConfigurationError, error.ToString());
-            }
-
-            // store only app certificate
-            using (ICertificateStore store = CertificateStoreIdentifier.OpenStore(m_configuration.ApplicationCertificatesStorePath))
-            {
-                store.Add(newKeyPair.Certificate).Wait();
-            }
-
-            requestId = m_database.CreateCertificateRequest(
+            requestId = m_request.CreateNewKeyPairRequest(
                 applicationId,
-                newKeyPair.Certificate.RawData,
-                newKeyPair.PrivateKey,
+                certificateGroupId,
+                certificateTypeId,
+                subjectName,
+                domainNames,
+                privateKeyFormat,
+                privateKeyPassword,
                 certificateGroup.Id.Identifier as string);
 
             if (m_autoApprove)
             {
-                m_database.ApproveCertificateRequest(requestId, false);
+                m_request.ApproveCertificateRequest(requestId, false);
             }
 
             return ServiceResult.Good;
@@ -868,43 +847,16 @@ namespace Opc.Ua.Gds.Server
                 }
             }
 
-            X509Certificate2 certificate = null;
-            try
-            {
-                string[] domainNames = GetDefaultDomainNames(application);
-                certificate = certificateGroup.SigningRequestAsync(
-                    application,
-                    domainNames,
-                    certificateRequest
-                    ).Result;
-            }
-            catch (Exception e)
-            {
-                StringBuilder error = new StringBuilder();
-
-                error.Append("Error Generating Certificate=" + e.Message);
-                error.Append("\r\nApplicationId=" + applicationId.ToString());
-                error.Append("\r\nApplicationUri=" + application.ApplicationUri);
-                error.Append("\r\nApplicationName=" + application.ApplicationNames[0].Text);
-
-                return new ServiceResult(StatusCodes.BadConfigurationError, error.ToString());
-            }
-
-            requestId = m_database.CreateCertificateRequest(
+            requestId = m_request.CreateSigningRequest(
                 applicationId,
-                certificate.RawData,
-                null,
+                certificateGroupId,
+                certificateTypeId,
+                certificateRequest,
                 certificateGroup.Id.Identifier as string);
-
-            // store new app certificate
-            using (ICertificateStore store = CertificateStoreIdentifier.OpenStore(m_configuration.ApplicationCertificatesStorePath))
-            {
-                store.Add(new X509Certificate2(certificate.RawData)).Wait();
-            }
 
             if (m_autoApprove)
             {
-                m_database.ApproveCertificateRequest(requestId, false);
+                m_request.ApproveCertificateRequest(requestId, false);
             }
 
             return ServiceResult.Good;
@@ -916,24 +868,131 @@ namespace Opc.Ua.Gds.Server
             NodeId objectId,
             NodeId applicationId,
             NodeId requestId,
-            ref byte[] certificate,
+            ref byte[] signedCertificate,
             ref byte[] privateKey,
             ref byte[][] issuerCertificates)
         {
             issuerCertificates = null;
+            privateKey = null;
             HasApplicationAdminAccess(context);
 
-            var done = m_database.CompleteCertificateRequest(applicationId, requestId, out certificate, out privateKey);
-
-            if (!done)
+            var application = m_database.GetApplication(applicationId);
+            if (application == null)
             {
-                return new ServiceResult(StatusCodes.BadNothingToDo, "The request has not been approved by the administrator.");
+                return new ServiceResult(StatusCodes.BadNotFound, "The ApplicationId does not refer to a valid application.");
             }
 
-            CertificateGroup certificateGroup = GetGroupForCertificate(certificate);
+            NodeId certificateGroupId;
+            NodeId certificateTypeId;
+            byte[] certificateRequest;
+            string subjectName;
+            string[] domainNames;
+            string privateKeyFormat;
+            string privateKeyPassword;
 
+            var state = m_request.CompleteCertificateRequest(
+                applicationId,
+                requestId,
+                out certificateGroupId,
+                out certificateTypeId,
+                out certificateRequest,
+                out subjectName,
+                out domainNames,
+                out privateKeyFormat,
+                out privateKeyPassword
+                );
+
+            switch (state)
+            {
+                case CertificateRequestState.New:
+                    return new ServiceResult(StatusCodes.BadNothingToDo, "The request has not been approved by the administrator.");
+                case CertificateRequestState.Rejected:
+                    return new ServiceResult(StatusCodes.BadRequestNotAllowed, "The request has been rejected by the administrator.");
+                case CertificateRequestState.Accepted:
+                    return new ServiceResult(StatusCodes.BadInvalidArgument, "The request has already been accepted by the application.");
+                case CertificateRequestState.Approved:
+                    break;
+            }
+
+            CertificateGroup certificateGroup = null;
+            if (NodeId.IsNull(certificateGroupId) ||
+                !m_certificateGroups.TryGetValue(certificateGroupId, out certificateGroup))
+            {
+                return new ServiceResult(StatusCodes.BadInvalidArgument, "The CertificateGroupId does not refer to a supported certificate group.");
+            }
+
+            if (!NodeId.IsNull(certificateTypeId))
+            {
+                if (!Server.TypeTree.IsTypeOf(certificateGroup.CertificateType, certificateTypeId))
+                {
+                    return new ServiceResult(StatusCodes.BadInvalidArgument, "The CertificateTypeId is not supported by the certificateGroup.");
+                }
+            }
+
+            X509Certificate2 certificate = null;
+            if (certificateRequest != null)
+            {
+                try
+                {
+                    string[] defaultDomainNames = GetDefaultDomainNames(application);
+                    certificate = certificateGroup.SigningRequestAsync(
+                        application,
+                        defaultDomainNames,
+                        certificateRequest
+                        ).Result;
+                }
+                catch (Exception e)
+                {
+                    StringBuilder error = new StringBuilder();
+
+                    error.Append("Error Generating Certificate=" + e.Message);
+                    error.Append("\r\nApplicationId=" + applicationId.ToString());
+                    error.Append("\r\nApplicationUri=" + application.ApplicationUri);
+                    error.Append("\r\nApplicationName=" + application.ApplicationNames[0].Text);
+
+                    return new ServiceResult(StatusCodes.BadConfigurationError, error.ToString());
+                }
+            }
+            else
+            {
+                X509Certificate2KeyPair newKeyPair = null;
+                try
+                {
+                    newKeyPair = certificateGroup.NewKeyPairRequestAsync(
+                        application,
+                        subjectName,
+                        domainNames,
+                        privateKeyFormat,
+                        privateKeyPassword).Result;
+                }
+                catch (Exception e)
+                {
+                    StringBuilder error = new StringBuilder();
+
+                    error.Append("Error Generating New Key Pair Certificate=" + e.Message);
+                    error.Append("\r\nApplicationId=" + applicationId.ToString());
+                    error.Append("\r\nApplicationUri=" + application.ApplicationUri);
+
+                    return new ServiceResult(StatusCodes.BadConfigurationError, error.ToString());
+                }
+
+                certificate = newKeyPair.Certificate;
+                privateKey = newKeyPair.PrivateKey;
+
+            }
+
+            signedCertificate = certificate.RawData;
             issuerCertificates = new byte[1][];
             issuerCertificates[0] = certificateGroup.Certificate.RawData;
+
+            // store new app certificate
+            using (ICertificateStore store = CertificateStoreIdentifier.OpenStore(m_configuration.ApplicationCertificatesStorePath))
+            {
+                store.Add(certificate).Wait();
+            }
+
+            m_database.SetApplicationCertificate(applicationId, signedCertificate, certificateGroup.Id.Identifier as string == "https");
+            m_request.AcceptCertificateRequest(requestId);
 
             return ServiceResult.Good;
         }
@@ -1124,12 +1183,12 @@ namespace Opc.Ua.Gds.Server
             handle.Validated = true;
             return handle.Node;
         }
-#endregion
+        #endregion
 
-#region Overridden Methods
-#endregion
+        #region Overridden Methods
+        #endregion
 
-#region Private Methods
+        #region Private Methods
         /// <summary>
         /// Generates a new node id.
         /// </summary>
@@ -1180,15 +1239,16 @@ namespace Opc.Ua.Gds.Server
                     new TrustList.SecureAccess(HasApplicationAdminAccess));
             }
         }
-#endregion
+        #endregion
 
-#region Private Fields
+        #region Private Fields
         private bool m_autoApprove;
         private uint m_nextNodeId;
         private GlobalDiscoveryServerConfiguration m_configuration;
         private IApplicationsDatabase m_database;
+        private ICertificateRequest m_request;
         private ICertificateGroupProvider m_certificateGroupProvider;
         private Dictionary<NodeId, CertificateGroup> m_certificateGroups;
-#endregion
+        #endregion
     }
 }

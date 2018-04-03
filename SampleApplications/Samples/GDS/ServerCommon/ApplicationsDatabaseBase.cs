@@ -141,35 +141,6 @@ namespace Opc.Ua.Gds.Server.Database
             return nodeId;
         }
 
-        public virtual NodeId CreateCertificateRequest(
-            NodeId applicationId,
-            byte[] certificate,
-            byte[] privateKey,
-            string authorityId)
-        {
-            ValidateApplicationNodeId(applicationId);
-            return new NodeId(Guid.Empty, NamespaceIndex);
-        }
-
-        public virtual void ApproveCertificateRequest(NodeId requestId, bool isRejected)
-        {
-            // Request Id must be Guid Id
-            Guid id = GetNodeIdGuid(requestId);
-        }
-
-        public virtual bool CompleteCertificateRequest(
-            NodeId applicationId,
-            NodeId requestId,
-            out byte[] certificate,
-            out byte[] privateKey)
-        {
-            certificate = null;
-            privateKey = null;
-            ValidateApplicationNodeId(applicationId);
-            Guid reqId = GetNodeIdGuid(requestId);
-            return false;
-        }
-
         public virtual void UnregisterApplication(
             NodeId applicationId,
             out byte[] certificate,
