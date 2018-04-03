@@ -138,10 +138,9 @@ namespace Opc.Ua
                 startOfNonce -= senderNonce.Length;
 
                 int result = 0;
-                int v = startOfNonce;
-                for (int i = 0; i < senderNonce.Length; i++)
+                for (int ii = 0; ii < senderNonce.Length; ii++)
                 {
-                    result |= senderNonce[i] ^ decryptedPassword[v++];
+                    result |= senderNonce[ii] ^ decryptedPassword[ii + startOfNonce];
                 }
 
                 if (result != 0)
@@ -149,7 +148,7 @@ namespace Opc.Ua
                     throw new ServiceResultException(StatusCodes.BadIdentityTokenRejected);
                 }
             }
-
+                     
             // convert to UTF-8.
             m_decryptedPassword = new UTF8Encoding().GetString(decryptedPassword, 0, startOfNonce);
         }
