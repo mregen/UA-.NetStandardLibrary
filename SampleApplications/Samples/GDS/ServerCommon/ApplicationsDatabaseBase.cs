@@ -208,6 +208,23 @@ namespace Opc.Ua.Gds.Server.Database
             return null;
         }
 
+        public virtual ApplicationDescription[] QueryApplications(
+            uint startingRecordId,
+            uint maxRecordsToReturn,
+            string applicationName,
+            string applicationUri,
+            uint applicationType,
+            string productUri,
+            string[] serverCapabilities,
+            out DateTime lastCounterResetTime,
+            out uint nextRecordId
+            )
+        {
+            lastCounterResetTime = DateTime.MinValue;
+            nextRecordId = 0;
+            return null;
+        }
+
         public virtual bool SetApplicationCertificate(
             NodeId applicationId,
             byte[] certificate,

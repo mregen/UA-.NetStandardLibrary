@@ -27,14 +27,14 @@
  * http://opcfoundation.org/License/MIT/1.00/
  * ======================================================================*/
 
+using Opc.Ua.Gds.Server.Database;
+using Opc.Ua.Server;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
-using Opc.Ua.Gds.Server.Database;
-using Opc.Ua.Server;
 
 namespace Opc.Ua.Gds.Server
 {
@@ -371,6 +371,7 @@ namespace Opc.Ua.Gds.Server
 
                         activeNode.Create(context, passiveNode);
                         activeNode.QueryServers.OnCall = new QueryServersMethodStateMethodCallHandler(OnQueryServers);
+                        activeNode.QueryApplications.OnCall = new QueryApplicationsMethodStateMethodCallHandler(OnQueryApplications);
                         activeNode.RegisterApplication.OnCall = new RegisterApplicationMethodStateMethodCallHandler(OnRegisterApplication);
                         activeNode.UpdateApplication.OnCall = new UpdateApplicationMethodStateMethodCallHandler(OnUpdateApplication);
                         activeNode.UnregisterApplication.OnCall = new UnregisterApplicationMethodStateMethodCallHandler(OnUnregisterApplication);
@@ -393,7 +394,7 @@ namespace Opc.Ua.Gds.Server
                         activeNode.CertificateGroups.DefaultHttpsGroup.TrustList.Writable.Value = false;
                         activeNode.CertificateGroups.DefaultHttpsGroup.TrustList.UserWritable.Value = false;
 
-                        activeNode.CertificateGroups.DefaultUserTokenGroup.CertificateTypes.Value = new NodeId[] { };
+                        activeNode.CertificateGroups.DefaultUserTokenGroup.CertificateTypes.Value = new NodeId[] { Opc.Ua.ObjectTypeIds.UserCredentialCertificateType };
                         activeNode.CertificateGroups.DefaultUserTokenGroup.TrustList.LastUpdateTime.Value = DateTime.UtcNow;
                         activeNode.CertificateGroups.DefaultUserTokenGroup.TrustList.Writable.Value = false;
                         activeNode.CertificateGroups.DefaultUserTokenGroup.TrustList.UserWritable.Value = false;
@@ -436,6 +437,41 @@ namespace Opc.Ua.Gds.Server
                 serverCapabilities,
                 out lastCounterResetTime);
 
+            return ServiceResult.Good;
+        }
+
+        private ServiceResult OnQueryApplications(
+            ISystemContext context,
+            MethodState method,
+            NodeId objectId,
+            uint startingRecordId,
+            uint maxRecordsToReturn,
+            string applicationName,
+            string applicationUri,
+            //uint applicationType,
+            string productUri,
+            string[] serverCapabilities,
+            ref DateTime lastCounterResetTime,
+            ref uint nextRecordId,
+            ref ApplicationDescription[] applications
+            )
+        {
+            // TODO: remove once nodeset is up to date
+            uint applicationType = 3;
+
+            Utils.Trace(Utils.TraceMasks.Information, "QueryApplications: {0} {1}", applicationUri, applicationName);
+
+            applications = m_database.QueryApplications(
+                startingRecordId,
+                maxRecordsToReturn,
+                applicationName,
+                applicationUri,
+                applicationType,
+                productUri,
+                serverCapabilities,
+                out lastCounterResetTime,
+                out nextRecordId
+                );
             return ServiceResult.Good;
         }
 
@@ -1088,12 +1124,12 @@ namespace Opc.Ua.Gds.Server
             handle.Validated = true;
             return handle.Node;
         }
-        #endregion
+#endregion
 
-        #region Overridden Methods
-        #endregion
+#region Overridden Methods
+#endregion
 
-        #region Private Methods
+#region Private Methods
         /// <summary>
         /// Generates a new node id.
         /// </summary>
@@ -1144,15 +1180,15 @@ namespace Opc.Ua.Gds.Server
                     new TrustList.SecureAccess(HasApplicationAdminAccess));
             }
         }
-        #endregion
+#endregion
 
-        #region Private Fields
+#region Private Fields
         private bool m_autoApprove;
         private uint m_nextNodeId;
         private GlobalDiscoveryServerConfiguration m_configuration;
         private IApplicationsDatabase m_database;
         private ICertificateGroupProvider m_certificateGroupProvider;
         private Dictionary<NodeId, CertificateGroup> m_certificateGroups;
-        #endregion
+#endregion
     }
 }

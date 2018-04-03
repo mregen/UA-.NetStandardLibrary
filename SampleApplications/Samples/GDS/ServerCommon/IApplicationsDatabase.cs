@@ -83,5 +83,15 @@ namespace Opc.Ua.Gds.Server.Database
             NodeId applicationId, 
             NodeId trustListId, 
             NodeId httpsTrustListId);
+        ApplicationDescription[] QueryApplications(
+            uint startingRecordId, 
+            uint maxRecordsToReturn, 
+            string applicationName, 
+            string applicationUri, 
+            uint applicationType,
+            string productUri, 
+            string[] serverCapabilities, 
+            out DateTime lastCounterResetTime, 
+            out uint nextRecordId);
     }
 }
