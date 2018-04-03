@@ -834,7 +834,6 @@ namespace NUnit.Opc.Ua.Gds.Test
         }
 
         #endregion
-
         #region Private Fields
         private const int randomStart = 1;
         private RandomSource _randomSource;

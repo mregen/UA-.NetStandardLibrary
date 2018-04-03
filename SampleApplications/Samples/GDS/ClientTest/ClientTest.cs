@@ -319,6 +319,8 @@ namespace NUnit.Opc.Ua.Gds.Test
             {
                 var result = _gdsClient.GDSClient.GetApplication(application.ApplicationRecord.ApplicationId);
                 Assert.NotNull(result);
+                result.ServerCapabilities.Sort();
+                application.ApplicationRecord.ServerCapabilities.Sort();
                 Assert.IsTrue(Utils.IsEqual(application.ApplicationRecord, result));
             }
         }
@@ -410,6 +412,8 @@ namespace NUnit.Opc.Ua.Gds.Test
             {
                 var result = _gdsClient.GDSClient.GetApplication(application.ApplicationRecord.ApplicationId);
                 Assert.NotNull(result);
+                result.ServerCapabilities.Sort();
+                application.ApplicationRecord.ServerCapabilities.Sort();
                 Assert.IsTrue(Utils.IsEqual(application.ApplicationRecord.ServerCapabilities, result.ServerCapabilities));
             }
         }

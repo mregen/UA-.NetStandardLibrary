@@ -59,6 +59,10 @@ namespace Opc.Ua.Gds.Server
             )
         {
             NodeId appNodeId = base.RegisterApplication(application);
+            if (NodeId.IsNull(appNodeId))
+            {
+                appNodeId = new NodeId(Guid.NewGuid(), NamespaceIndex);
+            }
             Guid applicationId = GetNodeIdGuid(appNodeId);
             string capabilities = base.ServerCapabilities(application);
 
