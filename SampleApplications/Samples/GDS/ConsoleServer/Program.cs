@@ -236,8 +236,10 @@ namespace Opc.Ua.Gds.Server
             string databaseStorePath = Utils.ReplaceSpecialFolderNames(gdsConfiguration.DatabaseStorePath);
 
             // start the server.
+            var database = JsonApplicationsDatabase.Load(databaseStorePath);
             server = new GlobalDiscoverySampleServer(
-                JsonApplicationsDatabase.Load(databaseStorePath),
+                database,
+                database,
                 new CertificateGroup());
             await application.Start(server);
 

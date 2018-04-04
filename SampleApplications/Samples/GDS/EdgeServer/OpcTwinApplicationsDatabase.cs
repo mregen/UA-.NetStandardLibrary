@@ -7,6 +7,7 @@ using Microsoft.Azure.IoTSolutions.OpcTwin.WebService.Client.Services;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Opc.Ua.Gds.Server.Database
 {
@@ -19,7 +20,7 @@ namespace Opc.Ua.Gds.Server.Database
             OpcTwinServiceApiUrl = url;
         }
     }
-    public class OpcTwinApplicationsDatabase : ApplicationsDatabaseBase
+    public class OpcTwinApplicationsDatabase : ApplicationsDatabaseBase, ICertificateRequest
     {
         IOpcTwinService _opcTwinServiceHandler = null;
         IHttpClient _httpClient = null;
@@ -33,7 +34,7 @@ namespace Opc.Ua.Gds.Server.Database
             var result = _opcTwinServiceHandler.ListAllApplicationsAsync().Result;
             if (clean)
             {
-                foreach(var app in result)
+                foreach (var app in result)
                 {
                     _opcTwinServiceHandler.UnregisterApplicationAsync(app.ApplicationId).Wait();
                 }
@@ -110,159 +111,6 @@ namespace Opc.Ua.Gds.Server.Database
             }
 
             return new NodeId(applicationId, NamespaceIndex);
-        }
-
-        public override NodeId CreateCertificateRequest(
-            NodeId applicationId,
-            byte[] certificate,
-            byte[] privateKey,
-            string authorityId)
-        {
-            ValidateApplicationNodeId(applicationId);
-#if mist
-            // add cert and private key to device twin as tags
-            Twin twin = _IoTHubDeviceRegistry.GetTwinAsync(id.ToString()).Result;
-            if (twin != null)
-            {
-                CertificateRequestTwinRecord request = new CertificateRequestTwinRecord();
-                request.RequestId = Guid.NewGuid();
-                request.AuthorityId = authorityId;
-                request.State = (int)CertificateRequestState.New;
-                request.Certificate = certificate ?? new byte[0];
-                request.PrivateKey = privateKey ?? new byte[0];
-
-                string twinPatch = TwinPatchFromRecord(request);
-                twin = _IoTHubDeviceRegistry.UpdateTwinAsync(twin.DeviceId, twinPatch, twin.ETag).Result;
-                if (twin == null)
-                {
-                    throw new Exception("IoTHub certificate request failed.");
-                }
-
-                return new NodeId(request.RequestId, NamespaceIndex);
-            }
-            else
-            {
-                throw new Exception("IoTHub application id not found.");
-            }
-#endif
-            return null;
-        }
-
-        public override void ApproveCertificateRequest(NodeId requestId, bool isRejected)
-        {
-            Guid reqId = GetNodeIdGuid(requestId);
-#if mist
-            string requestIdQuery = String.Format("SELECT * FROM devices WHERE tags.RequestId = '{0}'", id.ToString());
-            var query = _IoTHubDeviceRegistry.CreateQuery(requestIdQuery, 10);
-            bool done = false;
-            while (query.HasMoreResults)
-            {
-                var page = query.GetNextAsTwinAsync().Result;
-                foreach (var twin in page)
-                {
-                    CertificateRequestTwinRecord request = new CertificateRequestTwinRecord();
-                    request.RequestId = id;
-                    request.State = (int)((isRejected) ? CertificateRequestState.Rejected : CertificateRequestState.Approved);
-                    string twinPatch = TwinPatchFromRecord(request);
-                    var newTwin = _IoTHubDeviceRegistry.UpdateTwinAsync(twin.DeviceId, twinPatch, twin.ETag).Result;
-                    if (newTwin == null)
-                    {
-                        throw new Exception("IoTHub approve certificate request failed.");
-                    }
-                    done = true;
-                }
-            }
-            if (!done)
-            {
-                throw new ServiceResultException(StatusCodes.BadNodeIdUnknown);
-            }
-#endif
-        }
-
-        public override bool CompleteCertificateRequest(
-            NodeId applicationId,
-            NodeId requestId,
-            out byte[] certificate,
-            out byte[] privateKey)
-        {
-            certificate = null;
-            privateKey = null;
-            Guid reqId = GetNodeIdGuid(requestId);
-            ValidateApplicationNodeId(applicationId);
-#if mist
-            Twin twin = _IoTHubDeviceRegistry.GetTwinAsync(appId.ToString()).Result;
-            if ((twin != null) && (twin.Tags.Count > 0))
-            {
-
-                if (twin.Tags["RequestId"].Value != reqId.ToString())
-                {
-                    throw new ServiceResultException(StatusCodes.BadNodeIdUnknown);
-                }
-
-                if (twin.Tags["State"].Value == (int)CertificateRequestState.New)
-                {
-                    return false;
-                }
-
-                if (twin.Tags["State"].Value == (int)CertificateRequestState.Rejected)
-                {
-                    throw new ServiceResultException(StatusCodes.BadUserAccessDenied, "The certificate request has been rejected by the administrator.");
-                }
-
-
-                try
-                {
-                    string cert = string.Empty;
-                    JObject certParts = (JObject)twin.Tags["Certificate"];
-                    foreach (JToken part in certParts.Children())
-                    {
-                        cert += ((JProperty)part).Value;
-                    }
-                    certificate = Convert.FromBase64String(cert);
-                    if (certificate.Length == 0)
-                    {
-                        privateKey = null;
-                    }
-                }
-                catch (Exception)
-                {
-                    certificate = null;
-                }
-
-                try
-                {
-                    string pKey = string.Empty;
-                    JObject pKeyParts = (JObject)twin.Tags["PrivateKey"];
-                    foreach (JToken part in pKeyParts.Children())
-                    {
-                        pKey += ((JProperty)part).Value;
-                    }
-                    privateKey = Convert.FromBase64String(pKey);
-                    if (privateKey.Length == 0)
-                    {
-                        privateKey = null;
-                    }
-                }
-                catch (Exception)
-                {
-                    privateKey = null;
-                }
-
-                CertificateRequestTwinRecord request = new CertificateRequestTwinRecord();
-                request.State = (int)CertificateRequestState.Accepted;
-                string twinPatch = TwinPatchFromRecord(request);
-                var newTwin = _IoTHubDeviceRegistry.UpdateTwinAsync(twin.DeviceId, twinPatch, twin.ETag).Result;
-                if (newTwin == null)
-                {
-                    throw new Exception("IoTHub certificate accept failed.");
-                }
-            }
-            else
-            {
-                throw new Exception("IoTHub twin retrieval failed");
-            }
-#endif
-            return true;
         }
 
         public override void UnregisterApplication(
@@ -385,6 +233,234 @@ namespace Opc.Ua.Gds.Server.Database
             return records.ToArray();
         }
 
+        #region ICertificateRequest
+        [Serializable]
+        class CertificateRequest
+        {
+            public Guid RequestId { get; set; }
+            public string ApplicationId { get; set; }
+            public int State { get; set; }
+            public NodeId CertificateGroupId { get; set; }
+            public NodeId CertificateTypeId { get; set; }
+            public byte[] CertificateSigningRequest { get; set; }
+            public string SubjectName { get; set; }
+            public string[] DomainNames { get; set; }
+            public string PrivateKeyFormat { get; set; }
+            public string PrivateKeyPassword { get; set; }
+            public string AuthorityId { get; set; }
+        }
+
+        [JsonProperty]
+        private ICollection<CertificateRequest> CertificateRequests = new HashSet<CertificateRequest>();
+        private object Lock = new object();
+
+        public NodeId CreateSigningRequest(
+            NodeId applicationId,
+            NodeId certificateGroupId,
+            NodeId certificateTypeId,
+            byte[] certificateRequest,
+            string authorityId)
+        {
+            var application = GetApplication(applicationId);
+            if (application == null)
+            {
+                throw new ServiceResultException(StatusCodes.BadNodeIdUnknown);
+            }
+
+            lock (Lock)
+            {
+                var id = GetNodeIdString(application.ApplicationId);
+                var request = (from x in CertificateRequests where x.AuthorityId == authorityId && x.ApplicationId == id select x).SingleOrDefault();
+
+                bool isNew = false;
+                if (request == null)
+                {
+                    request = new CertificateRequest() { RequestId = Guid.NewGuid(), AuthorityId = authorityId };
+                    isNew = true;
+                }
+
+                request.State = (int)CertificateRequestState.New;
+                request.CertificateGroupId = certificateGroupId;
+                request.CertificateTypeId = certificateTypeId;
+                request.SubjectName = null;
+                request.DomainNames = null;
+                request.PrivateKeyFormat = null;
+                request.PrivateKeyPassword = null;
+                request.CertificateSigningRequest = certificateRequest;
+                request.ApplicationId = id;
+
+                if (isNew)
+                {
+                    CertificateRequests.Add(request);
+                }
+                return new NodeId(request.RequestId, NamespaceIndex);
+            }
+        }
+
+        public NodeId CreateNewKeyPairRequest(
+            NodeId applicationId,
+            NodeId certificateGroupId,
+            NodeId certificateTypeId,
+            string subjectName,
+            string[] domainNames,
+            string privateKeyFormat,
+            string privateKeyPassword,
+            string authorityId)
+        {
+            var application = GetApplication(applicationId);
+            if (application == null)
+            {
+                throw new ServiceResultException(StatusCodes.BadNodeIdUnknown);
+            }
+
+            lock (Lock)
+            {
+                var id = GetNodeIdString(application.ApplicationId);
+                var request = (from x in CertificateRequests where x.AuthorityId == authorityId && x.ApplicationId == id select x).SingleOrDefault();
+
+                bool isNew = false;
+
+                if (request == null)
+                {
+                    request = new CertificateRequest()
+                    {
+                        RequestId = Guid.NewGuid(),
+                        AuthorityId = authorityId
+                    };
+                    isNew = true;
+                }
+
+                request.State = (int)CertificateRequestState.New;
+                request.CertificateGroupId = certificateGroupId;
+                request.CertificateTypeId = certificateTypeId;
+                request.SubjectName = subjectName;
+                request.DomainNames = domainNames;
+                request.PrivateKeyFormat = privateKeyFormat;
+                request.PrivateKeyPassword = privateKeyPassword;
+                request.CertificateSigningRequest = null;
+                request.ApplicationId = id;
+
+                if (isNew)
+                {
+                    CertificateRequests.Add(request);
+                }
+
+                return new NodeId(request.RequestId, NamespaceIndex);
+            }
+        }
+
+        public void ApproveCertificateRequest(
+            NodeId requestId,
+            bool isRejected
+            )
+        {
+            Guid id = GetNodeIdGuid(requestId);
+
+            lock (Lock)
+            {
+                var request = (from x in CertificateRequests where x.RequestId == id select x).SingleOrDefault();
+
+                if (request == null)
+                {
+                    throw new ServiceResultException(StatusCodes.BadNodeIdUnknown);
+                }
+
+                if (isRejected)
+                {
+                    request.State = (int)CertificateRequestState.Rejected;
+                    // erase information which is ot required anymore
+                    request.CertificateSigningRequest = null;
+                    request.PrivateKeyPassword = null;
+                }
+                else
+                {
+                    request.State = (int)CertificateRequestState.Approved;
+                }
+            }
+        }
+
+        public void AcceptCertificateRequest(NodeId requestId)
+        {
+            Guid id = GetNodeIdGuid(requestId);
+
+            lock (Lock)
+            {
+                var request = (from x in CertificateRequests where x.RequestId == id select x).SingleOrDefault();
+
+                if (request == null)
+                {
+                    throw new ServiceResultException(StatusCodes.BadNodeIdUnknown);
+                }
+
+                request.State = (int)CertificateRequestState.Accepted;
+
+                // erase information which is ot required anymore
+                request.CertificateSigningRequest = null;
+                request.PrivateKeyPassword = null;
+
+            }
+        }
+
+
+        public CertificateRequestState CompleteCertificateRequest(
+            NodeId applicationId,
+            NodeId requestId,
+            out NodeId certificateGroupId,
+            out NodeId certificateTypeId,
+            out byte[] certificateRequest,
+            out string subjectName,
+            out string[] domainNames,
+            out string privateKeyFormat,
+            out string privateKeyPassword)
+        {
+            certificateGroupId = null;
+            certificateTypeId = null;
+            certificateRequest = null;
+            subjectName = null;
+            domainNames = null;
+            privateKeyFormat = null;
+            privateKeyPassword = null;
+
+            Guid reqId = GetNodeIdGuid(requestId);
+            string appId = GetNodeIdString(applicationId);
+
+            lock (Lock)
+            {
+                var request = (from x in CertificateRequests where x.RequestId == reqId select x).SingleOrDefault();
+
+                if (request == null)
+                {
+                    throw new ServiceResultException(StatusCodes.BadInvalidArgument);
+                }
+
+                switch (request.State)
+                {
+                    case (int)CertificateRequestState.New:
+                        return CertificateRequestState.New;
+                    case (int)CertificateRequestState.Rejected:
+                        return CertificateRequestState.Rejected;
+                    case (int)CertificateRequestState.Accepted:
+                        return CertificateRequestState.Accepted;
+                    case (int)CertificateRequestState.Approved:
+                        break;
+                    default:
+                        throw new ServiceResultException(StatusCodes.BadInvalidArgument);
+                }
+
+                certificateGroupId = request.CertificateGroupId;
+                certificateTypeId = request.CertificateTypeId;
+                certificateRequest = request.CertificateSigningRequest;
+                subjectName = request.SubjectName;
+                domainNames = request.DomainNames;
+                privateKeyFormat = request.PrivateKeyFormat;
+                privateKeyPassword = request.PrivateKeyPassword;
+
+                return CertificateRequestState.Approved;
+            }
+        }
+        #endregion
+
+
         private ApplicationRecordDataType ToApplicationRecord(ApplicationInfoApiModel record)
         {
             return new ApplicationRecordDataType()
@@ -398,6 +474,7 @@ namespace Opc.Ua.Gds.Server.Database
                 ServerCapabilities = record.Capabilities != null ? new StringCollection(record.Capabilities) : null
             };
         }
+
     }
 }
 

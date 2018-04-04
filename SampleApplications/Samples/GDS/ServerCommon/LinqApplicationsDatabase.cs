@@ -62,8 +62,8 @@ namespace Opc.Ua.Gds.Server.Database
     {
         public Guid RequestId { get; set; }
         public Guid ApplicationId { get; set; }
-        public NodeId CertificateGroupId { get; set; }
         public int State { get; set; }
+        public NodeId CertificateGroupId { get; set; }
         public NodeId CertificateTypeId { get; set; }
         public byte[] CertificateSigningRequest { get; set; }
         public string SubjectName { get; set; }

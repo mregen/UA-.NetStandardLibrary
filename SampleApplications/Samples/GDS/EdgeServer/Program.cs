@@ -267,7 +267,7 @@ namespace Opc.Ua.Gds.Server
             var certGroup = new GdsVaultCertificateGroup(gdsVaultHandler);
 
             // start the server.
-            server = new GlobalDiscoverySampleServer(database, certGroup);
+            server = new GlobalDiscoverySampleServer(database, database, certGroup);
             await application.Start(server);
 
             // print endpoint info

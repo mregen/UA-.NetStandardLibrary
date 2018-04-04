@@ -132,9 +132,12 @@ namespace Opc.Ua.Gds.Test
                 }
             }
 
+            var database = JsonApplicationsDatabase.Load(databaseStorePath);
+
             // start the server.
             m_server = new GlobalDiscoverySampleServer(
-                JsonApplicationsDatabase.Load(databaseStorePath),
+                database,
+                database,
                 new CertificateGroup());
             await application.Start(m_server);
 
