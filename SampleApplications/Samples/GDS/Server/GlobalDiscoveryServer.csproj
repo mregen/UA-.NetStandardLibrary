@@ -131,6 +131,7 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>gdsdb.Context.cs</LastGenOutput>
     </Content>
+    <Content Include="gdsdb.edmx.sql" />
     <Content Include="gdsdb.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>gdsdb.cs</LastGenOutput>
