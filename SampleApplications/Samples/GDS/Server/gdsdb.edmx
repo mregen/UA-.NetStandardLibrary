@@ -56,10 +56,10 @@
     <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="ApplicationId" Type="uniqueidentifier" Nullable="false" />
     <Property Name="ApplicationUri" Type="nvarchar" Nullable="false" MaxLength="1000" />
-    <Property Name="ApplicationName" Type="nvarchar" Nullable="false" MaxLength="100" />
+    <Property Name="ApplicationName" Type="nvarchar" Nullable="false" MaxLength="1000" />
     <Property Name="ApplicationType" Type="int" Nullable="false" />
     <Property Name="ProductUri" Type="nvarchar" Nullable="false" MaxLength="1000" />
-    <Property Name="ServerCapabilities" Type="nvarchar" Nullable="false" MaxLength="500" />
+    <Property Name="ServerCapabilities" Type="nvarchar" Nullable="true" MaxLength="500" />
     <Property Name="Certificate" Type="varbinary(max)" Nullable="true" />
     <Property Name="HttpsCertificate" Type="varbinary(max)" Nullable="true" />
     <Property Name="TrustListId" Type="int" Nullable="true" />
@@ -81,14 +81,14 @@
     <Property Name="RequestId" Type="uniqueidentifier" Nullable="false" />
     <Property Name="ApplicationId" Type="int" Nullable="false" />
     <Property Name="State" Type="int" Nullable="false" />
-    <Property Name="CertificateGroupId" Type="nvarchar(max)" Nullable="false" />
-    <Property Name="CertificateTypeId" Type="nvarchar(max)" Nullable="true" />
+    <Property Name="CertificateGroupId" Type="nvarchar" Nullable="false" MaxLength="100" />
+    <Property Name="CertificateTypeId" Type="nvarchar" Nullable="false" MaxLength="100" />
     <Property Name="CertificateSigningRequest" Type="varbinary(max)" Nullable="true" />
-    <Property Name="SubjectName" Type="nvarchar(max)" Nullable="true" />
+    <Property Name="SubjectName" Type="nvarchar" Nullable="true" MaxLength="1000" />
     <Property Name="DomainNames" Type="nvarchar(max)" Nullable="true" />
-    <Property Name="PrivateKeyFormat" Type="nvarchar(max)" Nullable="true" />
-    <Property Name="PrivateKeyPassword" Type="nvarchar(max)" Nullable="true" />
-    <Property Name="AuthorityId" Type="nvarchar" Nullable="true" MaxLength="50" />
+    <Property Name="PrivateKeyFormat" Type="nvarchar" Nullable="true" MaxLength="3" />
+    <Property Name="PrivateKeyPassword" Type="nvarchar" Nullable="true" MaxLength="100" />
+    <Property Name="AuthorityId" Type="nvarchar" Nullable="true" MaxLength="100" />
   </EntityType>
   <Association Name="FK_ApplicationNames_ApplicationId">
     <End Role="Application" Type="gdsdbModel.Store.Applications" Multiplicity="1">
@@ -213,14 +213,14 @@
           <Property Type="Int32" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
           <Property Type="Guid" Name="ApplicationId" Nullable="false" />
           <Property Type="String" Name="ApplicationUri" Nullable="false" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <Property Type="String" Name="ApplicationName" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Type="String" Name="ApplicationName" Nullable="false" MaxLength="1000" FixedLength="false" Unicode="true" />
           <Property Type="Int32" Name="ApplicationType" Nullable="false" />
           <Property Type="String" Name="ProductUri" Nullable="false" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <Property Type="String" Name="ServerCapabilities" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Type="Binary" Name="Certificate" MaxLength="Max" FixedLength="false" />
-          <Property Type="Binary" Name="HttpsCertificate" MaxLength="Max" FixedLength="false" />
-          <Property Type="Int32" Name="TrustListId" />
-          <Property Type="Int32" Name="HttpsTrustListId" />
+          <Property Type="String" Name="ServerCapabilities" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Type="Binary" Name="Certificate" MaxLength="Max" FixedLength="false" Nullable="true" />
+          <Property Type="Binary" Name="HttpsCertificate" MaxLength="Max" FixedLength="false" Nullable="true" />
+          <Property Type="Int32" Name="TrustListId" Nullable="true" />
+          <Property Type="Int32" Name="HttpsTrustListId" Nullable="true" />
           <NavigationProperty Name="ApplicationNames" Relationship="gdsdbModel.FK_ApplicationNames_ApplicationId" FromRole="Application" ToRole="ApplicationName" />
           <NavigationProperty Name="ServerEndpoints" Relationship="gdsdbModel.FK_ServerEndpoints_ApplicationId" FromRole="Application" ToRole="ServerEndpoint" />
           <NavigationProperty Name="HttpsTrustList" Relationship="gdsdbModel.FK_Applications_HttpsTrustListId" FromRole="Application" ToRole="CertificateStore" />
@@ -298,14 +298,14 @@
           <Property Type="Int32" Name="ApplicationId" Nullable="false" />
           <Property Type="Int32" Name="State" Nullable="false" />
           <NavigationProperty Name="Application" Relationship="gdsdbModel.FK_CertificateRequests_Applications" FromRole="CertificateRequest" ToRole="Application" />
-          <Property Name="CertificateGroupId" Type="String" Nullable="false" />
-          <Property Name="CertificateTypeId" Type="String" />
-          <Property Type="Binary" Name="CertificateSigningRequest" MaxLength="Max" FixedLength="false" />
-          <Property Name="SubjectName" Type="String" />
-          <Property Name="DomainNames" Type="String" />
-          <Property Name="PrivateKeyFormat" Type="String" />
-          <Property Name="PrivateKeyPassword" Type="String" />
-          <Property Type="String" Name="AuthorityId" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="CertificateGroupId" Type="String" Nullable="false" MaxLength="100" />
+          <Property Name="CertificateTypeId" Type="String" Nullable="false" MaxLength="100" />
+          <Property Type="Binary" Name="CertificateSigningRequest" MaxLength="Max" FixedLength="false" Nullable="true" />
+          <Property Name="SubjectName" Type="String" Nullable="true" MaxLength="1000" />
+          <Property Name="DomainNames" Type="String" MaxLength="Max" Nullable="true" />
+          <Property Name="PrivateKeyFormat" Type="String" MaxLength="3" Nullable="true" />
+          <Property Name="PrivateKeyPassword" Type="String" Nullable="true" MaxLength="100" />
+          <Property Type="String" Name="AuthorityId" MaxLength="100" FixedLength="false" Unicode="true" />
         </EntityType>
         <Association Name="FK_CertificateRequests_Applications">
           <End Type="gdsdbModel.Application" Role="Application" Multiplicity="1">

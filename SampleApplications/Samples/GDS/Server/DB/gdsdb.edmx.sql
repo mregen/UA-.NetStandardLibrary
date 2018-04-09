@@ -2,7 +2,7 @@
 -- --------------------------------------------------
 -- Entity Designer DDL Script for SQL Server 2005, 2008, 2012 and Azure
 -- --------------------------------------------------
--- Date Created: 04/03/2018 23:07:38
+-- Date Created: 04/04/2018 18:45:51
 -- Generated from EDMX file: C:\Users\mregen\Source\Repos\UA-.NETStandard\SampleApplications\Samples\GDS\Server\gdsdb.edmx
 -- --------------------------------------------------
 
@@ -20,6 +20,9 @@ GO
 IF OBJECT_ID(N'[dbo].[FK_ApplicationNames_ApplicationId]', 'F') IS NOT NULL
     ALTER TABLE [dbo].[ApplicationNames] DROP CONSTRAINT [FK_ApplicationNames_ApplicationId];
 GO
+IF OBJECT_ID(N'[dbo].[FK_ServerEndpoints_ApplicationId]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[ServerEndpoints] DROP CONSTRAINT [FK_ServerEndpoints_ApplicationId];
+GO
 IF OBJECT_ID(N'[dbo].[FK_Applications_HttpsTrustListId]', 'F') IS NOT NULL
     ALTER TABLE [dbo].[Applications] DROP CONSTRAINT [FK_Applications_HttpsTrustListId];
 GO
@@ -29,9 +32,6 @@ GO
 IF OBJECT_ID(N'[dbo].[FK_CertificateRequests_Applications]', 'F') IS NOT NULL
     ALTER TABLE [dbo].[CertificateRequests] DROP CONSTRAINT [FK_CertificateRequests_Applications];
 GO
-IF OBJECT_ID(N'[dbo].[FK_ServerEndpoints_ApplicationId]', 'F') IS NOT NULL
-    ALTER TABLE [dbo].[ServerEndpoints] DROP CONSTRAINT [FK_ServerEndpoints_ApplicationId];
-GO
 
 -- --------------------------------------------------
 -- Dropping existing tables
@@ -40,17 +40,17 @@ GO
 IF OBJECT_ID(N'[dbo].[ApplicationNames]', 'U') IS NOT NULL
     DROP TABLE [dbo].[ApplicationNames];
 GO
+IF OBJECT_ID(N'[dbo].[ServerEndpoints]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[ServerEndpoints];
+GO
 IF OBJECT_ID(N'[dbo].[Applications]', 'U') IS NOT NULL
     DROP TABLE [dbo].[Applications];
-GO
-IF OBJECT_ID(N'[dbo].[CertificateRequests]', 'U') IS NOT NULL
-    DROP TABLE [dbo].[CertificateRequests];
 GO
 IF OBJECT_ID(N'[dbo].[CertificateStores]', 'U') IS NOT NULL
     DROP TABLE [dbo].[CertificateStores];
 GO
-IF OBJECT_ID(N'[dbo].[ServerEndpoints]', 'U') IS NOT NULL
-    DROP TABLE [dbo].[ServerEndpoints];
+IF OBJECT_ID(N'[dbo].[CertificateRequests]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[CertificateRequests];
 GO
 
 -- --------------------------------------------------
@@ -79,10 +79,10 @@ CREATE TABLE [dbo].[Applications] (
     [ID] int IDENTITY(1,1) NOT NULL,
     [ApplicationId] uniqueidentifier  NOT NULL,
     [ApplicationUri] nvarchar(1000)  NOT NULL,
-    [ApplicationName] nvarchar(100)  NOT NULL,
+    [ApplicationName] nvarchar(1000)  NOT NULL,
     [ApplicationType] int  NOT NULL,
     [ProductUri] nvarchar(1000)  NOT NULL,
-    [ServerCapabilities] nvarchar(500)  NOT NULL,
+    [ServerCapabilities] nvarchar(500)  NULL,
     [Certificate] varbinary(max)  NULL,
     [HttpsCertificate] varbinary(max)  NULL,
     [TrustListId] int  NULL,
@@ -104,14 +104,14 @@ CREATE TABLE [dbo].[CertificateRequests] (
     [RequestId] uniqueidentifier  NOT NULL,
     [ApplicationId] int  NOT NULL,
     [State] int  NOT NULL,
-    [CertificateGroupId] nvarchar(max)  NOT NULL,
-    [CertificateTypeId] nvarchar(max)  NULL,
+    [CertificateGroupId] nvarchar(100)  NOT NULL,
+    [CertificateTypeId] nvarchar(100)  NOT NULL,
     [CertificateSigningRequest] varbinary(max)  NULL,
-    [SubjectName] nvarchar(max)  NULL,
+    [SubjectName] nvarchar(1000)  NULL,
     [DomainNames] nvarchar(max)  NULL,
-    [PrivateKeyFormat] nvarchar(max)  NULL,
-    [PrivateKeyPassword] nvarchar(max)  NULL,
-    [AuthorityId] nvarchar(50)  NULL
+    [PrivateKeyFormat] nvarchar(3)  NULL,
+    [PrivateKeyPassword] nvarchar(100)  NULL,
+    [AuthorityId] nvarchar(100)  NULL
 );
 GO
 

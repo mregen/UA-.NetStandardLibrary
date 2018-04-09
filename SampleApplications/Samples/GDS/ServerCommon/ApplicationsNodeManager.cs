@@ -744,6 +744,10 @@ namespace Opc.Ua.Gds.Server
                     return new ServiceResult(StatusCodes.BadInvalidArgument, "The CertificateType is not supported by the certificateGroup.");
                 }
             }
+            else
+            {
+                certificateTypeId = certificateGroup.CertificateType;
+            }
 
             if (!String.IsNullOrEmpty(subjectName))
             {
@@ -845,6 +849,10 @@ namespace Opc.Ua.Gds.Server
                 {
                     return new ServiceResult(StatusCodes.BadInvalidArgument, "The CertificateTypeId is not supported by the certificateGroup.");
                 }
+            }
+            else
+            {
+                certificateTypeId = certificateGroup.CertificateType;
             }
 
             requestId = m_request.CreateSigningRequest(

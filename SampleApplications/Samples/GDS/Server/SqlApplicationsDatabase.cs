@@ -45,7 +45,7 @@ namespace Opc.Ua.Gds.Server
             using (gdsdbEntities entities = new gdsdbEntities())
             {
                 Assembly assembly = typeof(SqlApplicationsDatabase).GetTypeInfo().Assembly;
-                StreamReader istrm = new StreamReader(assembly.GetManifestResourceStream("Opc.Ua.Gds.Server.DB.Tables.sql"));
+                StreamReader istrm = new StreamReader(assembly.GetManifestResourceStream("Opc.Ua.Gds.Server.DB.gdsdb.edmx.sql"));
                 string tables = istrm.ReadToEnd();
                 entities.Database.Initialize(true);
                 entities.Database.CreateIfNotExists();
@@ -133,7 +133,7 @@ namespace Opc.Ua.Gds.Server
                     }
                 }
 
-                if (application.ApplicationNames != null && application.ApplicationNames.Count > 1)
+                if (application.ApplicationNames != null && application.ApplicationNames.Count >= 1)
                 {
                     foreach (var applicationName in application.ApplicationNames)
                     {
@@ -212,11 +212,17 @@ namespace Opc.Ua.Gds.Server
                     return null;
                 }
 
-                LocalizedText[] names = null;
-
-                if (result.ApplicationName != null)
+                LocalizedTextCollection names = new LocalizedTextCollection();
+                if (result.ApplicationNames != null)
                 {
-                    names = new LocalizedText[] { result.ApplicationName };
+                    foreach (var entry in new List<ApplicationName>(result.ApplicationNames))
+                    {
+                        names.Add(new LocalizedText(entry.Locale, entry.Text));
+                    }
+                }
+                else
+                {
+                    names.Add(new LocalizedText(result.ApplicationName));
                 }
 
                 StringCollection discoveryUrls = null;
@@ -233,7 +239,8 @@ namespace Opc.Ua.Gds.Server
 
                 string[] capabilities = null;
 
-                if (result.ServerCapabilities != null)
+                if (result.ServerCapabilities != null &&
+                    result.ServerCapabilities.Length >  0)
                 {
                     capabilities = result.ServerCapabilities.Split(',');
                 }
@@ -243,7 +250,7 @@ namespace Opc.Ua.Gds.Server
                     ApplicationId = new NodeId(result.ApplicationId, NamespaceIndex),
                     ApplicationUri = result.ApplicationUri,
                     ApplicationType = (ApplicationType)result.ApplicationType,
-                    ApplicationNames = new LocalizedTextCollection(names),
+                    ApplicationNames = names,
                     ProductUri = result.ProductUri,
                     DiscoveryUrls = discoveryUrls,
                     ServerCapabilities = capabilities
@@ -322,7 +329,7 @@ namespace Opc.Ua.Gds.Server
             {
                 var results = from x in entities.ServerEndpoints
                               join y in entities.Applications on x.ApplicationId equals y.ID
-                              where ((int)startingRecordId == 0 || (int)startingRecordId < x.ID)
+                              where ((int)startingRecordId == 0 || (int)startingRecordId <= x.ID)
                               orderby x.ID
                               select new
                               {
@@ -522,8 +529,8 @@ namespace Opc.Ua.Gds.Server
                 }
 
                 request.State = (int)CertificateRequestState.New;
-                request.CertificateGroupId = certificateGroupId.Identifier.ToString();
-                request.CertificateTypeId = certificateTypeId.Identifier.ToString();
+                request.CertificateGroupId = certificateGroupId.ToString();
+                request.CertificateTypeId = certificateTypeId.ToString();
                 request.SubjectName = null;
                 request.DomainNames = null;
                 request.PrivateKeyFormat = null;
@@ -695,7 +702,7 @@ namespace Opc.Ua.Gds.Server
                 certificateTypeId = new NodeId(request.CertificateTypeId);
                 certificateRequest = request.CertificateSigningRequest;
                 subjectName = request.SubjectName;
-                domainNames = JsonConvert.DeserializeObject<string[]>(request.DomainNames);
+                domainNames = request.DomainNames != null ? JsonConvert.DeserializeObject<string[]>(request.DomainNames) : null;
                 privateKeyFormat = request.PrivateKeyFormat;
                 privateKeyPassword = request.PrivateKeyPassword;
 
