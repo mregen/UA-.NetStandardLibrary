@@ -472,11 +472,7 @@ namespace Opc.Ua.Gds.Server.Database
                         }
                     }
 
-                    if (lastID == 0)
-                    {
-                        lastID = result.ID;
-                    }
-                    else
+                    if (lastID != 0)
                     {
                         if (maxRecordsToReturn != 0 &&
                             lastID != result.ID &&
@@ -484,9 +480,8 @@ namespace Opc.Ua.Gds.Server.Database
                         {
                             break;
                         }
-
-                        lastID = result.ID;
                     }
+                    lastID = result.ID;
 
                     records.Add(new ServerOnNetwork()
                     {
@@ -495,7 +490,6 @@ namespace Opc.Ua.Gds.Server.Database
                         DiscoveryUrl = result.DiscoveryUrl,
                         ServerCapabilities = capabilities
                     });
-
 
                 }
 
