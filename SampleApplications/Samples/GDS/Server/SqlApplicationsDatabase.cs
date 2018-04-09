@@ -342,9 +342,11 @@ namespace Opc.Ua.Gds.Server
                               };
 
                 List<ServerOnNetwork> records = new List<ServerOnNetwork>();
+                int lastID = 0;
 
                 foreach (var result in results)
                 {
+
                     if (!String.IsNullOrEmpty(applicationName))
                     {
                         if (!Match(result.ApplicationName, applicationName))
@@ -370,8 +372,7 @@ namespace Opc.Ua.Gds.Server
                     }
 
                     string[] capabilities = null;
-
-                    if (result.ServerCapabilities != null)
+                    if (!String.IsNullOrEmpty(result.ServerCapabilities))
                     {
                         capabilities = result.ServerCapabilities.Split(',');
                     }
@@ -395,6 +396,21 @@ namespace Opc.Ua.Gds.Server
                         }
                     }
 
+                    if (lastID == 0)
+                    {
+                        lastID = result.ID;
+                    }
+                    else
+                    {
+                        if (maxRecordsToReturn != 0 &&
+                            lastID != result.ID &&
+                            records.Count >= maxRecordsToReturn)
+                        {
+                            break;
+                        }
+
+                        lastID = result.ID;
+                    }
 
                     records.Add(new ServerOnNetwork()
                     {
@@ -404,11 +420,7 @@ namespace Opc.Ua.Gds.Server
                         ServerCapabilities = capabilities
                     });
 
-                    if (maxRecordsToReturn != 0 &&
-                        records.Count >= maxRecordsToReturn)
-                    {
-                        break;
-                    }
+
                 }
 
                 return records.ToArray();

@@ -86,7 +86,6 @@ namespace Opc.Ua.Gds.Server.Database
     [Serializable]
     class ServerEndpoint
     {
-        public uint ID { get; set; }
         public Guid ApplicationId { get; set; }
         public string DiscoveryUrl { get; set; }
     }
@@ -151,7 +150,11 @@ namespace Opc.Ua.Gds.Server.Database
                 if (record == null)
                 {
                     applicationId = Guid.NewGuid();
-                    record = new Application() { ApplicationId = applicationId };
+                    record = new Application()
+                    {
+                        ApplicationId = applicationId,
+                        ID = 0
+                    };
                     isNew = true;
                 }
 
@@ -172,7 +175,12 @@ namespace Opc.Ua.Gds.Server.Database
                 {
                     foreach (var discoveryUrl in application.DiscoveryUrls)
                     {
-                        ServerEndpoints.Add(new ServerEndpoint() { ApplicationId = record.ApplicationId, DiscoveryUrl = discoveryUrl });
+                        ServerEndpoints.Add(
+                            new ServerEndpoint()
+                            {
+                                ApplicationId = record.ApplicationId,
+                                DiscoveryUrl = discoveryUrl
+                            });
                     }
                 }
 
@@ -180,7 +188,12 @@ namespace Opc.Ua.Gds.Server.Database
                 {
                     foreach (var applicationName in application.ApplicationNames)
                     {
-                        ApplicationNames.Add(new ApplicationName() { ApplicationId = record.ApplicationId, Locale = applicationName.Locale, Text = applicationName.Text });
+                        ApplicationNames.Add(new ApplicationName()
+                        {
+                            ApplicationId = record.ApplicationId,
+                            Locale = applicationName.Locale,
+                            Text = applicationName.Text
+                        });
                     }
                 }
 
@@ -393,11 +406,11 @@ namespace Opc.Ua.Gds.Server.Database
 
                 var results = from x in ServerEndpoints
                               join y in Applications on x.ApplicationId equals y.ApplicationId
-                              where x.ID >= startingRecordId
-                              orderby x.ID
+                              where y.ID >= startingRecordId
+                              orderby y.ID
                               select new
                               {
-                                  x.ID,
+                                  y.ID,
                                   y.ApplicationName,
                                   y.ApplicationUri,
                                   y.ProductUri,
@@ -406,6 +419,7 @@ namespace Opc.Ua.Gds.Server.Database
                               };
 
                 List<ServerOnNetwork> records = new List<ServerOnNetwork>();
+                uint lastID = 0;
 
                 foreach (var result in results)
                 {
@@ -434,8 +448,7 @@ namespace Opc.Ua.Gds.Server.Database
                     }
 
                     string[] capabilities = null;
-
-                    if (result.ServerCapabilities != null)
+                    if (!String.IsNullOrEmpty(result.ServerCapabilities))
                     {
                         capabilities = result.ServerCapabilities.Split(',');
                     }
@@ -459,6 +472,22 @@ namespace Opc.Ua.Gds.Server.Database
                         }
                     }
 
+                    if (lastID == 0)
+                    {
+                        lastID = result.ID;
+                    }
+                    else
+                    {
+                        if (maxRecordsToReturn != 0 &&
+                            lastID != result.ID &&
+                            records.Count >= maxRecordsToReturn)
+                        {
+                            break;
+                        }
+
+                        lastID = result.ID;
+                    }
+
                     records.Add(new ServerOnNetwork()
                     {
                         RecordId = result.ID,
@@ -467,11 +496,7 @@ namespace Opc.Ua.Gds.Server.Database
                         ServerCapabilities = capabilities
                     });
 
-                    if (maxRecordsToReturn != 0 &&
-                        records.Count >= maxRecordsToReturn)
-                    {
-                        break;
-                    }
+
                 }
 
                 return records.ToArray();
@@ -800,15 +825,18 @@ namespace Opc.Ua.Gds.Server.Database
             lock (Lock)
             {
                 queryCounterResetTime = DateTime.UtcNow;
-                uint queryCounter = 0;
-                foreach (var application in Applications)
+                // assign IDs to new apps
+                var queryNewApps = from x in Applications
+                                   where x.ID == 0
+                                   select x;
+                if (Applications.Count > 0)
                 {
-                    application.ID = queryCounter++;
-                }
-                queryCounter = 0;
-                foreach (var serverEndpoint in ServerEndpoints)
-                {
-                    serverEndpoint.ID = queryCounter++;
+                    uint appMax = Applications.Max(a => a.ID);
+                    foreach (var application in queryNewApps)
+                    {
+                        appMax++;
+                        application.ID = appMax;
+                    }
                 }
                 Save();
             }

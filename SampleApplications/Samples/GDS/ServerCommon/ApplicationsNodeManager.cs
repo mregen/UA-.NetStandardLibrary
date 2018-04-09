@@ -855,6 +855,13 @@ namespace Opc.Ua.Gds.Server
                 certificateTypeId = certificateGroup.CertificateType;
             }
 
+            // verify the CSR integrity for the application
+            certificateGroup.VerifySigningRequestAsync(
+                application,
+                certificateRequest
+                ).Wait();
+
+            // store request in the queue for approval
             requestId = m_request.CreateSigningRequest(
                 applicationId,
                 certificateGroupId,

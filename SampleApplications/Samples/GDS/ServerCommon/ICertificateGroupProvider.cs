@@ -69,6 +69,11 @@ namespace Opc.Ua.Gds.Server
             X509Certificate2 certificate
             );
 
+        Task VerifySigningRequestAsync(
+            ApplicationRecordDataType application,
+            byte[] certificateRequest
+            );
+
         Task<X509Certificate2> SigningRequestAsync(
             ApplicationRecordDataType application,
             string[] domainNames,

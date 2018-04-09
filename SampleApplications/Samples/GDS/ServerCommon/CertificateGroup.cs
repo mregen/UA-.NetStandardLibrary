@@ -157,6 +157,45 @@ namespace Opc.Ua.Gds.Server
                 null);
         }
 
+        public virtual Task VerifySigningRequestAsync(
+            ApplicationRecordDataType application,
+            byte[] certificateRequest)
+        {
+            try
+            {
+                var pkcs10CertificationRequest = new Org.BouncyCastle.Pkcs.Pkcs10CertificationRequest(certificateRequest);
+
+                if (!pkcs10CertificationRequest.Verify())
+                {
+                    throw new ServiceResultException(StatusCodes.BadInvalidArgument, "CSR signature invalid.");
+                }
+
+                var info = pkcs10CertificationRequest.GetCertificationRequestInfo();
+                var altNameExtension = GetAltNameExtensionFromCSRInfo(info);
+                if (altNameExtension != null)
+                {
+                    if (altNameExtension.Uris.Count > 0)
+                    {
+                        if (!altNameExtension.Uris.Contains(application.ApplicationUri))
+                        {
+                            throw new ServiceResultException(StatusCodes.BadCertificateUriInvalid,
+                                "CSR AltNameExtension does not match " + application.ApplicationUri);
+                        }
+                    }
+                }
+                return Task.CompletedTask;
+            }
+            catch (Exception ex)
+            {
+                if (ex is ServiceResultException)
+                {
+                    throw ex as ServiceResultException;
+                }
+                throw new ServiceResultException(StatusCodes.BadInvalidArgument, ex.Message);
+            }
+        }
+
+
         public virtual async Task<X509Certificate2> SigningRequestAsync(
             ApplicationRecordDataType application,
             string[] domainNames,

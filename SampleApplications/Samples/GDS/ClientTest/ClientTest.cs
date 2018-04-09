@@ -39,6 +39,7 @@ using Opc.Ua.Gds.Client;
 using Opc.Ua.Gds.Test;
 using Opc.Ua.Test;
 using System.IO;
+using System.Linq;
 
 namespace NUnit.Opc.Ua.Gds.Test
 {
@@ -443,14 +444,20 @@ namespace NUnit.Opc.Ua.Gds.Test
             {
                 var oneServers = _gdsClient.GDSClient.QueryServers(server.RecordId, 1, "", "", "", new List<string>());
                 Assert.IsNotNull(oneServers);
-                Assert.AreEqual(oneServers.Count, 1);
-                Assert.AreEqual(oneServers[0].RecordId, server.RecordId);
+                Assert.GreaterOrEqual(oneServers.Count, 1);
+                foreach (var oneServer in oneServers)
+                {
+                    Assert.AreEqual(oneServer.RecordId, server.RecordId);
+                }
                 firstID = Math.Min(firstID, server.RecordId);
                 lastID = Math.Max(lastID, server.RecordId);
                 totalCount++;
             }
             Assert.GreaterOrEqual(totalCount, goodApplicationsTestCount);
             Assert.AreEqual(totalCount, allServers.Count);
+            Assert.GreaterOrEqual(lastID, firstID);
+            Assert.GreaterOrEqual(lastID, 1);
+            Assert.GreaterOrEqual(firstID, 1);
         }
 
         [Test, Order(411)]
@@ -467,14 +474,20 @@ namespace NUnit.Opc.Ua.Gds.Test
             {
                 var oneServers = _gdsClient.GDSClient.QueryServers(server.RecordId, 1, null, null, null, null);
                 Assert.IsNotNull(oneServers);
-                Assert.AreEqual(oneServers.Count, 1);
-                Assert.AreEqual(oneServers[0].RecordId, server.RecordId);
+                Assert.GreaterOrEqual(oneServers.Count, 1);
+                foreach (var oneServer in oneServers)
+                {
+                    Assert.AreEqual(oneServer.RecordId, server.RecordId);
+                }
                 firstID = Math.Min(firstID, server.RecordId);
                 lastID = Math.Max(lastID, server.RecordId);
                 totalCount++;
             }
             Assert.GreaterOrEqual(totalCount, goodApplicationsTestCount);
             Assert.AreEqual(totalCount, allServers.Count);
+            Assert.GreaterOrEqual(lastID, firstID);
+            Assert.GreaterOrEqual(lastID, 1);
+            Assert.GreaterOrEqual(firstID, 1);
         }
 
         [Test, Order(420)]
@@ -483,22 +496,22 @@ namespace NUnit.Opc.Ua.Gds.Test
             // repeating queries to get all servers
             uint nextID = 0;
             uint iterationCount = Math.Min(10, (uint)(goodApplicationsTestCount / 2));
-            int serversQueried = 0;
+            int serversOnNetwork = 0;
+            int goodServersOnNetwork = GoodServersOnNetworkCount();
             while (true)
             {
                 var iterServers = _gdsClient.GDSClient.QueryServers(nextID, iterationCount, "", "", "", null);
                 Assert.IsNotNull(iterServers);
-                serversQueried += iterServers.Count;
+                serversOnNetwork += iterServers.Count;
                 if (iterServers.Count == 0)
                 {
                     break;
                 }
-                Assert.LessOrEqual(iterServers.Count, iterationCount);
                 uint previousID = nextID;
                 nextID = iterServers[iterServers.Count - 1].RecordId + 1;
                 Assert.Greater(nextID, previousID);
             }
-            Assert.LessOrEqual(serversQueried, goodApplicationsTestCount);
+            Assert.GreaterOrEqual(serversOnNetwork, goodServersOnNetwork);
         }
 
         [Test, Order(430)]
@@ -1156,6 +1169,11 @@ namespace NUnit.Opc.Ua.Gds.Test
             {
                 Assert.Ignore("Test requires good new key pair request.");
             }
+        }
+
+        private int GoodServersOnNetworkCount()
+        {
+            return _goodApplicationTestSet.Sum(a => a.ApplicationRecord.DiscoveryUrls.Count);
         }
 
         #endregion
