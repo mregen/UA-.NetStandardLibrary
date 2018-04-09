@@ -430,7 +430,7 @@ namespace NUnit.Opc.Ua.Gds.Test
         }
 
         [Test, Order(410)]
-        public void QueryAllGoodServers()
+        public void QueryAllServers()
         {
             AssertIgnoreTestWithoutGoodRegistration();
             ConnectGDS(false);
@@ -449,11 +449,12 @@ namespace NUnit.Opc.Ua.Gds.Test
                 lastID = Math.Max(lastID, server.RecordId);
                 totalCount++;
             }
-            Assert.LessOrEqual(totalCount, goodApplicationsTestCount);
+            Assert.GreaterOrEqual(totalCount, goodApplicationsTestCount);
+            Assert.AreEqual(totalCount, allServers.Count);
         }
 
         [Test, Order(411)]
-        public void QueryAllGoodServersNull()
+        public void QueryAllServersNull()
         {
             AssertIgnoreTestWithoutGoodRegistration();
             ConnectGDS(false);
@@ -472,7 +473,8 @@ namespace NUnit.Opc.Ua.Gds.Test
                 lastID = Math.Max(lastID, server.RecordId);
                 totalCount++;
             }
-            Assert.LessOrEqual(totalCount, goodApplicationsTestCount);
+            Assert.GreaterOrEqual(totalCount, goodApplicationsTestCount);
+            Assert.AreEqual(totalCount, allServers.Count);
         }
 
         [Test, Order(420)]
