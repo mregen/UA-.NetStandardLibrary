@@ -27,15 +27,15 @@
  * http://opcfoundation.org/License/MIT/1.00/
  * ======================================================================*/
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Mono.Options;
 using Opc.Ua.Configuration;
+using Opc.Ua.Gds.Server.Database.Linq;
 using Opc.Ua.Server;
-using Opc.Ua.Gds.Server.Database;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Opc.Ua.Gds.Server
 {

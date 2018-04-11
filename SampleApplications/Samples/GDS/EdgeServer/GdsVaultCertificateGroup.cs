@@ -28,6 +28,7 @@
  * ======================================================================*/
 
 using System;
+using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
@@ -64,11 +65,13 @@ namespace Opc.Ua.Gds.Server
         {
             Utils.Trace(Utils.TraceMasks.Information, "InitializeCertificateGroup: {0}", m_subjectName);
 
+            X509Certificate2Collection rootCACertificateChain;
+            IList<Opc.Ua.X509CRL> rootCACrlChain;
             try
             {
                 // read root CA chain for certificate group
-                var rootCACertificateChain = await _gdsVaultHandler.GetCACertificateChainAsync(Configuration.Id).ConfigureAwait(false);
-                var rootCACrlChain = await _gdsVaultHandler.GetCACrlChainAsync(Configuration.Id).ConfigureAwait(false);
+                rootCACertificateChain = await _gdsVaultHandler.GetCACertificateChainAsync(Configuration.Id).ConfigureAwait(false);
+                rootCACrlChain = await _gdsVaultHandler.GetCACrlChainAsync(Configuration.Id).ConfigureAwait(false);
                 var rootCaCert = rootCACertificateChain[0];
                 var rootCaCrl = rootCACrlChain[0];
 
@@ -89,9 +92,7 @@ namespace Opc.Ua.Gds.Server
                 throw ex;
             }
 
-            // add all existing cert versions for trust list
-            // TODO GetAllVersions + CRL
-            // var allCerts = await _gdsVaultHandler.GetCertificateVersionsAsync(Configuration.Id);
+            // add all existing cert versions to trust list
 
             // erase old certs
             using (ICertificateStore store = CertificateStoreIdentifier.OpenStore(m_authoritiesStorePath))
@@ -104,7 +105,7 @@ namespace Opc.Ua.Gds.Server
                         // TODO: Subject may have changed over time
                         if (Utils.CompareDistinguishedName(certificate.Subject, m_subjectName))
                         {
-                            if (true /*null == allCerts.Find(X509FindType.FindByThumbprint, certificate.Thumbprint, false)*/)
+                            if (null == rootCACertificateChain.Find(X509FindType.FindByThumbprint, certificate.Thumbprint, false))
                             {
                                 Utils.Trace("Delete CA certificate from authority store: " + certificate.Thumbprint);
 
@@ -126,23 +127,40 @@ namespace Opc.Ua.Gds.Server
                 {
                     Utils.Trace("Failed to Delete existing certificates from authority store: " + ex.Message);
                 }
-#if mist
-                foreach (var certificate in allCerts)
+
+                foreach (var rootCACertificate in rootCACertificateChain)
                 {
-                    X509Certificate2Collection certs = await store.FindByThumbprint(certificate.Thumbprint);
+                    X509Certificate2Collection certs = await store.FindByThumbprint(rootCACertificate.Thumbprint);
                     if (certs.Count == 0)
                     {
-                        await store.Add(certificate);
-                        Utils.Trace("Added CA certificate to authority store: " + certificate.Thumbprint);
+                        await store.Add(rootCACertificate);
+                        Utils.Trace("Added CA certificate to authority store: " + rootCACertificate.Thumbprint);
                     }
                     else
                     {
-                        Utils.Trace("CA certificate already exists in authority store: " + certificate.Thumbprint);
+                        Utils.Trace("CA certificate already exists in authority store: " + rootCACertificate.Thumbprint);
+                    }
+
+                    foreach (var rootCACrl in rootCACrlChain)
+                    {
+                        if (rootCACrl.VerifySignature(rootCACertificate, false))
+                        {
+                            // delete existing CRL in trusted list
+                            foreach (var crl in store.EnumerateCRLs(rootCACertificate, false))
+                            {
+                                if (crl.VerifySignature(rootCACertificate, false))
+                                {
+                                    store.DeleteCRL(crl);
+                                }
+                            }
+
+                            store.AddCRL(rootCACrl);
+                        }
                     }
                 }
 
                 await UpdateAuthorityCertInTrustedList();
-#endif
+
             }
 
         }

@@ -27,18 +27,17 @@
  * http://opcfoundation.org/License/MIT/1.00/
  * ======================================================================*/
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Mono.Options;
 using Opc.Ua.Configuration;
+using Opc.Ua.Gds.Server.Database.OpcTwin;
 using Opc.Ua.Server;
-using Opc.Ua.Gds.Server.Database;
-using System.Xml.Serialization;
-using System.Xml;
-using System.Runtime.Serialization;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace Opc.Ua.Gds.Server
 {
@@ -243,7 +242,7 @@ namespace Opc.Ua.Gds.Server
 
             // The vault
             var gdsVaultHandler = new OpcGdsVaultClientHandler(keyVaultConfig[0]);
-            if (keyVaultConfig.Length == 1)
+            if (keyVaultConfig.Length == 1 || String.IsNullOrEmpty(keyVaultConfig[1]))
             {
                 // authenticate key vault with MSI (web app) or developer user account
                 gdsVaultHandler.SetTokenProvider();
@@ -255,15 +254,17 @@ namespace Opc.Ua.Gds.Server
             }
 
             // read configurations from GDS Vault
-            var connectionString = await gdsVaultHandler.GetIotHubSecretAsync();
-            gdsConfiguration.CertificateGroups = await gdsVaultHandler.GetCertificateConfigurationGroupsAsync(gdsConfiguration.ApplicationCertificatesStorePath);
+            gdsConfiguration.CertificateGroups = await gdsVaultHandler.GetCertificateConfigurationGroupsAsync(gdsConfiguration.BaseCertificateGroupStorePath);
 
             UpdateGDSConfigurationDocument(config.Extensions, gdsConfiguration);
 
             // initialize database and certificate group handler
-            //var database = new IoTHubApplicationsDatabase(connectionString);
-            //var database = JsonApplicationsDatabase.Load("./dbStore.json");
-            var database = new OpcTwinApplicationsDatabase("http://localhost:9042/v1");
+            string opcTwinServiceUrl = "http://localhost:9042/v1";
+            if (keyVaultConfig.Length == 3)
+            {
+                opcTwinServiceUrl = keyVaultConfig[2];
+            }
+            var database = new OpcTwinApplicationsDatabase(opcTwinServiceUrl);
             var certGroup = new GdsVaultCertificateGroup(gdsVaultHandler);
 
             // start the server.

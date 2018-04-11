@@ -29,6 +29,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -130,7 +131,7 @@ namespace Opc.Ua.Gds.Server
                 {
                     Id = group.Id,
                     SubjectName = group.SubjectName,
-                    BaseStorePath = baseStorePath + "/{id}",
+                    BaseStorePath = baseStorePath + Path.DirectorySeparatorChar + group.Id,
                     DefaultCertificateHashSize = group.DefaultCertificateHashSize,
                     DefaultCertificateKeySize = group.DefaultCertificateKeySize,
                     DefaultCertificateLifetime = group.DefaultCertificateLifetime

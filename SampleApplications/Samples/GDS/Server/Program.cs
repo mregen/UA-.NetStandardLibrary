@@ -27,9 +27,10 @@
  * http://opcfoundation.org/License/MIT/1.00/
  * ======================================================================*/
 
-using System;
 using Opc.Ua.Configuration;
+using Opc.Ua.Gds.Server.Database.Sql;
 using Opc.Ua.Server.Controls;
+using System;
 
 namespace Opc.Ua.Gds.Server
 {

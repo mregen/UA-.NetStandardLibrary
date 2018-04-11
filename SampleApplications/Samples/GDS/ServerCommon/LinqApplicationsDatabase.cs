@@ -33,7 +33,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
-namespace Opc.Ua.Gds.Server.Database
+namespace Opc.Ua.Gds.Server.Database.Linq
 {
     [Serializable]
     class ApplicationName

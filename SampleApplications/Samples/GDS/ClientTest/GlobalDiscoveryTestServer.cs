@@ -29,7 +29,7 @@
 
 using Opc.Ua.Configuration;
 using Opc.Ua.Gds.Server;
-using Opc.Ua.Gds.Server.Database;
+using Opc.Ua.Gds.Server.Database.Linq;
 using System;
 using System.IO;
 using System.Threading.Tasks;

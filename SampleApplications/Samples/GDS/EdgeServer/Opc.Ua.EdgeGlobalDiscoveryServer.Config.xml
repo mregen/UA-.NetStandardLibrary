@@ -65,14 +65,6 @@
         <SecurityMode>SignAndEncrypt_3</SecurityMode>
         <SecurityPolicyUri>http://opcfoundation.org/UA/SecurityPolicy#Basic256Sha256</SecurityPolicyUri>
       </ServerSecurityPolicy>
-      <ServerSecurityPolicy>
-        <SecurityMode>SignAndEncrypt_3</SecurityMode>
-        <SecurityPolicyUri>http://opcfoundation.org/UA/SecurityPolicy#Basic128Rsa15</SecurityPolicyUri>
-      </ServerSecurityPolicy>
-      <ServerSecurityPolicy>
-        <SecurityMode>SignAndEncrypt_3</SecurityMode>
-        <SecurityPolicyUri>http://opcfoundation.org/UA/SecurityPolicy#Basic256</SecurityPolicyUri>
-      </ServerSecurityPolicy>      
     </SecurityPolicies>
     <UserTokenPolicies>
       <ua:UserTokenPolicy>
@@ -140,6 +132,7 @@
       <GlobalDiscoveryServerConfiguration xmlns="http://opcfoundation.org/UA/GDS/Configuration.xsd">
         <AuthoritiesStorePath>%LocalApplicationData%/Microsoft/GDS/PKI/authorities</AuthoritiesStorePath>
         <ApplicationCertificatesStorePath>%LocalApplicationData%/Microsoft/GDS/PKI/applications</ApplicationCertificatesStorePath>
+        <BaseCertificateGroupStorePath>%LocalApplicationData%/Microsoft/GDS/PKI/CA</BaseCertificateGroupStorePath>
         <DefaultSubjectNameContext>O=Microsoft Corp.</DefaultSubjectNameContext>
         <CertificateGroups>
           <CertificateGroupConfiguration>
@@ -153,7 +146,8 @@
         </CertificateGroups>
         <KnownHostNames/>
         <ShutdownDelay>5</ShutdownDelay>
-        <DatabaseStorePath>http://gdsvault.azurewebsites.net/</DatabaseStorePath>
+        <DatabaseStorePath>http://connected-factory-hmi2018-gdsvault.azurewebsites.net,,https://connected-factory-hmi2018-opctwin.azurewebsites.net/v1</DatabaseStorePath>
+        <!--<DatabaseStorePath>http://gdsvault.azurewebsites.net/</DatabaseStorePath>-->
         <!--<DatabaseStorePath>https://iopgds.vault.azure.net,bd273a41-0a42-44b2-9fa0-9aef127504fc</DatabaseStorePath>-->
       </GlobalDiscoveryServerConfiguration>
     </ua:XmlElement>

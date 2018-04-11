@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Opc.Ua.Gds.Server.Database
+namespace Opc.Ua.Gds.Server.Database.OpcTwin
 {
 
     public class OpcTwinConfig : IOpcTwinConfig
@@ -176,9 +176,9 @@ namespace Opc.Ua.Gds.Server.Database
 
             var request = new ApplicationRegistrationQueryApiModel()
             {
-                ApplicationName = applicationNamePattern ? null : applicationName,
-                ApplicationUri = applicationUriPattern ? null : applicationUri,
-                ProductUri = productUriPattern ? null : productUri,
+                ApplicationName = applicationNamePattern || String.IsNullOrEmpty(applicationName) ? null : applicationName,
+                ApplicationUri = applicationUriPattern || String.IsNullOrEmpty(applicationUri) ? null : applicationUri,
+                ProductUri = productUriPattern || String.IsNullOrEmpty(productUri) ? null : productUri,
                 Capabilities = serverCapabilities != null ? new List<string>(serverCapabilities) : null
             };
 

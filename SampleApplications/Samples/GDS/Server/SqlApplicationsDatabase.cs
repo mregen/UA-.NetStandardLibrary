@@ -27,15 +27,14 @@
  * http://opcfoundation.org/License/MIT/1.00/
  * ======================================================================*/
 
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Newtonsoft.Json;
-using Opc.Ua.Gds.Server.Database;
 
-namespace Opc.Ua.Gds.Server
+namespace Opc.Ua.Gds.Server.Database.Sql
 {
     public class SqlApplicationsDatabase : ApplicationsDatabaseBase, ICertificateRequest
     {

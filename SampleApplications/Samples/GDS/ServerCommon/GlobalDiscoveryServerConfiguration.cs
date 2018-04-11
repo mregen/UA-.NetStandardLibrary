@@ -29,6 +29,7 @@
 
 using System.Runtime.Serialization;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Opc.Ua.Gds.Server
 {
@@ -72,15 +73,18 @@ namespace Opc.Ua.Gds.Server
         public string ApplicationCertificatesStorePath { get; set; }
 
         [DataMember(Order = 3)]
+        public string BaseCertificateGroupStorePath { get; set; }
+        
+        [DataMember(Order = 4)]
         public string DefaultSubjectNameContext { get; set; }
 
-        [DataMember(Order = 4)]
+        [DataMember(Order = 5)]
         public CertificateGroupConfigurationCollection CertificateGroups { get; set; }
 
-        [DataMember(Order = 5)]
+        [DataMember(Order = 6)]
         public StringCollection KnownHostNames { get; set; }
 
-        [DataMember(Order = 6)]
+        [DataMember(Order = 7)]
         public string DatabaseStorePath { get; set; }
         #endregion
 
@@ -142,8 +146,8 @@ namespace Opc.Ua.Gds.Server
         [DataMember(Order = 6)]
         public ushort DefaultCertificateHashSize { get; set; }
 
-        public string TrustedListPath { get { return BaseStorePath + "\\trusted"; }}
-        public string IssuerListPath { get { return BaseStorePath + "\\issuer"; } }
+        public string TrustedListPath { get { return BaseStorePath + Path.DirectorySeparatorChar + "trusted"; }}
+        public string IssuerListPath { get { return BaseStorePath + Path.DirectorySeparatorChar + "issuer"; } }
         #endregion
 
         #region Private Members
