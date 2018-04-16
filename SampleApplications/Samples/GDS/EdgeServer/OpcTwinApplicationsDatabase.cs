@@ -183,15 +183,16 @@ namespace Opc.Ua.Gds.Server.Database.OpcTwin
             };
 
             var result = _opcTwinServiceHandler.QueryApplicationsAsync(request).Result;
-            if (result.Items.Count > startingRecordId)
+            if (result.Items.Count >= startingRecordId)
             {
-                if (startingRecordId > 0)
-                {
-                    result.Items.RemoveRange(0, (int)startingRecordId - 1);
-                }
-                uint id = startingRecordId;
+                uint id = 1;
                 foreach (var item in result.Items)
                 {
+                    if (id < startingRecordId)
+                    {
+                        id++;
+                        continue;
+                    }
                     ServerOnNetwork server = new ServerOnNetwork();
                     server.RecordId = id++;
                     ApplicationRecordDataType record = ToApplicationRecord(item);
@@ -211,18 +212,23 @@ namespace Opc.Ua.Gds.Server.Database.OpcTwin
                     {
                         continue;
                     }
-
                     server.ServerName = record.ApplicationNames[0].Text;
+                    server.ServerCapabilities = record.ServerCapabilities;
+                    server.DiscoveryUrl = string.Empty;
                     if (record.DiscoveryUrls.Count > 0)
                     {
-                        server.DiscoveryUrl = record.DiscoveryUrls[0];
+                        foreach (var discoveryUrl in record.DiscoveryUrls)
+                        {
+                            ServerOnNetwork serverEntry = (ServerOnNetwork)server.MemberwiseClone();
+                            serverEntry.DiscoveryUrl = discoveryUrl;
+                            records.Add(serverEntry);
+                        }
                     }
                     else
                     {
                         server.DiscoveryUrl = string.Empty;
+                        records.Add(server);
                     }
-                    server.ServerCapabilities = record.ServerCapabilities;
-                    records.Add(server);
 
                     if (maxRecordsToReturn != 0 && records.Count >= maxRecordsToReturn)
                     {
