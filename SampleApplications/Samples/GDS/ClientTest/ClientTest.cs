@@ -923,7 +923,7 @@ namespace NUnit.Opc.Ua.Gds.Test
         [Test, Order(900)]
         public void UnregisterGoodApplications()
         {
-            AssertIgnoreTestWithoutGoodRegistration();
+            //AssertIgnoreTestWithoutGoodRegistration();
             ConnectGDS(true);
             foreach (var application in _goodApplicationTestSet)
             {
@@ -960,6 +960,23 @@ namespace NUnit.Opc.Ua.Gds.Test
                 // TODO
             }
         }
+
+        [Test, Order(915)]
+        public void VerifyUnregisterGoodApplications()
+        {
+            AssertIgnoreTestWithoutGoodRegistration();
+            ConnectGDS(true);
+            foreach (var application in _goodApplicationTestSet)
+            {
+                var result = _gdsClient.GDSClient.FindApplication(application.ApplicationRecord.ApplicationUri);
+                if (result != null)
+                {
+                    Assert.NotNull(result);
+                    Assert.AreEqual(0, result.Length, "Found deleted application on server!");
+                }
+            }
+        }
+
 
         [Test, Order(920)]
         public void UnregisterUnregisteredGoodApplications()
