@@ -923,7 +923,7 @@ namespace NUnit.Opc.Ua.Gds.Test
         [Test, Order(900)]
         public void UnregisterGoodApplications()
         {
-            //AssertIgnoreTestWithoutGoodRegistration();
+            AssertIgnoreTestWithoutGoodRegistration();
             ConnectGDS(true);
             foreach (var application in _goodApplicationTestSet)
             {
