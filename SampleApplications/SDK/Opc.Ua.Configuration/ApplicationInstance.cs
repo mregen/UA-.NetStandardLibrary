@@ -1226,8 +1226,8 @@ namespace Opc.Ua.Configuration
         /// <returns>The new certificate</returns>
         private static async Task<X509Certificate2> CreateApplicationInstanceCertificate(
             ApplicationConfiguration configuration,
-            ushort minimumKeySize = CertificateFactory.defaultKeySize,
-            ushort lifeTimeInMonths = CertificateFactory.defaultLifeTime
+            ushort minimumKeySize = CertificateFactory.DefaultKeySize,
+            ushort lifeTimeInMonths = CertificateFactory.DefaultLifeTime
             )
         {
             Utils.Trace(Utils.TraceMasks.Information, "Creating application instance certificate.");
@@ -1262,7 +1262,7 @@ namespace Opc.Ua.Configuration
                 minimumKeySize,
                 DateTime.UtcNow - TimeSpan.FromDays(1),
                 lifeTimeInMonths,
-                CertificateFactory.defaultHashSize,
+                CertificateFactory.DefaultHashSize,
                 false,
                 null,
                 null

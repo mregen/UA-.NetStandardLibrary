@@ -77,8 +77,8 @@ namespace Opc.Ua.Configuration
             ServicePassword = null;
             ServiceDescription = null;
             LocallyRegisterOIDs = false;
-            MinimumKeySize = CertificateFactory.defaultKeySize;
-            LifeTimeInMonths = CertificateFactory.defaultLifeTime;
+            MinimumKeySize = CertificateFactory.DefaultKeySize;
+            LifeTimeInMonths = CertificateFactory.DefaultLifeTime;
     	}
     	#endregion
 

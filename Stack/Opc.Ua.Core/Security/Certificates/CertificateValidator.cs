@@ -31,8 +31,8 @@ namespace Opc.Ua
         public CertificateValidator()
         {
             m_validatedCertificates = new Dictionary<string, X509Certificate2>();
-            m_rejectSHA1SignedCertificates = CertificateFactory.defaultHashSize >= 256;
-            m_minimumCertificateKeySize = CertificateFactory.defaultKeySize;
+            m_rejectSHA1SignedCertificates = CertificateFactory.DefaultHashSize >= 256;
+            m_minimumCertificateKeySize = CertificateFactory.DefaultKeySize;
         }
         #endregion
 

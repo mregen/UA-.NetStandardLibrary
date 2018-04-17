@@ -413,10 +413,10 @@ namespace NUnit.Opc.Ua.Gds.Test
                 _applicationRecord.ApplicationNames[0].Text,
                 _selfSignedServerCert.Subject,
                 null,
-                CertificateFactory.defaultKeySize,
+                CertificateFactory.DefaultKeySize,
                 DateTime.UtcNow,
-                CertificateFactory.defaultLifeTime,
-                CertificateFactory.defaultHashSize);
+                CertificateFactory.DefaultLifeTime,
+                CertificateFactory.DefaultHashSize);
 
             byte[] privateKey = null;
             if (keyFormat == "PFX")
@@ -785,10 +785,10 @@ namespace NUnit.Opc.Ua.Gds.Test
                 null,
                 subjectName,
                 null,
-                CertificateFactory.defaultKeySize,
+                CertificateFactory.DefaultKeySize,
                 DateTime.UtcNow,
-                CertificateFactory.defaultLifeTime,
-                CertificateFactory.defaultHashSize,
+                CertificateFactory.DefaultLifeTime,
+                CertificateFactory.DefaultHashSize,
                 true,
                 null,
                 null);
