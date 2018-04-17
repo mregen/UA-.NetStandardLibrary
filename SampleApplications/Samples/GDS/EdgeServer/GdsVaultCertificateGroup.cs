@@ -174,7 +174,7 @@ namespace Opc.Ua.Gds.Server
         {
             try
             {
-                return await _gdsVaultHandler.NewKeyPairRequestAsync(
+                X509Certificate2KeyPair signedKeyPair = await _gdsVaultHandler.NewKeyPairRequestAsync(
                     Configuration.Id,
                     application,
                     subjectName,
@@ -182,6 +182,10 @@ namespace Opc.Ua.Gds.Server
                     privateKeyFormat,
                     privateKeyPassword
                     ).ConfigureAwait(false);
+
+                await UpdateIssuerCertificateAsync(signedKeyPair.Certificate);
+
+                return signedKeyPair;
             }
             catch (Exception ex)
             {
@@ -219,10 +223,15 @@ namespace Opc.Ua.Gds.Server
                         }
                     }
                 }
-                return await _gdsVaultHandler.SigningRequestAsync(
+
+                var signedCertificate = await _gdsVaultHandler.SigningRequestAsync(
                     Configuration.Id,
                     application,
                     certificateRequest).ConfigureAwait(false);
+
+                await UpdateIssuerCertificateAsync(signedCertificate).ConfigureAwait(false);
+
+                return signedCertificate;
             }
             catch (Exception ex)
             {
@@ -235,9 +244,7 @@ namespace Opc.Ua.Gds.Server
 
         }
 
-
-        public override async Task<Opc.Ua.X509CRL> RevokeCertificateAsync(
-            X509Certificate2 certificate)
+        public override async Task<Opc.Ua.X509CRL> RevokeCertificateAsync(X509Certificate2 certificate)
         {
             try
             {
@@ -259,9 +266,75 @@ namespace Opc.Ua.Gds.Server
             string subjectName
             )
         {
-            throw new NotImplementedException("CA creation not supported with key vault. Certificate is created and managed by keyVault administrator.");
+            throw new NotImplementedException("CA creation not supported with GDS vault. Certificate is created and managed by gdsVault administrator.");
+        }
+
+        /// <summary>
+        /// Compares the signed cert Issuer with the local issuer, updates local issuer if necessary.
+        /// </summary>
+        /// <param name="signedCertificate"></param>
+        public async Task UpdateIssuerCertificateAsync(X509Certificate2 signedCertificate)
+        {
+            X509AuthorityKeyIdentifierExtension authority = FindAuthorityKeyIdentifier(signedCertificate);
+            X509SubjectKeyIdentifierExtension subjectKeyId = FindSubjectKeyIdentifierExtension(Certificate);
+
+            if (authority.KeyId != subjectKeyId.SubjectKeyIdentifier ||
+                authority.SerialNumber != Certificate.SerialNumber)
+            {
+                // reload CA certs and trust lists
+                await Init();
+
+                // check again, if no match fail
+                subjectKeyId = FindSubjectKeyIdentifierExtension(Certificate);
+
+                if (authority.KeyId != subjectKeyId.SubjectKeyIdentifier ||
+                    authority.SerialNumber != Certificate.SerialNumber)
+                {
+                    throw new ServiceResultException(StatusCodes.BadInvalidState, "No Match of signed certificate and CA certificate");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns the authority key identifier in the certificate.
+        /// </summary>
+        private X509AuthorityKeyIdentifierExtension FindAuthorityKeyIdentifier(X509Certificate2 certificate)
+        {
+            for (int ii = 0; ii < certificate.Extensions.Count; ii++)
+            {
+                X509Extension extension = certificate.Extensions[ii];
+
+                switch (extension.Oid.Value)
+                {
+                    case X509AuthorityKeyIdentifierExtension.AuthorityKeyIdentifierOid:
+                    case X509AuthorityKeyIdentifierExtension.AuthorityKeyIdentifier2Oid:
+                        {
+                            return new X509AuthorityKeyIdentifierExtension(extension, extension.Critical);
+                        }
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the subject key identifier in the certificate.
+        /// </summary>
+        private X509SubjectKeyIdentifierExtension FindSubjectKeyIdentifierExtension(X509Certificate2 certificate)
+        {
+            for (int ii = 0; ii < certificate.Extensions.Count; ii++)
+            {
+                X509SubjectKeyIdentifierExtension extension = certificate.Extensions[ii] as X509SubjectKeyIdentifierExtension;
+
+                if (extension != null)
+                {
+                    return extension;
+                }
+            }
+
+            return null;
         }
 
     }
-#endregion
+    #endregion
 }

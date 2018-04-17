@@ -26,7 +26,7 @@ namespace Opc.Ua.Gds.Server.Database.OpcTwin
         IHttpClient _httpClient = null;
         ILogger _logger = null;
 
-        public OpcTwinApplicationsDatabase(string databaseStorePath, bool clean = true)
+        public OpcTwinApplicationsDatabase(string databaseStorePath, bool clean = false)
         {
             _logger = new Logger("OpcTwin", LogLevel.Debug);
             _httpClient = new HttpClient(_logger);
@@ -120,7 +120,7 @@ namespace Opc.Ua.Gds.Server.Database.OpcTwin
         {
             certificate = null;
             httpsCertificate = null;
-            _opcTwinServiceHandler.UnregisterApplicationAsync(GetNodeIdString(applicationId));
+            _opcTwinServiceHandler.UnregisterApplicationAsync(GetNodeIdString(applicationId)).Wait();
         }
 
         public override ApplicationRecordDataType GetApplication(NodeId applicationId)
@@ -182,11 +182,32 @@ namespace Opc.Ua.Gds.Server.Database.OpcTwin
                 Capabilities = serverCapabilities != null ? new List<string>(serverCapabilities) : null
             };
 
-            var result = _opcTwinServiceHandler.QueryApplicationsAsync(request).Result;
-            if (result.Items.Count >= startingRecordId)
+            ApplicationInfoListApiModel queryResult = null;
+            if (startingRecordId == 0 ||
+                maxRecordsToReturn == 0 ||
+                lastApplicationList == null ||
+                lastCounterResetTime - lastQueryTime >= TimeSpan.FromMinutes(1))
+            {
+                queryResult = _opcTwinServiceHandler.QueryApplicationsAsync(request).Result;
+                lock (queryLock)
+                {
+                    lastQueryTime = lastCounterResetTime;
+                    lastApplicationList = queryResult;
+                }
+            }
+            else
+            {
+                lock (queryLock)
+                {
+                    queryResult = lastApplicationList;
+                    lastCounterResetTime = lastQueryTime;
+                }
+            }
+
+            if (queryResult.Items.Count >= startingRecordId)
             {
                 uint id = 1;
-                foreach (var item in result.Items)
+                foreach (var item in queryResult.Items)
                 {
                     if (id < startingRecordId)
                     {
@@ -276,7 +297,12 @@ namespace Opc.Ua.Gds.Server.Database.OpcTwin
             lock (Lock)
             {
                 var id = GetNodeIdString(application.ApplicationId);
-                var request = (from x in CertificateRequests where x.AuthorityId == authorityId && x.ApplicationId == id select x).SingleOrDefault();
+                var request = (from x in CertificateRequests
+                               where x.AuthorityId == authorityId && 
+                                     x.ApplicationId == id &&
+                                     x.CertificateGroupId == certificateGroupId &&
+                                     x.CertificateTypeId == certificateTypeId
+                               select x).SingleOrDefault();
 
                 bool isNew = false;
                 if (request == null)
@@ -481,6 +507,9 @@ namespace Opc.Ua.Gds.Server.Database.OpcTwin
             };
         }
 
+        private object queryLock = new object();
+        private DateTime lastQueryTime = DateTime.MinValue;
+        private ApplicationInfoListApiModel lastApplicationList = null;
     }
 }
 
