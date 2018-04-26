@@ -44,40 +44,6 @@ using System.Linq;
 namespace NUnit.Opc.Ua.Gds.Test
 {
 
-    public class ApplicationTestData
-    {
-        public ApplicationTestData()
-        {
-            Initialize();
-        }
-
-        private void Initialize()
-        {
-            ApplicationRecord = new ApplicationRecordDataType();
-            CertificateGroupId = null;
-            CertificateTypeId = null;
-            CertificateRequestId = null;
-            DomainNames = new StringCollection();
-            Subject = null;
-            PrivateKeyFormat = "PFX";
-            PrivateKeyPassword = "";
-            Certificate = null;
-            PrivateKey = null;
-            IssuerCertificates = null;
-        }
-
-        public ApplicationRecordDataType ApplicationRecord;
-        public NodeId CertificateGroupId;
-        public NodeId CertificateTypeId;
-        public NodeId CertificateRequestId;
-        public StringCollection DomainNames;
-        public String Subject;
-        public String PrivateKeyFormat;
-        public String PrivateKeyPassword;
-        public byte[] Certificate;
-        public byte[] PrivateKey;
-        public byte[][] IssuerCertificates;
-    }
 
     /// <summary>
     /// 
@@ -677,14 +643,16 @@ namespace NUnit.Opc.Ua.Gds.Test
 
                         if (certificate != null)
                         {
+                            application.CertificateRequestId = null;
+
                             Assert.NotNull(certificate);
                             Assert.NotNull(privateKey);
                             Assert.NotNull(issuerCertificates);
                             application.Certificate = certificate;
                             application.PrivateKey = privateKey;
                             application.IssuerCertificates = issuerCertificates;
-                            application.CertificateRequestId = null;
-                            TestUtils.VerifyApplicationCertIntegrity(certificate, privateKey, application.PrivateKeyPassword, application.PrivateKeyFormat, issuerCertificates);
+                            X509TestUtils.VerifySignedApplicationCert(application, certificate, issuerCertificates);
+                            X509TestUtils.VerifyApplicationCertIntegrity(certificate, privateKey, application.PrivateKeyPassword, application.PrivateKeyFormat, issuerCertificates);
                         }
                         else
                         {
@@ -773,12 +741,14 @@ namespace NUnit.Opc.Ua.Gds.Test
 
                         if (certificate != null)
                         {
+                            application.CertificateRequestId = null;
+
                             Assert.Null(privateKey);
                             Assert.NotNull(issuerCertificates);
                             application.Certificate = certificate;
                             application.IssuerCertificates = issuerCertificates;
-                            application.CertificateRequestId = null;
-                            TestUtils.VerifyApplicationCertIntegrity(certificate, application.PrivateKey, application.PrivateKeyPassword, application.PrivateKeyFormat, issuerCertificates);
+                            X509TestUtils.VerifySignedApplicationCert(application, certificate, issuerCertificates);
+                            X509TestUtils.VerifyApplicationCertIntegrity(certificate, application.PrivateKey, application.PrivateKeyPassword, application.PrivateKeyFormat, issuerCertificates);
                         }
                         else
                         {
