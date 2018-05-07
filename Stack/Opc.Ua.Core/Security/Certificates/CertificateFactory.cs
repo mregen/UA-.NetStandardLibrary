@@ -301,6 +301,10 @@ public class CertificateFactory
             {
                 issuerPublicKey = GetPublicKeyParameter(issuerCAKeyCert);
                 issuerSerialNumber = GetSerialNumber(issuerCAKeyCert);
+                if (startTime.AddMonths(lifetimeInMonths) > issuerCAKeyCert.NotAfter)
+                {
+                    cg.SetNotAfter(issuerCAKeyCert.NotAfter);
+                }
             }
             else
             {
@@ -615,8 +619,6 @@ public class CertificateFactory
 
             // generate updated CRL
             X509Crl updatedCrl = crlGen.Generate(signatureFactory);
-
-            // add updated CRL to store
             return new X509CRL(updatedCrl.GetEncoded());
         }
     }

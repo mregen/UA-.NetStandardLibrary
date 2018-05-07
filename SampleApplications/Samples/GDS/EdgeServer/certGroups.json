@@ -1,26 +1,14 @@
 [
   {
     "Id": "Default",
-    "SubjectName": "CN=IOPGDS CA, O=Microsoft Corp.",
+    "CertificateType": "ApplicationCertificateType",
+    "SubjectName": "CN=Azure IoT GDS CA, O=Microsoft Corp.",
     "BaseStorePath": "/default",
     "DefaultCertificateLifetime": 12,
     "DefaultCertificateKeySize": 2048,
-    "DefaultCertificateHashSize": 256
-  },
-  {
-    "Id": "Https",
-    "SubjectName": "CN=IOPGDS Https CA, O=Microsoft Corp.",
-    "BaseStorePath": "/https",
-    "DefaultCertificateLifetime": 12,
-    "DefaultCertificateKeySize": 2048,
-    "DefaultCertificateHashSize": 256
-  },
-  {
-    "Id": "UserToken",
-    "SubjectName": "CN=IOPGDS User CA, O=Microsoft Corp.",
-    "BaseStorePath": "/usertoken",
-    "DefaultCertificateLifetime": 12,
-    "DefaultCertificateKeySize": 2048,
-    "DefaultCertificateHashSize": 256
+    "DefaultCertificateHashSize": 256,
+    "CACertificateLifetime": 60,
+    "CACertificateKeySize": 2048,
+    "CACertificateHashSize": 256
   }
 ]

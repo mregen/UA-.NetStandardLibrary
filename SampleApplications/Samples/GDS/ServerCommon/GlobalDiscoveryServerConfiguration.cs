@@ -124,27 +124,42 @@ namespace Opc.Ua.Gds.Server
             DefaultCertificateLifetime = CertificateFactory.DefaultLifeTime;
             DefaultCertificateKeySize = CertificateFactory.DefaultKeySize;
             DefaultCertificateHashSize = CertificateFactory.DefaultHashSize;
+            CACertificateLifetime = CertificateFactory.DefaultLifeTime;
+            CACertificateKeySize = CertificateFactory.DefaultKeySize;
+            CACertificateHashSize = CertificateFactory.DefaultHashSize;
         }
         #endregion
 
         #region Public Properties
-        [DataMember(IsRequired = true, Order = 1)]
+        [DataMember(IsRequired = true, Order = 10)]
         public string Id { get; set; }
 
-        [DataMember(IsRequired = true, Order = 2)]
+        [DataMember(IsRequired = true, Order = 20)]
+        public string CertificateType { get; set; }
+
+        [DataMember(IsRequired = true, Order = 25)]
         public string SubjectName { get; set; }
 
-        [DataMember(IsRequired = true, Order = 3)]
+        [DataMember(IsRequired = true, Order = 30)]
         public string BaseStorePath { get; set; }
 
-        [DataMember(Order = 4)]
+        [DataMember(Order = 40)]
         public ushort DefaultCertificateLifetime { get; set; }
 
-        [DataMember(Order = 5)]
+        [DataMember(Order = 50)]
         public ushort DefaultCertificateKeySize { get; set; }
 
-        [DataMember(Order = 6)]
+        [DataMember(Order = 60)]
         public ushort DefaultCertificateHashSize { get; set; }
+
+        [DataMember(Order = 70)]
+        public ushort CACertificateLifetime { get; set; }
+
+        [DataMember(Order = 80)]
+        public ushort CACertificateKeySize { get; set; }
+
+        [DataMember(Order = 90)]
+        public ushort CACertificateHashSize { get; set; }
 
         public string TrustedListPath { get { return BaseStorePath + Path.DirectorySeparatorChar + "trusted"; }}
         public string IssuerListPath { get { return BaseStorePath + Path.DirectorySeparatorChar + "issuer"; } }

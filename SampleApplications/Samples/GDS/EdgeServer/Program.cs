@@ -29,6 +29,7 @@
 
 using Mono.Options;
 using Opc.Ua.Configuration;
+using Opc.Ua.Gds.Server.Database.Linq;
 using Opc.Ua.Gds.Server.Database.OpcTwin;
 using Opc.Ua.Server;
 using System;
@@ -258,17 +259,28 @@ namespace Opc.Ua.Gds.Server
 
             UpdateGDSConfigurationDocument(config.Extensions, gdsConfiguration);
 
-            // initialize database and certificate group handler
-            string opcTwinServiceUrl = "http://localhost:9042/v1";
-            if (keyVaultConfig.Length == 3)
+            if (keyVaultConfig.Length > 1)
             {
-                opcTwinServiceUrl = keyVaultConfig[2];
-            }
-            var database = new OpcTwinApplicationsDatabase(opcTwinServiceUrl);
-            var certGroup = new GdsVaultCertificateGroup(gdsVaultHandler);
+                // initialize database and certificate group handler
+                string opcTwinServiceUrl = "http://localhost:9042/v1";
+                if (keyVaultConfig.Length == 3)
+                {
+                    opcTwinServiceUrl = keyVaultConfig[2];
+                }
+                var database = new OpcTwinApplicationsDatabase(opcTwinServiceUrl);
+                var certGroup = new GdsVaultCertificateGroup(gdsVaultHandler);
 
-            // start the server.
-            server = new GlobalDiscoverySampleServer(database, database, certGroup);
+                // start the server.
+                server = new GlobalDiscoverySampleServer(database, database, certGroup);
+            }
+            else
+            {
+                var database = new JsonApplicationsDatabase("db.json");
+                var certGroup = new GdsVaultCertificateGroup(gdsVaultHandler);
+
+                // start the server.
+                server = new GlobalDiscoverySampleServer(database, database, certGroup);
+            }
             await application.Start(server);
 
             // print endpoint info

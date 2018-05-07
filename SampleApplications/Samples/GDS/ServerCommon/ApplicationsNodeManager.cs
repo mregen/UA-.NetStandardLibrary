@@ -1214,34 +1214,30 @@ namespace Opc.Ua.Gds.Server
 
         protected void SetCertificateGroupNodes(CertificateGroup certificateGroup)
         {
-            certificateGroup.CertificateType = Opc.Ua.ObjectTypeIds.ApplicationCertificateType;
+            var certificateType = (typeof(Opc.Ua.ObjectTypeIds)).GetField(certificateGroup.Configuration.CertificateType).GetValue(null) as NodeId;
+            certificateGroup.CertificateType = certificateType;
             certificateGroup.DefaultTrustList = null;
-            switch (certificateGroup.Configuration.Id)
+            if (Utils.Equals(certificateType, Opc.Ua.ObjectTypeIds.HttpsCertificateType))
             {
-                case "Https":
-                    certificateGroup.Id = DefaultHttpsGroupId;
-                    certificateGroup.CertificateType = Opc.Ua.ObjectTypeIds.HttpsCertificateType;
-                    certificateGroup.DefaultTrustList = (TrustListState)FindPredefinedNode(ExpandedNodeId.ToNodeId(Opc.Ua.Gds.ObjectIds.Directory_CertificateGroups_DefaultHttpsGroup_TrustList, Server.NamespaceUris), typeof(TrustListState));
-                    break;
-                case "UserToken":
-                    certificateGroup.Id = DefaultUserTokenGroupId;
-                    certificateGroup.CertificateType = null;
-                    certificateGroup.DefaultTrustList = (TrustListState)FindPredefinedNode(ExpandedNodeId.ToNodeId(Opc.Ua.Gds.ObjectIds.Directory_CertificateGroups_DefaultUserTokenGroup_TrustList, Server.NamespaceUris), typeof(TrustListState));
-                    break;
-                case "Default":
-                    certificateGroup.Id = DefaultApplicationGroupId;
-                    if (certificateGroup.Configuration.DefaultCertificateHashSize < 256)
-                    {
-                        certificateGroup.CertificateType = Opc.Ua.ObjectTypeIds.RsaMinApplicationCertificateType;
-                    }
-                    else if (certificateGroup.Configuration.DefaultCertificateHashSize == 256)
-                    {
-                        certificateGroup.CertificateType = Opc.Ua.ObjectTypeIds.RsaSha256ApplicationCertificateType;
-                    }
-                    certificateGroup.DefaultTrustList = (TrustListState)FindPredefinedNode(ExpandedNodeId.ToNodeId(Opc.Ua.Gds.ObjectIds.Directory_CertificateGroups_DefaultApplicationGroup_TrustList, Server.NamespaceUris), typeof(TrustListState));
-                    break;
-                default:
-                    throw new NotImplementedException("Custom certificate groups are not implemented. Use Default, Https or UserToken");
+                certificateGroup.Id = DefaultHttpsGroupId;
+                certificateGroup.DefaultTrustList = (TrustListState)FindPredefinedNode(ExpandedNodeId.ToNodeId(Opc.Ua.Gds.ObjectIds.Directory_CertificateGroups_DefaultHttpsGroup_TrustList, Server.NamespaceUris), typeof(TrustListState));
+            }
+            else if (Utils.Equals(certificateType, Opc.Ua.ObjectTypeIds.UserCredentialCertificateType))
+            {
+                certificateGroup.Id = DefaultUserTokenGroupId;
+                certificateGroup.DefaultTrustList = (TrustListState)FindPredefinedNode(ExpandedNodeId.ToNodeId(Opc.Ua.Gds.ObjectIds.Directory_CertificateGroups_DefaultUserTokenGroup_TrustList, Server.NamespaceUris), typeof(TrustListState));
+            }
+            else if (Utils.Equals(certificateType, Opc.Ua.ObjectTypeIds.ApplicationCertificateType) ||
+                Utils.Equals(certificateType, Opc.Ua.ObjectTypeIds.RsaMinApplicationCertificateType) ||
+                Utils.Equals(certificateType, Opc.Ua.ObjectTypeIds.RsaSha256ApplicationCertificateType)
+                )
+            {
+                certificateGroup.Id = DefaultApplicationGroupId;
+                certificateGroup.DefaultTrustList = (TrustListState)FindPredefinedNode(ExpandedNodeId.ToNodeId(Opc.Ua.Gds.ObjectIds.Directory_CertificateGroups_DefaultApplicationGroup_TrustList, Server.NamespaceUris), typeof(TrustListState));
+            }
+            else
+            { 
+                throw new NotImplementedException("Unknown certificate type {certificateGroup.Configuration.CertificateType}. Use ApplicationCertificateType, HttpsCertificateType or UserCredentialCertificateType");
             }
 
             if (certificateGroup.DefaultTrustList != null)

@@ -29,6 +29,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
@@ -72,6 +73,16 @@ namespace Opc.Ua.Gds.Server
                 {
                     if (Utils.CompareDistinguishedName(certificate.Subject, m_subjectName))
                     {
+                        using (RSA rsa = certificate.GetRSAPublicKey())
+                        {
+                            if (rsa.KeySize != Configuration.CACertificateKeySize)
+                            {
+                                continue;
+                            }
+
+                            // TODO check hash size
+                        }
+
                         if (Certificate != null)
                         {
                             // always use latest issued cert in store
@@ -91,9 +102,9 @@ namespace Opc.Ua.Gds.Server
                 Utils.Trace(Utils.TraceMasks.Security,
                     "Create new CA Certificate: {0}, KeySize: {1}, HashSize: {2}, LifeTime: {3} months",
                     m_subjectName,
-                    Configuration.DefaultCertificateKeySize,
-                    Configuration.DefaultCertificateHashSize,
-                    Configuration.DefaultCertificateLifetime
+                    Configuration.CACertificateKeySize,
+                    Configuration.CACertificateHashSize,
+                    Configuration.CACertificateLifetime
                     );
                 X509Certificate2 newCertificate = await CreateCACertificateAsync(m_subjectName);
                 Certificate = new X509Certificate2(newCertificate.RawData);
@@ -276,10 +287,10 @@ namespace Opc.Ua.Gds.Server
                 null,
                 subjectName,
                 null,
-                Configuration.DefaultCertificateKeySize,
+                Configuration.CACertificateKeySize,
                 yesterday,
-                Configuration.DefaultCertificateLifetime,
-                Configuration.DefaultCertificateHashSize,
+                Configuration.CACertificateLifetime,
+                Configuration.CACertificateHashSize,
                 true,
                 null,
                 null);

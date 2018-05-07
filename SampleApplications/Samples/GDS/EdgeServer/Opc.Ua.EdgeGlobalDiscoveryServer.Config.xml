@@ -137,16 +137,23 @@
         <CertificateGroups>
           <CertificateGroupConfiguration>
             <Id>Default</Id>
-            <SubjectName>CN=IOPGDS-2018 CA, O=Microsoft Corp.</SubjectName>
+            <CertificateType>ApplicationCertificateType</CertificateType>
+            <SubjectName>CN=Azure IoT GDS CA, O=Microsoft Corp.</SubjectName>
             <BaseStorePath>%LocalApplicationData%/Microsoft/GDS/PKI/CA/default</BaseStorePath>
-            <DefaultCertificateLifetime>60</DefaultCertificateLifetime>
+            <DefaultCertificateLifetime>12</DefaultCertificateLifetime>
             <DefaultCertificateKeySize>2048</DefaultCertificateKeySize>
             <DefaultCertificateHashSize>256</DefaultCertificateHashSize>
+            <CACertificateLifetime>60</CACertificateLifetime>
+            <CACertificateKeySize>2048</CACertificateKeySize>
+            <CACertificateHashSize>256</CACertificateHashSize>
           </CertificateGroupConfiguration>
         </CertificateGroups>
         <KnownHostNames/>
         <ShutdownDelay>5</ShutdownDelay>
-        <DatabaseStorePath>http://connected-factory-hmi2018-gdsvault.azurewebsites.net,,https://connected-factory-hmi2018-opctwin.azurewebsites.net/v1</DatabaseStorePath>
+        <DatabaseStorePath>http://iopgds.azurewebsites.net</DatabaseStorePath>
+        <!--<DatabaseStorePath>http://localhost:58801,,https://cf-hmi2018-opctwin.azurewebsites.net/v1</DatabaseStorePath>-->
+        <!--<DatabaseStorePath>http://connected-factory-hmi2018-gdsvault.azurewebsites.net,,https://cf-hmi2018-opctwin.azurewebsites.net/v1</DatabaseStorePath>-->
+        <!--<DatabaseStorePath>http://connected-factory-hmi2018-gdsvault.azurewebsites.net,,https://connected-factory-hmi2018-opctwin.azurewebsites.net/v1</DatabaseStorePath>-->
         <!--<DatabaseStorePath>http://gdsvault.azurewebsites.net/</DatabaseStorePath>-->
         <!--<DatabaseStorePath>https://iopgds.vault.azure.net,bd273a41-0a42-44b2-9fa0-9aef127504fc</DatabaseStorePath>-->
       </GlobalDiscoveryServerConfiguration>
