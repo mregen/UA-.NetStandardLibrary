@@ -130,11 +130,15 @@ namespace Opc.Ua.Gds.Server
                 var newGroup = new CertificateGroupConfiguration()
                 {
                     Id = group.Id,
+                    CertificateType = group.CertificateType,
                     SubjectName = group.SubjectName,
                     BaseStorePath = baseStorePath + Path.DirectorySeparatorChar + group.Id,
                     DefaultCertificateHashSize = group.DefaultCertificateHashSize,
                     DefaultCertificateKeySize = group.DefaultCertificateKeySize,
-                    DefaultCertificateLifetime = group.DefaultCertificateLifetime
+                    DefaultCertificateLifetime = group.DefaultCertificateLifetime,
+                    CACertificateHashSize = group.CACertificateHashSize,
+                    CACertificateKeySize = group.CACertificateKeySize,
+                    CACertificateLifetime = group.CACertificateLifetime
                 };
                 groupCollection.Add(newGroup);
             }
