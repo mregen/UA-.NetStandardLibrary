@@ -100,6 +100,28 @@ namespace NUnit.Opc.Ua.Gds.Test
         }
         #endregion
         #region Test Methods
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// 
+        [Test, Order(10)]
+        public void CleanGoodApplications()
+        {
+            ConnectGDS(true);
+            foreach (var application in _goodApplicationTestSet)
+            {
+                var applicationDataRecords = _gdsClient.GDSClient.FindApplication(application.ApplicationRecord.ApplicationUri);
+                if (applicationDataRecords != null)
+                {
+                    foreach (var applicationDataRecord in applicationDataRecords)
+                    {
+                        _gdsClient.GDSClient.UnregisterApplication(applicationDataRecord.ApplicationId);
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -126,6 +148,41 @@ namespace NUnit.Opc.Ua.Gds.Test
             foreach (var application in _goodApplicationTestSet)
             {
                 // TODO
+            }
+        }
+
+        [Test, Order(105)]
+        public void RegisterDuplicateGoodApplications()
+        {
+            AssertIgnoreTestWithoutGoodRegistration();
+            ConnectGDS(true);
+            foreach (var application in _goodApplicationTestSet)
+            {
+                ApplicationRecordDataType newRecord = (ApplicationRecordDataType)application.ApplicationRecord.MemberwiseClone();
+                newRecord.ApplicationId = null;
+                NodeId id = _gdsClient.GDSClient.RegisterApplication(newRecord);
+                Assert.NotNull(id);
+                Assert.IsFalse(id.IsNullNodeId);
+                Assert.That(id.IdType == IdType.Guid || id.IdType == IdType.String);
+                newRecord.ApplicationId = id;
+                var applicationDataRecords = _gdsClient.GDSClient.FindApplication(newRecord.ApplicationUri);
+                Assert.NotNull(applicationDataRecords);
+                bool newIdFound = false;
+                bool registeredIdFound = false;
+                foreach (var applicationDataRecord in applicationDataRecords)
+                {
+                    if (applicationDataRecord.ApplicationId == newRecord.ApplicationId)
+                    {
+                        _gdsClient.GDSClient.UnregisterApplication(id);
+                        newIdFound = true;
+                    }
+                    else if (applicationDataRecord.ApplicationId == application.ApplicationRecord.ApplicationId)
+                    {
+                        registeredIdFound = true;
+                    }
+                }
+                Assert.IsTrue(newIdFound);
+                Assert.IsTrue(registeredIdFound);
             }
         }
 
