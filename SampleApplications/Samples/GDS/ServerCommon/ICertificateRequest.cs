@@ -66,7 +66,8 @@ namespace Opc.Ua.Gds.Server
             bool isRejected);
 
         void AcceptCertificateRequest(
-            NodeId requestId);
+            NodeId requestId,
+            byte [] certificate);
 
         CertificateRequestState CompleteCertificateRequest(
             NodeId applicationId,

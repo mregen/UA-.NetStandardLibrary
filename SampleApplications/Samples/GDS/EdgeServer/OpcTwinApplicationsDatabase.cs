@@ -411,7 +411,7 @@ namespace Opc.Ua.Gds.Server.Database.OpcTwin
             }
         }
 
-        public void AcceptCertificateRequest(NodeId requestId)
+        public void AcceptCertificateRequest(NodeId requestId, byte [] signedCertificate)
         {
             Guid id = GetNodeIdGuid(requestId);
 

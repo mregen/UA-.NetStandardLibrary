@@ -71,6 +71,7 @@ namespace Opc.Ua.Gds.Server.Database.Linq
         public string PrivateKeyFormat { get; set; }
         public string PrivateKeyPassword { get; set; }
         public string AuthorityId { get; set; }
+        public byte [] Certificate { get; set; }
     }
     [Serializable]
     class CertificateStore
@@ -725,7 +726,8 @@ namespace Opc.Ua.Gds.Server.Database.Linq
         }
 
         public void AcceptCertificateRequest(
-            NodeId requestId)
+            NodeId requestId,
+            byte [] signedCertificate)
         {
             Guid id = GetNodeIdGuid(requestId);
 
@@ -739,6 +741,9 @@ namespace Opc.Ua.Gds.Server.Database.Linq
                 }
 
                 request.State = (int)CertificateRequestState.Accepted;
+
+                // save certificate for audit trail
+                request.Certificate = signedCertificate;
 
                 // erase information which is ot required anymore
                 request.CertificateSigningRequest = null;
