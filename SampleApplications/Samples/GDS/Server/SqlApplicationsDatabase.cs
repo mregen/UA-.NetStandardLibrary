@@ -642,7 +642,8 @@ namespace Opc.Ua.Gds.Server.Database.Sql
         }
 
         public void AcceptCertificateRequest(
-            NodeId requestId)
+            NodeId requestId,
+            byte [] certificate)
         {
             Guid id = GetNodeIdGuid(requestId);
             using (gdsdbEntities entities = new gdsdbEntities())

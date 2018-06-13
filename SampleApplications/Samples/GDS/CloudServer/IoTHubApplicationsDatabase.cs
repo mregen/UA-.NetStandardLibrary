@@ -644,7 +644,8 @@ namespace Opc.Ua.Gds.Server.Database.IotHub
         }
 
         public void AcceptCertificateRequest(
-            NodeId requestId)
+            NodeId requestId,
+            byte [] signedCertificate)
         {
             Guid id = GetNodeIdGuid(requestId);
 #if TODO

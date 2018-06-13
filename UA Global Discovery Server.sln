@@ -49,6 +49,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebService.Client", "..\pcs
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Common", "..\pcs-template-microservice-dotnet\Services.Common\Services.Common.csproj", "{3A604CAF-21B1-4CAB-A076-3E1F541AD191}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CosmosDBGlobalDiscoveryServer", "SampleApplications\Samples\GDS\CosmosServer\CosmosDBGlobalDiscoveryServer.csproj", "{6C755286-7E88-4E5D-A185-47B206D87035}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -123,6 +125,10 @@ Global
 		{3A604CAF-21B1-4CAB-A076-3E1F541AD191}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A604CAF-21B1-4CAB-A076-3E1F541AD191}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A604CAF-21B1-4CAB-A076-3E1F541AD191}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C755286-7E88-4E5D-A185-47B206D87035}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C755286-7E88-4E5D-A185-47B206D87035}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C755286-7E88-4E5D-A185-47B206D87035}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C755286-7E88-4E5D-A185-47B206D87035}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

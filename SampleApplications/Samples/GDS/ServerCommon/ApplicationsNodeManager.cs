@@ -1007,7 +1007,7 @@ namespace Opc.Ua.Gds.Server
             }
 
             m_database.SetApplicationCertificate(applicationId, signedCertificate, certificateGroup.Id.Identifier as string == "https");
-            m_request.AcceptCertificateRequest(requestId);
+            m_request.AcceptCertificateRequest(requestId, signedCertificate);
 
             return ServiceResult.Good;
         }
