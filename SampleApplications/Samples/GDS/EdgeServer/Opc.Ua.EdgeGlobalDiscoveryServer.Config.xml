@@ -150,7 +150,7 @@
         </CertificateGroups>
         <KnownHostNames/>
         <ShutdownDelay>5</ShutdownDelay>
-        <DatabaseStorePath>http://iopgds.azurewebsites.net</DatabaseStorePath>
+        <!--<DatabaseStorePath>http://iopgds.azurewebsites.net</DatabaseStorePath>-->
         <!--<DatabaseStorePath>http://localhost:58801,,https://cf-hmi2018-opctwin.azurewebsites.net/v1</DatabaseStorePath>-->
         <!--<DatabaseStorePath>http://connected-factory-hmi2018-gdsvault.azurewebsites.net,,https://cf-hmi2018-opctwin.azurewebsites.net/v1</DatabaseStorePath>-->
         <!--<DatabaseStorePath>http://connected-factory-hmi2018-gdsvault.azurewebsites.net,,https://connected-factory-hmi2018-opctwin.azurewebsites.net/v1</DatabaseStorePath>-->

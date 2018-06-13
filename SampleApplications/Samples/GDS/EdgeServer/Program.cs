@@ -99,8 +99,14 @@ namespace Opc.Ua.Gds.Server
 
             // command line options
             bool showHelp = false;
+            string gdsVault = null;
+            string appID = null;
+            string opcTwin = null;
 
             Mono.Options.OptionSet options = new Mono.Options.OptionSet {
+                { "g|gdsvault=", "GDS Vault Url", g => gdsVault = g },
+                { "a|appid=", "Active Directory Application Id", a => appID = a },
+                { "o|opctwin=", "OPC Twin Url", o => opcTwin = o },
                 { "h|help", "show this message and exit", h => showHelp = h != null },
             };
 
@@ -130,7 +136,7 @@ namespace Opc.Ua.Gds.Server
             }
 
             CloudGlobalDiscoveryServer server = new CloudGlobalDiscoveryServer();
-            server.Run();
+            server.Run(gdsVault, appID, opcTwin);
 
             return (int)CloudGlobalDiscoveryServer.ExitCode;
         }
@@ -147,13 +153,13 @@ namespace Opc.Ua.Gds.Server
         {
         }
 
-        public void Run()
+        public void Run(string gdsVault, string appID, string opcTwin)
         {
 
             try
             {
                 exitCode = ExitCode.ErrorServerNotStarted;
-                ConsoleGlobalDiscoveryServer().Wait();
+                ConsoleGlobalDiscoveryServer(gdsVault, appID, opcTwin).Wait();
                 Console.WriteLine("Server started. Press Ctrl-C to exit...");
                 exitCode = ExitCode.ErrorServerRunning;
             }
@@ -210,7 +216,7 @@ namespace Opc.Ua.Gds.Server
             }
         }
 
-        private async Task ConsoleGlobalDiscoveryServer()
+        private async Task ConsoleGlobalDiscoveryServer(string gdsVaultServiceUrl, string appId, string opcTwinServiceUrl)
         {
             ApplicationInstance.MessageDlg = new ApplicationMessageDlg();
             ApplicationInstance application = new ApplicationInstance
@@ -239,11 +245,40 @@ namespace Opc.Ua.Gds.Server
             GlobalDiscoveryServerConfiguration gdsConfiguration = config.ParseExtension<GlobalDiscoveryServerConfiguration>();
 
             // extract appId and vault name from database storage path
-            string[] keyVaultConfig = gdsConfiguration.DatabaseStorePath.Split(',');
+            string[] keyVaultConfig = gdsConfiguration.DatabaseStorePath?.Split(',');
+            if (keyVaultConfig != null)
+            {
+                if (String.IsNullOrEmpty(gdsVaultServiceUrl))
+                {
+                    // try configuration using XML config
+                    gdsVaultServiceUrl = keyVaultConfig[0];
+                }
 
-            // The vault
-            var gdsVaultHandler = new OpcGdsVaultClientHandler(keyVaultConfig[0]);
-            if (keyVaultConfig.Length == 1 || String.IsNullOrEmpty(keyVaultConfig[1]))
+                if (String.IsNullOrEmpty(appId))
+                {
+                    if (keyVaultConfig.Length > 1 && !String.IsNullOrEmpty(keyVaultConfig[1]))
+                    {
+                        appId = keyVaultConfig[1];
+                    }
+                }
+
+                if (String.IsNullOrEmpty(opcTwinServiceUrl))
+                {
+                    if (keyVaultConfig.Length > 1)
+                    {
+                        // initialize database and certificate group handler
+                        opcTwinServiceUrl = "http://localhost:9042/v1";
+                        if (keyVaultConfig.Length == 3)
+                        {
+                            opcTwinServiceUrl = keyVaultConfig[2];
+                        }
+                    }
+                }
+            }
+
+            // The vault handler with authentication
+            var gdsVaultHandler = new OpcGdsVaultClientHandler(gdsVaultServiceUrl);
+            if (String.IsNullOrEmpty(appId))
             {
                 // authenticate key vault with MSI (web app) or developer user account
                 gdsVaultHandler.SetTokenProvider();
@@ -251,7 +286,7 @@ namespace Opc.Ua.Gds.Server
             else
             {
                 // authenticate key vault with app cert
-                gdsVaultHandler.SetAssertionCertificate(keyVaultConfig[1], await config.SecurityConfiguration.ApplicationCertificate.LoadPrivateKey(string.Empty));
+                gdsVaultHandler.SetAssertionCertificate(appId, await config.SecurityConfiguration.ApplicationCertificate.LoadPrivateKey(string.Empty));
             }
 
             // read configurations from GDS Vault
@@ -259,28 +294,24 @@ namespace Opc.Ua.Gds.Server
 
             UpdateGDSConfigurationDocument(config.Extensions, gdsConfiguration);
 
-            if (keyVaultConfig.Length > 1)
+            var certGroup = new GdsVaultCertificateGroup(gdsVaultHandler);
+            if (!String.IsNullOrEmpty(opcTwinServiceUrl))
             {
-                // initialize database and certificate group handler
-                string opcTwinServiceUrl = "http://localhost:9042/v1";
-                if (keyVaultConfig.Length == 3)
+                if (!opcTwinServiceUrl.EndsWith("/v1", StringComparison.OrdinalIgnoreCase))
                 {
-                    opcTwinServiceUrl = keyVaultConfig[2];
+                    opcTwinServiceUrl += "/v1";
                 }
+                // initialize database and certificate group handler
                 var database = new OpcTwinApplicationsDatabase(opcTwinServiceUrl);
-                var certGroup = new GdsVaultCertificateGroup(gdsVaultHandler);
-
-                // start the server.
                 server = new GlobalDiscoverySampleServer(database, database, certGroup);
             }
             else
             {
                 var database = new JsonApplicationsDatabase("db.json");
-                var certGroup = new GdsVaultCertificateGroup(gdsVaultHandler);
-
-                // start the server.
                 server = new GlobalDiscoverySampleServer(database, database, certGroup);
             }
+
+            // start the server.
             await application.Start(server);
 
             // print endpoint info
