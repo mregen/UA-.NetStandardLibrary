@@ -150,12 +150,7 @@
         </CertificateGroups>
         <KnownHostNames/>
         <ShutdownDelay>5</ShutdownDelay>
-        <!--<DatabaseStorePath>http://iopgds.azurewebsites.net</DatabaseStorePath>-->
-        <!--<DatabaseStorePath>http://localhost:58801,,https://cf-hmi2018-opctwin.azurewebsites.net/v1</DatabaseStorePath>-->
-        <!--<DatabaseStorePath>http://connected-factory-hmi2018-gdsvault.azurewebsites.net,,https://cf-hmi2018-opctwin.azurewebsites.net/v1</DatabaseStorePath>-->
-        <!--<DatabaseStorePath>http://connected-factory-hmi2018-gdsvault.azurewebsites.net,,https://connected-factory-hmi2018-opctwin.azurewebsites.net/v1</DatabaseStorePath>-->
-        <!--<DatabaseStorePath>http://gdsvault.azurewebsites.net/</DatabaseStorePath>-->
-        <!--<DatabaseStorePath>https://iopgds.vault.azure.net,bd273a41-0a42-44b2-9fa0-9aef127504fc</DatabaseStorePath>-->
+        <DatabaseStorePath>https://iopgds.azurewebsites.net,,https://iopgds.documents.azure.com,SwkTbAqYb8ZeNryDqLKKBM1DVSrcJq6TFwyMy3QuHkiqbuGUvS4mTC6jpwZ2Tcb7PBW5dzb9eEoznEkP3WBKVg==</DatabaseStorePath>
       </GlobalDiscoveryServerConfiguration>
     </ua:XmlElement>
   </Extensions>

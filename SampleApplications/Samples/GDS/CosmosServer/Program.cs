@@ -30,7 +30,6 @@
 using Mono.Options;
 using Opc.Ua.Configuration;
 using Opc.Ua.Gds.Server.Database.CosmosDB;
-using Opc.Ua.Gds.Server.Database.Linq;
 using Opc.Ua.Server;
 using System;
 using System.Collections.Generic;
@@ -101,12 +100,14 @@ namespace Opc.Ua.Gds.Server
             bool showHelp = false;
             string gdsVault = null;
             string appID = null;
-            string opcTwin = null;
+            string cosmosDB = null;
+            string cosmosDBKey = null;
 
             Mono.Options.OptionSet options = new Mono.Options.OptionSet {
                 { "g|gdsvault=", "GDS Vault Url", g => gdsVault = g },
                 { "a|appid=", "Active Directory Application Id", a => appID = a },
-                { "o|opctwin=", "OPC Twin Url", o => opcTwin = o },
+                { "c|cosmosdb=", "Cosmos DB Url", c => cosmosDB = c },
+                { "k|key=", "Cosmos DB Key", k => cosmosDBKey = k },
                 { "h|help", "show this message and exit", h => showHelp = h != null },
             };
 
@@ -136,7 +137,7 @@ namespace Opc.Ua.Gds.Server
             }
 
             CloudGlobalDiscoveryServer server = new CloudGlobalDiscoveryServer();
-            server.Run(gdsVault, appID, opcTwin);
+            server.Run(gdsVault, appID, cosmosDB, cosmosDBKey);
 
             return (int)CloudGlobalDiscoveryServer.ExitCode;
         }
@@ -153,13 +154,13 @@ namespace Opc.Ua.Gds.Server
         {
         }
 
-        public void Run(string gdsVault, string appID, string opcTwin)
+        public void Run(string gdsVault, string appID, string cosmosDB, string cosmosDBKey)
         {
 
             try
             {
                 exitCode = ExitCode.ErrorServerNotStarted;
-                ConsoleGlobalDiscoveryServer(gdsVault, appID, opcTwin).Wait();
+                ConsoleGlobalDiscoveryServer(gdsVault, appID, cosmosDB, cosmosDBKey).Wait();
                 Console.WriteLine("Server started. Press Ctrl-C to exit...");
                 exitCode = ExitCode.ErrorServerRunning;
             }
@@ -216,7 +217,11 @@ namespace Opc.Ua.Gds.Server
             }
         }
 
-        private async Task ConsoleGlobalDiscoveryServer(string gdsVaultServiceUrl, string appId, string opcTwinServiceUrl)
+        private async Task ConsoleGlobalDiscoveryServer(
+            string gdsVaultServiceUrl, 
+            string appId, 
+            string dbServiceUrl, 
+            string dbServiceKey)
         {
             ApplicationInstance.MessageDlg = new ApplicationMessageDlg();
             ApplicationInstance application = new ApplicationInstance
@@ -262,16 +267,21 @@ namespace Opc.Ua.Gds.Server
                     }
                 }
 
-                if (String.IsNullOrEmpty(opcTwinServiceUrl))
+                if (String.IsNullOrEmpty(dbServiceUrl))
                 {
-                    if (keyVaultConfig.Length > 1)
+                    // initialize database Uri
+                    if (keyVaultConfig.Length >= 3 && !String.IsNullOrEmpty(keyVaultConfig[2]))
                     {
-                        // initialize database and certificate group handler
-                        opcTwinServiceUrl = "http://localhost:9042/v1";
-                        if (keyVaultConfig.Length == 3)
-                        {
-                            opcTwinServiceUrl = keyVaultConfig[2];
-                        }
+                        dbServiceUrl = keyVaultConfig[2];
+                    }
+                }
+
+                if (String.IsNullOrEmpty(dbServiceKey))
+                {
+                    // initialize database Uri
+                    if (keyVaultConfig.Length >= 4 && !String.IsNullOrEmpty(keyVaultConfig[3]))
+                    {
+                        dbServiceKey = keyVaultConfig[3];
                     }
                 }
             }
@@ -291,27 +301,19 @@ namespace Opc.Ua.Gds.Server
 
             // read configurations from GDS Vault
             gdsConfiguration.CertificateGroups = await gdsVaultHandler.GetCertificateConfigurationGroupsAsync(gdsConfiguration.BaseCertificateGroupStorePath);
-
             UpdateGDSConfigurationDocument(config.Extensions, gdsConfiguration);
 
             var certGroup = new GdsVaultCertificateGroup(gdsVaultHandler);
-#if mist
-            if (!String.IsNullOrEmpty(opcTwinServiceUrl))
+            if (!String.IsNullOrEmpty(dbServiceUrl))
             {
-                if (!opcTwinServiceUrl.EndsWith("/v1", StringComparison.OrdinalIgnoreCase))
-                {
-                    opcTwinServiceUrl += "/v1";
-                }
-                // initialize database and certificate group handler
-                var database = new OpcTwinApplicationsDatabase(opcTwinServiceUrl);
+                // TODO: use resource token not access key!
+                var database = new CosmosDBApplicationsDatabase(dbServiceUrl, dbServiceKey);
+                database.Initialize();
                 server = new GlobalDiscoverySampleServer(database, database, certGroup);
             }
             else
-#endif
             {
-                var database = new CosmosDBApplicationsDatabase();
-                database.Initialize();
-                server = new GlobalDiscoverySampleServer(database, database, certGroup);
+
             }
 
             // start the server.
