@@ -3,20 +3,23 @@
     using Microsoft.Azure.Documents;
     using Microsoft.Azure.Documents.Client;
     using System;
+    using System.Security;
     using System.Threading.Tasks;
 
     public class DocumentDBRepository
     {
-        // TODO: config db and account
-        private readonly string Endpoint = "https://iopgds.documents.azure.com:443/";
-        private readonly string Key = "SwkTbAqYb8ZeNryDqLKKBM1DVSrcJq6TFwyMy3QuHkiqbuGUvS4mTC6jpwZ2Tcb7PBW5dzb9eEoznEkP3WBKVg==";
-
         public DocumentClient Client { get; }
         public readonly string DatabaseId = "GDS";
 
-        public DocumentDBRepository()
+        public DocumentDBRepository(string endpoint, string authKeyOrResourceToken)
         {
-            this.Client = new DocumentClient(new Uri(Endpoint), Key);
+            this.Client = new DocumentClient(new Uri(endpoint), authKeyOrResourceToken);
+            CreateDatabaseIfNotExistsAsync().Wait();
+        }
+
+        public DocumentDBRepository(string endpoint, SecureString authKeyOrResourceToken)
+        {
+            this.Client = new DocumentClient(new Uri(endpoint), authKeyOrResourceToken);
             CreateDatabaseIfNotExistsAsync().Wait();
         }
 

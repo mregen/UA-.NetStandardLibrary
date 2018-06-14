@@ -2,15 +2,35 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 
 namespace Opc.Ua.Gds.Server.Database.CosmosDB
 {
     public class CosmosDBApplicationsDatabase : ApplicationsDatabaseBase, ICertificateRequest
     {
+        private readonly string Endpoint;
+        private SecureString AuthKeyOrResourceToken;
+
+        public CosmosDBApplicationsDatabase(string endpoint, string authKeyOrResourceToken)
+        {
+            this.Endpoint = endpoint;
+            this.AuthKeyOrResourceToken = new SecureString();
+            foreach (char ch in authKeyOrResourceToken)
+            {
+                this.AuthKeyOrResourceToken.AppendChar(ch);
+            }
+        }
+
+        public CosmosDBApplicationsDatabase(string endpoint, SecureString authKeyOrResourceToken)
+        {
+            this.Endpoint = endpoint;
+            this.AuthKeyOrResourceToken = authKeyOrResourceToken;
+        }
+
         #region IApplicationsDatabase 
         public override void Initialize()
         {
-            db = new DocumentDBRepository();
+            db = new DocumentDBRepository(Endpoint, AuthKeyOrResourceToken);
             Applications = new DocumentDBCollection<Application>(db);
             CertificateRequests = new DocumentDBCollection<CertificateRequest>(db);
             CertificateStores = new DocumentDBCollection<CertificateStore>(db);
