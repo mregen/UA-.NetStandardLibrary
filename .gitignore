@@ -152,6 +152,8 @@ publish/
 # NuGet v3's project.json files produces more ignoreable files
 *.nuget.props
 *.nuget.targets
+# Allow local packages
+!.nuget/LocalPackages/*
 
 # Microsoft Azure Build Output
 csx/
