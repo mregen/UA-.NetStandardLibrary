@@ -71,6 +71,7 @@
       </ua:UserTokenPolicy>
       <ua:UserTokenPolicy>
         <ua:TokenType>UserName_1</ua:TokenType>
+        <ua:SecurityPolicyUri>http://opcfoundation.org/UA/SecurityPolicy#Basic256Sha256</ua:SecurityPolicyUri>
       </ua:UserTokenPolicy>
     </UserTokenPolicies>
     <DiagnosticsEnabled>true</DiagnosticsEnabled>
@@ -105,7 +106,7 @@
       <ua:UserIdentityTokens />
     </RegistrationEndpoint>
     
-    <MaxRegistrationInterval>30000</MaxRegistrationInterval>
+    <MaxRegistrationInterval>0</MaxRegistrationInterval>
 
     <!-- see https://opcfoundation-onlineapplications.org/profilereporting/ for list of available profiles -->
     <ServerProfileArray>

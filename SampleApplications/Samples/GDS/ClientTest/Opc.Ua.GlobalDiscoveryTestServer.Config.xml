@@ -79,6 +79,7 @@
       </ua:UserTokenPolicy>
       <ua:UserTokenPolicy>
         <ua:TokenType>UserName_1</ua:TokenType>
+        <ua:SecurityPolicyUri>http://opcfoundation.org/UA/SecurityPolicy#Basic256</ua:SecurityPolicyUri>
       </ua:UserTokenPolicy>
     </UserTokenPolicies>
     <DiagnosticsEnabled>true</DiagnosticsEnabled>
