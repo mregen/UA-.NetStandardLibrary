@@ -930,7 +930,7 @@ namespace Opc.Ua.Configuration
         public async Task<bool> CheckApplicationInstanceCertificate(
             bool silent,
             ushort minimumKeySize,
-            ushort lifeTimeInMonths = CertificateFactory.defaultLifeTime)
+            ushort lifeTimeInMonths = CertificateFactory.DefaultLifeTime)
         {
             Utils.Trace(Utils.TraceMasks.Information, "Checking application instance certificate.");
 
