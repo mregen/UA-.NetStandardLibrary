@@ -794,7 +794,7 @@ namespace Opc.Ua
             m_nonceLength = 32;
             m_autoAcceptUntrustedCertificates = false;
             m_rejectSHA1SignedCertificates = true;
-            m_minCertificateKeySize = CertificateFactory.DefaultKeySize;
+            m_minCertificateKeySize = CertificateFactory.defaultKeySize;
             m_addAppCertToTrustedStore = true;
             m_sendCertificateChain = false;
         }

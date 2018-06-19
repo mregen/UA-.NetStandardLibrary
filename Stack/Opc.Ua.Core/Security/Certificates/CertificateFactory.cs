@@ -114,9 +114,9 @@ public class CertificateFactory
     /// <summary>
     /// The default certificate factory security parameter.
     /// </summary>
-    public const ushort DefaultKeySize = 2048;
-    public const ushort DefaultHashSize = 256;
-    public const ushort DefaultLifeTime = 12;
+    public const ushort defaultKeySize = 2048;
+    public const ushort defaultHashSize = 256;
+    public const ushort defaultLifeTime = 12;
     #endregion
     #region Public Methods
     /// <summary>
@@ -568,7 +568,7 @@ public class CertificateFactory
             AsymmetricKeyParameter signingKey = GetPrivateKeyParameter(issuerCertificate);
 
             ISignatureFactory signatureFactory =
-                    new Asn1SignatureFactory(GetRSAHashAlgorithm(DefaultHashSize), signingKey, random);
+                    new Asn1SignatureFactory(GetRSAHashAlgorithm(defaultHashSize), signingKey, random);
 
             X509V2CrlGenerator crlGen = new X509V2CrlGenerator();
             crlGen.SetIssuerDN(bcCertCA.IssuerDN);
@@ -641,7 +641,7 @@ public class CertificateFactory
             RsaKeyParameters publicKey = GetPublicKeyParameter(certificate);
 
             ISignatureFactory signatureFactory =
-                new Asn1SignatureFactory(GetRSAHashAlgorithm(DefaultHashSize), signingKey, random);
+                new Asn1SignatureFactory(GetRSAHashAlgorithm(defaultHashSize), signingKey, random);
 
             Asn1Set attributes = null;
             X509SubjectAltNameExtension alternateName = null;
@@ -928,7 +928,7 @@ public class CertificateFactory
         // enforce recommended keysize unless lower value is enforced.
         if (keySize < 1024)
         {
-            keySize = DefaultKeySize;
+            keySize = defaultKeySize;
         }
 
         if (keySize % 1024 != 0)
