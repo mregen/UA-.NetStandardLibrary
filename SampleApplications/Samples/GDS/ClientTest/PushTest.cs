@@ -41,6 +41,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
+using OpcUa = Opc.Ua;
 
 namespace NUnit.Opc.Ua.Gds.Test
 {
@@ -254,6 +255,13 @@ namespace NUnit.Opc.Ua.Gds.Test
             Assert.IsNotNull(csr);
         }
 
+        [Test, Order(402)]
+        public void CreateSigningRequestRsaMinNullParms()
+        {
+            ConnectPushClient(true);
+            Assert.That(() => { _pushClient.PushClient.CreateSigningRequest(null, OpcUa.ObjectTypeIds.RsaMinApplicationCertificateType, null, false, null); }, Throws.Exception);
+        }
+
         [Test, Order(409)]
         public void CreateSigningRequestAllParms()
         {
@@ -413,10 +421,10 @@ namespace NUnit.Opc.Ua.Gds.Test
                 _applicationRecord.ApplicationNames[0].Text,
                 _selfSignedServerCert.Subject,
                 null,
-                CertificateFactory.DefaultKeySize,
+                CertificateFactory.defaultKeySize,
                 DateTime.UtcNow,
-                CertificateFactory.DefaultLifeTime,
-                CertificateFactory.DefaultHashSize);
+                CertificateFactory.defaultLifeTime,
+                CertificateFactory.defaultHashSize);
 
             byte[] privateKey = null;
             if (keyFormat == "PFX")
@@ -785,10 +793,10 @@ namespace NUnit.Opc.Ua.Gds.Test
                 null,
                 subjectName,
                 null,
-                CertificateFactory.DefaultKeySize,
+                CertificateFactory.defaultKeySize,
                 DateTime.UtcNow,
-                CertificateFactory.DefaultLifeTime,
-                CertificateFactory.DefaultHashSize,
+                CertificateFactory.defaultLifeTime,
+                CertificateFactory.defaultHashSize,
                 true,
                 null,
                 null);

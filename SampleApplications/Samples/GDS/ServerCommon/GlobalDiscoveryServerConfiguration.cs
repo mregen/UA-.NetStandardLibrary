@@ -121,12 +121,12 @@ namespace Opc.Ua.Gds.Server
         /// </summary>
         private void Initialize()
         {
-            DefaultCertificateLifetime = CertificateFactory.DefaultLifeTime;
-            DefaultCertificateKeySize = CertificateFactory.DefaultKeySize;
-            DefaultCertificateHashSize = CertificateFactory.DefaultHashSize;
-            CACertificateLifetime = CertificateFactory.DefaultLifeTime;
-            CACertificateKeySize = CertificateFactory.DefaultKeySize;
-            CACertificateHashSize = CertificateFactory.DefaultHashSize;
+            DefaultCertificateLifetime = CertificateFactory.defaultLifeTime;
+            DefaultCertificateKeySize = CertificateFactory.defaultKeySize;
+            DefaultCertificateHashSize = CertificateFactory.defaultHashSize;
+            CACertificateLifetime = CertificateFactory.defaultLifeTime;
+            CACertificateKeySize = CertificateFactory.defaultKeySize;
+            CACertificateHashSize = CertificateFactory.defaultHashSize;
         }
         #endregion
 

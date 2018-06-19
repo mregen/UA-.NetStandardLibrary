@@ -142,7 +142,7 @@
         <CertificateGroups>
           <CertificateGroupConfiguration>
             <Id>Default</Id>
-            <CertificateType>ApplicationCertificateType</CertificateType>
+            <CertificateType>RsaSha256ApplicationCertificateType</CertificateType>
             <SubjectName>CN=GDS Test CA, O=OPC Foundation</SubjectName>
             <BaseStorePath>%LocalApplicationData%/OPC/GDS/CA/default</BaseStorePath>
             <DefaultCertificateLifetime>12</DefaultCertificateLifetime>
