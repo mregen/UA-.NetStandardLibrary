@@ -911,9 +911,9 @@ public class CertificateFactory
         }
         return result;
     }
-#endregion
+    #endregion
 
-#region Private Methods
+    #region Private Methods
     /// <summary>
     /// Sets the parameters to suitable defaults.
     /// </summary>
@@ -1333,7 +1333,7 @@ public class CertificateFactory
         }
     }
 
-#endregion
+    #endregion
 
     private static Dictionary<string, X509Certificate2> m_certificates = new Dictionary<string, X509Certificate2>();
     private static List<X509Certificate2> m_temporaryKeyContainers = new List<X509Certificate2>();
