@@ -1343,7 +1343,7 @@ namespace Opc.Ua.Client
 
 
         /// <summary>
-        ///  Returns the data dictionary that constains the description.
+        ///  Returns the data dictionary that contains the description.
         /// </summary>
         /// <param name="descriptionId">The description id.</param>
         /// <returns></returns>
