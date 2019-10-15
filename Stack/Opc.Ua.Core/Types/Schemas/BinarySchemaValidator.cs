@@ -145,6 +145,12 @@ namespace Opc.Ua.Schema.Binary
                     await Import(directive);
                 }
             }
+            else
+            {
+                // always import builtin types
+                ImportDirective directive = new ImportDirective { Namespace = Namespaces.OpcUa };
+                await Import(directive);
+            }
 
             // import types from imported dictionaries.
             foreach (TypeDescription description in m_descriptions.Values)
