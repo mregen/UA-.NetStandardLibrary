@@ -16,6 +16,10 @@ using Opc.Ua.Client;
 using Opc.Ua.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -163,7 +167,58 @@ namespace NetCoreConsoleClient
             exitCode = ExitCode.Ok;
         }
 
-        public static ExitCode ExitCode { get => exitCode; }
+        public static ExitCode ExitCode => exitCode;
+
+        private static void BrowseTypeIds(
+            Session session,
+            NodeId nodeId,
+            out ExpandedNodeId typeId,
+            out ExpandedNodeId encodingId)
+        {
+            typeId = ExpandedNodeId.Null;
+            encodingId = ExpandedNodeId.Null;
+
+            Browser browser = new Browser(session);
+
+            browser.BrowseDirection = BrowseDirection.Inverse;
+            browser.ReferenceTypeId = ReferenceTypeIds.HasDescription;
+            browser.IncludeSubtypes = false;
+            browser.NodeClassMask = 0;
+
+            ReferenceDescriptionCollection references = browser.Browse(nodeId);
+
+            if (references.Count == 1)
+            {
+                encodingId = references.First().NodeId;
+                var encodingNodeId = ExpandedNodeId.ToNodeId(encodingId, session.NamespaceUris);
+                encodingId = NodeId.ToExpandedNodeId(encodingNodeId, session.NamespaceUris);
+                browser.BrowseDirection = BrowseDirection.Inverse;
+                browser.ReferenceTypeId = ReferenceTypeIds.HasEncoding;
+                browser.IncludeSubtypes = false;
+                browser.NodeClassMask = 0;
+                references = browser.Browse(encodingNodeId);
+                if (references.Count == 1)
+                {
+                    typeId = references.First().NodeId;
+                    var typeNodeId = ExpandedNodeId.ToNodeId(typeId, session.NamespaceUris);
+                    typeId = NodeId.ToExpandedNodeId(typeNodeId, session.NamespaceUris);
+                    browser.BrowseDirection = BrowseDirection.Forward;
+                    browser.ReferenceTypeId = ReferenceTypeIds.HasEncoding;
+                    browser.IncludeSubtypes = false;
+                    browser.NodeClassMask = 0;
+                    references = browser.Browse(typeNodeId);
+                    if (references.Count > 0)
+                    {
+                        foreach (var reference in references)
+                        {
+                        }
+                    }
+                    return;
+                }
+            }
+
+            throw new Exception();
+        }
 
         private async Task ConsoleSampleClient()
         {
@@ -216,11 +271,296 @@ namespace NetCoreConsoleClient
             // register keep alive handler
             session.KeepAlive += Client_KeepAlive;
 
-            Console.WriteLine("4 - Browse the OPC UA server namespace.");
+            Console.WriteLine("4 - Browse the OPC UA data dictionary.");
             exitCode = ExitCode.ErrorBrowseNamespace;
             ReferenceDescriptionCollection references;
             Byte[] continuationPoint;
 
+            references = session.FetchReferences(ObjectIds.TypesFolder);
+
+            var rootList = new List<NodeId>();
+            var dictList = new ReferenceDescriptionCollection();
+            //rootList.Add(ObjectIds.TypesFolder);
+            //rootList.Add(DataTypeIds.BaseDataType);
+            rootList.Add(DataTypeIds.Structure);
+            rootList.Add(DataTypeIds.Enumeration);
+            //browseList.Add(ReferenceTypeIds.HierarchicalReferences);
+            //browseList.Add(ReferenceTypeIds.Organizes);
+            //browseList.Add(ReferenceTypeIds.Aggregates);
+
+            var types = /*(uint)NodeClass.VariableType | (uint)NodeClass.ObjectType |
+                (uint)NodeClass.ReferenceType |*/ (uint)NodeClass.DataType /*|
+                (uint)NodeClass.Variable | (uint)NodeClass.Object | (uint)NodeClass.Method*/;
+            types = 0;
+
+            do
+            {
+                var nextRootList = new List<NodeId>();
+                foreach (var root in rootList)
+                {
+                    session.Browse(
+                        null,
+                        null,
+                        root,
+                        0u,
+                        BrowseDirection.Forward,
+                        ReferenceTypeIds.HierarchicalReferences,
+                        true,
+                        types,
+                        out continuationPoint,
+                        out references);
+
+                    if (references.Count > 0)
+                    {
+                        Console.WriteLine($"Browse -- {root} has {references.Count} references");
+                    }
+
+                    foreach (var rd in references)
+                    {
+                        if (rd.NodeId.NamespaceIndex == 0)
+                        {
+                            // skip well known NodeIds
+                            continue;
+                        }
+
+                        Console.WriteLine(" {0}, {1}, {2}", rd.DisplayName, rd.BrowseName, rd.NodeClass);
+
+                        if (rd.NodeClass == NodeClass.DataType)
+                        {
+                            NodeId nodeId = ExpandedNodeId.ToNodeId(rd.NodeId, session.NamespaceUris);
+                            dictList.Add(rd);
+                            nextRootList.Add(nodeId);
+                        }
+
+                        continue;
+
+                        ReferenceDescriptionCollection nextRefs;
+                        byte[] nextCp;
+                        session.Browse(
+                            null,
+                            null,
+                            ExpandedNodeId.ToNodeId(rd.NodeId, session.NamespaceUris),
+                            0u,
+                            BrowseDirection.Forward,
+                            ReferenceTypeIds.HierarchicalReferences,
+                            true,
+                            types,
+                            out nextCp,
+                            out nextRefs);
+
+                        foreach (var nextRd in nextRefs)
+                        {
+                            Console.WriteLine("   + {0}, {1}, {2}", nextRd.DisplayName, nextRd.BrowseName, nextRd.NodeClass);
+                            if (nextRd.NodeClass == NodeClass.DataType)
+                            {
+                                dictList.Add(nextRd);
+                            }
+                        }
+                    }
+                }
+                rootList = nextRootList;
+            } while (rootList.Count > 0);
+
+            //var resultVehicleType = await session.FindDataDictionary(new NodeId(353, 4));
+            //var resultTwoWheelerX = await session.FindDataDictionary(new NodeId(302, 3));
+
+            foreach (var dictEntry in dictList)
+            {
+                var target = new BrowsePathTarget();
+                //session.FetchReferences()
+                //var dict = await session.FindDataDictionary(dictEntry.BinaryEncodingId);
+                Console.WriteLine($"Dictionary Id: {dictEntry}");
+
+                // fix expanded nodeids
+                var nodeId = dictEntry.NodeId;
+                dictEntry.NodeId = NodeId.ToExpandedNodeId(ExpandedNodeId.ToNodeId(nodeId, session.NamespaceUris), session.NamespaceUris);
+            }
+
+            // read all type dictionaries as binary
+            references = session.FetchReferences(ObjectIds.OPCBinarySchema_TypeSystem);
+            foreach (var r in references)
+            {
+                if (r.NodeId.NamespaceIndex != 0)
+                {
+                    Console.WriteLine($"Read Dictionary: {r.BrowseName}");
+
+                    DataDictionary dictionaryToLoad = new DataDictionary(session);
+
+                    await dictionaryToLoad.Load(r);
+
+                    dictionaryToLoad.DataTypes.Values.ToList().ForEach(i => Console.WriteLine(i.ToString()));
+
+                    AssemblyBuilder assemblyBuilder;
+                    assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(Guid.NewGuid().ToString()), AssemblyBuilderAccess.Run);
+                    const string OpcUaDictionary = "Opc.Ua.Dictionary";
+                    var moduleBuilder = assemblyBuilder.GetDynamicModule(OpcUaDictionary);
+                    if (moduleBuilder == null)
+                    {
+                        moduleBuilder = assemblyBuilder.DefineDynamicModule(OpcUaDictionary);
+                    }
+
+                    Console.WriteLine($"{dictionaryToLoad.TypeDictionary.TargetNamespace}");
+                    foreach (var item in dictionaryToLoad.TypeDictionary.Items)
+                    {
+                        if (item.QName != null)
+                        {
+                            Console.WriteLine($"{item.QName.Namespace}:{item.QName.Name}");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"{item.Name}");
+                        }
+
+                        var enumeratedObject = item as Opc.Ua.Schema.Binary.EnumeratedType;
+                        if (enumeratedObject != null)
+                        {
+                            var enumBuilder = moduleBuilder.DefineEnum(enumeratedObject.Name, TypeAttributes.Public, typeof(int));
+                            enumBuilder.SetCustomAttribute(DataContractAttributeBuilder(dictionaryToLoad.TypeDictionary.TargetNamespace));
+                            foreach (var enumValue in enumeratedObject.EnumeratedValue)
+                            {
+                                var newEnum = enumBuilder.DefineLiteral(enumValue.Name, enumValue.Value);
+                                newEnum.SetCustomAttribute(EnumAttributeBuilder(enumValue.Name, enumValue.Value));
+                            }
+                            var newType = enumBuilder.CreateTypeInfo();
+                            // note: match namespace!
+                            var referenceId = dictList.Where(t =>
+                                t.DisplayName == enumeratedObject.Name &&
+                                t.NodeId.NamespaceUri == dictionaryToLoad.TypeDictionary.TargetNamespace).FirstOrDefault();
+                            if (referenceId != null)
+                            {
+                                session.Factory.AddEncodeableType(referenceId.NodeId, newType);
+                            }
+                        }
+                    }
+
+                    foreach (var item in dictionaryToLoad.TypeDictionary.Items)
+                    {
+                        var structuredObject = item as Opc.Ua.Schema.Binary.StructuredType;
+                        if (structuredObject != null)
+                        {
+                            bool missingTypeInfo = false;
+                            var nodeId = dictionaryToLoad.DataTypes.Where(d => d.Value.DisplayName == item.Name).FirstOrDefault().Value;
+                            ExpandedNodeId typeId;
+                            ExpandedNodeId binaryEncodingId;
+                            BrowseTypeIds(session, ExpandedNodeId.ToNodeId(nodeId.NodeId, session.NamespaceUris),
+                                out typeId, out binaryEncodingId);
+
+                            var structureBuilder = moduleBuilder.DefineType(item.Name, TypeAttributes.Public | TypeAttributes.Class, typeof(GenericComplexType));
+                            structureBuilder.SetCustomAttribute(DataContractAttributeBuilder(dictionaryToLoad.TypeDictionary.TargetNamespace));
+                            int order = 10;
+                            foreach (var field in structuredObject.Field)
+                            {
+                                Type fieldType = null;
+                                if (field.TypeName.Namespace == Namespaces.OpcBinarySchema)
+                                {
+                                    // check for built in type
+                                    var internalField = typeof(DataTypeIds).GetField(field.TypeName.Name);
+                                    var internalNodeId = (NodeId)internalField.GetValue(field.TypeName.Name);
+                                    var builtInType = Opc.Ua.TypeInfo.GetBuiltInType(internalNodeId);
+                                    fieldType = Opc.Ua.TypeInfo.GetSystemType(internalNodeId, session.Factory);
+                                }
+                                else
+                                {
+                                    var referenceId = dictList.Where(t =>
+                                        t.DisplayName == field.TypeName.Name &&
+                                        t.NodeId.NamespaceUri == field.TypeName.Namespace).FirstOrDefault();
+                                    if (referenceId != null)
+                                    {
+                                        //ExpandedNodeId absoluteId = NodeId.ToExpandedNodeId(referenceId.NodeId, session.NamespaceUris);
+                                        fieldType = session.Factory.GetSystemType(referenceId.NodeId);
+                                    }
+                                }
+                                if (fieldType == null)
+                                {
+                                    // skip structured type ... missing datatype
+                                    missingTypeInfo = true;
+                                    break;
+                                }
+                                // convert to absolute node id.
+                                var fieldBuilder = structureBuilder.DefineField("_" + field.Name, fieldType, FieldAttributes.Private);
+                                var propertyBuilder = structureBuilder.DefineProperty(field.Name, PropertyAttributes.None, fieldType, null);
+                                var methodAttributes = System.Reflection.MethodAttributes.Public | 
+                                    System.Reflection.MethodAttributes.HideBySig | 
+                                    System.Reflection.MethodAttributes.Virtual;
+
+                                var setBuilder = structureBuilder.DefineMethod("set_" + field.Name, methodAttributes, null, new[] { fieldType });
+                                var setIl = setBuilder.GetILGenerator();
+                                setIl.Emit(OpCodes.Ldarg_0);
+                                setIl.Emit(OpCodes.Ldarg_1);
+                                setIl.Emit(OpCodes.Stfld, fieldBuilder);
+                                setIl.Emit(OpCodes.Ret);
+
+                                var getBuilder = structureBuilder.DefineMethod("get_" + field.Name, methodAttributes, fieldType, Type.EmptyTypes);
+                                var getIl = getBuilder.GetILGenerator();
+                                getIl.Emit(OpCodes.Ldarg_0);
+                                getIl.Emit(OpCodes.Ldfld, fieldBuilder);
+                                getIl.Emit(OpCodes.Ret);
+
+                                propertyBuilder.SetGetMethod(getBuilder);
+                                propertyBuilder.SetSetMethod(setBuilder);
+                                propertyBuilder.SetCustomAttribute(DataMemberAttributeBuilder(field.Name, false, order));
+                                order += 10;
+                            }
+
+                            if (!missingTypeInfo)
+                            {
+                                var complexType = structureBuilder.CreateType();
+                                session.Factory.AddEncodeableType(binaryEncodingId, complexType);
+                                session.Factory.AddEncodeableType(typeId, complexType);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // read all type dictionaries as xml
+            references = session.FetchReferences(ObjectIds.XmlSchema_TypeSystem);
+            foreach (var r in references)
+            {
+                if (r.NodeId.NamespaceIndex != 0)
+                {
+                    DataDictionary dictionaryToLoad = new DataDictionary(session);
+
+                    await dictionaryToLoad.Load(r);
+
+                    dictionaryToLoad.DataTypes.Values.ToList().ForEach(i => Console.WriteLine(i.ToString()));
+                }
+
+            }
+
+#if NETSTANDARDSERVER
+            // read the dictinonary which contains 'VehicleType'
+            var resultTruckType = await session.FindDataDictionary(new NodeId(332, 3));
+            // read the dictinonary which contains 'TwoWheelerType'
+            var resultTwoWheeler = await session.FindDataDictionary(new NodeId(15018, 4));
+            var schema = resultTruckType.GetSchema((NodeId)null);
+            foreach (var theType in resultTruckType.DataTypes)
+            {
+                var truckSchema = resultTruckType.GetSchema(theType.Key);
+            }
+#endif
+
+
+//#if QUICKSTARTSAMPLE
+            // read various nodes...
+            var vehiclesInLotNode = session.ReadNode(new NodeId(283, 4));
+            var parkingLotNode = session.ReadNode(new NodeId(281, 4));
+
+            //var vehiclesInLot = session.ReadValue(new NodeId(283, 4));
+            var lotTypeNodeId = session.ReadNode(new NodeId(380, 4));
+            var lotType = session.ReadValue(new NodeId(380, 4));
+            var ownedVehiclesNodeId = session.ReadNode(new NodeId(377, 4));
+            var ownedVehicles = session.ReadValue(new NodeId(377, 4));
+            Console.WriteLine(ownedVehicles);
+            var primaryVehicleNode = session.ReadNode(new NodeId(376, 4));
+            var primaryVehicle = session.ReadValue(new NodeId(376, 4));
+            Console.WriteLine(primaryVehicle);
+            var vehiclesInLot = session.ReadValue(new NodeId(283, 4));
+            Console.WriteLine(vehiclesInLot);
+
+            Console.WriteLine("4 - Browse the OPC UA server namespace.");
+            exitCode = ExitCode.ErrorBrowseNamespace;
+//#endif
             references = session.FetchReferences(ObjectIds.ObjectsFolder);
 
             session.Browse(
@@ -242,16 +582,16 @@ namespace NetCoreConsoleClient
                 ReferenceDescriptionCollection nextRefs;
                 byte[] nextCp;
                 session.Browse(
-                    null,
-                    null,
-                    ExpandedNodeId.ToNodeId(rd.NodeId, session.NamespaceUris),
-                    0u,
-                    BrowseDirection.Forward,
-                    ReferenceTypeIds.HierarchicalReferences,
-                    true,
-                    (uint)NodeClass.Variable | (uint)NodeClass.Object | (uint)NodeClass.Method,
-                    out nextCp,
-                    out nextRefs);
+                                    null,
+                                    null,
+                                    ExpandedNodeId.ToNodeId(rd.NodeId, session.NamespaceUris),
+                                    0u,
+                                    BrowseDirection.Forward,
+                                    ReferenceTypeIds.HierarchicalReferences,
+                                    true,
+                                    (uint)NodeClass.Variable | (uint)NodeClass.Object | (uint)NodeClass.Method,
+                                    out nextCp,
+                                    out nextRefs);
 
                 foreach (var nextRd in nextRefs)
                 {
@@ -259,6 +599,7 @@ namespace NetCoreConsoleClient
                 }
             }
 
+#if mist
             Console.WriteLine("5 - Create a subscription with publishing interval of 1 second.");
             exitCode = ExitCode.ErrorCreateSubscription;
             var subscription = new Subscription(session.DefaultSubscription) { PublishingInterval = 1000 };
@@ -278,7 +619,7 @@ namespace NetCoreConsoleClient
             exitCode = ExitCode.ErrorAddSubscription;
             session.AddSubscription(subscription);
             subscription.Create();
-
+#endif
             Console.WriteLine("8 - Running...Press Ctrl-C to exit...");
             exitCode = ExitCode.ErrorRunning;
         }
@@ -337,5 +678,65 @@ namespace NetCoreConsoleClient
             }
         }
 
+
+        private CustomAttributeBuilder DataContractAttributeBuilder(string Namespace)
+        {
+            var dataContractAttributeType = typeof(DataContractAttribute);
+            ConstructorInfo ctorInfo = dataContractAttributeType.GetConstructor(Type.EmptyTypes);
+            CustomAttributeBuilder enumBuilder = new CustomAttributeBuilder(
+                ctorInfo,
+                new object[0],  // constructor arguments
+                new[]           // properties to assign
+                {
+                    dataContractAttributeType.GetProperty("Namespace")
+                },
+                new object[]    // values to assign
+                {
+                    Namespace
+                });
+            return enumBuilder;
+        }
+
+        private CustomAttributeBuilder DataMemberAttributeBuilder(string name, bool isRequired, int order)
+        {
+            var dataMemberAttributeType = typeof(DataMemberAttribute);
+            ConstructorInfo ctorInfo = dataMemberAttributeType.GetConstructor(Type.EmptyTypes);
+            CustomAttributeBuilder enumBuilder = new CustomAttributeBuilder(
+                ctorInfo,
+                new object[0],  // constructor arguments
+                new[]           // properties to assign
+                {
+                    dataMemberAttributeType.GetProperty("Name"),
+                    dataMemberAttributeType.GetProperty("IsRequired"),
+                    dataMemberAttributeType.GetProperty("Order")
+                },
+                new object[]    // values to assign
+                {
+                    name,
+                    isRequired,
+                    order
+                });
+            return enumBuilder;
+        }
+
+        private CustomAttributeBuilder EnumAttributeBuilder(string Name, int Value)
+        {
+            var enumAttributeType = typeof(EnumMemberAttribute);
+            Type[] ctorParams = new Type[] { typeof(string) };
+            ConstructorInfo ctorInfo = enumAttributeType.GetConstructor(Type.EmptyTypes);
+            CustomAttributeBuilder enumBuilder = new CustomAttributeBuilder(
+                ctorInfo,
+                new object[0],  // constructor arguments
+                new[]           // properties to assign
+                {
+                    enumAttributeType.GetProperty("Value")
+                },
+                new object[]    // values to assign
+                {
+                    Name+"_"+Value.ToString()
+                });
+            return enumBuilder;
+        }
     }
+
 }
