@@ -390,14 +390,7 @@ namespace NetCoreConsoleClient
 
                     dictionaryToLoad.DataTypes.Values.ToList().ForEach(i => Console.WriteLine(i.ToString()));
 
-                    AssemblyBuilder assemblyBuilder;
-                    assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(Guid.NewGuid().ToString()), AssemblyBuilderAccess.Run);
-                    const string OpcUaDictionary = "Opc.Ua.Dictionary";
-                    var moduleBuilder = assemblyBuilder.GetDynamicModule(OpcUaDictionary);
-                    if (moduleBuilder == null)
-                    {
-                        moduleBuilder = assemblyBuilder.DefineDynamicModule(OpcUaDictionary);
-                    }
+                    var complexTypeBuilder = new ComplexTypeBuilder();
 
                     Console.WriteLine($"{dictionaryToLoad.TypeDictionary.TargetNamespace}");
                     foreach (var item in dictionaryToLoad.TypeDictionary.Items)
@@ -414,21 +407,19 @@ namespace NetCoreConsoleClient
                         var enumeratedObject = item as Opc.Ua.Schema.Binary.EnumeratedType;
                         if (enumeratedObject != null)
                         {
-                            var enumBuilder = moduleBuilder.DefineEnum(enumeratedObject.Name, TypeAttributes.Public, typeof(int));
-                            enumBuilder.SetCustomAttribute(DataContractAttributeBuilder(dictionaryToLoad.TypeDictionary.TargetNamespace));
-                            foreach (var enumValue in enumeratedObject.EnumeratedValue)
-                            {
-                                var newEnum = enumBuilder.DefineLiteral(enumValue.Name, enumValue.Value);
-                                newEnum.SetCustomAttribute(EnumAttributeBuilder(enumValue.Name, enumValue.Value));
-                            }
-                            var newType = enumBuilder.CreateTypeInfo();
-                            // note: match namespace!
+                            // add enum type to module
+                            var newType = complexTypeBuilder.AddEnumType(enumeratedObject, dictionaryToLoad.TypeDictionary.TargetNamespace);
+                            // match namespace and add to type factory
                             var referenceId = dictList.Where(t =>
                                 t.DisplayName == enumeratedObject.Name &&
                                 t.NodeId.NamespaceUri == dictionaryToLoad.TypeDictionary.TargetNamespace).FirstOrDefault();
                             if (referenceId != null)
                             {
                                 session.Factory.AddEncodeableType(referenceId.NodeId, newType);
+                            }
+                            else
+                            {
+                                Console.WriteLine($"ERROR: Failed to match enum type {enumeratedObject.Name} to namespace {dictionaryToLoad.TypeDictionary.TargetNamespace}.");
                             }
                         }
                     }
@@ -445,8 +436,7 @@ namespace NetCoreConsoleClient
                             BrowseTypeIds(session, ExpandedNodeId.ToNodeId(nodeId.NodeId, session.NamespaceUris),
                                 out typeId, out binaryEncodingId);
 
-                            var structureBuilder = moduleBuilder.DefineType(item.Name, TypeAttributes.Public | TypeAttributes.Class, typeof(GenericComplexType));
-                            structureBuilder.SetCustomAttribute(DataContractAttributeBuilder(dictionaryToLoad.TypeDictionary.TargetNamespace));
+                            var structureBuilder = complexTypeBuilder.AddStructuredType(item.Name, dictionaryToLoad.TypeDictionary.TargetNamespace);
                             int order = 10;
                             foreach (var field in structuredObject.Field)
                             {
@@ -476,29 +466,7 @@ namespace NetCoreConsoleClient
                                     missingTypeInfo = true;
                                     break;
                                 }
-                                // convert to absolute node id.
-                                var fieldBuilder = structureBuilder.DefineField("_" + field.Name, fieldType, FieldAttributes.Private);
-                                var propertyBuilder = structureBuilder.DefineProperty(field.Name, PropertyAttributes.None, fieldType, null);
-                                var methodAttributes = System.Reflection.MethodAttributes.Public | 
-                                    System.Reflection.MethodAttributes.HideBySig | 
-                                    System.Reflection.MethodAttributes.Virtual;
-
-                                var setBuilder = structureBuilder.DefineMethod("set_" + field.Name, methodAttributes, null, new[] { fieldType });
-                                var setIl = setBuilder.GetILGenerator();
-                                setIl.Emit(OpCodes.Ldarg_0);
-                                setIl.Emit(OpCodes.Ldarg_1);
-                                setIl.Emit(OpCodes.Stfld, fieldBuilder);
-                                setIl.Emit(OpCodes.Ret);
-
-                                var getBuilder = structureBuilder.DefineMethod("get_" + field.Name, methodAttributes, fieldType, Type.EmptyTypes);
-                                var getIl = getBuilder.GetILGenerator();
-                                getIl.Emit(OpCodes.Ldarg_0);
-                                getIl.Emit(OpCodes.Ldfld, fieldBuilder);
-                                getIl.Emit(OpCodes.Ret);
-
-                                propertyBuilder.SetGetMethod(getBuilder);
-                                propertyBuilder.SetSetMethod(setBuilder);
-                                propertyBuilder.SetCustomAttribute(DataMemberAttributeBuilder(field.Name, false, order));
+                                structureBuilder.AddField(field.Name, fieldType, order);
                                 order += 10;
                             }
 
@@ -678,65 +646,6 @@ namespace NetCoreConsoleClient
             }
         }
 
-
-        private CustomAttributeBuilder DataContractAttributeBuilder(string Namespace)
-        {
-            var dataContractAttributeType = typeof(DataContractAttribute);
-            ConstructorInfo ctorInfo = dataContractAttributeType.GetConstructor(Type.EmptyTypes);
-            CustomAttributeBuilder enumBuilder = new CustomAttributeBuilder(
-                ctorInfo,
-                new object[0],  // constructor arguments
-                new[]           // properties to assign
-                {
-                    dataContractAttributeType.GetProperty("Namespace")
-                },
-                new object[]    // values to assign
-                {
-                    Namespace
-                });
-            return enumBuilder;
-        }
-
-        private CustomAttributeBuilder DataMemberAttributeBuilder(string name, bool isRequired, int order)
-        {
-            var dataMemberAttributeType = typeof(DataMemberAttribute);
-            ConstructorInfo ctorInfo = dataMemberAttributeType.GetConstructor(Type.EmptyTypes);
-            CustomAttributeBuilder enumBuilder = new CustomAttributeBuilder(
-                ctorInfo,
-                new object[0],  // constructor arguments
-                new[]           // properties to assign
-                {
-                    dataMemberAttributeType.GetProperty("Name"),
-                    dataMemberAttributeType.GetProperty("IsRequired"),
-                    dataMemberAttributeType.GetProperty("Order")
-                },
-                new object[]    // values to assign
-                {
-                    name,
-                    isRequired,
-                    order
-                });
-            return enumBuilder;
-        }
-
-        private CustomAttributeBuilder EnumAttributeBuilder(string Name, int Value)
-        {
-            var enumAttributeType = typeof(EnumMemberAttribute);
-            Type[] ctorParams = new Type[] { typeof(string) };
-            ConstructorInfo ctorInfo = enumAttributeType.GetConstructor(Type.EmptyTypes);
-            CustomAttributeBuilder enumBuilder = new CustomAttributeBuilder(
-                ctorInfo,
-                new object[0],  // constructor arguments
-                new[]           // properties to assign
-                {
-                    enumAttributeType.GetProperty("Value")
-                },
-                new object[]    // values to assign
-                {
-                    Name+"_"+Value.ToString()
-                });
-            return enumBuilder;
-        }
     }
 
 }

@@ -17,7 +17,7 @@ using System.Xml;
 
 namespace Opc.Ua
 {
-    public class GenericComplexType : IEncodeable, IComplexTypeInstance
+    public class BaseComplexType : IEncodeable, IComplexTypeInstance
     {
         #region Constructors
         /// <summary>
@@ -26,7 +26,7 @@ namespace Opc.Ua
         /// <remarks>
         /// Initializes the object with default values.
         /// </remarks>
-        public GenericComplexType()
+        public BaseComplexType()
         {
             TypeId = ExpandedNodeId.Null;
             m_context = MessageContextExtension.CurrentContext;
@@ -36,7 +36,7 @@ namespace Opc.Ua
         /// Initializes the object with a <paramref name="typeId"/>.
         /// </summary>
         /// <param name="typeId">The type to copy and create an instance from</param>
-        public GenericComplexType(ExpandedNodeId typeId)
+        public BaseComplexType(ExpandedNodeId typeId)
         {
             TypeId = typeId;
         }
@@ -45,7 +45,7 @@ namespace Opc.Ua
         /// Initializes the object with a <paramref name="typeId"/>.
         /// </summary>
         /// <param name="typeId">The type to copy and create an instance from</param>
-        public GenericComplexType(GenericComplexType complexType)
+        public BaseComplexType(BaseComplexType complexType)
         {
             TypeId = complexType.TypeId;
         }
@@ -96,7 +96,7 @@ namespace Opc.Ua
         public new object MemberwiseClone()
         {
             // TODO: how to create properties in derived class?
-            return new GenericComplexType(this);
+            return new BaseComplexType(this);
         }
 
         public void Encode(IEncoder encoder)
@@ -242,7 +242,7 @@ namespace Opc.Ua
             }
 
             var myType = GetType();
-            var value = encodeable as GenericComplexType;
+            var value = encodeable as BaseComplexType;
             if (value == null)
             {
                 return false;
