@@ -34,7 +34,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 
 namespace Opc.Ua.Client
 {
@@ -42,7 +41,7 @@ namespace Opc.Ua.Client
     /// A class that holds the configuration for a UA service.
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix"), DataContract(Namespace = Namespaces.OpcUaXsd)]
-    public class DataDictionary 
+    public class DataDictionary
     {
         #region Constructors
         /// <summary>
@@ -107,7 +106,7 @@ namespace Opc.Ua.Client
         {
             if (dictionary == null)
             {
-                throw new ArgumentNullException("dictionary");
+                throw new ArgumentNullException(nameof(dictionary));
             }
 
             NodeId dictionaryId = ExpandedNodeId.ToNodeId(dictionary.NodeId, m_session.NamespaceUris);

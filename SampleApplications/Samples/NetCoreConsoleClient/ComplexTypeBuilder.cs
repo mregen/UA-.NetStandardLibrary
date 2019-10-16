@@ -17,35 +17,41 @@ using System.Runtime.Serialization;
 
 namespace Opc.Ua
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class ComplexTypeBuilder
     {
         #region Constructors
         /// <summary>
         /// Initializes the object with default values.
         /// </summary>
-        public ComplexTypeBuilder()
+        public ComplexTypeBuilder(
+            string targetNamespace,
+            string assemblyName = null, 
+            string moduleName = null)
         {
-            AssemblyBuilder assemblyBuilder;
-            assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(Guid.NewGuid().ToString()), AssemblyBuilderAccess.Run);
-            var moduleBuilder = assemblyBuilder.GetDynamicModule(OpcUaDictionary);
+            m_targetNamespace = targetNamespace;
+            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(assemblyName ?? Guid.NewGuid().ToString()), AssemblyBuilderAccess.Run);
+            var moduleBuilder = assemblyBuilder.GetDynamicModule(moduleName ?? m_opcTypesModuleName);
             if (moduleBuilder == null)
             {
-                moduleBuilder = assemblyBuilder.DefineDynamicModule(OpcUaDictionary);
+                moduleBuilder = assemblyBuilder.DefineDynamicModule(moduleName ?? m_opcTypesModuleName);
             }
             m_moduleBuilder = moduleBuilder;
         }
         #endregion
 
         #region Public Properties
-        public Type AddEnumType(Schema.Binary.EnumeratedType enumeratedObject, string targetNamespace)
+        public Type AddEnumType(Schema.Binary.EnumeratedType enumeratedType)
         {
-            if (enumeratedObject == null)
+            if (enumeratedType == null)
             {
-                throw new ArgumentNullException(nameof(enumeratedObject));
+                throw new ArgumentNullException(nameof(enumeratedType));
             }
-            var enumBuilder = m_moduleBuilder.DefineEnum(enumeratedObject.Name, TypeAttributes.Public, typeof(int));
-            enumBuilder.SetCustomAttribute(DataContractAttributeBuilder(targetNamespace));
-            foreach (var enumValue in enumeratedObject.EnumeratedValue)
+            var enumBuilder = m_moduleBuilder.DefineEnum(enumeratedType.Name, TypeAttributes.Public, typeof(int));
+            enumBuilder.SetCustomAttribute(DataContractAttributeBuilder(m_targetNamespace));
+            foreach (var enumValue in enumeratedType.EnumeratedValue)
             {
                 var newEnum = enumBuilder.DefineLiteral(enumValue.Name, enumValue.Value);
                 newEnum.SetCustomAttribute(EnumAttributeBuilder(enumValue.Name, enumValue.Value));
@@ -53,13 +59,12 @@ namespace Opc.Ua
             return enumBuilder.CreateTypeInfo();
         }
 
-        public ComplexTypeFieldBuilder AddStructuredType(string typeName, string targetNamespace)
+        public ComplexTypeFieldBuilder AddStructuredType(string typeName)
         {
             var structureBuilder = m_moduleBuilder.DefineType(typeName, TypeAttributes.Public | TypeAttributes.Class, typeof(BaseComplexType));
-            structureBuilder.SetCustomAttribute(ComplexTypeBuilder.DataContractAttributeBuilder(targetNamespace));
+            structureBuilder.SetCustomAttribute(DataContractAttributeBuilder(m_targetNamespace));
             return new ComplexTypeFieldBuilder(structureBuilder);
         }
-
         #endregion
 
         #region Static Members
@@ -127,18 +132,25 @@ namespace Opc.Ua
         #endregion
 
         #region Private Fields
-        private const string OpcUaDictionary = "Opc.Ua.ComplexType.Assembly";
+        private const string m_opcTypesModuleName = "Opc.Ua.ComplexType.Assembly";
         private ModuleBuilder m_moduleBuilder;
+        private string m_targetNamespace;
         #endregion
     }
 
+    /// <summary>
+    /// Helper to build property fields.
+    /// </summary>
     public class ComplexTypeFieldBuilder
     {
+        #region Constructors
         public ComplexTypeFieldBuilder(TypeBuilder structureBuilder)
         {
             m_structureBuilder = structureBuilder;
         }
+        #endregion
 
+        #region Public Properties
         public void AddField(string fieldName, Type fieldType, int order)
         {
             var fieldBuilder = m_structureBuilder.DefineField("_" + fieldName, fieldType, FieldAttributes.Private);
@@ -172,7 +184,10 @@ namespace Opc.Ua
             m_structureBuilder = null;
             return complexType;
         }
+        #endregion
 
+        #region Private Fields
         private TypeBuilder m_structureBuilder;
+        #endregion
     }
 }//namespace
