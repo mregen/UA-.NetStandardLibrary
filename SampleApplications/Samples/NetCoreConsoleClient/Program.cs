@@ -17,9 +17,6 @@ using Opc.Ua.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -183,9 +180,9 @@ namespace NetCoreConsoleClient
             browser.BrowseDirection = BrowseDirection.Inverse;
             browser.ReferenceTypeId = ReferenceTypeIds.HasDescription;
             browser.IncludeSubtypes = false;
-            browser.NodeClassMask = 0;
+            browser.NodeClassMask = 0;// (int)NodeClass.Object;
 
-            ReferenceDescriptionCollection references = browser.Browse(nodeId);
+            var references = browser.Browse(nodeId);
 
             if (references.Count == 1)
             {
@@ -195,13 +192,23 @@ namespace NetCoreConsoleClient
                 browser.BrowseDirection = BrowseDirection.Inverse;
                 browser.ReferenceTypeId = ReferenceTypeIds.HasEncoding;
                 browser.IncludeSubtypes = false;
-                browser.NodeClassMask = 0;
+                browser.NodeClassMask = 0;// (int)NodeClass.DataType;
                 references = browser.Browse(encodingNodeId);
                 if (references.Count == 1)
                 {
                     typeId = references.First().NodeId;
                     var typeNodeId = ExpandedNodeId.ToNodeId(typeId, session.NamespaceUris);
                     typeId = NodeId.ToExpandedNodeId(typeNodeId, session.NamespaceUris);
+
+                    var node = session.ReadNode(typeNodeId);
+                    var dataTypeNode = node as DataTypeNode;
+                    if (dataTypeNode != null &&
+                        dataTypeNode.DataTypeDefinition != null)
+                    {
+                        Console.WriteLine($"{dataTypeNode.DataTypeDefinition}");
+                    }
+
+#if CHECKBROWSE
                     browser.BrowseDirection = BrowseDirection.Forward;
                     browser.ReferenceTypeId = ReferenceTypeIds.HasEncoding;
                     browser.IncludeSubtypes = false;
@@ -213,6 +220,7 @@ namespace NetCoreConsoleClient
                         {
                         }
                     }
+#endif
                     return;
                 }
             }
@@ -364,11 +372,23 @@ namespace NetCoreConsoleClient
             //var resultVehicleType = await session.FindDataDictionary(new NodeId(353, 4));
             //var resultTwoWheelerX = await session.FindDataDictionary(new NodeId(302, 3));
 
+            session.Browse(
+                null,
+                null,
+                DataTypeIds.Enumeration,
+                0u,
+                BrowseDirection.Forward,
+                ReferenceTypeIds.HasSubtype,
+                false,
+                (uint)NodeClass.DataType,
+                out continuationPoint,
+                out references);
+
+            dictList.Clear();
+            dictList.AddRange(references.Where(rd => rd.NodeId.NamespaceIndex != 0));
+
             foreach (var dictEntry in dictList)
             {
-                var target = new BrowsePathTarget();
-                //session.FetchReferences()
-                //var dict = await session.FindDataDictionary(dictEntry.BinaryEncodingId);
                 Console.WriteLine($"Dictionary Id: {dictEntry}");
 
                 // fix expanded nodeids
@@ -376,111 +396,187 @@ namespace NetCoreConsoleClient
                 dictEntry.NodeId = NodeId.ToExpandedNodeId(ExpandedNodeId.ToNodeId(nodeId, session.NamespaceUris), session.NamespaceUris);
             }
 
-            // read all type dictionaries as binary
-            references = session.FetchReferences(ObjectIds.OPCBinarySchema_TypeSystem);
-            foreach (var r in references)
+            // 
+            var typeSystem = await session.LoadTypeSystem();
+
+            foreach (var dictionaryId in typeSystem)
             {
-                if (r.NodeId.NamespaceIndex != 0)
+                var dictionary = dictionaryId.Value;
+                Console.WriteLine($"Dictionary: {dictionary.Name}");
+                Console.WriteLine($"Namespace : {dictionary.TypeDictionary.TargetNamespace}");
+                dictionary.DataTypes.Values.ToList().ForEach(i => Console.WriteLine(i.ToString()));
+
+                var complexTypeBuilder = new ComplexTypeBuilder(dictionary.TypeDictionary.TargetNamespace);
+
+                foreach (var item in dictionary.TypeDictionary.Items)
                 {
-                    Console.WriteLine($"Read Dictionary: {r.BrowseName}");
-
-                    DataDictionary dictionaryToLoad = new DataDictionary(session);
-
-                    await dictionaryToLoad.Load(r);
-
-                    dictionaryToLoad.DataTypes.Values.ToList().ForEach(i => Console.WriteLine(i.ToString()));
-
-                    var complexTypeBuilder = new ComplexTypeBuilder();
-
-                    Console.WriteLine($"{dictionaryToLoad.TypeDictionary.TargetNamespace}");
-                    foreach (var item in dictionaryToLoad.TypeDictionary.Items)
+                    if (item.QName != null)
                     {
-                        if (item.QName != null)
+                        Console.WriteLine($"{item.QName.Namespace}:{item.QName.Name}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"{item.Name}");
+                    }
+
+                    var enumeratedObject = item as Opc.Ua.Schema.Binary.EnumeratedType;
+                    if (enumeratedObject != null)
+                    {
+                        // add enum type to module
+                        var newType = complexTypeBuilder.AddEnumType(enumeratedObject);
+                        // match namespace and add to type factory
+                        var referenceId = dictList.Where(t =>
+                            t.DisplayName == enumeratedObject.Name &&
+                            t.NodeId.NamespaceUri == dictionary.TypeDictionary.TargetNamespace).FirstOrDefault();
+                        if (referenceId != null)
                         {
-                            Console.WriteLine($"{item.QName.Namespace}:{item.QName.Name}");
+                            session.Factory.AddEncodeableType(referenceId.NodeId, newType);
                         }
                         else
                         {
-                            Console.WriteLine($"{item.Name}");
+                            Console.WriteLine($"ERROR: Failed to match enum type {enumeratedObject.Name} to namespace {dictionary.TypeDictionary.TargetNamespace}.");
                         }
+                    }
+                }
 
-                        var enumeratedObject = item as Opc.Ua.Schema.Binary.EnumeratedType;
-                        if (enumeratedObject != null)
+                var structureList = new List<Opc.Ua.Schema.Binary.TypeDescription>();
+                var enumList = new List<Opc.Ua.Schema.Binary.TypeDescription>();
+                var itemList = dictionary.TypeDictionary.Items.ToList();
+                foreach (var item in itemList)
+                {
+                    var structuredObject = item as Opc.Ua.Schema.Binary.StructuredType;
+                    if (structuredObject != null)
+                    {
+                        var dependentFields = structuredObject.Field.Where(f => f.TypeName.Namespace == dictionary.TypeDictionary.TargetNamespace);
+                        if (dependentFields.Count() == 0)
                         {
-                            // add enum type to module
-                            var newType = complexTypeBuilder.AddEnumType(enumeratedObject, dictionaryToLoad.TypeDictionary.TargetNamespace);
-                            // match namespace and add to type factory
-                            var referenceId = dictList.Where(t =>
-                                t.DisplayName == enumeratedObject.Name &&
-                                t.NodeId.NamespaceUri == dictionaryToLoad.TypeDictionary.TargetNamespace).FirstOrDefault();
-                            if (referenceId != null)
+                            structureList.Insert(0, structuredObject);
+                        }
+                        else
+                        {
+                            int insertIndex = 0;
+                            foreach (var field in dependentFields)
                             {
-                                session.Factory.AddEncodeableType(referenceId.NodeId, newType);
+                                int index = structureList.FindIndex(t => t.Name == field.Name);
+                                if (index > insertIndex)
+                                {
+                                    insertIndex = index;
+                                }
+                            }
+                            insertIndex++;
+                            if (structureList.Count > insertIndex)
+                            {
+                                structureList.Insert(insertIndex, structuredObject);
                             }
                             else
                             {
-                                Console.WriteLine($"ERROR: Failed to match enum type {enumeratedObject.Name} to namespace {dictionaryToLoad.TypeDictionary.TargetNamespace}.");
+                                structureList.Add(structuredObject);
                             }
                         }
                     }
-
-                    foreach (var item in dictionaryToLoad.TypeDictionary.Items)
+                    else
                     {
-                        var structuredObject = item as Opc.Ua.Schema.Binary.StructuredType;
-                        if (structuredObject != null)
+                        enumList.Add(item);
+                    }
+                }
+
+                foreach (var item in structureList)
+                {
+                    var structuredObject = item as Opc.Ua.Schema.Binary.StructuredType;
+                    if (structuredObject != null)
+                    {
+                        bool missingTypeInfo = false;
+                        var nodeId = dictionary.DataTypes.Where(d => d.Value.DisplayName == item.Name).FirstOrDefault().Value;
+                        ExpandedNodeId typeId;
+                        ExpandedNodeId binaryEncodingId;
+                        BrowseTypeIds(session, ExpandedNodeId.ToNodeId(nodeId.NodeId, session.NamespaceUris),
+                            out typeId, out binaryEncodingId);
+                        Console.WriteLine($"§§§§§§§ {nameof(item.Name)}: {item.Name} §§§§§§§");
+                        var structureBuilder = complexTypeBuilder.AddStructuredType(item.Name);
+                        int order = 10;
+                        bool unsupportedTypeInfo = false;
+                        foreach (var field in structuredObject.Field)
                         {
-                            bool missingTypeInfo = false;
-                            var nodeId = dictionaryToLoad.DataTypes.Where(d => d.Value.DisplayName == item.Name).FirstOrDefault().Value;
-                            ExpandedNodeId typeId;
-                            ExpandedNodeId binaryEncodingId;
-                            BrowseTypeIds(session, ExpandedNodeId.ToNodeId(nodeId.NodeId, session.NamespaceUris),
-                                out typeId, out binaryEncodingId);
+                            // check for yet unsupported properties
+                            Console.WriteLine($"{nameof(field.Name)}: {field.Name}");
+                            Console.WriteLine($"{nameof(field.TypeName)}: {field.TypeName}");
+                            Console.WriteLine($"{nameof(field.Length)}: {field.Length}");
+                            Console.WriteLine($"{nameof(field.LengthField)}: {field.LengthField}");
+                            Console.WriteLine($"{nameof(field.IsLengthInBytes)}: {field.IsLengthInBytes}");
+                            Console.WriteLine($"{nameof(field.SwitchField)}: {field.SwitchField}");
+                            Console.WriteLine($"{nameof(field.SwitchValue)}: {field.SwitchValue}");
+                            Console.WriteLine($"{nameof(field.SwitchOperand)}: {field.SwitchOperand}");
+                            Console.WriteLine($"{nameof(field.Terminator)}: {field.Terminator}");
 
-                            var structureBuilder = complexTypeBuilder.AddStructuredType(item.Name, dictionaryToLoad.TypeDictionary.TargetNamespace);
-                            int order = 10;
-                            foreach (var field in structuredObject.Field)
+                            if (field.IsLengthInBytes ||
+                                field.SwitchField != null ||
+                                field.Terminator != null ||
+                                field.LengthField != null ||
+                                field.Length != 0)
                             {
-                                Type fieldType = null;
-                                if (field.TypeName.Namespace == Namespaces.OpcBinarySchema)
-                                {
-                                    // check for built in type
-                                    var internalField = typeof(DataTypeIds).GetField(field.TypeName.Name);
-                                    var internalNodeId = (NodeId)internalField.GetValue(field.TypeName.Name);
-                                    var builtInType = Opc.Ua.TypeInfo.GetBuiltInType(internalNodeId);
-                                    fieldType = Opc.Ua.TypeInfo.GetSystemType(internalNodeId, session.Factory);
-                                }
-                                else
-                                {
-                                    var referenceId = dictList.Where(t =>
-                                        t.DisplayName == field.TypeName.Name &&
-                                        t.NodeId.NamespaceUri == field.TypeName.Namespace).FirstOrDefault();
-                                    if (referenceId != null)
-                                    {
-                                        //ExpandedNodeId absoluteId = NodeId.ToExpandedNodeId(referenceId.NodeId, session.NamespaceUris);
-                                        fieldType = session.Factory.GetSystemType(referenceId.NodeId);
-                                    }
-                                }
-                                if (fieldType == null)
-                                {
-                                    // skip structured type ... missing datatype
-                                    missingTypeInfo = true;
-                                    break;
-                                }
-                                structureBuilder.AddField(field.Name, fieldType, order);
-                                order += 10;
+                                Console.WriteLine("---------- unsupported type --------------");
+                                unsupportedTypeInfo = true;
                             }
 
-                            if (!missingTypeInfo)
+                            if (unsupportedTypeInfo)
                             {
-                                var complexType = structureBuilder.CreateType();
-                                session.Factory.AddEncodeableType(binaryEncodingId, complexType);
-                                session.Factory.AddEncodeableType(typeId, complexType);
+                                continue;
                             }
+
+                            Type fieldType = null;
+                            if (field.TypeName.Namespace == Namespaces.OpcBinarySchema ||
+                                field.TypeName.Namespace == Namespaces.OpcUa)
+                            {
+                                if (field.TypeName.Name == "Bit")
+                                {
+                                    Console.WriteLine("---------- unsupported type --------------");
+                                    unsupportedTypeInfo = true;
+                                    continue;
+                                }
+                                // check for built in type
+                                if (field.TypeName.Name == "CharArray")
+                                {
+                                    field.TypeName = new System.Xml.XmlQualifiedName("ByteString", field.TypeName.Namespace);
+                                }
+                                var internalField = typeof(DataTypeIds).GetField(field.TypeName.Name);
+                                var internalNodeId = (NodeId)internalField.GetValue(field.TypeName.Name);
+                                var builtInType = Opc.Ua.TypeInfo.GetBuiltInType(internalNodeId);
+                                fieldType = Opc.Ua.TypeInfo.GetSystemType(internalNodeId, session.Factory);
+                            }
+                            else
+                            {
+                                var referenceId = dictList.Where(t =>
+                                    t.DisplayName == field.TypeName.Name &&
+                                    t.NodeId.NamespaceUri == field.TypeName.Namespace).FirstOrDefault();
+                                if (referenceId != null)
+                                {
+                                    //ExpandedNodeId absoluteId = NodeId.ToExpandedNodeId(referenceId.NodeId, session.NamespaceUris);
+                                    fieldType = session.Factory.GetSystemType(referenceId.NodeId);
+                                }
+                            }
+                            if (fieldType == null)
+                            {
+                                // skip structured type ... missing datatype
+                                missingTypeInfo = true;
+                                Console.WriteLine("---------- no type information --------------");
+                                continue;
+                            }
+                            Console.WriteLine($"Add: {field.Name}:{fieldType}-{order}");
+                            structureBuilder.AddField(field.Name, fieldType, order);
+                            order += 10;
+                        }
+
+                        if (!missingTypeInfo && !unsupportedTypeInfo)
+                        {
+                            var complexType = structureBuilder.CreateType();
+                            Console.WriteLine($"§§§§§§§§§§§§ {item.Name}-{complexType} §§§§§§§§§§§§");
+                            session.Factory.AddEncodeableType(binaryEncodingId, complexType);
+                            session.Factory.AddEncodeableType(typeId, complexType);
                         }
                     }
                 }
             }
-
+#if XMLTYPESYSTEM
             // read all type dictionaries as xml
             references = session.FetchReferences(ObjectIds.XmlSchema_TypeSystem);
             foreach (var r in references)
@@ -493,9 +589,8 @@ namespace NetCoreConsoleClient
 
                     dictionaryToLoad.DataTypes.Values.ToList().ForEach(i => Console.WriteLine(i.ToString()));
                 }
-
             }
-
+#endif
 #if NETSTANDARDSERVER
             // read the dictinonary which contains 'VehicleType'
             var resultTruckType = await session.FindDataDictionary(new NodeId(332, 3));
@@ -509,7 +604,41 @@ namespace NetCoreConsoleClient
 #endif
 
 
-//#if QUICKSTARTSAMPLE
+#if !UAANSIC
+            {
+                // WorkOrderStatusType
+                var statusNodeId = new NodeId("Demo.WorkOrder.WorkOrderVariable2.StatusComments", 4);
+                var statusCommentNodeId = session.ReadNode(statusNodeId);
+                var statusComment = session.ReadValue(statusNodeId);
+
+                // Vector
+                var nodeId = new NodeId("Demo.Static.Scalar.Vector", 4);
+                var vector = session.ReadNode(nodeId);
+                var vectorValue = session.ReadValue(nodeId);
+
+                nodeId = new NodeId("Demo.Static.Arrays.Vector", 4);
+                var vectorArray = session.ReadNode(nodeId);
+                var vectorArrayValue = session.ReadValue(nodeId);
+
+                nodeId = new NodeId("Demo.Static.Matrix.Vector", 4);
+                var vectorMatrix = session.ReadNode(nodeId);
+                var vectorMatrixValue = session.ReadValue(nodeId);
+
+                // AccessRights
+                nodeId = new NodeId("Demo.Static.Scalar.OptionSet", 4);
+                var optionSet = session.ReadNode(nodeId);
+                var optionSetValue = session.ReadValue(nodeId);
+
+                // structure
+                nodeId = new NodeId("Demo.Static.Scalar.Structure", 4);
+                var node = session.ReadNode(nodeId);
+                var value = session.ReadValue(nodeId);
+            }
+
+#endif
+
+
+#if QUICKSTARTSAMPLE
             // read various nodes...
             var vehiclesInLotNode = session.ReadNode(new NodeId(283, 4));
             var parkingLotNode = session.ReadNode(new NodeId(281, 4));
@@ -528,7 +657,7 @@ namespace NetCoreConsoleClient
 
             Console.WriteLine("4 - Browse the OPC UA server namespace.");
             exitCode = ExitCode.ErrorBrowseNamespace;
-//#endif
+#endif
             references = session.FetchReferences(ObjectIds.ObjectsFolder);
 
             session.Browse(
@@ -550,16 +679,16 @@ namespace NetCoreConsoleClient
                 ReferenceDescriptionCollection nextRefs;
                 byte[] nextCp;
                 session.Browse(
-                                    null,
-                                    null,
-                                    ExpandedNodeId.ToNodeId(rd.NodeId, session.NamespaceUris),
-                                    0u,
-                                    BrowseDirection.Forward,
-                                    ReferenceTypeIds.HierarchicalReferences,
-                                    true,
-                                    (uint)NodeClass.Variable | (uint)NodeClass.Object | (uint)NodeClass.Method,
-                                    out nextCp,
-                                    out nextRefs);
+                    null,
+                    null,
+                    ExpandedNodeId.ToNodeId(rd.NodeId, session.NamespaceUris),
+                    0u,
+                    BrowseDirection.Forward,
+                    ReferenceTypeIds.HierarchicalReferences,
+                    true,
+                    (uint)NodeClass.Variable | (uint)NodeClass.Object | (uint)NodeClass.Method,
+                    out nextCp,
+                    out nextRefs);
 
                 foreach (var nextRd in nextRefs)
                 {
