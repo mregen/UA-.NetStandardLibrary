@@ -13,6 +13,7 @@
 using Mono.Options;
 using Opc.Ua;
 using Opc.Ua.Client;
+using Opc.Ua.Client.ComplexTypes;
 using Opc.Ua.Configuration;
 using System;
 using System.Collections.Generic;

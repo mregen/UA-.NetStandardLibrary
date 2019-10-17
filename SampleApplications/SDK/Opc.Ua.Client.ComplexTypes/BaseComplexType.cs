@@ -15,7 +15,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml;
 
-namespace Opc.Ua
+namespace Opc.Ua.Client.ComplexTypes
 {
     public class BaseComplexType : IEncodeable, IComplexTypeInstance
     {

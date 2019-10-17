@@ -15,7 +15,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.Serialization;
 
-namespace Opc.Ua
+namespace Opc.Ua.Client.ComplexTypes
 {
     /// <summary>
     /// 
