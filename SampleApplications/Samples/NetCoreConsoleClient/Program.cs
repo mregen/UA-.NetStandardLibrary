@@ -166,7 +166,7 @@ namespace NetCoreConsoleClient
 
         public static ExitCode ExitCode => exitCode;
 
-        private static void BrowseTypeIds(
+        private static bool BrowseTypeIds(
             Session session,
             NodeId nodeId,
             out ExpandedNodeId typeId,
@@ -180,11 +180,11 @@ namespace NetCoreConsoleClient
             browser.BrowseDirection = BrowseDirection.Inverse;
             browser.ReferenceTypeId = ReferenceTypeIds.HasDescription;
             browser.IncludeSubtypes = false;
-            browser.NodeClassMask = 0;// (int)NodeClass.Object;
+            browser.NodeClassMask = (int)NodeClass.Object;
 
             var references = browser.Browse(nodeId);
 
-            if (references.Count == 1)
+            if (references.Count >= 1)
             {
                 encodingId = references.First().NodeId;
                 var encodingNodeId = ExpandedNodeId.ToNodeId(encodingId, session.NamespaceUris);
@@ -192,9 +192,9 @@ namespace NetCoreConsoleClient
                 browser.BrowseDirection = BrowseDirection.Inverse;
                 browser.ReferenceTypeId = ReferenceTypeIds.HasEncoding;
                 browser.IncludeSubtypes = false;
-                browser.NodeClassMask = 0;// (int)NodeClass.DataType;
+                browser.NodeClassMask = (int)NodeClass.DataType;
                 references = browser.Browse(encodingNodeId);
-                if (references.Count == 1)
+                if (references.Count >= 1)
                 {
                     typeId = references.First().NodeId;
                     var typeNodeId = ExpandedNodeId.ToNodeId(typeId, session.NamespaceUris);
@@ -206,6 +206,8 @@ namespace NetCoreConsoleClient
                         dataTypeNode.DataTypeDefinition != null)
                     {
                         Console.WriteLine($"{dataTypeNode.DataTypeDefinition}");
+                        // not supported yet
+                        return false;
                     }
 
 #if CHECKBROWSE
@@ -221,11 +223,11 @@ namespace NetCoreConsoleClient
                         }
                     }
 #endif
-                    return;
+                    return true;
                 }
             }
 
-            throw new Exception();
+            return false;
         }
 
         private async Task ConsoleSampleClient()
@@ -284,94 +286,6 @@ namespace NetCoreConsoleClient
             ReferenceDescriptionCollection references;
             Byte[] continuationPoint;
 
-            references = session.FetchReferences(ObjectIds.TypesFolder);
-
-            var rootList = new List<NodeId>();
-            var dictList = new ReferenceDescriptionCollection();
-            //rootList.Add(ObjectIds.TypesFolder);
-            //rootList.Add(DataTypeIds.BaseDataType);
-            rootList.Add(DataTypeIds.Structure);
-            rootList.Add(DataTypeIds.Enumeration);
-            //browseList.Add(ReferenceTypeIds.HierarchicalReferences);
-            //browseList.Add(ReferenceTypeIds.Organizes);
-            //browseList.Add(ReferenceTypeIds.Aggregates);
-
-            var types = /*(uint)NodeClass.VariableType | (uint)NodeClass.ObjectType |
-                (uint)NodeClass.ReferenceType |*/ (uint)NodeClass.DataType /*|
-                (uint)NodeClass.Variable | (uint)NodeClass.Object | (uint)NodeClass.Method*/;
-            types = 0;
-
-            do
-            {
-                var nextRootList = new List<NodeId>();
-                foreach (var root in rootList)
-                {
-                    session.Browse(
-                        null,
-                        null,
-                        root,
-                        0u,
-                        BrowseDirection.Forward,
-                        ReferenceTypeIds.HierarchicalReferences,
-                        true,
-                        types,
-                        out continuationPoint,
-                        out references);
-
-                    if (references.Count > 0)
-                    {
-                        Console.WriteLine($"Browse -- {root} has {references.Count} references");
-                    }
-
-                    foreach (var rd in references)
-                    {
-                        if (rd.NodeId.NamespaceIndex == 0)
-                        {
-                            // skip well known NodeIds
-                            continue;
-                        }
-
-                        Console.WriteLine(" {0}, {1}, {2}", rd.DisplayName, rd.BrowseName, rd.NodeClass);
-
-                        if (rd.NodeClass == NodeClass.DataType)
-                        {
-                            NodeId nodeId = ExpandedNodeId.ToNodeId(rd.NodeId, session.NamespaceUris);
-                            dictList.Add(rd);
-                            nextRootList.Add(nodeId);
-                        }
-
-                        continue;
-
-                        ReferenceDescriptionCollection nextRefs;
-                        byte[] nextCp;
-                        session.Browse(
-                            null,
-                            null,
-                            ExpandedNodeId.ToNodeId(rd.NodeId, session.NamespaceUris),
-                            0u,
-                            BrowseDirection.Forward,
-                            ReferenceTypeIds.HierarchicalReferences,
-                            true,
-                            types,
-                            out nextCp,
-                            out nextRefs);
-
-                        foreach (var nextRd in nextRefs)
-                        {
-                            Console.WriteLine("   + {0}, {1}, {2}", nextRd.DisplayName, nextRd.BrowseName, nextRd.NodeClass);
-                            if (nextRd.NodeClass == NodeClass.DataType)
-                            {
-                                dictList.Add(nextRd);
-                            }
-                        }
-                    }
-                }
-                rootList = nextRootList;
-            } while (rootList.Count > 0);
-
-            //var resultVehicleType = await session.FindDataDictionary(new NodeId(353, 4));
-            //var resultTwoWheelerX = await session.FindDataDictionary(new NodeId(302, 3));
-
             session.Browse(
                 null,
                 null,
@@ -384,7 +298,7 @@ namespace NetCoreConsoleClient
                 out continuationPoint,
                 out references);
 
-            dictList.Clear();
+            ReferenceDescriptionCollection dictList = new ReferenceDescriptionCollection();
             dictList.AddRange(references.Where(rd => rd.NodeId.NamespaceIndex != 0));
 
             foreach (var dictEntry in dictList)
@@ -396,7 +310,7 @@ namespace NetCoreConsoleClient
                 dictEntry.NodeId = NodeId.ToExpandedNodeId(ExpandedNodeId.ToNodeId(nodeId, session.NamespaceUris), session.NamespaceUris);
             }
 
-            // 
+            // load binary type system
             var typeSystem = await session.LoadTypeSystem();
 
             foreach (var dictionaryId in typeSystem)
@@ -406,39 +320,7 @@ namespace NetCoreConsoleClient
                 Console.WriteLine($"Namespace : {dictionary.TypeDictionary.TargetNamespace}");
                 dictionary.DataTypes.Values.ToList().ForEach(i => Console.WriteLine(i.ToString()));
 
-                var complexTypeBuilder = new ComplexTypeBuilder(dictionary.TypeDictionary.TargetNamespace);
-
-                foreach (var item in dictionary.TypeDictionary.Items)
-                {
-                    if (item.QName != null)
-                    {
-                        Console.WriteLine($"{item.QName.Namespace}:{item.QName.Name}");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"{item.Name}");
-                    }
-
-                    var enumeratedObject = item as Opc.Ua.Schema.Binary.EnumeratedType;
-                    if (enumeratedObject != null)
-                    {
-                        // add enum type to module
-                        var newType = complexTypeBuilder.AddEnumType(enumeratedObject);
-                        // match namespace and add to type factory
-                        var referenceId = dictList.Where(t =>
-                            t.DisplayName == enumeratedObject.Name &&
-                            t.NodeId.NamespaceUri == dictionary.TypeDictionary.TargetNamespace).FirstOrDefault();
-                        if (referenceId != null)
-                        {
-                            session.Factory.AddEncodeableType(referenceId.NodeId, newType);
-                        }
-                        else
-                        {
-                            Console.WriteLine($"ERROR: Failed to match enum type {enumeratedObject.Name} to namespace {dictionary.TypeDictionary.TargetNamespace}.");
-                        }
-                    }
-                }
-
+                // hackhack .. sort dictionary for dependencies
                 var structureList = new List<Opc.Ua.Schema.Binary.TypeDescription>();
                 var enumList = new List<Opc.Ua.Schema.Binary.TypeDescription>();
                 var itemList = dictionary.TypeDictionary.Items.ToList();
@@ -474,12 +356,51 @@ namespace NetCoreConsoleClient
                             }
                         }
                     }
-                    else
+                    else if (item is Opc.Ua.Schema.Binary.EnumeratedType)
                     {
                         enumList.Add(item);
                     }
+                    else
+                    {
+                        throw new Exception();
+                    }
                 }
 
+                var complexTypeBuilder = new ComplexTypeBuilder(dictionary.TypeDictionary.TargetNamespace);
+
+                // build enums
+                foreach (var item in enumList)
+                {
+                    if (item.QName != null)
+                    {
+                        Console.WriteLine($"{item.QName.Namespace}:{item.QName.Name}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"{item.Name}");
+                    }
+
+                    var enumeratedObject = item as Opc.Ua.Schema.Binary.EnumeratedType;
+                    if (enumeratedObject != null)
+                    {
+                        // add enum type to module
+                        var newType = complexTypeBuilder.AddEnumType(enumeratedObject);
+                        // match namespace and add to type factory
+                        var referenceId = dictList.Where(t =>
+                            t.DisplayName == enumeratedObject.Name &&
+                            t.NodeId.NamespaceUri == dictionary.TypeDictionary.TargetNamespace).FirstOrDefault();
+                        if (referenceId != null)
+                        {
+                            session.Factory.AddEncodeableType(referenceId.NodeId, newType);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"ERROR: Failed to match enum type {enumeratedObject.Name} to namespace {dictionary.TypeDictionary.TargetNamespace}.");
+                        }
+                    }
+                }
+
+                // build classes
                 foreach (var item in structureList)
                 {
                     var structuredObject = item as Opc.Ua.Schema.Binary.StructuredType;
@@ -489,8 +410,7 @@ namespace NetCoreConsoleClient
                         var nodeId = dictionary.DataTypes.Where(d => d.Value.DisplayName == item.Name).FirstOrDefault().Value;
                         ExpandedNodeId typeId;
                         ExpandedNodeId binaryEncodingId;
-                        BrowseTypeIds(session, ExpandedNodeId.ToNodeId(nodeId.NodeId, session.NamespaceUris),
-                            out typeId, out binaryEncodingId);
+
                         Console.WriteLine($"§§§§§§§ {nameof(item.Name)}: {item.Name} §§§§§§§");
                         var structureBuilder = complexTypeBuilder.AddStructuredType(item.Name);
                         int order = 10;
@@ -566,6 +486,14 @@ namespace NetCoreConsoleClient
                             order += 10;
                         }
 
+                        bool newTypeDescription = BrowseTypeIds(session, ExpandedNodeId.ToNodeId(nodeId.NodeId, session.NamespaceUris),
+                            out typeId, out binaryEncodingId);
+
+                        if (!newTypeDescription)
+                        {
+                            Console.WriteLine($"--------- {item.Name}-Type id not found");
+                        }
+
                         if (!missingTypeInfo && !unsupportedTypeInfo)
                         {
                             var complexType = structureBuilder.CreateType();
@@ -576,35 +504,9 @@ namespace NetCoreConsoleClient
                     }
                 }
             }
-#if XMLTYPESYSTEM
-            // read all type dictionaries as xml
-            references = session.FetchReferences(ObjectIds.XmlSchema_TypeSystem);
-            foreach (var r in references)
-            {
-                if (r.NodeId.NamespaceIndex != 0)
-                {
-                    DataDictionary dictionaryToLoad = new DataDictionary(session);
 
-                    await dictionaryToLoad.Load(r);
-
-                    dictionaryToLoad.DataTypes.Values.ToList().ForEach(i => Console.WriteLine(i.ToString()));
-                }
-            }
-#endif
-#if NETSTANDARDSERVER
-            // read the dictinonary which contains 'VehicleType'
-            var resultTruckType = await session.FindDataDictionary(new NodeId(332, 3));
-            // read the dictinonary which contains 'TwoWheelerType'
-            var resultTwoWheeler = await session.FindDataDictionary(new NodeId(15018, 4));
-            var schema = resultTruckType.GetSchema((NodeId)null);
-            foreach (var theType in resultTruckType.DataTypes)
-            {
-                var truckSchema = resultTruckType.GetSchema(theType.Key);
-            }
-#endif
-
-
-#if !UAANSIC
+            // UA Ansi C server
+            if (TestNodeId(new NodeId("Demo.WorkOrder.WorkOrderVariable2.StatusComments", 4)))
             {
                 // WorkOrderStatusType
                 var statusNodeId = new NodeId("Demo.WorkOrder.WorkOrderVariable2.StatusComments", 4);
@@ -635,30 +537,29 @@ namespace NetCoreConsoleClient
                 var value = session.ReadValue(nodeId);
             }
 
-#endif
+            // Quickstart DataTypes server
+            if (TestNodeId(new NodeId(283, 4)))
+            {
+                // read various nodes...
+                var vehiclesInLotNode = session.ReadNode(new NodeId(283, 4));
+                var parkingLotNode = session.ReadNode(new NodeId(281, 4));
 
-
-#if QUICKSTARTSAMPLE
-            // read various nodes...
-            var vehiclesInLotNode = session.ReadNode(new NodeId(283, 4));
-            var parkingLotNode = session.ReadNode(new NodeId(281, 4));
-
-            //var vehiclesInLot = session.ReadValue(new NodeId(283, 4));
-            var lotTypeNodeId = session.ReadNode(new NodeId(380, 4));
-            var lotType = session.ReadValue(new NodeId(380, 4));
-            var ownedVehiclesNodeId = session.ReadNode(new NodeId(377, 4));
-            var ownedVehicles = session.ReadValue(new NodeId(377, 4));
-            Console.WriteLine(ownedVehicles);
-            var primaryVehicleNode = session.ReadNode(new NodeId(376, 4));
-            var primaryVehicle = session.ReadValue(new NodeId(376, 4));
-            Console.WriteLine(primaryVehicle);
-            var vehiclesInLot = session.ReadValue(new NodeId(283, 4));
-            Console.WriteLine(vehiclesInLot);
+                //var vehiclesInLot = session.ReadValue(new NodeId(283, 4));
+                var lotTypeNodeId = session.ReadNode(new NodeId(380, 4));
+                var lotType = session.ReadValue(new NodeId(380, 4));
+                var ownedVehiclesNodeId = session.ReadNode(new NodeId(377, 4));
+                var ownedVehicles = session.ReadValue(new NodeId(377, 4));
+                Console.WriteLine(ownedVehicles);
+                var primaryVehicleNode = session.ReadNode(new NodeId(376, 4));
+                var primaryVehicle = session.ReadValue(new NodeId(376, 4));
+                Console.WriteLine(primaryVehicle);
+                var vehiclesInLot = session.ReadValue(new NodeId(283, 4));
+                Console.WriteLine(vehiclesInLot);
+            }
 
             Console.WriteLine("4 - Browse the OPC UA server namespace.");
             exitCode = ExitCode.ErrorBrowseNamespace;
-#endif
-            references = session.FetchReferences(ObjectIds.ObjectsFolder);
+
 
             session.Browse(
                 null,
@@ -696,7 +597,6 @@ namespace NetCoreConsoleClient
                 }
             }
 
-#if mist
             Console.WriteLine("5 - Create a subscription with publishing interval of 1 second.");
             exitCode = ExitCode.ErrorCreateSubscription;
             var subscription = new Subscription(session.DefaultSubscription) { PublishingInterval = 1000 };
@@ -716,9 +616,22 @@ namespace NetCoreConsoleClient
             exitCode = ExitCode.ErrorAddSubscription;
             session.AddSubscription(subscription);
             subscription.Create();
-#endif
+
             Console.WriteLine("8 - Running...Press Ctrl-C to exit...");
             exitCode = ExitCode.ErrorRunning;
+        }
+
+        private bool TestNodeId(NodeId nodeId)
+        {
+            try
+            {
+                session.ReadNode(nodeId);
+                return true;
+            }
+            catch
+            {
+            }
+            return false;
         }
 
         private void Client_KeepAlive(Session sender, KeepAliveEventArgs e)
