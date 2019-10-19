@@ -396,7 +396,7 @@ namespace Opc.Ua.Client.Controls
                 // add the childen to the control.
                 SortedDictionary<ExpandedNodeId, TreeNode> dictionary = new SortedDictionary<ExpandedNodeId, TreeNode>();
 
-                ReferenceDescriptionCollection references = ClientUtils.Browse(m_session, View, nodesToBrowse, false);
+                ReferenceDescriptionCollection references = CoreClientUtils.Browse(m_session, View, nodesToBrowse, false);
 
                 for (int ii = 0; references != null && ii < references.Count; ii++)
                 {
@@ -424,7 +424,7 @@ namespace Opc.Ua.Client.Controls
                         {
                             if (!m_typeImageMapping.ContainsKey((NodeId)reference.TypeDefinition))
                             {
-                                List<NodeId> nodeIds = ClientUtils.TranslateBrowsePaths(m_session, (NodeId)reference.TypeDefinition, m_session.NamespaceUris, Opc.Ua.BrowseNames.Icon);
+                                List<NodeId> nodeIds = CoreClientUtils.TranslateBrowsePaths(m_session, (NodeId)reference.TypeDefinition, m_session.NamespaceUris, Opc.Ua.BrowseNames.Icon);
 
                                 if (nodeIds.Count > 0 && nodeIds[0] != null)
                                 {
