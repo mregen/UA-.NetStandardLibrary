@@ -556,6 +556,11 @@ namespace Opc.Ua.Client
         public StringCollection PreferredLocales => m_preferredLocales;
 
         /// <summary>
+        /// Gets the type dictionaries in use.
+        /// </summary>
+        public Dictionary<NodeId, DataDictionary> Dictionaries => m_dictionaries;
+
+        /// <summary>
         /// Gets the subscriptions owned by the session.
         /// </summary>
         public IEnumerable<Subscription> Subscriptions
@@ -1326,6 +1331,29 @@ namespace Opc.Ua.Client
 
             m_dictionaries[dictionaryId] = dictionaryToLoad;
 
+            return dictionaryToLoad;
+        }
+
+        /// <summary>
+        ///  Returns the data dictionary that contains the description.
+        /// </summary>
+        /// <param name="dictionaryId">The dictionary id.</param>
+        /// <returns></returns>
+        public async Task<DataDictionary> LoadDataDictionary(ReferenceDescription dictionaryNode, bool forceReload = false)
+        {
+            // check if the dictionary has already been loaded.
+            DataDictionary dictionary;
+            NodeId dictionaryId = ExpandedNodeId.ToNodeId(dictionaryNode.NodeId, m_namespaceUris);
+            if (!forceReload &&
+                m_dictionaries.TryGetValue(dictionaryId, out dictionary))
+            { 
+                return dictionary;
+            }
+
+            // load the dictionary.
+            DataDictionary dictionaryToLoad = new DataDictionary(this);
+            await dictionaryToLoad.Load(dictionaryId, dictionaryNode.ToString());
+            m_dictionaries[dictionaryId] = dictionaryToLoad;
             return dictionaryToLoad;
         }
 

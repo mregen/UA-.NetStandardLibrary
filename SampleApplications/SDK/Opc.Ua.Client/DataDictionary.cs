@@ -102,14 +102,25 @@ namespace Opc.Ua.Client
         /// <summary>
         /// Loads the dictionary identified by the node id.
         /// </summary>
-        public async Task Load(ReferenceDescription dictionary)
+        public Task Load(ReferenceDescription dictionary)
         {
             if (dictionary == null)
             {
                 throw new ArgumentNullException(nameof(dictionary));
             }
-
             NodeId dictionaryId = ExpandedNodeId.ToNodeId(dictionary.NodeId, m_session.NamespaceUris);
+            return Load(dictionaryId, dictionary.ToString());
+        }
+
+        /// <summary>
+        /// Loads the dictionary identified by the node id.
+        /// </summary>
+        public async Task Load(NodeId dictionaryId, string name)
+        {
+            if (dictionaryId == null)
+            {
+                throw new ArgumentNullException(nameof(dictionaryId));
+            }
 
             GetTypeSystem(dictionaryId);
 
@@ -125,7 +136,7 @@ namespace Opc.Ua.Client
             ReadDataTypes(dictionaryId);
 
             DictionaryId = dictionaryId;
-            Name = dictionary.ToString();
+            Name = name;
         }
 
         /// <summary>

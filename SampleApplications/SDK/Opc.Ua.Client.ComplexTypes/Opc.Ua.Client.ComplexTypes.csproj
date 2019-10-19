@@ -18,11 +18,10 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net46'">
-    <Reference Include="System.IdentityModel" />
-    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Reflection" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
     <PackageReference Include="System.Reflection.Emit" Version="4.6.0" />
   </ItemGroup>
 
