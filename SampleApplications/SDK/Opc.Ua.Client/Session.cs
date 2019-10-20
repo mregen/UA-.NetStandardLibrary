@@ -1360,19 +1360,19 @@ namespace Opc.Ua.Client
         /// <summary>
         /// Loads all dictionaries of the OPC binary or Xml schema type system.
         /// </summary>
-        /// <param name="typeSystem">The type system.</param>
+        /// <param name="dataTypeSystem">The type system.</param>
         /// <returns></returns>
-        public async Task<Dictionary<NodeId,DataDictionary>> LoadTypeSystem(NodeId typeSystem = null)
+        public async Task<Dictionary<NodeId,DataDictionary>> LoadDataTypeSystem(NodeId dataTypeSystem = null)
         {
-            if (typeSystem == null)
+            if (dataTypeSystem == null)
             {
-                typeSystem = ObjectIds.OPCBinarySchema_TypeSystem;
+                dataTypeSystem = ObjectIds.OPCBinarySchema_TypeSystem;
             }
             else 
-            if (!Utils.Equals(typeSystem, ObjectIds.OPCBinarySchema_TypeSystem) &&
-                !Utils.Equals(typeSystem, ObjectIds.XmlSchema_TypeSystem))
+            if (!Utils.Equals(dataTypeSystem, ObjectIds.OPCBinarySchema_TypeSystem) &&
+                !Utils.Equals(dataTypeSystem, ObjectIds.XmlSchema_TypeSystem))
             {
-                throw ServiceResultException.Create(StatusCodes.BadNodeIdInvalid, "Type system does not refer to a valid data dictionary.");
+                throw ServiceResultException.Create(StatusCodes.BadNodeIdInvalid, "dataTypeSystem does not refer to a valid data dictionary.");
             }
 
             // find the dictionary for the description.
@@ -1383,7 +1383,7 @@ namespace Opc.Ua.Client
             browser.IncludeSubtypes = false;
             browser.NodeClassMask = 0;
 
-            ReferenceDescriptionCollection references = browser.Browse(typeSystem);
+            ReferenceDescriptionCollection references = browser.Browse(dataTypeSystem);
 
             if (references.Count == 0)
             {

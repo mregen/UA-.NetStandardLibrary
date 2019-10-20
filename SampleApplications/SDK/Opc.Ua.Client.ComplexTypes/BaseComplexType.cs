@@ -30,6 +30,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Xml;
 
@@ -112,13 +113,138 @@ namespace Opc.Ua.Client.ComplexTypes
 
         public void Encode(IEncoder encoder)
         {
-            throw new NotImplementedException();
+            encoder.PushNamespace(TypeId.NamespaceUri);
+
+            var properties = GetType().GetProperties();
+            foreach (var property in properties)
+            {
+                if (property.CustomAttributes.Count() == 0)
+                {
+                    continue;
+                }
+
+                if (property.PropertyType == typeof(Boolean))
+                {
+                    encoder.WriteBoolean(property.Name, (Boolean)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(SByte))
+                {
+                    encoder.WriteSByte(property.Name, (SByte)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(Byte))
+                {
+                    encoder.WriteByte(property.Name, (Byte)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(Int16))
+                {
+                    encoder.WriteInt16(property.Name, (Int16)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(UInt16))
+                {
+                    encoder.WriteUInt16(property.Name, (UInt16)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(Int32))
+                {
+                    encoder.WriteInt32(property.Name, (Int32)property.GetValue(this));
+                }
+                else if (property.PropertyType.IsEnum)
+                {
+                    encoder.WriteEnumerated(property.Name, (Enum)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(UInt32))
+                {
+                    encoder.WriteUInt32(property.Name, (UInt32)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(Int64))
+                {
+                    encoder.WriteInt64(property.Name, (Int64)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(UInt64))
+                {
+                    encoder.WriteUInt64(property.Name, (UInt64)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(Single))
+                {
+                    encoder.WriteFloat(property.Name, (Single)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(Double))
+                {
+                    encoder.WriteDouble(property.Name, (Double)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(String))
+                {
+                    encoder.WriteString(property.Name, (String)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(DateTime))
+                {
+                    encoder.WriteDateTime(property.Name, (DateTime)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(Uuid))
+                {
+                    encoder.WriteGuid(property.Name, (Uuid)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(Byte[]))
+                {
+                    encoder.WriteByteArray(property.Name, (Byte[])property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(XmlElement))
+                {
+                    encoder.WriteXmlElement(property.Name, (XmlElement)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(NodeId))
+                {
+                    encoder.WriteNodeId(property.Name, (NodeId)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(ExpandedNodeId))
+                {
+                    encoder.WriteExpandedNodeId(property.Name, (ExpandedNodeId)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(StatusCode))
+                {
+                    encoder.WriteStatusCode(property.Name, (StatusCode)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(DiagnosticInfo))
+                {
+                    encoder.WriteDiagnosticInfo(property.Name, (DiagnosticInfo)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(QualifiedName))
+                {
+                    encoder.WriteQualifiedName(property.Name, (QualifiedName)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(LocalizedText))
+                {
+                    encoder.WriteLocalizedText(property.Name, (LocalizedText)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(DataValue))
+                {
+                    encoder.WriteDataValue(property.Name, (DataValue)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(Variant))
+                {
+                    encoder.WriteVariant(property.Name, (Variant)property.GetValue(this));
+                }
+                else if (property.PropertyType == typeof(ExtensionObject))
+                {
+                    encoder.WriteExtensionObject(property.Name, (ExtensionObject)property.GetValue(this));
+                }
+                else if (property.PropertyType is IEncodeable)
+                {
+                    encoder.WriteEncodeable(property.Name, (IEncodeable)property.GetValue(this), property.PropertyType);
+                }
+                else
+                {
+                    throw new NotImplementedException($"Unknown type {property.PropertyType} to encode.");
+                }
+            }
+
+            encoder.PopNamespace();
         }
 
         public void Decode(IDecoder decoder)
         {
             decoder.PushNamespace(TypeId.NamespaceUri);
 
+            var attributes = GetType().GetCustomAttributes(false);
             var properties = GetType().GetProperties();
             foreach (var property in properties)
             {
@@ -244,21 +370,50 @@ namespace Opc.Ua.Client.ComplexTypes
             decoder.PopNamespace();
         }
 
-        public bool IsEqual(IEncodeable encodeable)
+        public bool IsEqual(IEncodeable equalValue)
         {
-            if (Object.ReferenceEquals(this, encodeable))
+            if (Object.ReferenceEquals(this, equalValue))
             {
                 return true;
             }
 
-            var myType = GetType();
-            var value = encodeable as BaseComplexType;
-            if (value == null)
+            var valueBaseType = equalValue as BaseComplexType;
+            if (valueBaseType == null)
             {
                 return false;
             }
 
-            // TODO: full compare
+            var valueType = valueBaseType.GetType();
+            var thisType = this.GetType();
+            if (thisType != valueType)
+            {
+                return false;
+            }
+
+            var valueProps = valueType.GetProperties();
+            var valueEnumerator = valueProps.GetEnumerator();
+            var properties = thisType.GetProperties();
+            foreach (var property in properties)
+            {
+                if (property.CustomAttributes.Count() == 0)
+                {
+                    continue;
+                }
+                PropertyInfo value;
+                do
+                {
+                    value = (PropertyInfo)valueEnumerator.Current;
+                    valueEnumerator.MoveNext();
+                } while (value.CustomAttributes.Count() == 0);
+
+                if (!Utils.IsEqual(property.GetValue(this), value.GetValue(valueBaseType)))
+                {
+                    return false;
+                }
+            }
+
+            // TODO
+            // check if second class has been fully compared.
 
             return true;
         }
@@ -274,4 +429,6 @@ namespace Opc.Ua.Client.ComplexTypes
         private ServiceMessageContext m_context;
         #endregion
     }
+
+
 }//namespace

@@ -68,81 +68,29 @@ namespace Opc.Ua.Client.ComplexTypes
                 throw new ArgumentNullException(nameof(enumeratedType));
             }
             var enumBuilder = m_moduleBuilder.DefineEnum(enumeratedType.Name, TypeAttributes.Public, typeof(int));
-            enumBuilder.SetCustomAttribute(DataContractAttributeBuilder(m_targetNamespace));
+            enumBuilder.DataContractAttribute(m_targetNamespace);
             foreach (var enumValue in enumeratedType.EnumeratedValue)
             {
                 var newEnum = enumBuilder.DefineLiteral(enumValue.Name, enumValue.Value);
-                newEnum.SetCustomAttribute(EnumAttributeBuilder(enumValue.Name, enumValue.Value));
+                newEnum.EnumAttribute(enumValue.Name, enumValue.Value);
             }
             return enumBuilder.CreateTypeInfo();
         }
 
-        public ComplexTypeFieldBuilder AddStructuredType(Schema.Binary.StructuredType structuredType)
+        public ComplexTypeFieldBuilder AddStructuredType(
+            Schema.Binary.StructuredType structuredType,
+            NodeId typeId)
         {
             var structureBuilder = m_moduleBuilder.DefineType(structuredType.Name, TypeAttributes.Public | TypeAttributes.Class, typeof(BaseComplexType));
-            structureBuilder.SetCustomAttribute(DataContractAttributeBuilder(m_targetNamespace));
+            structureBuilder.DataContractAttribute(m_targetNamespace);
+            var structureDefinition = new StructureDefinition()
+            {
+                DefaultEncodingId = typeId,
+                BaseDataType = NodeId.Null,
+                StructureType = StructureType.Structure
+            };
+            structureBuilder.StructureDefinitonAttribute(structureDefinition);
             return new ComplexTypeFieldBuilder(structureBuilder);
-        }
-        #endregion
-
-        #region Static Members
-        public static CustomAttributeBuilder DataContractAttributeBuilder(string Namespace)
-        {
-            var dataContractAttributeType = typeof(DataContractAttribute);
-            ConstructorInfo ctorInfo = dataContractAttributeType.GetConstructor(Type.EmptyTypes);
-            CustomAttributeBuilder enumBuilder = new CustomAttributeBuilder(
-                ctorInfo,
-                new object[0],  // constructor arguments
-                new[]           // properties to assign
-                {
-                    dataContractAttributeType.GetProperty("Namespace")
-                },
-                new object[]    // values to assign
-                {
-                    Namespace
-                });
-            return enumBuilder;
-        }
-
-        public static CustomAttributeBuilder DataMemberAttributeBuilder(string name, bool isRequired, int order)
-        {
-            var dataMemberAttributeType = typeof(DataMemberAttribute);
-            ConstructorInfo ctorInfo = dataMemberAttributeType.GetConstructor(Type.EmptyTypes);
-            CustomAttributeBuilder enumBuilder = new CustomAttributeBuilder(
-                ctorInfo,
-                new object[0],  // constructor arguments
-                new[]           // properties to assign
-                {
-                    dataMemberAttributeType.GetProperty("Name"),
-                    dataMemberAttributeType.GetProperty("IsRequired"),
-                    dataMemberAttributeType.GetProperty("Order")
-                },
-                new object[]    // values to assign
-                {
-                    name,
-                    isRequired,
-                    order
-                });
-            return enumBuilder;
-        }
-
-        public static CustomAttributeBuilder EnumAttributeBuilder(string Name, int Value)
-        {
-            var enumAttributeType = typeof(EnumMemberAttribute);
-            Type[] ctorParams = new Type[] { typeof(string) };
-            ConstructorInfo ctorInfo = enumAttributeType.GetConstructor(Type.EmptyTypes);
-            CustomAttributeBuilder enumBuilder = new CustomAttributeBuilder(
-                ctorInfo,
-                new object[0],  // constructor arguments
-                new[]           // properties to assign
-                {
-                    enumAttributeType.GetProperty("Value")
-                },
-                new object[]    // values to assign
-                {
-                    Name+"_"+Value.ToString()
-                });
-            return enumBuilder;
         }
         #endregion
 
@@ -193,7 +141,7 @@ namespace Opc.Ua.Client.ComplexTypes
 
             propertyBuilder.SetGetMethod(getBuilder);
             propertyBuilder.SetSetMethod(setBuilder);
-            propertyBuilder.SetCustomAttribute(ComplexTypeBuilder.DataMemberAttributeBuilder(fieldName, false, order));
+            propertyBuilder.DataMemberAttribute(fieldName, false, order);
         }
 
         public Type CreateType()
