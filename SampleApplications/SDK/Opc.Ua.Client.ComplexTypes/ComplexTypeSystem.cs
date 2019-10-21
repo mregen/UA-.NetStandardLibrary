@@ -145,7 +145,6 @@ namespace Opc.Ua.Client.ComplexTypes
                 }
 
                 var complexTypeBuilder = new ComplexTypeBuilder(dictionary.TypeDictionary.TargetNamespace);
-
                 foreach (var enumType in enumerationTypes.Where(e => e.NodeId.NamespaceUri == dictionary.TypeDictionary.TargetNamespace))
                 {
                     var nodeId = ExpandedNodeId.ToNodeId(enumType.NodeId, m_session.NamespaceUris);
@@ -169,7 +168,7 @@ namespace Opc.Ua.Client.ComplexTypes
                             else
                             {
                                 // browse for EnumFields or EnumStrings property
-                                var property = BrowseForProperty(nodeId);
+                                var property = BrowseForSingleProperty(nodeId);
                                 var enumArray = m_session.ReadValue(
                                     ExpandedNodeId.ToNodeId(property.NodeId,
                                     m_session.NamespaceUris));
@@ -227,88 +226,123 @@ namespace Opc.Ua.Client.ComplexTypes
 
                         ExpandedNodeId typeId;
                         ExpandedNodeId binaryEncodingId;
+                        DataTypeNode dataTypeNode;
                         bool newTypeDescription = BrowseTypeIdsForDictionaryComponent(
                             ExpandedNodeId.ToNodeId(nodeId.NodeId, m_session.NamespaceUris),
-                            out typeId, out binaryEncodingId);
+                            out typeId,
+                            out binaryEncodingId,
+                            out dataTypeNode);
 
-                        var structureBuilder = complexTypeBuilder.AddStructuredType(
-                            structuredObject,
-                            ExpandedNodeId.ToNodeId(typeId, m_session.NamespaceUris));
-
-                        int order = 10;
-                        bool unsupportedTypeInfo = false;
-                        foreach (var field in structuredObject.Field)
+                        var structureDefinition = dataTypeNode.DataTypeDefinition?.Body as StructureDefinition;
+                        if (structureDefinition != null)
                         {
-                            // check for yet unsupported properties
+                            // use type definition (>= V1.04)
+                            var structureBuilder = complexTypeBuilder.AddStructuredType(
+                                dataTypeNode.BrowseName.Name,
+                                structureDefinition
+                                );
 
-                            if (field.IsLengthInBytes ||
-                                field.SwitchField != null ||
-                                field.Terminator != null ||
-                                field.LengthField != null ||
-                                field.Length != 0)
+                            int order = 10;
+                            foreach (var field in structureDefinition.Fields)
                             {
-                                unsupportedTypeInfo = true;
-                            }
-
-                            if (unsupportedTypeInfo)
-                            {
-                                continue;
-                            }
-
-                            Type fieldType = null;
-                            if (field.TypeName.Namespace == Namespaces.OpcBinarySchema ||
-                                field.TypeName.Namespace == Namespaces.OpcUa)
-                            {
-                                if (field.TypeName.Name == "Bit")
+                                Type fieldType;
+                                if (field.DataType.NamespaceIndex == 0)
                                 {
-                                    unsupportedTypeInfo = true;
-                                    continue;
-                                }
-                                // check for built in type
-                                if (field.TypeName.Name == "CharArray")
-                                {
-                                    field.TypeName = new System.Xml.XmlQualifiedName("ByteString", field.TypeName.Namespace);
-                                }
-                                var internalField = typeof(DataTypeIds).GetField(field.TypeName.Name);
-                                var internalNodeId = (NodeId)internalField.GetValue(field.TypeName.Name);
-                                var builtInType = Opc.Ua.TypeInfo.GetBuiltInType(internalNodeId);
-                                fieldType = Opc.Ua.TypeInfo.GetSystemType(internalNodeId, m_session.Factory);
-                            }
-                            else
-                            {
-                                var referenceId = enumerationTypes.Where(t =>
-                                    t.DisplayName == field.TypeName.Name &&
-                                    t.NodeId.NamespaceUri == field.TypeName.Namespace).FirstOrDefault();
-                                if (referenceId != null)
-                                {
-                                    fieldType = m_session.Factory.GetSystemType(referenceId.NodeId);
+                                    fieldType = Opc.Ua.TypeInfo.GetSystemType(field.DataType, m_session.Factory);
                                 }
                                 else
                                 {
-                                    // TODO: find types from other dictionaries
+                                    fieldType = m_session.Factory.GetSystemType(NodeId.ToExpandedNodeId(field.DataType, m_session.NamespaceUris));
                                 }
-                            }
-                            if (fieldType == null)
-                            {
-                                // skip structured type ... missing datatype
-                                missingTypeInfo = true;
-                                continue;
-                            }
-                            Console.WriteLine($"Add: {field.Name}:{fieldType}-{order}");
-                            structureBuilder.AddField(field.Name, fieldType, order);
-                            order += 10;
-                        }
 
-                        if (!newTypeDescription)
-                        {
-                            Console.WriteLine($"--------- {item.Name}-Type id not found ------");
-                        }
+                                structureBuilder.AddField(field, fieldType, order);
+                                order += 10;
+                            }
 
-                        if (!missingTypeInfo && !unsupportedTypeInfo)
-                        {
                             var complexType = structureBuilder.CreateType();
                             m_session.Factory.AddEncodeableType(binaryEncodingId, complexType);
                             m_session.Factory.AddEncodeableType(typeId, complexType);
+                        }
+                        else
+                        {
+                            // use dictionary to build types (<=V1.03)
+                            var structureBuilder = complexTypeBuilder.AddStructuredType(
+                                structuredObject,
+                                ExpandedNodeId.ToNodeId(typeId, m_session.NamespaceUris));
+
+                            int order = 10;
+                            bool unsupportedTypeInfo = false;
+                            foreach (var field in structuredObject.Field)
+                            {
+                                // check for yet unsupported properties
+                                if (field.IsLengthInBytes ||
+                                    field.SwitchField != null ||
+                                    field.Terminator != null ||
+                                    field.LengthField != null ||
+                                    field.Length != 0)
+                                {
+                                    unsupportedTypeInfo = true;
+                                }
+
+                                if (unsupportedTypeInfo)
+                                {
+                                    continue;
+                                }
+
+                                Type fieldType = null;
+                                if (field.TypeName.Namespace == Namespaces.OpcBinarySchema ||
+                                    field.TypeName.Namespace == Namespaces.OpcUa)
+                                {
+                                    if (field.TypeName.Name == "Bit")
+                                    {
+                                        unsupportedTypeInfo = true;
+                                        continue;
+                                    }
+                                    // check for built in type
+                                    if (field.TypeName.Name == "CharArray")
+                                    {
+                                        field.TypeName = new System.Xml.XmlQualifiedName("ByteString", field.TypeName.Namespace);
+                                    }
+                                    var internalField = typeof(DataTypeIds).GetField(field.TypeName.Name);
+                                    var internalNodeId = (NodeId)internalField.GetValue(field.TypeName.Name);
+                                    //var builtInType = Opc.Ua.TypeInfo.GetBuiltInType(internalNodeId);
+                                    fieldType = Opc.Ua.TypeInfo.GetSystemType(internalNodeId, m_session.Factory);
+                                }
+                                else
+                                {
+                                    var referenceId = enumerationTypes.Where(t =>
+                                        t.DisplayName == field.TypeName.Name &&
+                                        t.NodeId.NamespaceUri == field.TypeName.Namespace).FirstOrDefault();
+                                    if (referenceId != null)
+                                    {
+                                        fieldType = m_session.Factory.GetSystemType(referenceId.NodeId);
+                                    }
+                                    else
+                                    {
+                                        // TODO: find types from other dictionaries
+                                    }
+                                }
+                                if (fieldType == null)
+                                {
+                                    // skip structured type ... missing datatype
+                                    missingTypeInfo = true;
+                                    continue;
+                                }
+                                Console.WriteLine($"Add: {field.Name}:{fieldType}-{order}");
+                                structureBuilder.AddField(field.Name, fieldType, order);
+                                order += 10;
+                            }
+                            if (!newTypeDescription)
+                            {
+                                Console.WriteLine($"--------- {item.Name}-Type id not found ------");
+                            }
+
+                            if (!missingTypeInfo && !unsupportedTypeInfo)
+                            {
+                                var complexType = structureBuilder.CreateType();
+                                m_session.Factory.AddEncodeableType(binaryEncodingId, complexType);
+                                m_session.Factory.AddEncodeableType(typeId, complexType);
+                            }
                         }
                     }
                 }
@@ -348,10 +382,12 @@ namespace Opc.Ua.Client.ComplexTypes
         private bool BrowseTypeIdsForDictionaryComponent(
             NodeId nodeId,
             out ExpandedNodeId typeId,
-            out ExpandedNodeId encodingId)
+            out ExpandedNodeId encodingId,
+            out DataTypeNode dataTypeNode)
         {
             typeId = ExpandedNodeId.Null;
             encodingId = ExpandedNodeId.Null;
+            dataTypeNode = null;
 
             Browser browser = new Browser(m_session);
 
@@ -377,12 +413,7 @@ namespace Opc.Ua.Client.ComplexTypes
                     typeId = NormalizeExpandedNodeId(references.First().NodeId, m_session.NamespaceUris);
 
                     var typeNodeId = ExpandedNodeId.ToNodeId(typeId, m_session.NamespaceUris);
-                    var dataTypeDefinition = ReadDataTypeDefinition(typeNodeId);
-                    if (dataTypeDefinition != null)
-                    {
-                        // not supported yet
-                        return false;
-                    }
+                    dataTypeNode = m_session.ReadNode(typeNodeId) as DataTypeNode;
 
                     return true;
                 }
@@ -399,7 +430,7 @@ namespace Opc.Ua.Client.ComplexTypes
         /// </remarks>
         /// <param name="nodeId"></param>
         /// <returns></returns>
-        private ReferenceDescription BrowseForProperty(
+        private ReferenceDescription BrowseForSingleProperty(
             NodeId nodeId)
         {
             Browser browser = new Browser(m_session);
@@ -407,7 +438,7 @@ namespace Opc.Ua.Client.ComplexTypes
             browser.BrowseDirection = BrowseDirection.Forward;
             browser.ReferenceTypeId = ReferenceTypeIds.HasProperty;
             browser.IncludeSubtypes = false;
-            browser.NodeClassMask = (int)NodeClass.Variable;
+            browser.NodeClassMask = (int)0;
 
             var references = browser.Browse(nodeId);
 
@@ -416,18 +447,6 @@ namespace Opc.Ua.Client.ComplexTypes
                 return references[0];
             }
 
-            return null;
-        }
-
-
-        private ExtensionObject ReadDataTypeDefinition(NodeId nodeId)
-        {
-            var node = m_session.ReadNode(nodeId);
-            var dataTypeNode = node as DataTypeNode;
-            if (dataTypeNode != null)
-            {
-                return dataTypeNode.DataTypeDefinition;
-            }
             return null;
         }
 

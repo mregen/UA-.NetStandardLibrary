@@ -138,7 +138,8 @@ namespace Opc.Ua.Client.ComplexTypes
             Schema.Binary.StructuredType structuredType,
             NodeId typeId)
         {
-            var structureBuilder = m_moduleBuilder.DefineType(structuredType.Name, TypeAttributes.Public | TypeAttributes.Class, typeof(BaseComplexType));
+            var structureBuilder = m_moduleBuilder.DefineType(structuredType.Name, 
+                TypeAttributes.Public | TypeAttributes.Class, typeof(BaseComplexType));
             structureBuilder.DataContractAttribute(m_targetNamespace);
             var structureDefinition = new StructureDefinition()
             {
@@ -149,6 +150,24 @@ namespace Opc.Ua.Client.ComplexTypes
             structureBuilder.StructureDefinitonAttribute(structureDefinition);
             return new ComplexTypeFieldBuilder(structureBuilder);
         }
+
+        public ComplexTypeFieldBuilder AddStructuredType(
+            string name,
+            StructureDefinition structureDefinition)
+        {
+            if (structureDefinition == null)
+            {
+                throw new ArgumentNullException(nameof(structureDefinition));
+            }
+
+            var structureBuilder = m_moduleBuilder.DefineType(name, 
+                TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Serializable, 
+                typeof(BaseComplexType));
+            structureBuilder.DataContractAttribute(m_targetNamespace);
+            structureBuilder.StructureDefinitonAttribute(structureDefinition);
+            return new ComplexTypeFieldBuilder(structureBuilder);
+        }
+
         #endregion
 
         #region Private Members
@@ -176,21 +195,37 @@ namespace Opc.Ua.Client.ComplexTypes
         #region Public Properties
         public void AddField(string fieldName, Type fieldType, int order)
         {
-            var fieldBuilder = m_structureBuilder.DefineField("_" + fieldName, fieldType, FieldAttributes.Private);
-            var propertyBuilder = m_structureBuilder.DefineProperty(fieldName, PropertyAttributes.None, fieldType, null);
+            var field = new StructureField
+            {
+                Name = fieldName,
+                ValueRank = -1,
+                MaxStringLength = 0,
+                IsOptional = false
+            };
+            AddField(field, fieldType, order);
+        }
+
+        public void AddField(StructureField field, Type fieldType, int order)
+        {
+            var fieldBuilder = m_structureBuilder.DefineField("_" + field.Name, fieldType, FieldAttributes.Private);
+            var propertyBuilder = m_structureBuilder.DefineProperty(
+                field.Name, 
+                PropertyAttributes.None, 
+                fieldType, 
+                null);
             var methodAttributes =
                 System.Reflection.MethodAttributes.Public |
                 System.Reflection.MethodAttributes.HideBySig |
                 System.Reflection.MethodAttributes.Virtual;
 
-            var setBuilder = m_structureBuilder.DefineMethod("set_" + fieldName, methodAttributes, null, new[] { fieldType });
+            var setBuilder = m_structureBuilder.DefineMethod("set_" + field.Name, methodAttributes, null, new[] { fieldType });
             var setIl = setBuilder.GetILGenerator();
             setIl.Emit(OpCodes.Ldarg_0);
             setIl.Emit(OpCodes.Ldarg_1);
             setIl.Emit(OpCodes.Stfld, fieldBuilder);
             setIl.Emit(OpCodes.Ret);
 
-            var getBuilder = m_structureBuilder.DefineMethod("get_" + fieldName, methodAttributes, fieldType, Type.EmptyTypes);
+            var getBuilder = m_structureBuilder.DefineMethod("get_" + field.Name, methodAttributes, fieldType, Type.EmptyTypes);
             var getIl = getBuilder.GetILGenerator();
             getIl.Emit(OpCodes.Ldarg_0);
             getIl.Emit(OpCodes.Ldfld, fieldBuilder);
@@ -198,8 +233,10 @@ namespace Opc.Ua.Client.ComplexTypes
 
             propertyBuilder.SetGetMethod(getBuilder);
             propertyBuilder.SetSetMethod(setBuilder);
-            propertyBuilder.DataMemberAttribute(fieldName, false, order);
+            propertyBuilder.DataMemberAttribute(field.Name, false, order);
+            propertyBuilder.StructureFieldAttribute(field);
         }
+
 
         public Type CreateType()
         {

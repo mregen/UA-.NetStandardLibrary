@@ -56,9 +56,12 @@ namespace Opc.Ua.Client.ComplexTypes
             typeBuilder.SetCustomAttribute(attribute);
         }
 
-        public static void StructureDefinitonAttribute(this TypeBuilder typeBuilder, StructureDefinition structureDefinition)
+        public static void StructureDefinitonAttribute(
+            this TypeBuilder typeBuilder, 
+            StructureDefinition structureDefinition)
         {
             var attributeType = typeof(StructureDefinitionAttribute);
+            var baseDataType = StructureDefinitionAttribute.FromBaseType(structureDefinition.BaseDataType);
             ConstructorInfo ctorInfo = attributeType.GetConstructor(Type.EmptyTypes);
             CustomAttributeBuilder builder = new CustomAttributeBuilder(
                 ctorInfo,
@@ -72,13 +75,15 @@ namespace Opc.Ua.Client.ComplexTypes
                 new object[]    // values to assign
                 {
                     structureDefinition.DefaultEncodingId.ToString(),
-                    structureDefinition.BaseDataType.ToString(),
+                    baseDataType,
                     structureDefinition.StructureType
                 });
             typeBuilder.SetCustomAttribute(builder);
         }
 
-        public static void StructureFieldAttribute(this PropertyBuilder typeBuilder, StructureDefinition structureDefinition)
+        public static void StructureFieldAttribute(
+            this PropertyBuilder typeBuilder, 
+            StructureField structureField)
         {
             var attributeType = typeof(StructureFieldAttribute);
             ConstructorInfo ctorInfo = attributeType.GetConstructor(Type.EmptyTypes);
@@ -87,15 +92,15 @@ namespace Opc.Ua.Client.ComplexTypes
                 new object[0],  // constructor arguments
                 new[]           // properties to assign
                 {
-                    attributeType.GetProperty("DefaultEncodingId"),
-                    attributeType.GetProperty("BaseDataType"),
-                    attributeType.GetProperty("StructureType")
+                    attributeType.GetProperty("ValueRank"),
+                    attributeType.GetProperty("MaxStringLength"),
+                    attributeType.GetProperty("IsOptional")
                 },
                 new object[]    // values to assign
                 {
-                    structureDefinition.DefaultEncodingId.ToString(),
-                    structureDefinition.BaseDataType.ToString(),
-                    structureDefinition.StructureType
+                    structureField.ValueRank,
+                    structureField.MaxStringLength,
+                    structureField.IsOptional
                 });
             typeBuilder.SetCustomAttribute(builder);
         }

@@ -32,6 +32,13 @@ using System;
 
 namespace Opc.Ua.Client.ComplexTypes
 {
+    public enum StructureBaseDataType
+    {
+        Structure,
+        OptionSet,
+        Union
+    }
+
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public class StructureDefinitionAttribute : Attribute
     {
@@ -41,10 +48,23 @@ namespace Opc.Ua.Client.ComplexTypes
             StructureType = StructureType.Structure;
         }
         #endregion
-
+        #region Public Methods
+        public static StructureBaseDataType FromBaseType(NodeId baseTypeId)
+        {
+            if (baseTypeId == DataTypeIds.Union)
+            {
+                return StructureBaseDataType.Union;
+            }
+            if (baseTypeId == DataTypeIds.OptionSet)
+            {
+                return StructureBaseDataType.OptionSet;
+            }
+            return StructureBaseDataType.Structure;
+        }
+        #endregion
         #region  Public Properties
         public string DefaultEncodingId { get; set; }
-        public string BaseDataType { get; set; }
+        public StructureBaseDataType BaseDataType { get; set; }
         public StructureType StructureType { get; set; }
         #endregion
     }
