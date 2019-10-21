@@ -31,7 +31,6 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.Serialization;
 
 namespace Opc.Ua.Client.ComplexTypes
 {
@@ -73,6 +72,64 @@ namespace Opc.Ua.Client.ComplexTypes
             {
                 var newEnum = enumBuilder.DefineLiteral(enumValue.Name, enumValue.Value);
                 newEnum.EnumAttribute(enumValue.Name, enumValue.Value);
+            }
+            return enumBuilder.CreateTypeInfo();
+        }
+
+        public Type AddEnumType(string typeName, ExtensionObject typeDefinition)
+        {
+            var enumDefinition = typeDefinition.Body as EnumDefinition;
+            if (enumDefinition == null)
+            {
+                throw new ArgumentNullException(nameof(typeDefinition));
+            }
+
+            var enumBuilder = m_moduleBuilder.DefineEnum(typeName, TypeAttributes.Public, typeof(int));
+            enumBuilder.DataContractAttribute(m_targetNamespace);
+            foreach (var enumValue in enumDefinition.Fields)
+            {
+                var newEnum = enumBuilder.DefineLiteral(enumValue.Name, (int)enumValue.Value);
+                newEnum.EnumAttribute(enumValue.Name, (int)enumValue.Value);
+            }
+            return enumBuilder.CreateTypeInfo();
+        }
+
+        public Type AddEnumType(string typeName, ExtensionObject[] enumDefinition)
+        {
+            if (enumDefinition == null)
+            {
+                throw new ArgumentNullException(nameof(enumDefinition));
+            }
+
+            var enumBuilder = m_moduleBuilder.DefineEnum(typeName, TypeAttributes.Public, typeof(int));
+            enumBuilder.DataContractAttribute(m_targetNamespace);
+            foreach (var extensionObject in enumDefinition)
+            {
+                var enumValue = extensionObject.Body as EnumValueType;
+                var name = enumValue.DisplayName.Text;
+                var newEnum = enumBuilder.DefineLiteral(name, (int)enumValue.Value);
+                newEnum.EnumAttribute(name, (int)enumValue.Value);
+            }
+            return enumBuilder.CreateTypeInfo();
+        }
+
+        public Type AddEnumType(string typeName, LocalizedText[] enumDefinition)
+        {
+            if (enumDefinition == null)
+            {
+                throw new ArgumentNullException(nameof(enumDefinition));
+            }
+
+            var enumBuilder = m_moduleBuilder.DefineEnum(typeName, TypeAttributes.Public, typeof(int));
+            enumBuilder.DataContractAttribute(m_targetNamespace);
+            int value = 1;
+            // TODO: do we need a 0 value here?
+            foreach (var enumValue in enumDefinition)
+            {
+                var name = enumValue.Text;
+                var newEnum = enumBuilder.DefineLiteral(name, value);
+                newEnum.EnumAttribute(name, value);
+                value++;
             }
             return enumBuilder.CreateTypeInfo();
         }

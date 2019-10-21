@@ -78,6 +78,8 @@ namespace Opc.Ua.Client.ComplexTypes
         public async Task Load()
         {
             var enumerationTypes = LoadDataTypes(DataTypeIds.Enumeration);
+
+#if TEST
             var structuredTypes = LoadDataTypes(DataTypeIds.Structure);
             structuredTypes.AddRange(enumerationTypes);
             foreach (var structure in structuredTypes)
@@ -88,6 +90,7 @@ namespace Opc.Ua.Client.ComplexTypes
                     Console.WriteLine($"{structure}-{result?.DataTypeDefinition}");
                 }
             }
+#endif
 
             // load binary type system
             var typeSystem = await m_session.LoadDataTypeSystem();
@@ -143,6 +146,52 @@ namespace Opc.Ua.Client.ComplexTypes
 
                 var complexTypeBuilder = new ComplexTypeBuilder(dictionary.TypeDictionary.TargetNamespace);
 
+                foreach (var enumType in enumerationTypes.Where(e => e.NodeId.NamespaceUri == dictionary.TypeDictionary.TargetNamespace))
+                {
+                    var nodeId = ExpandedNodeId.ToNodeId(enumType.NodeId, m_session.NamespaceUris);
+                    var dataType = (DataTypeNode)m_session.ReadNode(nodeId);
+                    if (dataType != null)
+                    {
+                        Type newType = null;
+                        if (dataType.DataTypeDefinition != null)
+                        {
+                            // add enum type to module
+                            newType = complexTypeBuilder.AddEnumType(enumType.BrowseName.Name, dataType.DataTypeDefinition);
+                        }
+                        else
+                        {
+                            // try dictionary enum definition
+                            var enumeratedObject = enumList.Where(e => e.Name == enumType.BrowseName.Name).FirstOrDefault() as Opc.Ua.Schema.Binary.EnumeratedType;
+                            if (enumeratedObject != null)
+                            {
+                                newType = complexTypeBuilder.AddEnumType(enumeratedObject);
+                            }
+                            else
+                            {
+                                // browse for EnumFields or EnumStrings property
+                                var property = BrowseForProperty(nodeId);
+                                var enumArray = m_session.ReadValue(
+                                    ExpandedNodeId.ToNodeId(property.NodeId,
+                                    m_session.NamespaceUris));
+                                if (enumArray.Value is ExtensionObject[])
+                                {
+                                    newType = complexTypeBuilder.AddEnumType(enumType.BrowseName.Name, (ExtensionObject[])enumArray.Value);
+                                }
+                                else if (enumArray.Value is LocalizedText[])
+                                {
+                                    newType = complexTypeBuilder.AddEnumType(enumType.BrowseName.Name, (LocalizedText[])enumArray.Value);
+                                }
+                            }
+                        }
+                        if (newType != null)
+                        {
+                            // match namespace and add to type factory
+                            m_session.Factory.AddEncodeableType(enumType.NodeId, newType);
+                        }
+                    }
+                }
+
+#if Build_Enum_Types_from_Dictionary
                 // build enums
                 foreach (var item in enumList)
                 {
@@ -165,6 +214,7 @@ namespace Opc.Ua.Client.ComplexTypes
                         }
                     }
                 }
+#endif
 
                 // build classes
                 foreach (var item in structureList)
@@ -340,6 +390,35 @@ namespace Opc.Ua.Client.ComplexTypes
 
             return false;
         }
+
+        /// <summary>
+        /// Browse for the property.
+        /// </summary>
+        /// <remarks>
+        /// Browse for property (type description) of an enum datatype.
+        /// </remarks>
+        /// <param name="nodeId"></param>
+        /// <returns></returns>
+        private ReferenceDescription BrowseForProperty(
+            NodeId nodeId)
+        {
+            Browser browser = new Browser(m_session);
+
+            browser.BrowseDirection = BrowseDirection.Forward;
+            browser.ReferenceTypeId = ReferenceTypeIds.HasProperty;
+            browser.IncludeSubtypes = false;
+            browser.NodeClassMask = (int)NodeClass.Variable;
+
+            var references = browser.Browse(nodeId);
+
+            if (references.Count == 1)
+            {
+                return references[0];
+            }
+
+            return null;
+        }
+
 
         private ExtensionObject ReadDataTypeDefinition(NodeId nodeId)
         {
