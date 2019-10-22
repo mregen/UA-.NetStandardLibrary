@@ -29,6 +29,7 @@
 
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -241,7 +242,7 @@ namespace Opc.Ua.Client.ComplexTypes
                         }
                     }
 
-                    DecodeProperty(decoder, property);
+                    DecodeProperty(decoder, property, fieldAttribute.ValueRank);
                 }
             }
             else if (attribute.StructureType == StructureType.Union)
@@ -251,13 +252,17 @@ namespace Opc.Ua.Client.ComplexTypes
                 {
                     foreach (var property in properties)
                     {
-                        if (property.CustomAttributes.Count() == 0)
+                        var fieldAttribute = (StructureFieldAttribute)
+                            property.GetCustomAttribute(typeof(StructureFieldAttribute));
+
+                        if (fieldAttribute == null)
                         {
                             continue;
                         }
+
                         if (--unionSelector == 0)
                         {
-                            DecodeProperty(decoder, property);
+                            DecodeProperty(decoder, property, fieldAttribute.ValueRank);
                             break;
                         }
                     }
@@ -267,11 +272,15 @@ namespace Opc.Ua.Client.ComplexTypes
             {
                 foreach (var property in properties)
                 {
-                    if (property.CustomAttributes.Count() == 0)
+                    var fieldAttribute = (StructureFieldAttribute)
+                        property.GetCustomAttribute(typeof(StructureFieldAttribute));
+
+                    if (fieldAttribute == null)
                     {
                         continue;
                     }
-                    DecodeProperty(decoder, property);
+
+                    DecodeProperty(decoder, property, fieldAttribute.ValueRank);
                 }
             }
             decoder.PopNamespace();
@@ -332,233 +341,368 @@ namespace Opc.Ua.Client.ComplexTypes
         #region Private Members
         private void EncodeProperty(IEncoder encoder, PropertyInfo property)
         {
-            if (property.PropertyType == typeof(Boolean))
+            var propertyType = property.PropertyType;
+            if (propertyType == typeof(Boolean))
             {
                 encoder.WriteBoolean(property.Name, (Boolean)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(SByte))
+            else if (propertyType == typeof(SByte))
             {
                 encoder.WriteSByte(property.Name, (SByte)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(Byte))
+            else if (propertyType == typeof(Byte))
             {
                 encoder.WriteByte(property.Name, (Byte)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(Int16))
+            else if (propertyType == typeof(Int16))
             {
                 encoder.WriteInt16(property.Name, (Int16)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(UInt16))
+            else if (propertyType == typeof(UInt16))
             {
                 encoder.WriteUInt16(property.Name, (UInt16)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(Int32))
+            else if (propertyType == typeof(Int32))
             {
                 encoder.WriteInt32(property.Name, (Int32)property.GetValue(this));
             }
-            else if (property.PropertyType.IsEnum)
+            else if (propertyType.IsEnum)
             {
                 encoder.WriteEnumerated(property.Name, (Enum)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(UInt32))
+            else if (propertyType == typeof(UInt32))
             {
                 encoder.WriteUInt32(property.Name, (UInt32)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(Int64))
+            else if (propertyType == typeof(Int64))
             {
                 encoder.WriteInt64(property.Name, (Int64)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(UInt64))
+            else if (propertyType == typeof(UInt64))
             {
                 encoder.WriteUInt64(property.Name, (UInt64)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(Single))
+            else if (propertyType == typeof(Single))
             {
                 encoder.WriteFloat(property.Name, (Single)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(Double))
+            else if (propertyType == typeof(Double))
             {
                 encoder.WriteDouble(property.Name, (Double)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(String))
+            else if (propertyType == typeof(String))
             {
                 encoder.WriteString(property.Name, (String)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(DateTime))
+            else if (propertyType == typeof(DateTime))
             {
                 encoder.WriteDateTime(property.Name, (DateTime)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(Uuid))
+            else if (propertyType == typeof(Uuid))
             {
                 encoder.WriteGuid(property.Name, (Uuid)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(Byte[]))
+            else if (propertyType == typeof(Byte[]))
             {
                 encoder.WriteByteArray(property.Name, (Byte[])property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(XmlElement))
+            else if (propertyType == typeof(XmlElement))
             {
                 encoder.WriteXmlElement(property.Name, (XmlElement)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(NodeId))
+            else if (propertyType == typeof(NodeId))
             {
                 encoder.WriteNodeId(property.Name, (NodeId)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(ExpandedNodeId))
+            else if (propertyType == typeof(ExpandedNodeId))
             {
                 encoder.WriteExpandedNodeId(property.Name, (ExpandedNodeId)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(StatusCode))
+            else if (propertyType == typeof(StatusCode))
             {
                 encoder.WriteStatusCode(property.Name, (StatusCode)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(DiagnosticInfo))
+            else if (propertyType == typeof(DiagnosticInfo))
             {
                 encoder.WriteDiagnosticInfo(property.Name, (DiagnosticInfo)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(QualifiedName))
+            else if (propertyType == typeof(QualifiedName))
             {
                 encoder.WriteQualifiedName(property.Name, (QualifiedName)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(LocalizedText))
+            else if (propertyType == typeof(LocalizedText))
             {
                 encoder.WriteLocalizedText(property.Name, (LocalizedText)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(DataValue))
+            else if (propertyType == typeof(DataValue))
             {
                 encoder.WriteDataValue(property.Name, (DataValue)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(Variant))
+            else if (propertyType == typeof(Variant))
             {
                 encoder.WriteVariant(property.Name, (Variant)property.GetValue(this));
             }
-            else if (property.PropertyType == typeof(ExtensionObject))
+            else if (propertyType == typeof(ExtensionObject))
             {
                 encoder.WriteExtensionObject(property.Name, (ExtensionObject)property.GetValue(this));
             }
-            else if (typeof(IEncodeable).IsAssignableFrom(property.PropertyType))
+            else if (typeof(IEncodeable).IsAssignableFrom(propertyType))
             {
-                encoder.WriteEncodeable(property.Name, (IEncodeable)property.GetValue(this), property.PropertyType);
+                encoder.WriteEncodeable(property.Name, (IEncodeable)property.GetValue(this), propertyType);
             }
             else
             {
-                throw new NotImplementedException($"Unknown type {property.PropertyType} to encode.");
+                throw new NotImplementedException($"Unknown type {propertyType} to encode.");
+            }
+        }
+
+        private void DecodeProperty(IDecoder decoder, PropertyInfo property, int valueRank)
+        {
+            if (valueRank < 0)
+            {
+                DecodeProperty(decoder, property);
+            }
+            else
+            {
+                DecodePropertyArray(decoder, property);
             }
         }
 
         private void DecodeProperty(IDecoder decoder, PropertyInfo property)
         {
-            if (property.PropertyType == typeof(Boolean))
+            var propertyType = property.PropertyType;
+            if (propertyType == typeof(Boolean))
             {
                 property.SetValue(this, decoder.ReadBoolean(property.Name));
             }
-            else if (property.PropertyType == typeof(SByte))
+            else if (propertyType == typeof(SByte))
             {
                 property.SetValue(this, decoder.ReadSByte(property.Name));
             }
-            else if (property.PropertyType == typeof(Byte))
+            else if (propertyType == typeof(Byte))
             {
                 property.SetValue(this, decoder.ReadByte(property.Name));
             }
-            else if (property.PropertyType == typeof(Int16))
+            else if (propertyType == typeof(Int16))
             {
                 property.SetValue(this, decoder.ReadInt16(property.Name));
             }
-            else if (property.PropertyType == typeof(UInt16))
+            else if (propertyType == typeof(UInt16))
             {
                 property.SetValue(this, decoder.ReadUInt16(property.Name));
             }
-            else if (property.PropertyType == typeof(Int32))
+            else if (propertyType.IsEnum)
+            {
+                property.SetValue(this, decoder.ReadEnumerated(property.Name, propertyType));
+            }
+            else if (propertyType == typeof(Int32))
             {
                 property.SetValue(this, decoder.ReadInt32(property.Name));
             }
-            else if (property.PropertyType.IsEnum)
-            {
-                property.SetValue(this, decoder.ReadEnumerated(property.Name, property.PropertyType));
-            }
-            else if (property.PropertyType == typeof(UInt32))
+            else if (propertyType == typeof(UInt32))
             {
                 property.SetValue(this, decoder.ReadUInt32(property.Name));
             }
-            else if (property.PropertyType == typeof(Int64))
+            else if (propertyType == typeof(Int64))
             {
                 property.SetValue(this, decoder.ReadInt64(property.Name));
             }
-            else if (property.PropertyType == typeof(UInt64))
+            else if (propertyType == typeof(UInt64))
             {
                 property.SetValue(this, decoder.ReadUInt64(property.Name));
             }
-            else if (property.PropertyType == typeof(Single))
+            else if (propertyType == typeof(Single))
             {
                 property.SetValue(this, decoder.ReadFloat(property.Name));
             }
-            else if (property.PropertyType == typeof(Double))
+            else if (propertyType == typeof(Double))
             {
                 property.SetValue(this, decoder.ReadDouble(property.Name));
             }
-            else if (property.PropertyType == typeof(String))
+            else if (propertyType == typeof(String))
             {
                 property.SetValue(this, decoder.ReadString(property.Name));
             }
-            else if (property.PropertyType == typeof(DateTime))
+            else if (propertyType == typeof(DateTime))
             {
                 property.SetValue(this, decoder.ReadDateTime(property.Name));
             }
-            else if (property.PropertyType == typeof(Uuid))
+            else if (propertyType == typeof(Uuid))
             {
                 property.SetValue(this, decoder.ReadGuid(property.Name));
             }
-            else if (property.PropertyType == typeof(Byte[]))
+            else if (propertyType == typeof(Byte[]))
             {
                 property.SetValue(this, decoder.ReadByteArray(property.Name));
             }
-            else if (property.PropertyType == typeof(XmlElement))
+            else if (propertyType == typeof(XmlElement))
             {
                 property.SetValue(this, decoder.ReadXmlElement(property.Name));
             }
-            else if (property.PropertyType == typeof(NodeId))
+            else if (propertyType == typeof(NodeId))
             {
                 property.SetValue(this, decoder.ReadNodeId(property.Name));
             }
-            else if (property.PropertyType == typeof(ExpandedNodeId))
+            else if (propertyType == typeof(ExpandedNodeId))
             {
                 property.SetValue(this, decoder.ReadExpandedNodeId(property.Name));
             }
-            else if (property.PropertyType == typeof(StatusCode))
+            else if (propertyType == typeof(StatusCode))
             {
                 property.SetValue(this, decoder.ReadStatusCode(property.Name));
             }
-            else if (property.PropertyType == typeof(DiagnosticInfo))
+            else if (propertyType == typeof(DiagnosticInfo))
             {
                 property.SetValue(this, decoder.ReadDiagnosticInfo(property.Name));
             }
-            else if (property.PropertyType == typeof(QualifiedName))
+            else if (propertyType == typeof(QualifiedName))
             {
                 property.SetValue(this, decoder.ReadQualifiedName(property.Name));
             }
-            else if (property.PropertyType == typeof(LocalizedText))
+            else if (propertyType == typeof(LocalizedText))
             {
                 property.SetValue(this, decoder.ReadLocalizedText(property.Name));
             }
-            else if (property.PropertyType == typeof(DataValue))
+            else if (propertyType == typeof(DataValue))
             {
                 property.SetValue(this, decoder.ReadDataValue(property.Name));
             }
-            else if (property.PropertyType == typeof(Variant))
+            else if (propertyType == typeof(Variant))
             {
                 property.SetValue(this, decoder.ReadVariant(property.Name));
             }
-            else if (property.PropertyType == typeof(ExtensionObject))
+            else if (propertyType == typeof(ExtensionObject))
             {
                 property.SetValue(this, decoder.ReadExtensionObject(property.Name));
             }
-            else if (typeof(IEncodeable).IsAssignableFrom(property.PropertyType))
+            else if (typeof(IEncodeable).IsAssignableFrom(propertyType))
             {
-                property.SetValue(this, decoder.ReadEncodeable(property.Name, property.PropertyType));
+                property.SetValue(this, decoder.ReadEncodeable(property.Name, propertyType));
             }
             else
             {
-                throw new NotImplementedException($"Unknown type {property.PropertyType} to decode.");
+                throw new NotImplementedException($"Unknown type {propertyType} to decode.");
+            }
+        }
+
+        private void DecodePropertyArray(IDecoder decoder, PropertyInfo property)
+        {
+            var elementType = property.PropertyType.GetElementType();
+            if (elementType == null)
+            {
+                elementType = property.PropertyType.GetItemType();
+            }
+            if (elementType == typeof(Boolean))
+            {
+                property.SetValue(this, decoder.ReadBooleanArray(property.Name));
+            }
+            else if (elementType == typeof(SByte))
+            {
+                property.SetValue(this, decoder.ReadSByteArray(property.Name));
+            }
+            else if (elementType == typeof(Byte))
+            {
+                property.SetValue(this, decoder.ReadByteArray(property.Name));
+            }
+            else if (elementType == typeof(Int16))
+            {
+                property.SetValue(this, decoder.ReadInt16Array(property.Name));
+            }
+            else if (elementType == typeof(UInt16))
+            {
+                property.SetValue(this, decoder.ReadUInt16Array(property.Name));
+            }
+            else if (elementType.IsEnum)
+            {
+                property.SetValue(this, decoder.ReadEnumeratedArray(property.Name, elementType));
+            }
+            else if (elementType == typeof(Int32))
+            {
+                property.SetValue(this, decoder.ReadInt32Array(property.Name));
+            }
+            else if (elementType == typeof(UInt32))
+            {
+                property.SetValue(this, decoder.ReadUInt32Array(property.Name));
+            }
+            else if (elementType == typeof(Int64))
+            {
+                property.SetValue(this, decoder.ReadInt64Array(property.Name));
+            }
+            else if (elementType == typeof(UInt64))
+            {
+                property.SetValue(this, decoder.ReadUInt64Array(property.Name));
+            }
+            else if (elementType == typeof(Single))
+            {
+                property.SetValue(this, decoder.ReadFloatArray(property.Name));
+            }
+            else if (elementType == typeof(Double))
+            {
+                property.SetValue(this, decoder.ReadDoubleArray(property.Name));
+            }
+            else if (elementType == typeof(String))
+            {
+                property.SetValue(this, decoder.ReadStringArray(property.Name));
+            }
+            else if (elementType == typeof(DateTime))
+            {
+                property.SetValue(this, decoder.ReadDateTimeArray(property.Name));
+            }
+            else if (elementType == typeof(Uuid))
+            {
+                property.SetValue(this, decoder.ReadGuidArray(property.Name));
+            }
+            else if (elementType == typeof(Byte[]))
+            {
+                property.SetValue(this, decoder.ReadByteStringArray(property.Name));
+            }
+            else if (elementType == typeof(XmlElement))
+            {
+                property.SetValue(this, decoder.ReadXmlElementArray(property.Name));
+            }
+            else if (elementType == typeof(NodeId))
+            {
+                property.SetValue(this, decoder.ReadNodeIdArray(property.Name));
+            }
+            else if (elementType == typeof(ExpandedNodeId))
+            {
+                property.SetValue(this, decoder.ReadExpandedNodeIdArray(property.Name));
+            }
+            else if (elementType == typeof(StatusCode))
+            {
+                property.SetValue(this, decoder.ReadStatusCodeArray(property.Name));
+            }
+            else if (elementType == typeof(DiagnosticInfo))
+            {
+                property.SetValue(this, decoder.ReadDiagnosticInfoArray(property.Name));
+            }
+            else if (elementType == typeof(QualifiedName))
+            {
+                property.SetValue(this, decoder.ReadQualifiedNameArray(property.Name));
+            }
+            else if (elementType == typeof(LocalizedText))
+            {
+                property.SetValue(this, decoder.ReadLocalizedTextArray(property.Name));
+            }
+            else if (elementType == typeof(DataValue))
+            {
+                property.SetValue(this, decoder.ReadDataValueArray(property.Name));
+            }
+            else if (elementType == typeof(Variant))
+            {
+                property.SetValue(this, decoder.ReadVariantArray(property.Name));
+            }
+            else if (elementType == typeof(ExtensionObject))
+            {
+                property.SetValue(this, decoder.ReadExtensionObjectArray(property.Name));
+            }
+            else if (typeof(IEncodeable).IsAssignableFrom(elementType))
+            {
+                property.SetValue(this, decoder.ReadEncodeableArray(property.Name, elementType));
+            }
+            else
+            {
+                throw new NotImplementedException($"Unknown type {elementType} to decode as array.");
             }
         }
         #endregion

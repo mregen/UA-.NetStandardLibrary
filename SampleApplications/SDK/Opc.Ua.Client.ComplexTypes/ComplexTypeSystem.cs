@@ -246,13 +246,38 @@ namespace Opc.Ua.Client.ComplexTypes
                             foreach (var field in structureDefinition.Fields)
                             {
                                 Type fieldType;
+                                Type collectionType = null;
                                 if (field.DataType.NamespaceIndex == 0)
                                 {
                                     fieldType = Opc.Ua.TypeInfo.GetSystemType(field.DataType, m_session.Factory);
+                                    if (field.ValueRank >= 0)
+                                    {
+                                        var assemblyQualifiedName = typeof(StatusCode).Assembly;
+                                        String collectionClassName = "Opc.Ua." + fieldType.Name + "Collection, " + assemblyQualifiedName;
+                                        collectionType = Type.GetType(collectionClassName);
+                                    }
                                 }
                                 else
                                 {
                                     fieldType = m_session.Factory.GetSystemType(NodeId.ToExpandedNodeId(field.DataType, m_session.NamespaceUris));
+                                    if (field.ValueRank >= 0)
+                                    {
+                                        String collectionClassName = (fieldType.Namespace != null) ? fieldType.Namespace + "." : "";
+                                        collectionClassName += fieldType.Name + "Collection, " + fieldType.Assembly;
+                                        collectionType = Type.GetType(collectionClassName);
+                                    }
+                                }
+
+                                if (field.ValueRank >= 0)
+                                {
+                                    if (collectionType != null)
+                                    {
+                                        fieldType = collectionType;
+                                    }
+                                    else
+                                    {
+                                        fieldType = fieldType.MakeArrayType();
+                                    }
                                 }
 
                                 structureBuilder.AddField(field, fieldType, order);
