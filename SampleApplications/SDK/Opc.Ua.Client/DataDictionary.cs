@@ -148,19 +148,6 @@ namespace Opc.Ua.Client
         }
 
         /// <summary>
-        /// Returns the schema for the specified browseName (returns the entire dictionary if null).
-        /// </summary>
-        public string GetSchema(QualifiedName browseName)
-        {
-            if (browseName != null)
-            {
-                return m_validator.GetSchema(browseName.Name);
-            }
-
-            return m_validator.GetSchema(null);
-        }
-
-        /// <summary>
         /// Returns the schema for the specified type (returns the entire dictionary if null).
         /// </summary>
         public string GetSchema(NodeId descriptionId)
