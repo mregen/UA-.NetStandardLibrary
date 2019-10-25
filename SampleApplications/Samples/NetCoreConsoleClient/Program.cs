@@ -17,7 +17,6 @@ using Opc.Ua.Client.ComplexTypes;
 using Opc.Ua.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -167,70 +166,6 @@ namespace NetCoreConsoleClient
 
         public static ExitCode ExitCode => exitCode;
 
-        private static bool BrowseTypeIds(
-            Session session,
-            NodeId nodeId,
-            out ExpandedNodeId typeId,
-            out ExpandedNodeId encodingId)
-        {
-            typeId = ExpandedNodeId.Null;
-            encodingId = ExpandedNodeId.Null;
-
-            Browser browser = new Browser(session);
-
-            browser.BrowseDirection = BrowseDirection.Inverse;
-            browser.ReferenceTypeId = ReferenceTypeIds.HasDescription;
-            browser.IncludeSubtypes = false;
-            browser.NodeClassMask = (int)NodeClass.Object;
-
-            var references = browser.Browse(nodeId);
-
-            if (references.Count >= 1)
-            {
-                encodingId = references.First().NodeId;
-                var encodingNodeId = ExpandedNodeId.ToNodeId(encodingId, session.NamespaceUris);
-                encodingId = NodeId.ToExpandedNodeId(encodingNodeId, session.NamespaceUris);
-                browser.BrowseDirection = BrowseDirection.Inverse;
-                browser.ReferenceTypeId = ReferenceTypeIds.HasEncoding;
-                browser.IncludeSubtypes = false;
-                browser.NodeClassMask = (int)NodeClass.DataType;
-                references = browser.Browse(encodingNodeId);
-                if (references.Count >= 1)
-                {
-                    typeId = references.First().NodeId;
-                    var typeNodeId = ExpandedNodeId.ToNodeId(typeId, session.NamespaceUris);
-                    typeId = NodeId.ToExpandedNodeId(typeNodeId, session.NamespaceUris);
-
-                    var node = session.ReadNode(typeNodeId);
-                    var dataTypeNode = node as DataTypeNode;
-                    if (dataTypeNode != null &&
-                        dataTypeNode.DataTypeDefinition != null)
-                    {
-                        Console.WriteLine($"{dataTypeNode.DataTypeDefinition}");
-                        // not supported yet
-                        return false;
-                    }
-
-#if CHECKBROWSE
-                    browser.BrowseDirection = BrowseDirection.Forward;
-                    browser.ReferenceTypeId = ReferenceTypeIds.HasEncoding;
-                    browser.IncludeSubtypes = false;
-                    browser.NodeClassMask = 0;
-                    references = browser.Browse(typeNodeId);
-                    if (references.Count > 0)
-                    {
-                        foreach (var reference in references)
-                        {
-                        }
-                    }
-#endif
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         private async Task ConsoleSampleClient()
         {
             Console.WriteLine("1 - Create an Application Configuration.");
@@ -299,6 +234,10 @@ namespace NetCoreConsoleClient
                 out continuationPoint,
                 out references);
 
+            var complexTypeSystem = new ComplexTypeSystem(session);
+            await complexTypeSystem.Load();
+
+#if mist
             ReferenceDescriptionCollection dictList = new ReferenceDescriptionCollection();
             dictList.AddRange(references.Where(rd => rd.NodeId.NamespaceIndex != 0));
 
@@ -413,7 +352,7 @@ namespace NetCoreConsoleClient
                         ExpandedNodeId binaryEncodingId;
 
                         Console.WriteLine($"§§§§§§§ {nameof(item.Name)}: {item.Name} §§§§§§§");
-                        var structureBuilder = complexTypeBuilder.AddStructuredType(item.Name);
+                        var structureBuilder = complexTypeBuilder.AddStructuredType(structuredObject);
                         int order = 10;
                         bool unsupportedTypeInfo = false;
                         foreach (var field in structuredObject.Field)
@@ -487,12 +426,14 @@ namespace NetCoreConsoleClient
                             order += 10;
                         }
 
-                        bool newTypeDescription = BrowseTypeIds(session, ExpandedNodeId.ToNodeId(nodeId.NodeId, session.NamespaceUris),
+                        bool newTypeDescription = ComplexTypeSystem.BrowseTypeIdsForDictionaryComponent(
+                            session, 
+                            ExpandedNodeId.ToNodeId(nodeId.NodeId, session.NamespaceUris),
                             out typeId, out binaryEncodingId);
 
                         if (!newTypeDescription)
                         {
-                            Console.WriteLine($"--------- {item.Name}-Type id not found");
+                            Console.WriteLine($"--------- {item.Name}-Type id not found ------");
                         }
 
                         if (!missingTypeInfo && !unsupportedTypeInfo)
@@ -505,19 +446,95 @@ namespace NetCoreConsoleClient
                     }
                 }
             }
+#endif
+
+            var nodes = new List<Node>();
+            var values = new List<DataValue>();
+
+            // UA Ansi C++ server
+            var testId = new NodeId("Demo.Static.Scalar.Structures", 2);
+            if (TestNodeId(testId))
+            {
+                session.Browse(
+                    null,
+                    null,
+                    testId,
+                    0u,
+                    BrowseDirection.Forward,
+                    ReferenceTypeIds.HierarchicalReferences,
+                    true,
+                    (uint)NodeClass.Variable | (uint)NodeClass.Object | (uint)NodeClass.Method,
+                    out continuationPoint,
+                    out references);
+
+                foreach (var reference in references)
+                {
+                    var node = session.ReadNode(ExpandedNodeId.ToNodeId(reference.NodeId, session.NamespaceUris));
+                    nodes.Add(node);
+                    Console.WriteLine($"{node.BrowseName}");
+                    try
+                    {
+                        var nodeValue = session.ReadValue(ExpandedNodeId.ToNodeId(reference.NodeId, session.NamespaceUris));
+                        values.Add(nodeValue);
+                        Console.WriteLine($"{nodeValue.Value}");
+                    }
+                    catch { }
+                }
+
+                var vectorNodeId = new NodeId("Demo.Static.Arrays.Vector", 2);
+                var vectorNode = session.ReadNode(vectorNodeId);
+                var vectorValue = session.ReadValue(vectorNodeId);
+
+                var workOrderNodeId = new NodeId("Demo.Static.Arrays.WorkOrder", 2);
+                var workOrderNode = session.ReadNode(workOrderNodeId);
+                var workOrderValue = session.ReadValue(workOrderNodeId);
+
+                var workOrderVarNodeId = new NodeId("Demo.WorkOrder.WorkOrderVariable", 2);
+                var workOrderVarNode = session.ReadNode(workOrderVarNodeId);
+                var workOrderVarValue = session.ReadValue(workOrderVarNodeId);
+
+                var workOrderVarNodeId2 = new NodeId("Demo.WorkOrder.WorkOrderVariable2", 2);
+                var workOrderVarNode2 = session.ReadNode(workOrderVarNodeId2);
+                var workOrderVarValue2 = session.ReadValue(workOrderVarNodeId2);
+
+                nodes.Add(vectorNode);
+                nodes.Add(workOrderNode);
+                nodes.Add(workOrderVarNode);
+                nodes.Add(workOrderVarNode2);
+
+                values.Add(vectorValue);
+                values.Add(workOrderValue);
+                values.Add(workOrderVarValue);
+                values.Add(workOrderVarValue2);
+
+            }
 
             // UA Ansi C server
             if (TestNodeId(new NodeId("Demo.WorkOrder.WorkOrderVariable2.StatusComments", 4)))
             {
                 // WorkOrderStatusType
-                var statusNodeId = new NodeId("Demo.WorkOrder.WorkOrderVariable2.StatusComments", 4);
-                var statusCommentNodeId = session.ReadNode(statusNodeId);
-                var statusComment = session.ReadValue(statusNodeId);
+                var workOrderNodeId = new NodeId("Demo.WorkOrder.WorkOrderVariable2.StatusComments", 4);
+                var statusCommentNodeId = session.ReadNode(workOrderNodeId);
+                var statusComment = session.ReadValue(workOrderNodeId);
+
+                //workOrderNodeId = new NodeId("Demo.WorkOrder.WorkOrderVariable", 4);
+                //var workOrder = session.ReadNode(workOrderNodeId);
+                //var workOrderValue = session.ReadValue(workOrderNodeId);
 
                 // Vector
                 var nodeId = new NodeId("Demo.Static.Scalar.Vector", 4);
                 var vector = session.ReadNode(nodeId);
                 var vectorValue = session.ReadValue(nodeId);
+
+                // Work Order
+                nodeId = new NodeId("Demo.Static.Scalar.WorkOrder", 4);
+                var workOrder = session.ReadNode(nodeId);
+                var workOrderValue = session.ReadValue(nodeId);
+
+                // Union
+                nodeId = new NodeId("Demo.Static.Scalar.Union", 4);
+                var union = session.ReadNode(nodeId);
+                var unionValue = session.ReadValue(nodeId);
 
                 nodeId = new NodeId("Demo.Static.Arrays.Vector", 4);
                 var vectorArray = session.ReadNode(nodeId);
@@ -526,6 +543,18 @@ namespace NetCoreConsoleClient
                 nodeId = new NodeId("Demo.Static.Matrix.Vector", 4);
                 var vectorMatrix = session.ReadNode(nodeId);
                 var vectorMatrixValue = session.ReadValue(nodeId);
+
+                nodeId = new NodeId("Demo.Static.Scalar.OptionalFields", 4);
+                var optionalFields = session.ReadNode(nodeId);
+                var optionalFieldsValue = session.ReadValue(nodeId);
+
+                nodeId = new NodeId("Demo.Static.Scalar.Priority", 4);
+                var priority = session.ReadNode(nodeId);
+                var priorityValue = session.ReadValue(nodeId);
+
+                nodeId = new NodeId("Demo.BoilerDemo.Boiler1.HeaterStatus", 4);
+                var heater = session.ReadNode(nodeId);
+                var heaterValue = session.ReadValue(nodeId);
 
                 // AccessRights
                 nodeId = new NodeId("Demo.Static.Scalar.OptionSet", 4);
@@ -558,9 +587,19 @@ namespace NetCoreConsoleClient
                 Console.WriteLine(vehiclesInLot);
             }
 
+            var jsonEncoder = new JsonEncoder(session.MessageContext, true);
+
+            int v = 1;
+            foreach (var value in values)
+            {
+                jsonEncoder.WriteDataValue($"Value{v++}", value);
+            }
+            var textbuffer = jsonEncoder.CloseAndReturnText();
+
+            Console.WriteLine(textbuffer);
+
             Console.WriteLine("4 - Browse the OPC UA server namespace.");
             exitCode = ExitCode.ErrorBrowseNamespace;
-
 
             session.Browse(
                 null,
