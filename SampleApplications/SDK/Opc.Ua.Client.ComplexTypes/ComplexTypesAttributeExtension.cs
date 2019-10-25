@@ -43,10 +43,12 @@ namespace Opc.Ua.Client.ComplexTypes
         {
             return collectionType.GetMethod("get_Item").ReturnType;
         }
+
         public static Type GetEnumeratedType<T>(this IEnumerable<T> _)
         {
             return typeof(T);
         }
+
         public static void DataContractAttribute(this TypeBuilder builder, string Namespace)
         {
             var attribute = DataContractAttributeBuilder(Namespace);

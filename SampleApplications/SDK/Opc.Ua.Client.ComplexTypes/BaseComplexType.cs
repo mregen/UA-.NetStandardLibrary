@@ -29,7 +29,6 @@
 
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -161,7 +160,7 @@ namespace Opc.Ua.Client.ComplexTypes
                     {
                         if ((optionalFields & bitSelector) != 0)
                         {
-                            EncodeProperty(encoder, property);
+                            EncodeProperty(encoder, property, fieldAttribute.ValueRank);
                         }
                         bitSelector <<= 1;
                     }
@@ -170,16 +169,21 @@ namespace Opc.Ua.Client.ComplexTypes
             else if (attribute.StructureType == StructureType.Union)
             {
                 UInt32 unionSelector = 1;
+                int valueRank = -1;
                 PropertyInfo unionProperty = null;
                 foreach (var property in properties)
                 {
-                    if (property.CustomAttributes.Count() == 0)
+                    var fieldAttribute = (StructureFieldAttribute)
+                        property.GetCustomAttribute(typeof(StructureFieldAttribute));
+
+                    if (fieldAttribute == null)
                     {
                         continue;
                     }
 
                     if (property.GetValue(this) != null)
                     {
+                        valueRank = fieldAttribute.ValueRank;
                         unionProperty = property;
                         break;
                     }
@@ -200,11 +204,15 @@ namespace Opc.Ua.Client.ComplexTypes
             {
                 foreach (var property in properties)
                 {
-                    if (property.CustomAttributes.Count() == 0)
+                    var fieldAttribute = (StructureFieldAttribute)
+                        property.GetCustomAttribute(typeof(StructureFieldAttribute));
+
+                    if (fieldAttribute == null)
                     {
                         continue;
                     }
-                    EncodeProperty(encoder, property);
+
+                    EncodeProperty(encoder, property, fieldAttribute.ValueRank);
                 }
             }
             encoder.PopNamespace();
@@ -339,6 +347,18 @@ namespace Opc.Ua.Client.ComplexTypes
         #endregion
 
         #region Private Members
+        private void EncodeProperty(IEncoder encoder, PropertyInfo property, int valueRank)
+        {
+            if (valueRank < 0)
+            {
+                EncodeProperty(encoder, property);
+            }
+            else
+            {
+                EncodePropertyArray(encoder, property);
+            }
+        }
+
         private void EncodeProperty(IEncoder encoder, PropertyInfo property)
         {
             var propertyType = property.PropertyType;
@@ -456,6 +476,135 @@ namespace Opc.Ua.Client.ComplexTypes
             }
         }
 
+
+        private void EncodePropertyArray(IEncoder encoder, PropertyInfo property)
+        {
+            var elementType = property.PropertyType.GetElementType();
+            if (elementType == null)
+            {
+                elementType = property.PropertyType.GetItemType();
+            }
+            if (elementType == typeof(Boolean))
+            {
+                encoder.WriteBooleanArray(property.Name, (BooleanCollection)property.GetValue(this));
+            }
+            else if (elementType == typeof(SByte))
+            {
+                encoder.WriteSByteArray(property.Name, (SByteCollection)property.GetValue(this));
+            }
+            else if (elementType == typeof(Byte))
+            {
+                encoder.WriteByteArray(property.Name, (ByteCollection)property.GetValue(this));
+            }
+            else if (elementType == typeof(Int16))
+            {
+                encoder.WriteInt16Array(property.Name, (Int16Collection)property.GetValue(this));
+            }
+            else if (elementType == typeof(UInt16))
+            {
+                encoder.WriteUInt16Array(property.Name, (UInt16Collection)property.GetValue(this));
+            }
+            else if (elementType == typeof(Int32))
+            {
+                encoder.WriteInt32Array(property.Name, (Int32Collection)property.GetValue(this));
+            }
+            else if (elementType.IsEnum)
+            {
+                encoder.WriteEnumeratedArray(property.Name, (Array)property.GetValue(this), elementType);
+            }
+            else if (elementType == typeof(UInt32))
+            {
+                encoder.WriteUInt32Array(property.Name, (UInt32Collection)property.GetValue(this));
+            }
+            else if (elementType == typeof(Int64))
+            {
+                encoder.WriteInt64Array(property.Name, (Int64Collection)property.GetValue(this));
+            }
+            else if (elementType == typeof(UInt64))
+            {
+                encoder.WriteUInt64Array(property.Name, (UInt64Collection)property.GetValue(this));
+            }
+            else if (elementType == typeof(Single))
+            {
+                encoder.WriteFloatArray(property.Name, (FloatCollection)property.GetValue(this));
+            }
+            else if (elementType == typeof(Double))
+            {
+                encoder.WriteDoubleArray(property.Name, (DoubleCollection)property.GetValue(this));
+            }
+            else if (elementType == typeof(String))
+            {
+                encoder.WriteStringArray(property.Name, (StringCollection)property.GetValue(this));
+            }
+            else if (elementType == typeof(DateTime))
+            {
+                encoder.WriteDateTimeArray(property.Name, (DateTimeCollection)property.GetValue(this));
+            }
+            else if (elementType == typeof(Uuid))
+            {
+                encoder.WriteGuidArray(property.Name, (UuidCollection)property.GetValue(this));
+            }
+            else if (elementType == typeof(Byte[]))
+            {
+                encoder.WriteByteStringArray(property.Name, (ByteStringCollection)property.GetValue(this));
+            }
+            else if (elementType == typeof(XmlElement))
+            {
+                encoder.WriteXmlElementArray(property.Name, (XmlElementCollection)property.GetValue(this));
+            }
+            else if (elementType == typeof(NodeId))
+            {
+                encoder.WriteNodeIdArray(property.Name, (NodeIdCollection)property.GetValue(this));
+            }
+            else if (elementType == typeof(ExpandedNodeId))
+            {
+                encoder.WriteExpandedNodeIdArray(property.Name, (ExpandedNodeIdCollection)property.GetValue(this));
+            }
+            else if (elementType == typeof(StatusCode))
+            {
+                encoder.WriteStatusCodeArray(property.Name, (StatusCodeCollection)property.GetValue(this));
+            }
+            else if (elementType == typeof(DiagnosticInfo))
+            {
+                encoder.WriteDiagnosticInfoArray(property.Name, (DiagnosticInfoCollection)property.GetValue(this));
+            }
+            else if (elementType == typeof(QualifiedName))
+            {
+                encoder.WriteQualifiedNameArray(property.Name, (QualifiedNameCollection)property.GetValue(this));
+            }
+            else if (elementType == typeof(LocalizedText))
+            {
+                encoder.WriteLocalizedTextArray(property.Name, (LocalizedTextCollection)property.GetValue(this));
+            }
+            else if (elementType == typeof(DataValue))
+            {
+                encoder.WriteDataValueArray(property.Name, (DataValueCollection)property.GetValue(this));
+            }
+            else if (elementType == typeof(Variant))
+            {
+                encoder.WriteVariantArray(property.Name, (VariantCollection)property.GetValue(this));
+            }
+            else if (elementType == typeof(ExtensionObject))
+            {
+                encoder.WriteExtensionObjectArray(property.Name, (ExtensionObjectCollection)property.GetValue(this));
+            }
+            else if (typeof(IEncodeable).IsAssignableFrom(elementType))
+            {
+                var value = property.GetValue(this);
+                IEncodeableCollection encodable = value as IEncodeableCollection;
+                if (encodable == null)
+                {
+                    encodable = IEncodeableCollection.ToIEncodeableCollection(value as IEncodeable[]);
+                }
+                encoder.WriteEncodeableArray(property.Name, encodable, property.PropertyType);
+            }
+            else
+            {
+                throw new NotImplementedException($"Unknown type {elementType} to encode.");
+            }
+        }
+
+
         private void DecodeProperty(IDecoder decoder, PropertyInfo property, int valueRank)
         {
             if (valueRank < 0)
@@ -491,13 +640,13 @@ namespace Opc.Ua.Client.ComplexTypes
             {
                 property.SetValue(this, decoder.ReadUInt16(property.Name));
             }
-            else if (propertyType.IsEnum)
-            {
-                property.SetValue(this, decoder.ReadEnumerated(property.Name, propertyType));
-            }
             else if (propertyType == typeof(Int32))
             {
                 property.SetValue(this, decoder.ReadInt32(property.Name));
+            }
+            else if (propertyType.IsEnum)
+            {
+                property.SetValue(this, decoder.ReadEnumerated(property.Name, propertyType));
             }
             else if (propertyType == typeof(UInt32))
             {
@@ -533,7 +682,7 @@ namespace Opc.Ua.Client.ComplexTypes
             }
             else if (propertyType == typeof(Byte[]))
             {
-                property.SetValue(this, decoder.ReadByteArray(property.Name));
+                property.SetValue(this, decoder.ReadByteString(property.Name));
             }
             else if (propertyType == typeof(XmlElement))
             {

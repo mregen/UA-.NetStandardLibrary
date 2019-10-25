@@ -61,14 +61,14 @@ namespace Opc.Ua.Client.ComplexTypes
         /// <summary>
         /// Load all custom types from a dictionary.
         /// </summary>
-        public void LoadDictionary(NodeId nodeId)
+        public void LoadTypeDictionary(NodeId nodeId)
         {
         }
 
         /// <summary>
         /// Load all custom types of a namespace.
         /// </summary>
-        public void LoadDictionary(string nameSpace)
+        public void LoadTypeDictionary(string nameSpace)
         {
         }
 
@@ -77,7 +77,15 @@ namespace Opc.Ua.Client.ComplexTypes
         /// </summary>
         public async Task Load()
         {
+            m_session.NodeCache.LoadUaDefinedTypes(m_session.SystemContext);
+
             var enumerationTypes = LoadDataTypes(DataTypeIds.Enumeration);
+            //var optionSetTypes = LoadDataTypes(DataTypeIds.OptionSet);
+            var structuredTypes = LoadDataTypes(DataTypeIds.Structure, true);
+            var allTypes = new ReferenceDescriptionCollection();
+            allTypes.AddRange(enumerationTypes);
+            //allTypes.AddRange(optionSetTypes);
+            allTypes.AddRange(structuredTypes);
 
 #if TEST
             var structuredTypes = LoadDataTypes(DataTypeIds.Structure);
@@ -234,6 +242,11 @@ namespace Opc.Ua.Client.ComplexTypes
                             out dataTypeNode);
 
                         var structureDefinition = dataTypeNode.DataTypeDefinition?.Body as StructureDefinition;
+                        if (structureDefinition == null)
+                        {
+                            structureDefinition = structuredObject.ToStructureDefinition(allTypes, m_session.NamespaceUris);
+                        }
+
                         if (structureDefinition != null)
                         {
                             // use type definition (>= V1.04)
@@ -252,9 +265,16 @@ namespace Opc.Ua.Client.ComplexTypes
                                     fieldType = Opc.Ua.TypeInfo.GetSystemType(field.DataType, m_session.Factory);
                                     if (field.ValueRank >= 0)
                                     {
-                                        var assemblyQualifiedName = typeof(StatusCode).Assembly;
-                                        String collectionClassName = "Opc.Ua." + fieldType.Name + "Collection, " + assemblyQualifiedName;
-                                        collectionType = Type.GetType(collectionClassName);
+                                        if (fieldType == typeof(Byte[]))
+                                        {
+                                            collectionType = typeof(ByteStringCollection);
+                                        }
+                                        else
+                                        {
+                                            var assemblyQualifiedName = typeof(StatusCode).Assembly;
+                                            String collectionClassName = "Opc.Ua." + fieldType.Name + "Collection, " + assemblyQualifiedName;
+                                            collectionType = Type.GetType(collectionClassName);
+                                        }
                                     }
                                 }
                                 else
@@ -297,6 +317,7 @@ namespace Opc.Ua.Client.ComplexTypes
 
                             int order = 10;
                             bool unsupportedTypeInfo = false;
+                            //var bitFields = new Dictionary<>
                             foreach (var field in structuredObject.Field)
                             {
                                 // check for yet unsupported properties
@@ -330,12 +351,11 @@ namespace Opc.Ua.Client.ComplexTypes
                                     }
                                     var internalField = typeof(DataTypeIds).GetField(field.TypeName.Name);
                                     var internalNodeId = (NodeId)internalField.GetValue(field.TypeName.Name);
-                                    //var builtInType = Opc.Ua.TypeInfo.GetBuiltInType(internalNodeId);
                                     fieldType = Opc.Ua.TypeInfo.GetSystemType(internalNodeId, m_session.Factory);
                                 }
                                 else
                                 {
-                                    var referenceId = enumerationTypes.Where(t =>
+                                    var referenceId = allTypes.Where(t =>
                                         t.DisplayName == field.TypeName.Name &&
                                         t.NodeId.NamespaceUri == field.TypeName.Namespace).FirstOrDefault();
                                     if (referenceId != null)
@@ -475,46 +495,65 @@ namespace Opc.Ua.Client.ComplexTypes
             return null;
         }
 
-        private ReferenceDescriptionCollection LoadDataTypes(NodeId dataType)
+        private ReferenceDescriptionCollection LoadDataTypes(NodeId dataType, bool subTypes = false)
         {
             var result = new ReferenceDescriptionCollection();
-            ReferenceDescriptionCollection references;
-            Byte[] continuationPoint;
+            var nodesToBrowse = new NodeIdCollection();
+            nodesToBrowse.Add(dataType);
 
-            var response = m_session.Browse(
-                    null,
-                    null,
-                    dataType,
-                    10u,
-                    BrowseDirection.Forward,
-                    ReferenceTypeIds.HasSubtype,
-                    true,
-                    (uint)NodeClass.DataType,
-                    out continuationPoint,
-                    out references);
-
-            // filter out default namespace
-            result.AddRange(references.Where(rd => rd.NodeId.NamespaceIndex != 0));
-
-            while (continuationPoint != null)
+            while (nodesToBrowse.Count > 0)
             {
-                Byte[] revisedContinuationPoint;
-                response = m_session.BrowseNext(
-                    null,
-                    false,
-                    continuationPoint,
-                    out revisedContinuationPoint,
-                    out references);
-                result.AddRange(references.Where(rd => rd.NodeId.NamespaceIndex != 0));
-                continuationPoint = revisedContinuationPoint;
+                var nextNodesToBrowse = new NodeIdCollection();
+                foreach (var node in nodesToBrowse)
+                {
+                    ReferenceDescriptionCollection references;
+                    Byte[] continuationPoint;
+
+                    var response = m_session.Browse(
+                            null,
+                            null,
+                            node,
+                            0,
+                            BrowseDirection.Forward,
+                            ReferenceTypeIds.HasSubtype,
+                            false,
+                            0,
+                            out continuationPoint,
+                            out references);
+
+                    if (subTypes)
+                    {
+                        nextNodesToBrowse.AddRange(references.Select(r => ExpandedNodeId.ToNodeId(r.NodeId, m_session.NamespaceUris)).ToList());
+                    }
+                    // filter out default namespace
+                    result.AddRange(references.Where(rd => rd.NodeId.NamespaceIndex != 0));
+
+                    while (continuationPoint != null)
+                    {
+                        Byte[] revisedContinuationPoint;
+                        response = m_session.BrowseNext(
+                            null,
+                            false,
+                            continuationPoint,
+                            out revisedContinuationPoint,
+                            out references);
+                        if (subTypes)
+                        {
+                            nextNodesToBrowse.AddRange(references.Select(r => ExpandedNodeId.ToNodeId(r.NodeId, m_session.NamespaceUris)).ToList());
+                        }
+                        result.AddRange(references.Where(rd => rd.NodeId.NamespaceIndex != 0));
+                        continuationPoint = revisedContinuationPoint;
+                    }
+                }
+                nodesToBrowse = nextNodesToBrowse;
             }
 
-            NormalizeNodeIds(result);
+            NormalizeNodeIdCollection(result);
 
             return result;
         }
 
-        private void NormalizeNodeIds(ReferenceDescriptionCollection refCollection)
+        private void NormalizeNodeIdCollection(ReferenceDescriptionCollection refCollection)
         {
             foreach (var reference in refCollection)
             {
