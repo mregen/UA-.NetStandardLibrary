@@ -59,7 +59,9 @@ namespace Opc.Ua.Client.ComplexTypes
         }
         #endregion
 
-        #region Public Properties
+        #region Public Members
+        public string TargetNamespace => m_targetNamespace;
+
         public Type AddEnumType(Schema.Binary.EnumeratedType enumeratedType)
         {
             if (enumeratedType == null)

@@ -50,7 +50,7 @@ namespace Opc.Ua.Client.ComplexTypes
         }
         #endregion
 
-        #region Public Properties
+        #region Public Members
         /// <summary>
         /// Load a single custom type with subtypes.
         /// </summary>
@@ -106,130 +106,21 @@ namespace Opc.Ua.Client.ComplexTypes
             foreach (var dictionaryId in typeSystem)
             {
                 var dictionary = dictionaryId.Value;
-                // hackhack .. sort dictionary for dependencies
                 var structureList = new List<Schema.Binary.TypeDescription>();
                 var enumList = new List<Opc.Ua.Schema.Binary.TypeDescription>();
-                var itemList = dictionary.TypeDictionary.Items.ToList();
-                foreach (var item in itemList)
-                {
-                    var structuredObject = item as Opc.Ua.Schema.Binary.StructuredType;
-                    if (structuredObject != null)
-                    {
-                        var dependentFields = structuredObject.Field.Where(f => f.TypeName.Namespace == dictionary.TypeDictionary.TargetNamespace);
-                        if (dependentFields.Count() == 0)
-                        {
-                            structureList.Insert(0, structuredObject);
-                        }
-                        else
-                        {
-                            int insertIndex = 0;
-                            foreach (var field in dependentFields)
-                            {
-                                int index = structureList.FindIndex(t => t.Name == field.Name);
-                                if (index > insertIndex)
-                                {
-                                    insertIndex = index;
-                                }
-                            }
-                            insertIndex++;
-                            if (structureList.Count > insertIndex)
-                            {
-                                structureList.Insert(insertIndex, structuredObject);
-                            }
-                            else
-                            {
-                                structureList.Add(structuredObject);
-                            }
-                        }
-                    }
-                    else if (item is Opc.Ua.Schema.Binary.EnumeratedType)
-                    {
-                        enumList.Add(item);
-                    }
-                    else
-                    {
-                        throw new Exception();
-                    }
-                }
+
+                SplitAndSortDictionary(dictionary, structureList, enumList);
 
                 var complexTypeBuilder = new ComplexTypeBuilder(dictionary.TypeDictionary.TargetNamespace);
-                foreach (var enumType in enumerationTypes.Where(e => e.NodeId.NamespaceUri == dictionary.TypeDictionary.TargetNamespace))
-                {
-                    var nodeId = ExpandedNodeId.ToNodeId(enumType.NodeId, m_session.NamespaceUris);
-                    var dataType = (DataTypeNode)m_session.ReadNode(nodeId);
-                    if (dataType != null)
-                    {
-                        Type newType = null;
-                        if (dataType.DataTypeDefinition != null)
-                        {
-                            // add enum type to module
-                            newType = complexTypeBuilder.AddEnumType(enumType.BrowseName.Name, dataType.DataTypeDefinition);
-                        }
-                        else
-                        {
-                            // try dictionary enum definition
-                            var enumeratedObject = enumList.Where(e => e.Name == enumType.BrowseName.Name).FirstOrDefault() as Opc.Ua.Schema.Binary.EnumeratedType;
-                            if (enumeratedObject != null)
-                            {
-                                newType = complexTypeBuilder.AddEnumType(enumeratedObject);
-                            }
-                            else
-                            {
-                                // browse for EnumFields or EnumStrings property
-                                var property = BrowseForSingleProperty(nodeId);
-                                var enumArray = m_session.ReadValue(
-                                    ExpandedNodeId.ToNodeId(property.NodeId,
-                                    m_session.NamespaceUris));
-                                if (enumArray.Value is ExtensionObject[])
-                                {
-                                    newType = complexTypeBuilder.AddEnumType(enumType.BrowseName.Name, (ExtensionObject[])enumArray.Value);
-                                }
-                                else if (enumArray.Value is LocalizedText[])
-                                {
-                                    newType = complexTypeBuilder.AddEnumType(enumType.BrowseName.Name, (LocalizedText[])enumArray.Value);
-                                }
-                            }
-                        }
-                        if (newType != null)
-                        {
-                            // match namespace and add to type factory
-                            m_session.Factory.AddEncodeableType(enumType.NodeId, newType);
-                        }
-                    }
-                }
 
-#if Build_Enum_Types_from_Dictionary
-                // build enums
-                foreach (var item in enumList)
-                {
-                    var enumeratedObject = item as Opc.Ua.Schema.Binary.EnumeratedType;
-                    if (enumeratedObject != null)
-                    {
-                        // add enum type to module
-                        var newType = complexTypeBuilder.AddEnumType(enumeratedObject);
-                        // match namespace and add to type factory
-                        var referenceId = enumerationTypes.Where(t =>
-                            t.DisplayName == enumeratedObject.Name &&
-                            t.NodeId.NamespaceUri == dictionary.TypeDictionary.TargetNamespace).FirstOrDefault();
-                        if (referenceId != null)
-                        {
-                            m_session.Factory.AddEncodeableType(referenceId.NodeId, newType);
-                        }
-                        else
-                        {
-                            Console.WriteLine($"ERROR: Failed to match enum type {enumeratedObject.Name} to namespace {dictionary.TypeDictionary.TargetNamespace}.");
-                        }
-                    }
-                }
-#endif
+                AddEnumTypes(complexTypeBuilder, enumList, enumerationTypes);
 
-                // build classes
+                // build structures
                 foreach (var item in structureList)
                 {
                     var structuredObject = item as Opc.Ua.Schema.Binary.StructuredType;
                     if (structuredObject != null)
                     {
-                        bool missingTypeInfo = false;
                         var nodeId = dictionary.DataTypes.Where(d => d.Value.DisplayName == item.Name).FirstOrDefault().Value;
 
                         ExpandedNodeId typeId;
@@ -247,7 +138,11 @@ namespace Opc.Ua.Client.ComplexTypes
                             structureDefinition = structuredObject.ToStructureDefinition(allTypes, m_session.NamespaceUris);
                         }
 
-                        if (structureDefinition != null)
+                        if (structureDefinition == null)
+                        {
+                            // skip type
+                        }
+                        else
                         {
                             // use type definition (>= V1.04)
                             var structureBuilder = complexTypeBuilder.AddStructuredType(
@@ -308,6 +203,8 @@ namespace Opc.Ua.Client.ComplexTypes
                             m_session.Factory.AddEncodeableType(binaryEncodingId, complexType);
                             m_session.Factory.AddEncodeableType(typeId, complexType);
                         }
+
+#if NotSupported
                         else
                         {
                             // use dictionary to build types (<=V1.03)
@@ -389,16 +286,17 @@ namespace Opc.Ua.Client.ComplexTypes
                                 m_session.Factory.AddEncodeableType(typeId, complexType);
                             }
                         }
+#endif
                     }
                 }
             }
         }
-        #endregion
+#endregion
 
-        #region Static Members
-        #endregion
+#region Static Members
+#endregion
 
-        #region Private Members
+#region Private Members
         /// <summary>
         /// Ensure the expanded nodeId contains a valid namespaceUri.
         /// </summary>
@@ -561,11 +459,157 @@ namespace Opc.Ua.Client.ComplexTypes
                 reference.NodeId = NormalizeExpandedNodeId(reference.NodeId, m_session.NamespaceUris);
             }
         }
-        #endregion
 
-        #region Private Fields
+        /// <summary>
+        /// Add enum types with description from a dictionary.
+        /// </summary>
+        private void AddEnumTypesFromDictionary(
+            ComplexTypeBuilder complexTypeBuilder,
+            List<Opc.Ua.Schema.Binary.TypeDescription> enumList,
+            ReferenceDescriptionCollection enumerationTypes
+            )
+        {
+            foreach (var item in enumList)
+            {
+                var enumeratedObject = item as Opc.Ua.Schema.Binary.EnumeratedType;
+                if (enumeratedObject != null)
+                {
+                    // add enum type to module
+                    var newType = complexTypeBuilder.AddEnumType(enumeratedObject);
+                    // match namespace and add to type factory
+                    var referenceId = enumerationTypes.Where(t =>
+                        t.DisplayName == enumeratedObject.Name &&
+                        t.NodeId.NamespaceUri == complexTypeBuilder.TargetNamespace).FirstOrDefault();
+                    if (referenceId != null)
+                    {
+                        m_session.Factory.AddEncodeableType(referenceId.NodeId, newType);
+                    }
+                    else
+                    {
+                        throw ServiceResultException.Create(StatusCodes.BadUnexpectedError,
+                            $"Failed to match enum type {enumeratedObject.Name} in namespace"+
+                            $" {complexTypeBuilder.TargetNamespace}.");
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void AddEnumTypes(
+            ComplexTypeBuilder complexTypeBuilder,
+            IList<Opc.Ua.Schema.Binary.TypeDescription> enumList,
+            ReferenceDescriptionCollection enumerationTypes
+            )
+        {
+            foreach (var enumType in enumerationTypes.Where(e => e.NodeId.NamespaceUri == complexTypeBuilder.TargetNamespace))
+            {
+                var nodeId = ExpandedNodeId.ToNodeId(enumType.NodeId, m_session.NamespaceUris);
+                var dataType = (DataTypeNode)m_session.ReadNode(nodeId);
+                if (dataType != null)
+                {
+                    Type newType = null;
+                    if (dataType.DataTypeDefinition != null)
+                    {
+                        // 1. use DataTypeDefinition 
+                        newType = complexTypeBuilder.AddEnumType(enumType.BrowseName.Name, dataType.DataTypeDefinition);
+                    }
+                    else
+                    {
+                        // try dictionary enum definition
+                        var enumeratedObject = enumList.Where(e => e.Name == enumType.BrowseName.Name).FirstOrDefault() as Opc.Ua.Schema.Binary.EnumeratedType;
+                        if (enumeratedObject != null)
+                        {
+                            // 2.use Dictionary entry
+                            newType = complexTypeBuilder.AddEnumType(enumeratedObject);
+                        }
+                        else
+                        {
+                            // browse for EnumFields or EnumStrings property
+                            var property = BrowseForSingleProperty(nodeId);
+                            var enumArray = m_session.ReadValue(
+                                ExpandedNodeId.ToNodeId(property.NodeId,
+                                m_session.NamespaceUris));
+                            if (enumArray.Value is ExtensionObject[])
+                            {
+                                // 3. use EnumValues
+                                newType = complexTypeBuilder.AddEnumType(enumType.BrowseName.Name, (ExtensionObject[])enumArray.Value);
+                            }
+                            else if (enumArray.Value is LocalizedText[])
+                            {
+                                // 4. use EnumStrings
+                                newType = complexTypeBuilder.AddEnumType(enumType.BrowseName.Name, (LocalizedText[])enumArray.Value);
+                            }
+                        }
+                    }
+                    if (newType != null)
+                    {
+                        // match namespace and add to type factory
+                        m_session.Factory.AddEncodeableType(enumType.NodeId, newType);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Split the dictionary types into a list of structures and enumerations.
+        /// Sort the structures by dependencies, with structures with dependent
+        /// types at the end of the list, so they can be added to the factory in order.
+        /// </summary>
+        private void SplitAndSortDictionary(
+            DataDictionary dictionary,
+            List<Schema.Binary.TypeDescription> structureList,
+            List<Schema.Binary.TypeDescription> enumList
+            )
+        {
+            foreach (var item in dictionary.TypeDictionary.Items)
+            {
+                var structuredObject = item as Opc.Ua.Schema.Binary.StructuredType;
+                if (structuredObject != null)
+                {
+                    var dependentFields = structuredObject.Field.Where(f => f.TypeName.Namespace == dictionary.TypeDictionary.TargetNamespace);
+                    if (dependentFields.Count() == 0)
+                    {
+                        structureList.Insert(0, structuredObject);
+                    }
+                    else
+                    {
+                        int insertIndex = 0;
+                        foreach (var field in dependentFields)
+                        {
+                            int index = structureList.FindIndex(t => t.Name == field.Name);
+                            if (index > insertIndex)
+                            {
+                                insertIndex = index;
+                            }
+                        }
+                        insertIndex++;
+                        if (structureList.Count > insertIndex)
+                        {
+                            structureList.Insert(insertIndex, structuredObject);
+                        }
+                        else
+                        {
+                            structureList.Add(structuredObject);
+                        }
+                    }
+                }
+                else if (item is Opc.Ua.Schema.Binary.EnumeratedType)
+                {
+                    enumList.Add(item);
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
+        }
+#endregion
+
+#region Private Fields
         Session m_session;
-        #endregion
+#endregion
     }
 
 }//namespace

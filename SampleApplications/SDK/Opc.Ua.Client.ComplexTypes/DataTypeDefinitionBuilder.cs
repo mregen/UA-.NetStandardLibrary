@@ -52,7 +52,6 @@ namespace Opc.Ua.Client.ComplexTypes
 
             bool isOptionalType = false;
             bool isSupportedType = true;
-            bool isUnionOrOptionalType = false;
             bool hasBitField = false;
             bool isUnionType = false;
 
@@ -65,11 +64,6 @@ namespace Opc.Ua.Client.ComplexTypes
                     field.IsLengthInBytes)
                 {
                     isSupportedType = false;
-                }
-
-                if (field.SwitchField != null)
-                {
-                    isUnionOrOptionalType = true;
                 }
 
                 if (field.SwitchValue != 0)
@@ -114,8 +108,8 @@ namespace Opc.Ua.Client.ComplexTypes
                     }
                     else
                     {
-                        // only support bit selectors at first
-                        return null;
+                        throw new ServiceResultException(StatusCodes.BadNotSupported, 
+                            "Options for bit selectors must be 32 bit in size, use the Int32 datatype and must be the first element in the structure.");
                     }
                     continue;
                 }
@@ -123,7 +117,8 @@ namespace Opc.Ua.Client.ComplexTypes
                 if (switchFieldBitPosition != 0 &&
                     switchFieldBitPosition != 32)
                 {
-                    return null;
+                    throw new ServiceResultException(StatusCodes.BadNotSupported,
+                        "Bitwise option selectors must have 32 bits.");
                 }
 
                 var dataTypeField = new StructureField()
@@ -137,15 +132,14 @@ namespace Opc.Ua.Client.ComplexTypes
                     ValueRank = -1
                 };
 
-                // special case array
                 if (field.LengthField != null)
                 {
+                    // handle array length
                     var lastField = structureDefinition.Fields.Last();
                     if (lastField.Name != field.LengthField)
                     {
-                        // for arrays the length field must be 
-                        // just before the type fields
-                        return null;
+                        throw new ServiceResultException(StatusCodes.BadNotSupported,
+                            "Length and type fields of arrays must be consecutive. The length field must precede the type field.");
                     }
                     lastField.Name = field.Name;
                     lastField.DataType = field.TypeName.ToNodeId(typeDictionary, namespaceTable);
@@ -160,13 +154,15 @@ namespace Opc.Ua.Client.ComplexTypes
                         {
                             if (structureDefinition.Fields.Count != 0)
                             {
-                                return null;
+                                throw new ServiceResultException(StatusCodes.BadNotSupported,
+                                    "The switch field of a union must be the first field in the complex type.");
                             }
                             continue;
                         }
                         if (structureDefinition.Fields.Count != dataTypeFieldPosition)
                         {
-                            return null;
+                            throw new ServiceResultException(StatusCodes.BadNotSupported,
+                                "The count of the switch field of the union member is not matching the field position.");
                         }
                         dataTypeFieldPosition++;
                     }
@@ -178,7 +174,8 @@ namespace Opc.Ua.Client.ComplexTypes
                             byte value;
                             if (!switchFieldBits.TryGetValue(field.SwitchField, out value))
                             {
-                                return null;
+                                throw new ServiceResultException(StatusCodes.BadNotSupported,
+                                    $"The switch field for {field.SwitchField} does not exist.");
                             }
                         }
                     }
@@ -210,7 +207,6 @@ namespace Opc.Ua.Client.ComplexTypes
             if (typeName.Namespace == Namespaces.OpcBinarySchema ||
                 typeName.Namespace == Namespaces.OpcUa)
             {
-                // check for built in type
                 if (typeName.Name == "CharArray")
                 {
                     typeName = new System.Xml.XmlQualifiedName("String", typeName.Namespace);
