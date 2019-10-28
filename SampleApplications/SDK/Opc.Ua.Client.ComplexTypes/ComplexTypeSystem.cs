@@ -77,14 +77,25 @@ namespace Opc.Ua.Client.ComplexTypes
         /// </summary>
         public async Task Load()
         {
-            m_session.NodeCache.LoadUaDefinedTypes(m_session.SystemContext);
+        }
+
+
+        /// <summary>
+        /// Load all custom types from dictionaries into the sessions system type factory.
+        /// </summary>
+        public async Task LoadTestAll()
+        {
+            //m_session.NodeCache.LoadUaDefinedTypes(m_session.SystemContext);
+            var enumerationTypesCached = LoadDataTypesCached(DataTypeIds.Enumeration);
+            var structuredTypesCached = LoadDataTypesCached(DataTypeIds.Structure, true);
+            var allTypesCached = new List<INode>();
+            allTypesCached.AddRange(structuredTypesCached);
+            allTypesCached.AddRange(enumerationTypesCached);
 
             var enumerationTypes = LoadDataTypes(DataTypeIds.Enumeration);
-            //var optionSetTypes = LoadDataTypes(DataTypeIds.OptionSet);
             var structuredTypes = LoadDataTypes(DataTypeIds.Structure, true);
             var allTypes = new ReferenceDescriptionCollection();
             allTypes.AddRange(enumerationTypes);
-            //allTypes.AddRange(optionSetTypes);
             allTypes.AddRange(structuredTypes);
 
 #if TEST
@@ -204,99 +215,16 @@ namespace Opc.Ua.Client.ComplexTypes
                             m_session.Factory.AddEncodeableType(typeId, complexType);
                         }
 
-#if NotSupported
-                        else
-                        {
-                            // use dictionary to build types (<=V1.03)
-                            var structureBuilder = complexTypeBuilder.AddStructuredType(
-                                structuredObject,
-                                ExpandedNodeId.ToNodeId(typeId, m_session.NamespaceUris));
-
-                            int order = 10;
-                            bool unsupportedTypeInfo = false;
-                            //var bitFields = new Dictionary<>
-                            foreach (var field in structuredObject.Field)
-                            {
-                                // check for yet unsupported properties
-                                if (field.IsLengthInBytes ||
-                                    field.SwitchField != null ||
-                                    field.Terminator != null ||
-                                    field.LengthField != null ||
-                                    field.Length != 0)
-                                {
-                                    unsupportedTypeInfo = true;
-                                }
-
-                                if (unsupportedTypeInfo)
-                                {
-                                    continue;
-                                }
-
-                                Type fieldType = null;
-                                if (field.TypeName.Namespace == Namespaces.OpcBinarySchema ||
-                                    field.TypeName.Namespace == Namespaces.OpcUa)
-                                {
-                                    if (field.TypeName.Name == "Bit")
-                                    {
-                                        unsupportedTypeInfo = true;
-                                        continue;
-                                    }
-                                    // check for built in type
-                                    if (field.TypeName.Name == "CharArray")
-                                    {
-                                        field.TypeName = new System.Xml.XmlQualifiedName("ByteString", field.TypeName.Namespace);
-                                    }
-                                    var internalField = typeof(DataTypeIds).GetField(field.TypeName.Name);
-                                    var internalNodeId = (NodeId)internalField.GetValue(field.TypeName.Name);
-                                    fieldType = Opc.Ua.TypeInfo.GetSystemType(internalNodeId, m_session.Factory);
-                                }
-                                else
-                                {
-                                    var referenceId = allTypes.Where(t =>
-                                        t.DisplayName == field.TypeName.Name &&
-                                        t.NodeId.NamespaceUri == field.TypeName.Namespace).FirstOrDefault();
-                                    if (referenceId != null)
-                                    {
-                                        fieldType = m_session.Factory.GetSystemType(referenceId.NodeId);
-                                    }
-                                    else
-                                    {
-                                        // TODO: find types from other dictionaries
-                                    }
-                                }
-                                if (fieldType == null)
-                                {
-                                    // skip structured type ... missing datatype
-                                    missingTypeInfo = true;
-                                    continue;
-                                }
-                                Console.WriteLine($"Add: {field.Name}:{fieldType}-{order}");
-                                structureBuilder.AddField(field.Name, fieldType, order);
-                                order += 10;
-                            }
-                            if (!newTypeDescription)
-                            {
-                                Console.WriteLine($"--------- {item.Name}-Type id not found ------");
-                            }
-
-                            if (!missingTypeInfo && !unsupportedTypeInfo)
-                            {
-                                var complexType = structureBuilder.CreateType();
-                                m_session.Factory.AddEncodeableType(binaryEncodingId, complexType);
-                                m_session.Factory.AddEncodeableType(typeId, complexType);
-                            }
-                        }
-#endif
                     }
                 }
             }
         }
-#endregion
+        #endregion
 
-#region Static Members
-#endregion
+        #region Static Members
+        #endregion
 
-#region Private Members
+        #region Private Members
         /// <summary>
         /// Ensure the expanded nodeId contains a valid namespaceUri.
         /// </summary>
@@ -451,6 +379,37 @@ namespace Opc.Ua.Client.ComplexTypes
             return result;
         }
 
+        private IList<INode> LoadDataTypesCached(ExpandedNodeId dataType, bool subTypes = false)
+        {
+            var result = new List<INode>();
+            var nodesToBrowse = new ExpandedNodeIdCollection();
+            nodesToBrowse.Add(dataType);
+
+            while (nodesToBrowse.Count > 0)
+            {
+                var nextNodesToBrowse = new ExpandedNodeIdCollection();
+                foreach (var node in nodesToBrowse)
+                {
+                    var response = m_session.NodeCache.FindReferences(
+                        node,
+                        ReferenceTypeIds.HasSubtype,
+                        false,
+                        false);
+
+                    if (subTypes)
+                    {
+                        nextNodesToBrowse.AddRange(response.Select(r => r.NodeId).ToList());
+                    }
+                    // filter out default namespace
+                    result.AddRange(response.Where(rd => rd.NodeId.NamespaceIndex != 0));
+                }
+                nodesToBrowse = nextNodesToBrowse;
+            }
+
+            return result;
+        }
+
+
         private void NormalizeNodeIdCollection(ReferenceDescriptionCollection refCollection)
         {
             foreach (var reference in refCollection)
@@ -487,7 +446,7 @@ namespace Opc.Ua.Client.ComplexTypes
                     else
                     {
                         throw ServiceResultException.Create(StatusCodes.BadUnexpectedError,
-                            $"Failed to match enum type {enumeratedObject.Name} in namespace"+
+                            $"Failed to match enum type {enumeratedObject.Name} in namespace" +
                             $" {complexTypeBuilder.TargetNamespace}.");
                     }
                 }
@@ -605,11 +564,11 @@ namespace Opc.Ua.Client.ComplexTypes
                 }
             }
         }
-#endregion
+        #endregion
 
-#region Private Fields
+        #region Private Fields
         Session m_session;
-#endregion
+        #endregion
     }
 
 }//namespace
