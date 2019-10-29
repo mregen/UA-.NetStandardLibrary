@@ -56,13 +56,7 @@ namespace Opc.Ua.Client.ComplexTypes
         /// </summary>
         public void LoadType(NodeId nodeId, bool subTypes)
         {
-        }
-
-        /// <summary>
-        /// Load all custom types from a dictionary.
-        /// </summary>
-        public void LoadTypeDictionary(NodeId nodeId)
-        {
+            // TODO
         }
 
         /// <summary>
@@ -70,12 +64,38 @@ namespace Opc.Ua.Client.ComplexTypes
         /// </summary>
         public void LoadTypeDictionary(string nameSpace)
         {
+            // TODO
         }
 
         /// <summary>
+        /// Load all custom types from a server into the session system type factory.
+        /// </summary>
+        public async Task Load()
+        {
+            try
+            {
+                // load server Types
+                var serverEnumTypes = LoadDataTypes(DataTypeIds.Enumeration);
+                var serverStructTypes = LoadDataTypes(DataTypeIds.Structure, true);
+
+                LoadBaseDataTypes(serverEnumTypes, serverStructTypes);
+                await LoadDictionaryDataTypes(serverEnumTypes, serverStructTypes);
+            }
+            catch (ServiceResultException sre)
+            {
+                Utils.TraceDebug($"Failed to load the custom type dictionary: {sre.Message}.");
+            }
+        }
+        #endregion
+
+        #region Static Members
+        #endregion
+
+        #region Private Members
+        /// <summary>
         /// Load all custom types from dictionaries into the sessions system type factory.
         /// </summary>
-        public async Task LoadDictionaryDataTypes(
+        private async Task LoadDictionaryDataTypes(
             IList<INode> serverEnumTypes,
             IList<INode> serverStructTypes
             )
@@ -86,7 +106,7 @@ namespace Opc.Ua.Client.ComplexTypes
 
             // strip known types
             serverEnumTypes = RemoveKnownTypes(serverEnumTypes);
-            serverStructTypes = RemoveKnownTypes(serverStructTypes);
+            //serverStructTypes = RemoveKnownTypes(serverStructTypes);
 
             // load binary type system
             var typeSystem = await m_session.LoadDataTypeSystem();
@@ -122,8 +142,15 @@ namespace Opc.Ua.Client.ComplexTypes
                             out binaryEncodingId,
                             out dataTypeNode);
 
+                        if (!newTypeDescription)
+                        {
+                            Utils.TraceDebug($"Skip the type definition of {item.Name} because the type already exists.");
+                            continue;
+                        }
+
                         if (GetSystemType(typeId) != null)
                         {
+                            Utils.TraceDebug($"Skip the type definition of {item.Name} because the type already exists.");
                             continue;
                         }
 
@@ -133,13 +160,13 @@ namespace Opc.Ua.Client.ComplexTypes
                             try
                             {
                                 structureDefinition = structuredObject.ToStructureDefinition(
-                                    binaryEncodingId, 
-                                    allTypes, 
+                                    binaryEncodingId,
+                                    allTypes,
                                     m_session.NamespaceUris);
                             }
                             catch (ServiceResultException sre)
                             {
-                                Utils.Trace($"Skip the type definition of {item.Name}. Error: {sre.Message}");
+                                Utils.TraceDebug($"Skip the type definition of {item.Name}. Error: {sre.Message}");
                                 continue;
                             }
                         }
@@ -160,7 +187,7 @@ namespace Opc.Ua.Client.ComplexTypes
 
                         if (complexType == null)
                         {
-                            Utils.Trace($"Warning: Skipped the type definition of {item.Name}.");
+                            Utils.TraceDebug($"Warning: Skipped the type definition of {item.Name}.");
                         }
                     }
                 }
@@ -170,7 +197,7 @@ namespace Opc.Ua.Client.ComplexTypes
         /// <summary>
         /// Load all custom types from dictionaries into the sessions system type factory.
         /// </summary>
-        public void LoadBaseDataTypes(
+        private void LoadBaseDataTypes(
             IList<INode> serverEnumTypes,
             IList<INode> serverStructTypes
             )
@@ -267,25 +294,7 @@ namespace Opc.Ua.Client.ComplexTypes
             } while (retryAddStructType);
         }
 
-        /// <summary>
-        /// Load all custom types from a server into the session system type factory.
-        /// </summary>
-        public async Task Load()
-        {
-            // load server Types
-            var serverEnumTypes = LoadDataTypes(DataTypeIds.Enumeration);
-            var serverStructTypes = LoadDataTypes(DataTypeIds.Structure, true);
 
-            LoadBaseDataTypes(serverEnumTypes, serverStructTypes);
-            await LoadDictionaryDataTypes(serverEnumTypes, serverStructTypes);
-            return;
-        }
-        #endregion
-
-        #region Static Members
-        #endregion
-
-        #region Private Members
         /// <summary>
         /// Ensure the expanded nodeId contains a valid namespaceUri.
         /// </summary>
@@ -311,7 +320,7 @@ namespace Opc.Ua.Client.ComplexTypes
         /// <param name="typeId"></param>
         /// <param name="encodingId"></param>
         /// <returns></returns>
-        private bool BrowseTypeIdsForDictionaryComponent(
+        private bool BrowseTypeIdsForDictionaryComponentX(
             NodeId nodeId,
             out ExpandedNodeId typeId,
             out ExpandedNodeId encodingId,
@@ -355,6 +364,59 @@ namespace Opc.Ua.Client.ComplexTypes
         }
 
         /// <summary>
+        /// Browse for the type and encoding id for a dictionary component.
+        /// </summary>
+        /// <remarks>
+        /// To find the typeId and encodingId for a dictionary type definition:
+        /// i) inverse browse the description to get the encodingid
+        /// ii) from the description inverse browse for encoding 
+        /// to get the subtype typeid 
+        /// </remarks>
+        /// <param name="nodeId"></param>
+        /// <param name="typeId"></param>
+        /// <param name="encodingId"></param>
+        /// <returns></returns>
+        private bool BrowseTypeIdsForDictionaryComponent(
+            NodeId nodeId,
+            out ExpandedNodeId typeId,
+            out ExpandedNodeId encodingId,
+            out DataTypeNode dataTypeNode)
+        {
+            typeId = ExpandedNodeId.Null;
+            encodingId = ExpandedNodeId.Null;
+            dataTypeNode = null;
+
+            var references = m_session.NodeCache.FindReferences(
+                nodeId,
+                ReferenceTypeIds.HasDescription,
+                true,
+                false
+                );
+
+            if (references.Count == 1)
+            {
+                encodingId = references.First().NodeId;
+                references = m_session.NodeCache.FindReferences(
+                    encodingId,
+                    ReferenceTypeIds.HasEncoding,
+                    true,
+                    false
+                    );
+                encodingId = NormalizeExpandedNodeId(encodingId);
+
+                if (references.Count == 1)
+                {
+                    typeId = references.First().NodeId;
+                    dataTypeNode = m_session.NodeCache.Find(typeId) as DataTypeNode;
+                    typeId = NormalizeExpandedNodeId(typeId);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+        /// <summary>
         /// Browse for the property.
         /// </summary>
         /// <remarks>
@@ -365,7 +427,6 @@ namespace Opc.Ua.Client.ComplexTypes
         private INode BrowseForSingleProperty(
             ExpandedNodeId nodeId)
         {
-            Browser browser = new Browser(m_session);
             var references = m_session.NodeCache.FindReferences(
                 nodeId,
                 ReferenceTypeIds.HasProperty,
@@ -493,7 +554,9 @@ namespace Opc.Ua.Client.ComplexTypes
 
         private void AddEncodeableType(ExpandedNodeId nodeId, Type type)
         {
-            m_session.Factory.AddEncodeableType(NormalizeExpandedNodeId(nodeId), type);
+            var internalNodeId = NormalizeExpandedNodeId(nodeId);
+            Utils.TraceDebug($"Adding Type {type.FullName} as: {internalNodeId.ToString()}");
+            m_session.Factory.AddEncodeableType(internalNodeId, type);
         }
 
         /// <summary>
