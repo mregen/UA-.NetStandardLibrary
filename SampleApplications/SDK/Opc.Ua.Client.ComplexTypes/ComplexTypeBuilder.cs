@@ -197,7 +197,8 @@ namespace Opc.Ua.Client.ComplexTypes
         }
         #endregion
 
-        #region Public Properties
+#region Public Properties
+#if NOT_USED
         public void AddField(string fieldName, Type fieldType, int order)
         {
             var field = new StructureField
@@ -209,7 +210,7 @@ namespace Opc.Ua.Client.ComplexTypes
             };
             AddField(field, fieldType, order);
         }
-
+#endif
         public void AddField(StructureField field, Type fieldType, int order)
         {
             var fieldBuilder = m_structureBuilder.DefineField("_" + field.Name, fieldType, FieldAttributes.Private);
@@ -242,17 +243,16 @@ namespace Opc.Ua.Client.ComplexTypes
             propertyBuilder.StructureFieldAttribute(field);
         }
 
-
         public Type CreateType()
         {
             var complexType = m_structureBuilder.CreateType();
             m_structureBuilder = null;
             return complexType;
         }
-        #endregion
+#endregion
 
-        #region Private Fields
+#region Private Fields
         private TypeBuilder m_structureBuilder;
-        #endregion
+#endregion
     }
 }//namespace

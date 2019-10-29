@@ -37,6 +37,7 @@ namespace Opc.Ua.Client.ComplexTypes
 {
     public static class DataTypeDefinitionExtension
     {
+#if NOT_USED
         public static StructureDefinition ToStructureDefinition(
             this Schema.Binary.StructuredType structuredType,
             ReferenceDescriptionCollection typeDictionary,
@@ -185,7 +186,7 @@ namespace Opc.Ua.Client.ComplexTypes
 
             return structureDefinition;
         }
-
+#endif
         public static StructureDefinition ToStructureDefinition(
             this Schema.Binary.StructuredType structuredType,
             IList<INode> typeDictionary,
@@ -352,6 +353,7 @@ namespace Opc.Ua.Client.ComplexTypes
             return false;
         }
 
+#if NOT_USED
         public static NodeId ToNodeId(
             this XmlQualifiedName typeName,
             ReferenceDescriptionCollection typeCollection,
@@ -382,7 +384,7 @@ namespace Opc.Ua.Client.ComplexTypes
                 return ExpandedNodeId.ToNodeId(referenceId.NodeId, namespaceTable);
             }
         }
-
+#endif
         public static NodeId ToNodeId(
             this XmlQualifiedName typeName,
             IList<INode> typeCollection,

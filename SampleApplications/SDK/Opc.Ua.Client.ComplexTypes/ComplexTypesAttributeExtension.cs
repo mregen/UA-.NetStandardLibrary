@@ -29,7 +29,6 @@
 
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.Serialization;
@@ -42,11 +41,6 @@ namespace Opc.Ua.Client.ComplexTypes
         public static Type GetItemType(this Type collectionType)
         {
             return collectionType.GetMethod("get_Item").ReturnType;
-        }
-
-        public static Type GetEnumeratedType<T>(this IEnumerable<T> _)
-        {
-            return typeof(T);
         }
 
         public static void DataContractAttribute(this TypeBuilder builder, string Namespace)
@@ -68,7 +62,7 @@ namespace Opc.Ua.Client.ComplexTypes
         }
 
         public static void StructureDefinitonAttribute(
-            this TypeBuilder typeBuilder, 
+            this TypeBuilder typeBuilder,
             StructureDefinition structureDefinition)
         {
             var attributeType = typeof(StructureDefinitionAttribute);
@@ -93,7 +87,7 @@ namespace Opc.Ua.Client.ComplexTypes
         }
 
         public static void StructureFieldAttribute(
-            this PropertyBuilder typeBuilder, 
+            this PropertyBuilder typeBuilder,
             StructureField structureField)
         {
             var attributeType = typeof(StructureFieldAttribute);
