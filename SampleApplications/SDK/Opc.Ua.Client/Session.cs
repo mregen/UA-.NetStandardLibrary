@@ -150,6 +150,8 @@ namespace Opc.Ua.Client
         {
             Initialize();
 
+            ValidateClientConfiguration(configuration);
+
             // save configuration information.
             m_configuration = configuration;
             m_endpoint = endpoint;
@@ -270,6 +272,38 @@ namespace Opc.Ua.Client
             m_defaultSubscription.LifetimeCount = 1000;
             m_defaultSubscription.Priority = 255;
             m_defaultSubscription.PublishingEnabled = true;
+        }
+
+        /// <summary>
+        /// Check if all required configuration fields are populated.
+        /// </summary>
+        private void ValidateClientConfiguration(ApplicationConfiguration configuration)
+        {
+            String configurationField;
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+            if (configuration.ClientConfiguration == null)
+            {
+                configurationField = "ClientConfiguration";
+            }
+            else if (configuration.SecurityConfiguration == null)
+            {
+                configurationField = "SecurityConfiguration";
+            }
+            else if (configuration.CertificateValidator == null)
+            {
+                configurationField = "CertificateValidator";
+            }
+            else
+            {
+                return;
+            }
+
+            throw new ServiceResultException(
+                StatusCodes.BadConfigurationError,
+                $"The client configuration does not specify the {configurationField}.");
         }
 
         private static void CheckCertificateDomain(ConfiguredEndpoint endpoint)
@@ -559,6 +593,11 @@ namespace Opc.Ua.Client
         /// Gets the type dictionaries in use.
         /// </summary>
         public Dictionary<NodeId, DataDictionary> Dictionaries => m_dictionaries;
+
+        /// <summary>
+        /// Gets the data type system dictionaries in use.
+        /// </summary>
+        public Dictionary<NodeId, DataDictionary> DataTypeSystem => m_dictionaries;
 
         /// <summary>
         /// Gets the subscriptions owned by the session.
@@ -1372,7 +1411,7 @@ namespace Opc.Ua.Client
             if (!Utils.Equals(dataTypeSystem, ObjectIds.OPCBinarySchema_TypeSystem) &&
                 !Utils.Equals(dataTypeSystem, ObjectIds.XmlSchema_TypeSystem))
             {
-                throw ServiceResultException.Create(StatusCodes.BadNodeIdInvalid, "dataTypeSystem does not refer to a valid data dictionary.");
+                throw ServiceResultException.Create(StatusCodes.BadNodeIdInvalid, $"{nameof(dataTypeSystem)} does not refer to a valid data dictionary.");
             }
 
             // find the dictionary for the description.
