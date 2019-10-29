@@ -45,10 +45,12 @@ namespace Opc.Ua.Client.ComplexTypes
         /// </summary>
         public ComplexTypeBuilder(
             string targetNamespace,
+            int targetNamespaceIndex,
             string moduleName = null,
             string assemblyName = null)
         {
             m_targetNamespace = targetNamespace;
+            m_targetNamespaceIndex = targetNamespaceIndex;
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(assemblyName ?? Guid.NewGuid().ToString()), AssemblyBuilderAccess.Run);
             var moduleBuilder = assemblyBuilder.GetDynamicModule(moduleName ?? m_opcTypesModuleName);
             if (moduleBuilder == null)
@@ -61,6 +63,7 @@ namespace Opc.Ua.Client.ComplexTypes
 
         #region Public Members
         public string TargetNamespace => m_targetNamespace;
+        public int TargetNamespaceIndex => m_targetNamespaceIndex;
 
         public Type AddEnumType(Schema.Binary.EnumeratedType enumeratedType)
         {
@@ -169,7 +172,6 @@ namespace Opc.Ua.Client.ComplexTypes
             structureBuilder.StructureDefinitonAttribute(structureDefinition);
             return new ComplexTypeFieldBuilder(structureBuilder);
         }
-
         #endregion
 
         #region Private Members
@@ -179,6 +181,7 @@ namespace Opc.Ua.Client.ComplexTypes
         private const string m_opcTypesModuleName = "Opc.Ua.ComplexType.Assembly";
         private ModuleBuilder m_moduleBuilder;
         private string m_targetNamespace;
+        private int m_targetNamespaceIndex;
         #endregion
     }
 
