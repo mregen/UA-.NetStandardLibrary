@@ -37,170 +37,20 @@ namespace Opc.Ua.Client.ComplexTypes
 {
     public static class DataTypeDefinitionExtension
     {
-#if NOT_USED
         public static StructureDefinition ToStructureDefinition(
             this Schema.Binary.StructuredType structuredType,
-            ReferenceDescriptionCollection typeDictionary,
-            NamespaceTable namespaceTable)
-        {
-            var structureDefinition = new StructureDefinition()
-            {
-                BaseDataType = null,
-                DefaultEncodingId = structuredType.QName.ToNodeId(typeDictionary, namespaceTable),
-                Fields = new StructureFieldCollection(),
-                StructureType = StructureType.Structure
-            };
-
-            bool isOptionalType = false;
-            bool isSupportedType = true;
-            bool hasBitField = false;
-            bool isUnionType = false;
-
-            foreach (var field in structuredType.Field)
-            {
-                // check for yet unsupported properties
-                if (field.IsLengthInBytes ||
-                    field.Terminator != null ||
-                    field.Length != 0 ||
-                    field.IsLengthInBytes)
-                {
-                    isSupportedType = false;
-                }
-
-                if (field.SwitchValue != 0)
-                {
-                    isUnionType = true;
-                }
-
-                if (field.TypeName.Namespace == Namespaces.OpcBinarySchema ||
-                    field.TypeName.Namespace == Namespaces.OpcUa)
-                {
-                    if (field.TypeName.Name == "Bit")
-                    {
-                        hasBitField = true;
-                    }
-                }
-            }
-
-            // test forbidden combinations
-            if (!isSupportedType ||
-                (isUnionType && hasBitField))
-            {
-                return null;
-            }
-
-            byte switchFieldBitPosition = 0;
-            Int32 dataTypeFieldPosition = 0;
-            var switchFieldBits = new Dictionary<string, byte>();
-            // convert fields
-            foreach (var field in structuredType.Field)
-            {
-                // consume optional bits
-                if (field.TypeName.IsXmlBitType())
-                {
-                    var count = structureDefinition.Fields.Count;
-                    if (count == 0 &&
-                        switchFieldBitPosition < 32)
-                    {
-                        structureDefinition.StructureType = StructureType.StructureWithOptionalFields;
-                        byte fieldLength = (byte)((field.Length == 0) ? 1u : field.Length);
-                        switchFieldBits[field.Name] = switchFieldBitPosition;
-                        switchFieldBitPosition += fieldLength;
-                    }
-                    else
-                    {
-                        throw new ServiceResultException(StatusCodes.BadNotSupported, 
-                            "Options for bit selectors must be 32 bit in size, use the Int32 datatype and must be the first element in the structure.");
-                    }
-                    continue;
-                }
-
-                if (switchFieldBitPosition != 0 &&
-                    switchFieldBitPosition != 32)
-                {
-                    throw new ServiceResultException(StatusCodes.BadNotSupported,
-                        "Bitwise option selectors must have 32 bits.");
-                }
-
-                var dataTypeField = new StructureField()
-                {
-                    Name = field.Name,
-                    Description = null,
-                    DataType = field.TypeName.ToNodeId(typeDictionary, namespaceTable),
-                    IsOptional = false,
-                    MaxStringLength = 0,
-                    ArrayDimensions = null,
-                    ValueRank = -1
-                };
-
-                if (field.LengthField != null)
-                {
-                    // handle array length
-                    var lastField = structureDefinition.Fields.Last();
-                    if (lastField.Name != field.LengthField)
-                    {
-                        throw new ServiceResultException(StatusCodes.BadNotSupported,
-                            "Length and type fields of arrays must be consecutive. The length field must precede the type field.");
-                    }
-                    lastField.Name = field.Name;
-                    lastField.DataType = field.TypeName.ToNodeId(typeDictionary, namespaceTable);
-                    lastField.ValueRank = 1;
-                }
-                else
-                {
-                    if (isUnionType)
-                    {
-                        // ignore the switchfield
-                        if (field.SwitchField == null)
-                        {
-                            if (structureDefinition.Fields.Count != 0)
-                            {
-                                throw new ServiceResultException(StatusCodes.BadNotSupported,
-                                    "The switch field of a union must be the first field in the complex type.");
-                            }
-                            continue;
-                        }
-                        if (structureDefinition.Fields.Count != dataTypeFieldPosition)
-                        {
-                            throw new ServiceResultException(StatusCodes.BadNotSupported,
-                                "The count of the switch field of the union member is not matching the field position.");
-                        }
-                        dataTypeFieldPosition++;
-                    }
-                    else
-                    {
-                        if (field.SwitchField != null)
-                        {
-                            dataTypeField.IsOptional = true;
-                            byte value;
-                            if (!switchFieldBits.TryGetValue(field.SwitchField, out value))
-                            {
-                                throw new ServiceResultException(StatusCodes.BadNotSupported,
-                                    $"The switch field for {field.SwitchField} does not exist.");
-                            }
-                        }
-                    }
-                    structureDefinition.Fields.Add(dataTypeField);
-                }
-            }
-
-            return structureDefinition;
-        }
-#endif
-        public static StructureDefinition ToStructureDefinition(
-            this Schema.Binary.StructuredType structuredType,
+            ExpandedNodeId defaultEncodingId,
             IList<INode> typeDictionary,
             NamespaceTable namespaceTable)
         {
             var structureDefinition = new StructureDefinition()
             {
                 BaseDataType = null,
-                DefaultEncodingId = structuredType.QName.ToNodeId(typeDictionary, namespaceTable),
+                DefaultEncodingId = ExpandedNodeId.ToNodeId(defaultEncodingId, namespaceTable),
                 Fields = new StructureFieldCollection(),
                 StructureType = StructureType.Structure
             };
 
-            bool isOptionalType = false;
             bool isSupportedType = true;
             bool hasBitField = false;
             bool isUnionType = false;
@@ -209,8 +59,7 @@ namespace Opc.Ua.Client.ComplexTypes
             {
                 // check for yet unsupported properties
                 if (field.IsLengthInBytes ||
-                    field.Terminator != null ||
-                    field.IsLengthInBytes)
+                    field.Terminator != null)
                 {
                     isSupportedType = false;
                 }
@@ -236,10 +85,16 @@ namespace Opc.Ua.Client.ComplexTypes
             }
 
             // test forbidden combinations
-            if (!isSupportedType ||
-                (isUnionType && hasBitField))
+            if (!isSupportedType)
             {
-                return null;
+                throw new ServiceResultException(StatusCodes.BadNotSupported,
+                    "The structure definition uses a Terminator or LengthInBytes, which are not supported.");
+            }
+
+            if (isUnionType && hasBitField)
+            {
+                throw new ServiceResultException(StatusCodes.BadNotSupported,
+                    "The structure definition combines a Union and a bit filed, both of which are not supported in a single structure.");
             }
 
             byte switchFieldBitPosition = 0;
@@ -353,38 +208,6 @@ namespace Opc.Ua.Client.ComplexTypes
             return false;
         }
 
-#if NOT_USED
-        public static NodeId ToNodeId(
-            this XmlQualifiedName typeName,
-            ReferenceDescriptionCollection typeCollection,
-            NamespaceTable namespaceTable)
-        {
-            if (typeName.Namespace == Namespaces.OpcBinarySchema ||
-                typeName.Namespace == Namespaces.OpcUa)
-            {
-                if (typeName.Name == "CharArray")
-                {
-                    typeName = new System.Xml.XmlQualifiedName("String", typeName.Namespace);
-                }
-                var internalField = typeof(DataTypeIds).GetField(typeName.Name);
-                return (NodeId)internalField.GetValue(typeName.Name);
-            }
-            else
-            {
-                var referenceId = typeCollection.Where(t =>
-                    t.DisplayName == typeName.Name &&
-                    t.NodeId.NamespaceUri == typeName.Namespace).FirstOrDefault();
-                if (referenceId == null)
-                {
-                    // hackhack: servers may have multiple dictionaries with different
-                    // target namespace but types are still in the same
-                    referenceId = typeCollection.Where(t =>
-                        t.DisplayName == typeName.Name).FirstOrDefault();
-                }
-                return ExpandedNodeId.ToNodeId(referenceId.NodeId, namespaceTable);
-            }
-        }
-#endif
         public static NodeId ToNodeId(
             this XmlQualifiedName typeName,
             IList<INode> typeCollection,
