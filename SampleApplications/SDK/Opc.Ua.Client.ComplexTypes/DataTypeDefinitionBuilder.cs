@@ -37,6 +37,7 @@ namespace Opc.Ua.Client.ComplexTypes
 {
     public static class DataTypeDefinitionExtension
     {
+        #region Public Extensions
         public static StructureDefinition ToStructureDefinition(
             this Schema.Binary.StructuredType structuredType,
             ExpandedNodeId defaultEncodingId,
@@ -238,6 +239,6 @@ namespace Opc.Ua.Client.ComplexTypes
                 return ExpandedNodeId.ToNodeId(referenceId.NodeId, namespaceTable);
             }
         }
-
+        #endregion
     }
 }//namespace

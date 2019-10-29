@@ -159,7 +159,7 @@ namespace Quickstarts.MethodsClient
                     "1:My Process/1:Start"
                 };
 
-                List<NodeId> nodes = ClientUtils.TranslateBrowsePaths(
+                List<NodeId> nodes = CoreClientUtils.TranslateBrowsePaths(
                     m_session,
                     ObjectIds.ObjectsFolder,
                     wellKnownNamespaceUris,

@@ -2171,6 +2171,11 @@ namespace Opc.Ua
                     return ((StatusCode)value).Code.ToString();
                 }
 
+                case BuiltInType.ExtensionObject:
+                {
+                    return ((ExtensionObject)value).ToString();
+                }
+
                 case BuiltInType.Null:
                 {
                     return null; 
@@ -2539,6 +2544,11 @@ namespace Opc.Ua
                 sourceType = TypeInfo.Construct(input);
             }
 
+            if (sourceType.ValueRank > 1)
+            {
+                return Cast<T>((Matrix)input, sourceType, handler);
+            }
+
             if (sourceType.ValueRank >= 0)
             {
                 return Cast<T>((Array)input, sourceType, handler);
@@ -2656,15 +2666,15 @@ namespace Opc.Ua
 
             return output;
         }
-        #endregion
+#endregion
         
-        #region Private Fields
+#region Private Fields
         private BuiltInType m_builtInType;
         private int m_valueRank;
         private static readonly TypeInfo s_Unknown = new TypeInfo();
-        #endregion
+#endregion
         
-        #region Scalars Class
+#region Scalars Class
         /// <summary>
         /// Constants for scalar types.
         /// </summary>
@@ -2796,9 +2806,9 @@ namespace Opc.Ua
             /// </summary>
             public static readonly TypeInfo DiagnosticInfo = new TypeInfo(BuiltInType.DiagnosticInfo, ValueRanks.Scalar);
         }
-        #endregion
+#endregion
 
-        #region Arrays Class
+#region Arrays Class
         /// <summary>
         /// Constants for one dimensional array types.
         /// </summary>
@@ -2930,9 +2940,9 @@ namespace Opc.Ua
             /// </summary>
             public static readonly TypeInfo DiagnosticInfo = new TypeInfo(BuiltInType.DiagnosticInfo, ValueRanks.OneDimension);
         }
-        #endregion
+#endregion
 
-        #region IFormattable Members
+#region IFormattable Members
         /// <summary>
         /// Formats the type information as a string.
         /// </summary>
@@ -2968,6 +2978,6 @@ namespace Opc.Ua
         
             throw new FormatException(Utils.Format("Invalid format string: '{0}'.", format));
         }
-        #endregion
+#endregion
     }
 }

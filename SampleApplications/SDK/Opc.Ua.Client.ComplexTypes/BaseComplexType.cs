@@ -95,7 +95,7 @@ namespace Opc.Ua.Client.ComplexTypes
 
         public ExpandedNodeId BinaryEncodingId { get; set; }
 
-        public ExpandedNodeId XmlEncodingId => throw new NotImplementedException();
+        public ExpandedNodeId XmlEncodingId { get; set; }
         #endregion
 
         #region ICloneable Members
@@ -107,8 +107,31 @@ namespace Opc.Ua.Client.ComplexTypes
         /// </returns>
         public new object MemberwiseClone()
         {
-            // TODO: how to create properties in derived class?
-            return new BaseComplexType(this);
+            Type thisType = this.GetType();
+            BaseComplexType clone = Activator.CreateInstance(thisType) as BaseComplexType;
+
+            clone.TypeId = TypeId;
+            clone.BinaryEncodingId = BinaryEncodingId;
+            clone.XmlEncodingId = XmlEncodingId;
+
+            var attribute = (StructureDefinitionAttribute)
+                GetType().GetCustomAttribute(typeof(StructureDefinitionAttribute));
+
+            var properties = GetType().GetProperties();
+            foreach (var property in properties)
+            {
+                var fieldAttribute = (StructureFieldAttribute)
+                    property.GetCustomAttribute(typeof(StructureFieldAttribute));
+
+                if (fieldAttribute == null)
+                {
+                    continue;
+                }
+
+                property.SetValue(clone, Utils.Clone(property.GetValue(this)));
+            }
+
+            return clone;
         }
 
         public void Encode(IEncoder encoder)

@@ -221,7 +221,7 @@ namespace Quickstarts.Boiler.Client
             nodeToBrowse.NodeClassMask = (uint)(NodeClass.Object);
             nodeToBrowse.ResultMask = (uint)(BrowseResultMask.All);
 
-            ReferenceDescriptionCollection references = ClientUtils.Browse(
+            ReferenceDescriptionCollection references = CoreClientUtils.Browse(
                 m_session,
                 nodeToBrowse,
                 false);
@@ -292,7 +292,7 @@ namespace Quickstarts.Boiler.Client
                     "1:LCX001/1:SetPoint",
                 };
 
-                List<NodeId> nodes = ClientUtils.TranslateBrowsePaths(
+                List<NodeId> nodes = CoreClientUtils.TranslateBrowsePaths(
                     m_session,
                     (NodeId)boiler.NodeId,
                     wellKnownNamespaceUris,

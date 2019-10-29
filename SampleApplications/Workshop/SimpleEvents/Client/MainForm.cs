@@ -300,7 +300,7 @@ namespace Quickstarts.SimpleEvents.Client
                 }
 
                 // check the type of event.
-                NodeId eventTypeId = ClientUtils.FindEventType(monitoredItem, notification);
+                NodeId eventTypeId = CoreClientUtils.FindEventType(monitoredItem, notification);
 
                 // ignore unknown events.
                 if (NodeId.IsNull(eventTypeId))
@@ -309,7 +309,7 @@ namespace Quickstarts.SimpleEvents.Client
                 }
 
                 // construct the audit object.
-                SystemCycleStatusEventState status = ClientUtils.ConstructEvent(
+                SystemCycleStatusEventState status = CoreClientUtils.ConstructEvent(
                     m_session,
                     monitoredItem,
                     notification,

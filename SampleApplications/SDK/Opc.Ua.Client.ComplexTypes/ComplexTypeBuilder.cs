@@ -143,7 +143,7 @@ namespace Opc.Ua.Client.ComplexTypes
             Schema.Binary.StructuredType structuredType,
             NodeId typeId)
         {
-            var structureBuilder = m_moduleBuilder.DefineType(structuredType.Name, 
+            var structureBuilder = m_moduleBuilder.DefineType(structuredType.Name,
                 TypeAttributes.Public | TypeAttributes.Class, typeof(BaseComplexType));
             structureBuilder.DataContractAttribute(m_targetNamespace);
             var structureDefinition = new StructureDefinition()
@@ -165,8 +165,8 @@ namespace Opc.Ua.Client.ComplexTypes
                 throw new ArgumentNullException(nameof(structureDefinition));
             }
 
-            var structureBuilder = m_moduleBuilder.DefineType(name, 
-                TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Serializable, 
+            var structureBuilder = m_moduleBuilder.DefineType(name,
+                TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Serializable,
                 typeof(BaseComplexType));
             structureBuilder.DataContractAttribute(m_targetNamespace);
             structureBuilder.StructureDefinitonAttribute(structureDefinition);
@@ -197,7 +197,7 @@ namespace Opc.Ua.Client.ComplexTypes
         }
         #endregion
 
-#region Public Properties
+        #region Public Properties
 #if NOT_USED
         public void AddField(string fieldName, Type fieldType, int order)
         {
@@ -215,9 +215,9 @@ namespace Opc.Ua.Client.ComplexTypes
         {
             var fieldBuilder = m_structureBuilder.DefineField("_" + field.Name, fieldType, FieldAttributes.Private);
             var propertyBuilder = m_structureBuilder.DefineProperty(
-                field.Name, 
-                PropertyAttributes.None, 
-                fieldType, 
+                field.Name,
+                PropertyAttributes.None,
+                fieldType,
                 null);
             var methodAttributes =
                 System.Reflection.MethodAttributes.Public |
@@ -249,10 +249,10 @@ namespace Opc.Ua.Client.ComplexTypes
             m_structureBuilder = null;
             return complexType;
         }
-#endregion
+        #endregion
 
-#region Private Fields
+        #region Private Fields
         private TypeBuilder m_structureBuilder;
-#endregion
+        #endregion
     }
 }//namespace
