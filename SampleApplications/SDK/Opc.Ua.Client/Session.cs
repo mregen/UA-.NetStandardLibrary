@@ -518,17 +518,35 @@ namespace Opc.Ua.Client
         /// <summary>
         /// Gets the endpoint used to connect to the server.
         /// </summary>
-        public ConfiguredEndpoint ConfiguredEndpoint => m_endpoint;
+        public ConfiguredEndpoint ConfiguredEndpoint
+        {
+            get
+            {
+                return m_endpoint;
+            }
+        }
 
         /// <summary>
         /// Gets the name assigned to the session.
         /// </summary>
-        public string SessionName => m_sessionName;
+        public string SessionName
+        {
+            get
+            {
+                return m_sessionName;
+            }
+        }
 
         /// <summary>
         /// Gets the period for wich the server will maintain the session if there is no communication from the client.
         /// </summary>
-        public double SessionTimeout => m_sessionTimeout;
+        public double SessionTimeout
+        {
+            get
+            {
+                return m_sessionTimeout;
+            }
+        }
 
         /// <summary>
         /// Gets the local handle assigned to the session
@@ -542,57 +560,85 @@ namespace Opc.Ua.Client
         /// <summary>
         /// Gets the user identity currently used for the session.
         /// </summary>
-        public IUserIdentity Identity => m_identity;
+        public IUserIdentity Identity
+        {
+            get
+            {
+                return m_identity;
+            }
+        }
 
         /// <summary>
         /// Gets a list of user identities that can be used to connect to the server.
         /// </summary>
-        public IEnumerable<IUserIdentity> IdentityHistory => m_identityHistory;
+        public IEnumerable<IUserIdentity> IdentityHistory
+        {
+            get { return m_identityHistory; }
+        }
 
         /// <summary>
         /// Gets the table of namespace uris known to the server.
         /// </summary>
-        public NamespaceTable NamespaceUris => m_namespaceUris;
+        public NamespaceTable NamespaceUris
+        {
+            get { return m_namespaceUris; }
+        }
 
         /// <summary>
         /// Gest the table of remote server uris known to the server.
         /// </summary>
-        public StringTable ServerUris => m_serverUris;
+        public StringTable ServerUris
+        {
+            get { return m_serverUris; }
+        }
 
         /// <summary>
         /// Gets the system context for use with the session.
         /// </summary>
-        public ISystemContext SystemContext => m_systemContext;
+        public ISystemContext SystemContext
+        {
+            get { return m_systemContext; }
+        }
 
         /// <summary>
         /// Gets the factory used to create encodeable objects that the server understands.
         /// </summary>
-        public EncodeableFactory Factory => m_factory;
+        public EncodeableFactory Factory
+        {
+            get { return m_factory; }
+        }
 
         /// <summary>
         /// Gets the cache of the server's type tree.
         /// </summary>
-        public ITypeTable TypeTree => m_nodeCache.TypeTree;
+        public ITypeTable TypeTree
+        {
+            get { return m_nodeCache.TypeTree; }
+        }
 
         /// <summary>
         /// Gets the cache of nodes fetched from the server.
         /// </summary>
-        public NodeCache NodeCache => m_nodeCache;
+        public NodeCache NodeCache
+        {
+            get { return m_nodeCache; }
+        }
 
         /// <summary>
         /// Gets the context to use for filter operations.
         /// </summary>
-        public FilterContext FilterContext => new FilterContext(m_namespaceUris, m_nodeCache.TypeTree, m_preferredLocales);
+        public FilterContext FilterContext
+        {
+            get { return new FilterContext(m_namespaceUris, m_nodeCache.TypeTree, m_preferredLocales); }
+        }
 
         /// <summary>
         /// Gets the locales that the server should use when returning localized text.
         /// </summary>
-        public StringCollection PreferredLocales => m_preferredLocales;
-
-        /// <summary>
-        /// Gets the type dictionaries in use.
-        /// </summary>
-        public Dictionary<NodeId, DataDictionary> Dictionaries => m_dictionaries;
+        public StringCollection PreferredLocales
+        {
+            get { return m_preferredLocales; }
+        }
 
         /// <summary>
         /// Gets the data type system dictionaries in use.
@@ -681,7 +727,10 @@ namespace Opc.Ua.Client
         /// <summary>
         /// Gets the time of the last keep alive.
         /// </summary>
-        public DateTime LastKeepAliveTime => m_lastKeepAliveTime;
+        public DateTime LastKeepAliveTime
+        {
+            get { return m_lastKeepAliveTime; }
+        }
 
         /// <summary>
         /// Gets the number of outstanding publish or keep alive requests.
@@ -3044,10 +3093,7 @@ namespace Opc.Ua.Client
         /// <returns></returns>
         public bool AddSubscription(Subscription subscription)
         {
-            if (subscription == null)
-            {
-                throw new ArgumentNullException("subscription");
-            }
+            if (subscription == null) throw new ArgumentNullException("subscription");
 
             lock (SyncRoot)
             {
@@ -3075,10 +3121,7 @@ namespace Opc.Ua.Client
         /// <returns></returns>
         public bool RemoveSubscription(Subscription subscription)
         {
-            if (subscription == null)
-            {
-                throw new ArgumentNullException("subscription");
-            }
+            if (subscription == null) throw new ArgumentNullException("subscription");
 
             if (subscription.Created)
             {
@@ -3110,10 +3153,7 @@ namespace Opc.Ua.Client
         /// <returns></returns>
         public bool RemoveSubscriptions(IEnumerable<Subscription> subscriptions)
         {
-            if (subscriptions == null)
-            {
-                throw new ArgumentNullException("subscriptions");
-            }
+            if (subscriptions == null) throw new ArgumentNullException("subscriptions");
 
             bool removed = false;
             List<Subscription> subscriptionsToDelete = new List<Subscription>();
@@ -4359,17 +4399,26 @@ namespace Opc.Ua.Client
         /// <summary>
         /// Gets the status associated with the keep alive operation.
         /// </summary>
-        public ServiceResult Status => m_status;
+        public ServiceResult Status
+        {
+            get { return m_status; }
+        }
 
         /// <summary>
         /// Gets the current server state.
         /// </summary>
-        public ServerState CurrentState => m_currentState;
+        public ServerState CurrentState
+        {
+            get { return m_currentState; }
+        }
 
         /// <summary>
         /// Gets the current server time.
         /// </summary>
-        public DateTime CurrentTime => m_currentTime;
+        public DateTime CurrentTime
+        {
+            get { return m_currentTime; }
+        }
 
         /// <summary>
         /// Gets or sets a flag indicating whether the session should send another keep alive.
@@ -4420,17 +4469,26 @@ namespace Opc.Ua.Client
         /// <summary>
         /// Gets the subscription that the notification applies to.
         /// </summary>
-        public Subscription Subscription => m_subscription;
+        public Subscription Subscription
+        {
+            get { return m_subscription; }
+        }
 
         /// <summary>
         /// Gets the notification message.
         /// </summary>
-        public NotificationMessage NotificationMessage => m_notificationMessage;
+        public NotificationMessage NotificationMessage
+        {
+            get { return m_notificationMessage; }
+        }
 
         /// <summary>
         /// Gets the string table returned with the notification message.
         /// </summary>
-        public IList<string> StringTable => m_stringTable;
+        public IList<string> StringTable
+        {
+            get { return m_stringTable; }
+        }
         #endregion
 
         #region Private Fields
@@ -4476,17 +4534,26 @@ namespace Opc.Ua.Client
         /// <summary>
         /// Gets the status associated with the keep alive operation.
         /// </summary>
-        public ServiceResult Status => m_status;
+        public ServiceResult Status
+        {
+            get { return m_status; }
+        }
 
         /// <summary>
         /// Gets the subscription with the message that could not be republished.
         /// </summary>
-        public uint SubscriptionId => m_subscriptionId;
+        public uint SubscriptionId
+        {
+            get { return m_subscriptionId; }
+        }
 
         /// <summary>
         /// Gets the sequence number for the message that could not be republished.
         /// </summary>
-        public uint SequenceNumber => m_sequenceNumber;
+        public uint SequenceNumber
+        {
+            get { return m_sequenceNumber; }
+        }
         #endregion
 
         #region Private Fields
