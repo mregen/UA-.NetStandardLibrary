@@ -29,15 +29,17 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using System.ServiceModel;
+using System.Runtime.Serialization;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Globalization;
+using System.IO;
 using System.Xml;
+using System.Threading.Tasks;
+using System.Reflection;
 
 namespace Opc.Ua.Client
 {
@@ -1270,7 +1272,7 @@ namespace Opc.Ua.Client
             else
             {
                 m_serverUris.Update((string[])values[1].Value);
-            }
+            } 
         }
 
         /// <summary>
@@ -2657,7 +2659,7 @@ namespace Opc.Ua.Client
             string securityPolicyUri = m_endpoint.Description.SecurityPolicyUri;
 
             // create the client signature.
-            byte[] dataToSign = Utils.Append(m_serverCertificate != null ? m_serverCertificate.RawData : null, serverNonce);
+            byte[]  dataToSign = Utils.Append(m_serverCertificate != null ? m_serverCertificate.RawData : null, serverNonce);
             SignatureData clientSignature = SecurityPolicies.Sign(m_instanceCertificate, securityPolicyUri, dataToSign);
 
             // choose a default token.
