@@ -147,7 +147,7 @@ namespace Quickstarts.ViewsClient
                     nodeToBrowse.NodeClassMask = 0;
                     nodeToBrowse.ResultMask = (uint)BrowseResultMask.All;
 
-                    ReferenceDescriptionCollection references = CoreClientUtils.Browse(m_session, nodeToBrowse, false);
+                    ReferenceDescriptionCollection references = ClientUtils.Browse(m_session, nodeToBrowse, false);
 
                     ViewCB.Items.Clear();
                     ViewCB.Items.Add(new ReferenceDescription() { NodeId = ExpandedNodeId.Null, DisplayName = "None" });

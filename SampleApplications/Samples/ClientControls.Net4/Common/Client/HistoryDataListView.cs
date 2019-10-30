@@ -720,7 +720,7 @@ namespace Opc.Ua.Client.Controls
             nodeToBrowse.NodeClassMask = 0;
             nodeToBrowse.ResultMask = (uint)(BrowseResultMask.DisplayName | BrowseResultMask.BrowseName);
 
-            ReferenceDescriptionCollection references = CoreClientUtils.Browse(m_session, nodeToBrowse, false);
+            ReferenceDescriptionCollection references = ClientUtils.Browse(m_session, nodeToBrowse, false);
 
             ReadValueIdCollection nodesToRead = new ReadValueIdCollection();
 

@@ -52,10 +52,10 @@ namespace Opc.Ua.Client.Controls
             }
         }
 
-        public override Task<bool> ShowAsync()
+        public override async Task<bool> ShowAsync()
         {
             DialogResult result = MessageBox.Show(message, "OPC UA", buttons);
-            return Task.FromResult((result == DialogResult.OK) || (result == DialogResult.Yes));
+            return await Task.FromResult((result == DialogResult.OK) || (result == DialogResult.Yes));
         }
     }
 }

@@ -194,7 +194,7 @@ namespace Opc.Ua.Client.Controls
                 return;
             }
 
-            ReferenceDescriptionCollection references = CoreClientUtils.Browse(m_session, View, CreateNodesToBrowse(), false);
+            ReferenceDescriptionCollection references = ClientUtils.Browse(m_session, View, CreateNodesToBrowse(), false);
 
             for (int ii = 0; references != null && ii < references.Count; ii++)
             {

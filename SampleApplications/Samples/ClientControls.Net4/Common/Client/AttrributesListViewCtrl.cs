@@ -223,7 +223,7 @@ namespace Opc.Ua.Client.Controls
             nodesToBrowse.Add(nodeToBrowse);
 
             // find properties.
-            ReferenceDescriptionCollection references = CoreClientUtils.Browse(m_session, View, nodesToBrowse, false);
+            ReferenceDescriptionCollection references = ClientUtils.Browse(m_session, View, nodesToBrowse, false);
 
             // build list of properties to read.
             ReadValueIdCollection nodesToRead = new ReadValueIdCollection();

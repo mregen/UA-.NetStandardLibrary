@@ -344,7 +344,7 @@ namespace Opc.Ua.Client.Controls
                 "1:DiscoveryUrls"
             };
 
-            List<NodeId> propertyIds = CoreClientUtils.TranslateBrowsePaths(
+            List<NodeId> propertyIds = ClientUtils.TranslateBrowsePaths(
                 ServerCTRL.Session,
                 nodeId,
                 wellKnownNamespaceUris,

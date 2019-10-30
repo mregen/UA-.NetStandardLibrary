@@ -2544,11 +2544,6 @@ namespace Opc.Ua
                 sourceType = TypeInfo.Construct(input);
             }
 
-            if (sourceType.ValueRank > 1)
-            {
-                return Cast<T>((Matrix)input, sourceType, handler);
-            }
-
             if (sourceType.ValueRank >= 0)
             {
                 return Cast<T>((Array)input, sourceType, handler);
