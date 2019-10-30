@@ -35,32 +35,50 @@ using System.Runtime.Serialization;
 
 namespace Opc.Ua.Client.ComplexTypes
 {
+    /// <summary>
+    /// Extensions to build attributes for the complex type builder.
+    /// </summary>
     public static class ComplexTypesAttributeExtension
     {
-        #region Static Members
+        #region Extensions
+        /// <summary>
+        /// Get the return type of an item in a collection.
+        /// </summary>
         public static Type GetItemType(this Type collectionType)
         {
             return collectionType.GetMethod("get_Item").ReturnType;
         }
 
+        /// <summary>
+        /// Build the DataContract attribute for a complex type.
+        /// </summary>
         public static void DataContractAttribute(this TypeBuilder builder, string Namespace)
         {
             var attribute = DataContractAttributeBuilder(Namespace);
             builder.SetCustomAttribute(attribute);
         }
 
+        /// <summary>
+        /// Build the DataContract attribute for an enumeration type.
+        /// </summary>
         public static void DataContractAttribute(this EnumBuilder builder, string Namespace)
         {
             var attribute = DataContractAttributeBuilder(Namespace);
             builder.SetCustomAttribute(attribute);
         }
 
+        /// <summary>
+        /// Build the DataMember attribute for a complex type.
+        /// </summary>
         public static void DataMemberAttribute(this PropertyBuilder typeBuilder, string name, bool isRequired, int order)
         {
             var attribute = DataMemberAttributeBuilder(name, isRequired, order);
             typeBuilder.SetCustomAttribute(attribute);
         }
 
+        /// <summary>
+        /// Build the StructureDefiniton attribute for a complex type.
+        /// </summary>
         public static void StructureDefinitonAttribute(
             this TypeBuilder typeBuilder,
             StructureDefinition structureDefinition)
@@ -86,6 +104,9 @@ namespace Opc.Ua.Client.ComplexTypes
             typeBuilder.SetCustomAttribute(builder);
         }
 
+        /// <summary>
+        /// Build the StructureField attribute for a complex type.
+        /// </summary>
         public static void StructureFieldAttribute(
             this PropertyBuilder typeBuilder,
             StructureField structureField)
@@ -110,7 +131,10 @@ namespace Opc.Ua.Client.ComplexTypes
             typeBuilder.SetCustomAttribute(builder);
         }
 
-        public static void EnumAttribute(this FieldBuilder typeBuilder, string Name, int Value)
+        /// <summary>
+        /// Build the EnumMember attribute for an enumeration type.
+        /// </summary>
+        public static void EnumMemberAttribute(this FieldBuilder typeBuilder, string Name, int Value)
         {
             var attributeType = typeof(EnumMemberAttribute);
             Type[] ctorParams = new Type[] { typeof(string) };
@@ -131,6 +155,9 @@ namespace Opc.Ua.Client.ComplexTypes
         #endregion
 
         #region Private Static Members
+        /// <summary>
+        /// Build the DataMember attribute.
+        /// </summary>
         private static CustomAttributeBuilder DataMemberAttributeBuilder(string name, bool isRequired, int order)
         {
             var attributeType = typeof(DataMemberAttribute);
@@ -153,6 +180,9 @@ namespace Opc.Ua.Client.ComplexTypes
             return builder;
         }
 
+        /// <summary>
+        /// Build the DataContract attribute.
+        /// </summary>
         private static CustomAttributeBuilder DataContractAttributeBuilder(string Namespace)
         {
             var attributeType = typeof(DataContractAttribute);

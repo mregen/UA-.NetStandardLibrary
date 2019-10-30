@@ -32,6 +32,7 @@ using System;
 
 namespace Opc.Ua.Client.ComplexTypes
 {
+
     public enum StructureBaseDataType
     {
         Structure,
@@ -39,6 +40,9 @@ namespace Opc.Ua.Client.ComplexTypes
         Union
     }
 
+    /// <summary>
+    /// Attribute for a base complex type structure definition.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public class StructureDefinitionAttribute : Attribute
     {

@@ -35,7 +35,9 @@ using System.Reflection.Emit;
 namespace Opc.Ua.Client.ComplexTypes
 {
     /// <summary>
-    /// 
+    /// Build an assembly with custom enum types and 
+    /// complex types based on the BaseComplexType class
+    /// using System.Reflection.Emit.
     /// </summary>
     public class ComplexTypeBuilder
     {
@@ -65,6 +67,10 @@ namespace Opc.Ua.Client.ComplexTypes
         public string TargetNamespace => m_targetNamespace;
         public int TargetNamespaceIndex => m_targetNamespaceIndex;
 
+        /// <summary>
+        /// Create an enum type from a binary schema definition.
+        /// Available before OPC UA V1.04.
+        /// </summary>
         public Type AddEnumType(Schema.Binary.EnumeratedType enumeratedType)
         {
             if (enumeratedType == null)
@@ -76,11 +82,15 @@ namespace Opc.Ua.Client.ComplexTypes
             foreach (var enumValue in enumeratedType.EnumeratedValue)
             {
                 var newEnum = enumBuilder.DefineLiteral(enumValue.Name, enumValue.Value);
-                newEnum.EnumAttribute(enumValue.Name, enumValue.Value);
+                newEnum.EnumMemberAttribute(enumValue.Name, enumValue.Value);
             }
             return enumBuilder.CreateTypeInfo();
         }
 
+        /// <summary>
+        /// Create an enum type from an EnumDefinition in an ExtensionObject.
+        /// Available since OPC UA V1.04 in the DataTypeDefinition attribute.
+        /// </summary>
         public Type AddEnumType(string typeName, ExtensionObject typeDefinition)
         {
             var enumDefinition = typeDefinition.Body as EnumDefinition;
@@ -94,11 +104,15 @@ namespace Opc.Ua.Client.ComplexTypes
             foreach (var enumValue in enumDefinition.Fields)
             {
                 var newEnum = enumBuilder.DefineLiteral(enumValue.Name, (int)enumValue.Value);
-                newEnum.EnumAttribute(enumValue.Name, (int)enumValue.Value);
+                newEnum.EnumMemberAttribute(enumValue.Name, (int)enumValue.Value);
             }
             return enumBuilder.CreateTypeInfo();
         }
 
+        /// <summary>
+        /// Create an enum type from an EnumValue property of a DataType node.
+        /// Available before OPC UA V1.04.
+        /// </summary>
         public Type AddEnumType(string typeName, ExtensionObject[] enumDefinition)
         {
             if (enumDefinition == null)
@@ -113,11 +127,15 @@ namespace Opc.Ua.Client.ComplexTypes
                 var enumValue = extensionObject.Body as EnumValueType;
                 var name = enumValue.DisplayName.Text;
                 var newEnum = enumBuilder.DefineLiteral(name, (int)enumValue.Value);
-                newEnum.EnumAttribute(name, (int)enumValue.Value);
+                newEnum.EnumMemberAttribute(name, (int)enumValue.Value);
             }
             return enumBuilder.CreateTypeInfo();
         }
 
+        /// <summary>
+        /// Create an enum type from the EnumString array of a DataType node.
+        /// Available before OPC UA V1.04.
+        /// </summary>
         public Type AddEnumType(string typeName, LocalizedText[] enumDefinition)
         {
             if (enumDefinition == null)
@@ -128,34 +146,20 @@ namespace Opc.Ua.Client.ComplexTypes
             var enumBuilder = m_moduleBuilder.DefineEnum(typeName, TypeAttributes.Public, typeof(int));
             enumBuilder.DataContractAttribute(m_targetNamespace);
             int value = 1;
-            // TODO: do we need a 0 value here?
             foreach (var enumValue in enumDefinition)
             {
                 var name = enumValue.Text;
                 var newEnum = enumBuilder.DefineLiteral(name, value);
-                newEnum.EnumAttribute(name, value);
+                newEnum.EnumMemberAttribute(name, value);
                 value++;
             }
             return enumBuilder.CreateTypeInfo();
         }
 
-        public ComplexTypeFieldBuilder AddStructuredType(
-            Schema.Binary.StructuredType structuredType,
-            NodeId typeId)
-        {
-            var structureBuilder = m_moduleBuilder.DefineType(structuredType.Name,
-                TypeAttributes.Public | TypeAttributes.Class, typeof(BaseComplexType));
-            structureBuilder.DataContractAttribute(m_targetNamespace);
-            var structureDefinition = new StructureDefinition()
-            {
-                DefaultEncodingId = typeId,
-                BaseDataType = NodeId.Null,
-                StructureType = StructureType.Structure
-            };
-            structureBuilder.StructureDefinitonAttribute(structureDefinition);
-            return new ComplexTypeFieldBuilder(structureBuilder);
-        }
-
+        /// <summary>
+        /// Create a complex type from a StructureDefinition.
+        /// Available since OPC UA V1.04 in the DataTypeDefinition attribute.
+        /// </summary>
         public ComplexTypeFieldBuilder AddStructuredType(
             string name,
             StructureDefinition structureDefinition)
@@ -164,7 +168,6 @@ namespace Opc.Ua.Client.ComplexTypes
             {
                 throw new ArgumentNullException(nameof(structureDefinition));
             }
-
             var structureBuilder = m_moduleBuilder.DefineType(name,
                 TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Serializable,
                 typeof(BaseComplexType));
@@ -172,9 +175,6 @@ namespace Opc.Ua.Client.ComplexTypes
             structureBuilder.StructureDefinitonAttribute(structureDefinition);
             return new ComplexTypeFieldBuilder(structureBuilder);
         }
-        #endregion
-
-        #region Private Members
         #endregion
 
         #region Private Fields

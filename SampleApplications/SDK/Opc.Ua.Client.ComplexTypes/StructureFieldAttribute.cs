@@ -32,6 +32,10 @@ using System;
 
 namespace Opc.Ua.Client.ComplexTypes
 {
+    /// <summary>
+    /// Attribute for a base complex type field definition.
+    /// </summary>
+
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public class StructureFieldAttribute : Attribute
     {

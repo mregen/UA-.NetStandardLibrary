@@ -42,12 +42,11 @@ namespace Opc.Ua.Client.ComplexTypes
         /// <summary>
         /// Initializes the object with default values.
         /// </summary>
-        /// <remarks>
-        /// Initializes the object with default values.
-        /// </remarks>
         public BaseComplexType()
         {
             TypeId = ExpandedNodeId.Null;
+            BinaryEncodingId = ExpandedNodeId.Null;
+            XmlEncodingId = ExpandedNodeId.Null;
             m_context = MessageContextExtension.CurrentContext;
         }
 
@@ -87,18 +86,15 @@ namespace Opc.Ua.Client.ComplexTypes
         #endregion
 
         #region Public Properties
-        /// <summary>
-        /// The data type node id for the extension object.
-        /// </summary>
-        /// <value>The type id.</value>
+        /// <summary cref="IEncodeable.TypeId" />
         public ExpandedNodeId TypeId { get; set; }
 
+        /// <summary cref="IEncodeable.BinaryEncodingId" />
         public ExpandedNodeId BinaryEncodingId { get; set; }
 
+        /// <summary cref="IEncodeable.XmlEncodingId" />
         public ExpandedNodeId XmlEncodingId { get; set; }
-        #endregion
 
-        #region ICloneable Members
         /// <summary>
         /// Makes a deep copy of the object.
         /// </summary>
@@ -117,6 +113,7 @@ namespace Opc.Ua.Client.ComplexTypes
             var attribute = (StructureDefinitionAttribute)
                 GetType().GetCustomAttribute(typeof(StructureDefinitionAttribute));
 
+            // clone all properties of derived class
             var properties = GetType().GetProperties();
             foreach (var property in properties)
             {
@@ -134,6 +131,7 @@ namespace Opc.Ua.Client.ComplexTypes
             return clone;
         }
 
+        /// <summary cref="IEncodeable.Encode(IEncoder)" />
         public void Encode(IEncoder encoder)
         {
             encoder.PushNamespace(TypeId.NamespaceUri);
@@ -241,6 +239,7 @@ namespace Opc.Ua.Client.ComplexTypes
             encoder.PopNamespace();
         }
 
+        /// <summary cref="IEncodeable.Decode(IDecoder)" />
         public void Decode(IDecoder decoder)
         {
             decoder.PushNamespace(TypeId.NamespaceUri);
@@ -317,6 +316,7 @@ namespace Opc.Ua.Client.ComplexTypes
             decoder.PopNamespace();
         }
 
+        /// <summary cref="IEncodeable.IsEqual(IEncodeable)" />
         public bool IsEqual(IEncodeable equalValue)
         {
             if (Object.ReferenceEquals(this, equalValue))
@@ -331,45 +331,33 @@ namespace Opc.Ua.Client.ComplexTypes
             }
 
             var valueType = valueBaseType.GetType();
-            var thisType = this.GetType();
-            if (thisType != valueType)
+            if (this.GetType() != valueType)
             {
                 return false;
             }
 
-            var valueProps = valueType.GetProperties();
-            var valueEnumerator = valueProps.GetEnumerator();
-            var properties = thisType.GetProperties();
+            var properties = this.GetType().GetProperties();
             foreach (var property in properties)
             {
                 if (property.CustomAttributes.Count() == 0)
                 {
                     continue;
                 }
-                PropertyInfo value;
-                do
-                {
-                    value = (PropertyInfo)valueEnumerator.Current;
-                    valueEnumerator.MoveNext();
-                } while (value.CustomAttributes.Count() == 0);
 
-                if (!Utils.IsEqual(property.GetValue(this), value.GetValue(valueBaseType)))
+                if (!Utils.IsEqual(property.GetValue(this), property.GetValue(valueBaseType)))
                 {
                     return false;
                 }
             }
 
-            // TODO
-            // check if second class has been fully compared.
-
             return true;
         }
         #endregion
 
-        #region Static Members
-        #endregion
-
         #region Private Members
+        /// <summary>
+        /// Encode a property based on the property type and value rank.
+        /// </summary>
         private void EncodeProperty(IEncoder encoder, PropertyInfo property, int valueRank)
         {
             if (valueRank < 0)
@@ -382,6 +370,9 @@ namespace Opc.Ua.Client.ComplexTypes
             }
         }
 
+        /// <summary>
+        /// Encode a scalar property based on the property type.
+        /// </summary>
         private void EncodeProperty(IEncoder encoder, PropertyInfo property)
         {
             var propertyType = property.PropertyType;
@@ -500,7 +491,9 @@ namespace Opc.Ua.Client.ComplexTypes
             }
         }
 
-
+        /// <summary>
+        /// Encode an array property based on the base property type.
+        /// </summary>
         private void EncodePropertyArray(IEncoder encoder, PropertyInfo property)
         {
             var elementType = property.PropertyType.GetElementType();
@@ -629,7 +622,9 @@ namespace Opc.Ua.Client.ComplexTypes
             }
         }
 
-
+        /// <summary>
+        /// Decode a property based on the property type and value rank.
+        /// </summary>
         private void DecodeProperty(IDecoder decoder, PropertyInfo property, int valueRank)
         {
             if (valueRank < 0)
@@ -642,6 +637,9 @@ namespace Opc.Ua.Client.ComplexTypes
             }
         }
 
+        /// <summary>
+        /// Decode a scalar property based on the property type.
+        /// </summary>
         private void DecodeProperty(IDecoder decoder, PropertyInfo property)
         {
             var propertyType = property.PropertyType;
@@ -760,6 +758,9 @@ namespace Opc.Ua.Client.ComplexTypes
             }
         }
 
+        /// <summary>
+        /// Decode an array property based on the base property type.
+        /// </summary>
         private void DecodePropertyArray(IDecoder decoder, PropertyInfo property)
         {
             var elementType = property.PropertyType.GetElementType();

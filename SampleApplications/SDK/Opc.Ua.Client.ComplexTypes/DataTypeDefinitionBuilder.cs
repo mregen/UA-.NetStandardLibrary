@@ -35,9 +35,30 @@ using System.Xml;
 
 namespace Opc.Ua.Client.ComplexTypes
 {
+    /// <summary>
+    /// Extensions to convert binary schema type definitions to DataTypeDefinitions.
+    /// </summary>
     public static class DataTypeDefinitionExtension
     {
         #region Public Extensions
+        /// <summary>
+        /// Convert a binary schema type definition to a 
+        /// StructureDefinition.
+        /// </summary>
+        /// <remarks>
+        /// Support for:
+        /// - Structures, structures with optional fields and unions.
+        /// - Nested types and typed arrays with length field.
+        /// The converter has the following known restrictions:
+        /// - Support only for V1.03 structured types which can be mapped to the V1.04
+        /// structured type definition. 
+        /// The following dictionary tags cause bail out for a structure:
+        /// - use of a terminator of length in bytes
+        /// - an array length field is not a direct predecessor of the array
+        /// - The switch value of a union is not the first field.
+        /// - The selector bits of optional fields are not stored in a 32 bit variable
+        ///   and do not add up to 32 bits.
+        /// </remarks>
         public static StructureDefinition ToStructureDefinition(
             this Schema.Binary.StructuredType structuredType,
             ExpandedNodeId defaultEncodingId,
@@ -196,6 +217,9 @@ namespace Opc.Ua.Client.ComplexTypes
             return structureDefinition;
         }
 
+        /// <summary>
+        /// Test for special Bit type used in the binary schema structure definition.
+        /// </summary>
         public static bool IsXmlBitType(this XmlQualifiedName typeName)
         {
             if (typeName.Namespace == Namespaces.OpcBinarySchema ||
@@ -209,6 +233,10 @@ namespace Opc.Ua.Client.ComplexTypes
             return false;
         }
 
+        /// <summary>
+        /// Look up the node id for a qualified name of a type
+        /// in a binary schema type definition.
+        /// </summary>
         public static NodeId ToNodeId(
             this XmlQualifiedName typeName,
             IList<INode> typeCollection,
@@ -231,8 +259,8 @@ namespace Opc.Ua.Client.ComplexTypes
                     t.NodeId.NamespaceUri == typeName.Namespace).FirstOrDefault();
                 if (referenceId == null)
                 {
-                    // hackhack: servers may have multiple dictionaries with different
-                    // target namespace but types are still in the same
+                    // TODO: servers may have multiple dictionaries with different
+                    // target namespace but types are stored for all in the same namespace.
                     referenceId = typeCollection.Where(t =>
                         t.DisplayName == typeName.Name).FirstOrDefault();
                 }
