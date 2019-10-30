@@ -495,7 +495,8 @@ namespace Opc.Ua.Client.ComplexTypes
             }
             else
             {
-                throw new NotImplementedException($"Unknown type {propertyType} to encode.");
+                throw new ServiceResultException(StatusCodes.BadNotSupported,
+                    $"Unknown type {propertyType} to encode.");
             }
         }
 
@@ -619,11 +620,12 @@ namespace Opc.Ua.Client.ComplexTypes
                 {
                     encodable = IEncodeableCollection.ToIEncodeableCollection(value as IEncodeable[]);
                 }
-                encoder.WriteEncodeableArray(property.Name, encodable, property.PropertyType);
+                encoder.WriteEncodeableArray(property.Name, encodable.ToArray(), property.PropertyType);
             }
             else
             {
-                throw new NotImplementedException($"Unknown type {elementType} to encode.");
+                throw new ServiceResultException(StatusCodes.BadNotSupported,
+                    $"Unknown type {elementType} to encode.");
             }
         }
 
@@ -753,7 +755,8 @@ namespace Opc.Ua.Client.ComplexTypes
             }
             else
             {
-                throw new NotImplementedException($"Unknown type {propertyType} to decode.");
+                throw new ServiceResultException(StatusCodes.BadNotSupported,
+                    $"Unknown type {propertyType} to decode.");
             }
         }
 
@@ -874,7 +877,8 @@ namespace Opc.Ua.Client.ComplexTypes
             }
             else
             {
-                throw new NotImplementedException($"Unknown type {elementType} to decode as array.");
+                throw new ServiceResultException(StatusCodes.BadNotSupported,
+                    $"Unknown type {elementType} to decode.");
             }
         }
         #endregion
