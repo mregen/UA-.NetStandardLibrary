@@ -350,7 +350,7 @@ namespace Opc.Ua.Client.Controls
 
                             continue;
                         }
-                        
+
                         // check if all references have been fetched.
                         if (results[ii].References.Count == 0)
                         {
@@ -428,7 +428,7 @@ namespace Opc.Ua.Client.Controls
                 return null;
             }
         }
-        
+
         /// <summary>
         /// Browses the address space and returns the references found.
         /// </summary>
