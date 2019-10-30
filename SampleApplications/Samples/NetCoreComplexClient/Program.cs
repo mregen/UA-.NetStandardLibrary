@@ -1,18 +1,37 @@
-﻿/* Copyright (c) 1996-2019 The OPC Foundation. All rights reserved.
-   The source code in this file is covered under a dual-license scenario:
-     - RCL: for OPC Foundation members in good-standing
-     - GPL V2: everybody else
-   RCL license terms accompanied with this source code. See http://opcfoundation.org/License/RCL/1.00/
-   GNU General Public License as published by the Free Software Foundation;
-   version 2 of the License are accompanied with this source code. See http://opcfoundation.org/License/GPLv2
-   This source code is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-*/
+﻿/* ========================================================================
+ * Copyright (c) 2005-2019 The OPC Foundation, Inc. All rights reserved.
+ *
+ * OPC Foundation MIT License 1.00
+ * 
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
+ * 
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The complete license agreement can be found here:
+ * http://opcfoundation.org/License/MIT/1.00/
+ * ======================================================================*/
+
 
 using Mono.Options;
 using Opc.Ua;
 using Opc.Ua.Client;
+using Opc.Ua.Client.ComplexTypes;
 using Opc.Ua.Configuration;
 using System;
 using System.Collections.Generic;
@@ -41,9 +60,7 @@ namespace NetCoreConsoleClient
     {
         public static int Main(string[] args)
         {
-            Console.WriteLine(
-                (Utils.IsRunningOnMono() ? "Mono" : ".Net Core") +
-                " OPC UA Console Client sample");
+            Console.WriteLine(".Net Core OPC UA Complex Types Client sample");
 
             // command line options
             bool showHelp = false;
@@ -78,9 +95,7 @@ namespace NetCoreConsoleClient
             if (showHelp)
             {
                 // show some app description message
-                Console.WriteLine(Utils.IsRunningOnMono() ?
-                    "Usage: mono MonoConsoleClient.exe [OPTIONS] [ENDPOINTURL]" :
-                    "Usage: dotnet NetCoreConsoleClient.dll [OPTIONS] [ENDPOINTURL]");
+                Console.WriteLine("Usage: dotnet NetCoreConsoleClient.dll [OPTIONS] [ENDPOINTURL]");
                 Console.WriteLine();
 
                 // output the options
@@ -163,7 +178,7 @@ namespace NetCoreConsoleClient
             exitCode = ExitCode.Ok;
         }
 
-        public static ExitCode ExitCode { get => exitCode; }
+        public static ExitCode ExitCode => exitCode;
 
         private async Task ConsoleSampleClient()
         {
@@ -174,7 +189,7 @@ namespace NetCoreConsoleClient
             {
                 ApplicationName = "UA Core Sample Client",
                 ApplicationType = ApplicationType.Client,
-                ConfigSectionName = Utils.IsRunningOnMono() ? "Opc.Ua.MonoSampleClient" : "Opc.Ua.SampleClient"
+                ConfigSectionName = "Opc.Ua.ComplexClient"
             };
 
             // load the application configuration.
@@ -216,12 +231,178 @@ namespace NetCoreConsoleClient
             // register keep alive handler
             session.KeepAlive += Client_KeepAlive;
 
-            Console.WriteLine("4 - Browse the OPC UA server namespace.");
+            Console.WriteLine("4 - Browse the OPC UA data dictionary.");
             exitCode = ExitCode.ErrorBrowseNamespace;
             ReferenceDescriptionCollection references;
             Byte[] continuationPoint;
 
-            references = session.FetchReferences(ObjectIds.ObjectsFolder);
+            session.Browse(
+                null,
+                null,
+                DataTypeIds.Enumeration,
+                0u,
+                BrowseDirection.Forward,
+                ReferenceTypeIds.HasSubtype,
+                false,
+                (uint)NodeClass.DataType,
+                out continuationPoint,
+                out references);
+
+            var complexTypeSystem = new ComplexTypeSystem(session);
+            await complexTypeSystem.Load();
+
+            var nodes = new List<Node>();
+            var values = new List<DataValue>();
+
+            // UA Ansi C++ server
+            var testId = new NodeId("Demo.Static.Scalar.Structures", 2);
+            if (TestNodeId(testId))
+            {
+                session.Browse(
+                    null,
+                    null,
+                    testId,
+                    0u,
+                    BrowseDirection.Forward,
+                    ReferenceTypeIds.HierarchicalReferences,
+                    true,
+                    (uint)NodeClass.Variable | (uint)NodeClass.Object | (uint)NodeClass.Method,
+                    out continuationPoint,
+                    out references);
+
+                foreach (var reference in references)
+                {
+                    var node = session.ReadNode(ExpandedNodeId.ToNodeId(reference.NodeId, session.NamespaceUris));
+                    nodes.Add(node);
+                    Console.WriteLine($"{node.BrowseName}");
+                    try
+                    {
+                        var nodeValue = session.ReadValue(ExpandedNodeId.ToNodeId(reference.NodeId, session.NamespaceUris));
+                        values.Add(nodeValue);
+                        Console.WriteLine($"{nodeValue.Value}");
+                    }
+                    catch { }
+                }
+
+                var vectorNodeId = new NodeId("Demo.Static.Arrays.Vector", 2);
+                var vectorNode = session.ReadNode(vectorNodeId);
+                var vectorValue = session.ReadValue(vectorNodeId);
+
+                var workOrderNodeId = new NodeId("Demo.Static.Arrays.WorkOrder", 2);
+                var workOrderNode = session.ReadNode(workOrderNodeId);
+                var workOrderValue = session.ReadValue(workOrderNodeId);
+
+                var workOrderVarNodeId = new NodeId("Demo.WorkOrder.WorkOrderVariable", 2);
+                var workOrderVarNode = session.ReadNode(workOrderVarNodeId);
+                var workOrderVarValue = session.ReadValue(workOrderVarNodeId);
+
+                var workOrderVarNodeId2 = new NodeId("Demo.WorkOrder.WorkOrderVariable2", 2);
+                var workOrderVarNode2 = session.ReadNode(workOrderVarNodeId2);
+                var workOrderVarValue2 = session.ReadValue(workOrderVarNodeId2);
+
+                nodes.Add(vectorNode);
+                nodes.Add(workOrderNode);
+                nodes.Add(workOrderVarNode);
+                nodes.Add(workOrderVarNode2);
+
+                values.Add(vectorValue);
+                values.Add(workOrderValue);
+                values.Add(workOrderVarValue);
+                values.Add(workOrderVarValue2);
+
+            }
+
+            // UA Ansi C server
+            if (TestNodeId(new NodeId("Demo.WorkOrder.WorkOrderVariable2.StatusComments", 4)))
+            {
+                // WorkOrderStatusType
+                var workOrderNodeId = new NodeId("Demo.WorkOrder.WorkOrderVariable2.StatusComments", 4);
+                var statusCommentNodeId = session.ReadNode(workOrderNodeId);
+                var statusComment = session.ReadValue(workOrderNodeId);
+
+                //workOrderNodeId = new NodeId("Demo.WorkOrder.WorkOrderVariable", 4);
+                //var workOrder = session.ReadNode(workOrderNodeId);
+                //var workOrderValue = session.ReadValue(workOrderNodeId);
+
+                // Vector
+                var nodeId = new NodeId("Demo.Static.Scalar.Vector", 4);
+                var vector = session.ReadNode(nodeId);
+                var vectorValue = session.ReadValue(nodeId);
+
+                // Work Order
+                nodeId = new NodeId("Demo.Static.Scalar.WorkOrder", 4);
+                var workOrder = session.ReadNode(nodeId);
+                var workOrderValue = session.ReadValue(nodeId);
+
+                // Union
+                nodeId = new NodeId("Demo.Static.Scalar.Union", 4);
+                var union = session.ReadNode(nodeId);
+                var unionValue = session.ReadValue(nodeId);
+
+                nodeId = new NodeId("Demo.Static.Arrays.Vector", 4);
+                var vectorArray = session.ReadNode(nodeId);
+                var vectorArrayValue = session.ReadValue(nodeId);
+
+                nodeId = new NodeId("Demo.Static.Matrix.Vector", 4);
+                var vectorMatrix = session.ReadNode(nodeId);
+                var vectorMatrixValue = session.ReadValue(nodeId);
+
+                nodeId = new NodeId("Demo.Static.Scalar.OptionalFields", 4);
+                var optionalFields = session.ReadNode(nodeId);
+                var optionalFieldsValue = session.ReadValue(nodeId);
+
+                nodeId = new NodeId("Demo.Static.Scalar.Priority", 4);
+                var priority = session.ReadNode(nodeId);
+                var priorityValue = session.ReadValue(nodeId);
+
+                nodeId = new NodeId("Demo.BoilerDemo.Boiler1.HeaterStatus", 4);
+                var heater = session.ReadNode(nodeId);
+                var heaterValue = session.ReadValue(nodeId);
+
+                // AccessRights
+                nodeId = new NodeId("Demo.Static.Scalar.OptionSet", 4);
+                var optionSet = session.ReadNode(nodeId);
+                var optionSetValue = session.ReadValue(nodeId);
+
+                // structure
+                nodeId = new NodeId("Demo.Static.Scalar.Structure", 4);
+                var node = session.ReadNode(nodeId);
+                var value = session.ReadValue(nodeId);
+            }
+
+            // Quickstart DataTypes server
+            if (TestNodeId(new NodeId(283, 4)))
+            {
+                // read various nodes...
+                var vehiclesInLotNode = session.ReadNode(new NodeId(283, 4));
+                var parkingLotNode = session.ReadNode(new NodeId(281, 4));
+
+                //var vehiclesInLot = session.ReadValue(new NodeId(283, 4));
+                var lotTypeNodeId = session.ReadNode(new NodeId(380, 4));
+                var lotType = session.ReadValue(new NodeId(380, 4));
+                var ownedVehiclesNodeId = session.ReadNode(new NodeId(377, 4));
+                var ownedVehicles = session.ReadValue(new NodeId(377, 4));
+                Console.WriteLine(ownedVehicles);
+                var primaryVehicleNode = session.ReadNode(new NodeId(376, 4));
+                var primaryVehicle = session.ReadValue(new NodeId(376, 4));
+                Console.WriteLine(primaryVehicle);
+                var vehiclesInLot = session.ReadValue(new NodeId(283, 4));
+                Console.WriteLine(vehiclesInLot);
+            }
+
+            var jsonEncoder = new JsonEncoder(session.MessageContext, true);
+
+            int v = 1;
+            foreach (var value in values)
+            {
+                jsonEncoder.WriteDataValue($"Value{v++}", value);
+            }
+            var textbuffer = jsonEncoder.CloseAndReturnText();
+
+            Console.WriteLine(textbuffer);
+
+            Console.WriteLine("4 - Browse the OPC UA server namespace.");
+            exitCode = ExitCode.ErrorBrowseNamespace;
 
             session.Browse(
                 null,
@@ -283,6 +464,19 @@ namespace NetCoreConsoleClient
             exitCode = ExitCode.ErrorRunning;
         }
 
+        private bool TestNodeId(NodeId nodeId)
+        {
+            try
+            {
+                session.ReadNode(nodeId);
+                return true;
+            }
+            catch
+            {
+            }
+            return false;
+        }
+
         private void Client_KeepAlive(Session sender, KeepAliveEventArgs e)
         {
             if (e.Status != null && ServiceResult.IsNotGood(e.Status))
@@ -338,4 +532,5 @@ namespace NetCoreConsoleClient
         }
 
     }
+
 }

@@ -2,21 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <AssemblyName>NetCoreConsoleClient</AssemblyName>
+    <AssemblyName>NetCoreComplexClient</AssemblyName>
     <OutputType>Exe</OutputType>
-    <PackageId>NetCoreConsoleClient</PackageId>
+    <PackageId>NetCoreComplexClient</PackageId>
     <Company>OPC Foundation</Company>
     <Product>OPC UA SDK</Product>
-    <Description>.Net Core Console Client</Description>
+    <Description>.Net Core Complex Client</Description>
     <Copyright>Copyright © 2004-2019 OPC Foundation, Inc</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Opc.Ua.MonoSampleClient.Config.xml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\..\Stack\Opc.Ua.Core\Opc.Ua.Core.csproj" />
+    <ProjectReference Include="..\..\SDK\Opc.Ua.Client.ComplexTypes\Opc.Ua.Client.ComplexTypes.csproj" />
     <ProjectReference Include="..\..\SDK\Opc.Ua.Client\Opc.Ua.Client.csproj" />
     <ProjectReference Include="..\..\SDK\Opc.Ua.Configuration\Opc.Ua.Configuration.csproj" />
   </ItemGroup>
@@ -30,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Opc.Ua.SampleClient.Config.xml">
+    <None Update="Opc.Ua.ComplexClient.Config.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
