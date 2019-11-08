@@ -11,6 +11,13 @@
 >
   <opc:Namespaces>
     <opc:Namespace Name="OpcUa" Prefix="Opc.Ua" XmlNamespace="http://opcfoundation.org/UA/2008/02/Types.xsd">http://opcfoundation.org/UA/</opc:Namespace>
+    <opc:Namespace Name="OpcUaDi" Prefix="Opc.Ua.Di" XmlNamespace="http://opcfoundation.org/UA/DI/Types.xsd" XmlPrefix="DI" FilePath="../DI/OpcUaDiModel.xml">http://opcfoundation.org/UA/DI/</opc:Namespace>
+    <opc:Namespace Name="OpcUaAdi" Prefix="Opc.Ua.Adi" XmlNamespace="http://opcfoundation.org/UA/ADI/Types.xsd" XmlPrefix="ADI" FilePath="../ADI/OpcUaAdiModel.xml">http://opcfoundation.org/UA/ADI/</opc:Namespace>
+    <opc:Namespace Name="MDIS" Prefix="Opc.MDIS" XmlNamespace="http://opcfoundation.org/UA/MDIS/Types.xsd" FilePath="../MDIS/MDIS.xml" XmlPrefix="MDIS">http://opcfoundation.org/UA/MDIS</opc:Namespace>
+    <opc:Namespace Name="OpcUaMTConnect" Prefix="Opc.Ua.MTConnect" XmlNamespace="http://opcfoundation.org/UA/MTConnect/Types.xsd" XmlPrefix="MT" FilePath="../MTConnect/MTConnectModel.xml">http://opcfoundation.org/UA/MTConnect/</opc:Namespace>
+    <opc:Namespace Name="OpcUaPlc" Prefix="Opc.Ua.Plc" XmlNamespace="http://PLCopen.org/OpcUa/IEC61131-3/Types.xsd" XmlPrefix="PLC" FilePath="../PLCopen/OpcUaPLCopenModel.xml">http://PLCopen.org/OpcUa/IEC61131-3/</opc:Namespace>
+    <opc:Namespace Name="OpcUaRobotics" Prefix="Opc.Ua.Robotics" XmlNamespace="http://opcfoundation.org/UA/Robotics/Types.xsd" XmlPrefix="Robotics" FilePath="../Robotics/OpcUaRoboticsModel.xml">http://opcfoundation.org/UA/Robotics/</opc:Namespace>
+    <opc:Namespace Name="Sercos" Prefix="Sercos" XmlNamespace="http://sercos.org/UA/Types.xsd" XmlPrefix="Sercos" FilePath="../Sercos/SercosModel.xml">http://sercos.org/UA/</opc:Namespace>
     <opc:Namespace Name="DataTypes" Prefix="Quickstarts.DataTypes.Types" InternalPrefix="Quickstarts.DataTypes.Types" FilePath="..\Common\Types\ModelDesign1.xml">http://opcfoundation.org/UA/Quickstarts/DataTypes/Types</opc:Namespace>
     <opc:Namespace Name="DataTypeInstances" Prefix="Quickstarts.DataTypes.Instances" InternalPrefix="Quickstarts.DataTypeInstances.Instances">http://opcfoundation.org/UA/Quickstarts/DataTypes/Instances</opc:Namespace>
   </opc:Namespaces>
