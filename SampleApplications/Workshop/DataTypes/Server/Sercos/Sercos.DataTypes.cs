@@ -32,9 +32,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.Runtime.Serialization;
+using Opc.Ua.Di;
 using Opc.Ua;
-using Quickstarts.DataTypes.Types;
 
-namespace Quickstarts.DataTypes.Instances
+namespace Sercos
 {
 }

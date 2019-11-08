@@ -58,7 +58,15 @@ namespace Quickstarts.DataTypes
             SetNamespaces(
                 Quickstarts.DataTypes.Namespaces.DataTypes,
                 Quickstarts.DataTypes.Types.Namespaces.DataTypes, 
-                Quickstarts.DataTypes.Instances.Namespaces.DataTypeInstances);
+                Quickstarts.DataTypes.Instances.Namespaces.DataTypeInstances,
+                Opc.Ua.Di.Namespaces.OpcUaDi,
+                Opc.Ua.Adi.Namespaces.OpcUaAdi,
+                Opc.MDIS.Namespaces.MDIS,
+                Opc.Ua.MTConnect.Namespaces.OpcUaMTConnect,
+                Opc.Ua.Plc.Namespaces.OpcUaPlc,
+                Opc.Ua.Robotics.Namespaces.OpcUaRobotics,
+                Sercos.Namespaces.Sercos
+                );
 
             // get the configuration for the node manager.
             m_configuration = configuration.ParseExtension<DataTypesServerConfiguration>();
@@ -170,6 +178,34 @@ namespace Quickstarts.DataTypes
             predefinedNodes.LoadFromBinaryResource(context, 
                 "Quickstarts.DataTypes.Instances.Quickstarts.DataTypes.Instances.PredefinedNodes.uanodes",
                 typeof(DataTypesNodeManager).GetTypeInfo().Assembly, 
+                true);
+            predefinedNodes.LoadFromBinaryResource(context,
+                "Quickstarts.DataTypes.DI.Opc.Ua.Di.PredefinedNodes.uanodes",
+                typeof(Opc.Ua.Di.IVendorNameplateState).GetTypeInfo().Assembly,
+                true);
+            predefinedNodes.LoadFromBinaryResource(context,
+                "Quickstarts.DataTypes.ADI.Opc.Ua.Adi.PredefinedNodes.uanodes",
+                typeof(Opc.Ua.Adi.AccessoryState).GetTypeInfo().Assembly,
+                true);
+            predefinedNodes.LoadFromBinaryResource(context,
+                "Quickstarts.DataTypes.MDIS.Opc.MDIS.PredefinedNodes.uanodes",
+                typeof(Opc.MDIS.ChokeMoveEnum).GetTypeInfo().Assembly,
+                true);
+            predefinedNodes.LoadFromBinaryResource(context,
+                "Quickstarts.DataTypes.MTConnect.Opc.Ua.MTConnect.PredefinedNodes.uanodes",
+                typeof(Opc.Ua.MTConnect.ActiveAxesState).GetTypeInfo().Assembly,
+                true);
+            predefinedNodes.LoadFromBinaryResource(context,
+                "Quickstarts.DataTypes.PLCopen.Opc.Ua.Plc.PredefinedNodes.uanodes",
+                typeof(Opc.Ua.Plc.CtrlProgramState).GetTypeInfo().Assembly,
+                true);
+            predefinedNodes.LoadFromBinaryResource(context,
+                "Quickstarts.DataTypes.Robotics.Opc.Ua.Robotics.PredefinedNodes.uanodes",
+                typeof(Opc.Ua.Robotics.MotionDeviceSystemState).GetTypeInfo().Assembly,
+                true);
+            predefinedNodes.LoadFromBinaryResource(context,
+                "Quickstarts.DataTypes.Sercos.Sercos.PredefinedNodes.uanodes",
+                typeof(Sercos.FunctionGroupSetState).GetTypeInfo().Assembly,
                 true);
 
             return predefinedNodes;

@@ -33,8 +33,8 @@ using System.Text;
 using System.Xml;
 using System.Runtime.Serialization;
 using Opc.Ua;
-using Quickstarts.DataTypes.Types;
+using Opc.Ua.Di;
 
-namespace Quickstarts.DataTypes.Instances
+namespace Opc.Ua.Plc
 {
 }

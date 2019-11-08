@@ -82,15 +82,65 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ADI\Opc.Ua.Adi.Classes.cs" />
+    <Compile Include="ADI\Opc.Ua.Adi.Constants.cs" />
+    <Compile Include="ADI\Opc.Ua.Adi.DataTypes.cs" />
     <Compile Include="DataTypesServerConfiguration.cs" />
     <Compile Include="DataTypesNodeManager.cs" />
     <Compile Include="DataTypesServer.cs" />
+    <Compile Include="DI\Opc.Ua.Di.Classes.cs" />
+    <Compile Include="DI\Opc.Ua.Di.Constants.cs" />
+    <Compile Include="DI\Opc.Ua.Di.DataTypes.cs" />
     <Compile Include="Instances\Quickstarts.DataTypes.Instances.Classes.cs" />
     <Compile Include="Instances\Quickstarts.DataTypes.Instances.Constants.cs" />
     <Compile Include="Instances\Quickstarts.DataTypes.Instances.DataTypes.cs" />
+    <Compile Include="MDIS\Opc.MDIS.Classes.cs" />
+    <Compile Include="MDIS\Opc.MDIS.Constants.cs" />
+    <Compile Include="MDIS\Opc.MDIS.DataTypes.cs" />
+    <Compile Include="MTConnect\Opc.Ua.MTConnect.Classes.cs" />
+    <Compile Include="MTConnect\Opc.Ua.MTConnect.Constants.cs" />
+    <Compile Include="MTConnect\Opc.Ua.MTConnect.DataTypes.cs" />
     <Compile Include="Namespaces.cs" />
+    <Compile Include="PLCopen\Opc.Ua.Plc.Classes.cs" />
+    <Compile Include="PLCopen\Opc.Ua.Plc.Constants.cs" />
+    <Compile Include="PLCopen\Opc.Ua.Plc.DataTypes.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Robotics\Opc.Ua.Robotics.Classes.cs" />
+    <Compile Include="Robotics\Opc.Ua.Robotics.Constants.cs" />
+    <Compile Include="Robotics\Opc.Ua.Robotics.DataTypes.cs" />
+    <Compile Include="Sercos\Sercos.Classes.cs" />
+    <Compile Include="Sercos\Sercos.Constants.cs" />
+    <Compile Include="Sercos\Sercos.DataTypes.cs" />
+    <Content Include="ADI\Opc.Ua.Adi.NodeSet2.xml" />
+    <Content Include="ADI\Opc.Ua.Adi.PredefinedNodes.xml" />
+    <Content Include="ADI\OpcUaAdiModel.xml" />
+    <Content Include="DI\Opc.Ua.Di.NodeSet2.xml" />
+    <Content Include="DI\Opc.Ua.Di.PredefinedNodes.xml" />
+    <Content Include="DI\OpcUaDiModel.xml" />
+    <Content Include="MDIS\MDIS.xml" />
+    <Content Include="MDIS\Opc.MDIS.NodeSet.xml" />
+    <Content Include="MDIS\OPC.MDIS.NodeSet2-old.xml" />
+    <Content Include="MDIS\Opc.MDIS.NodeSet2.xml" />
+    <Content Include="MDIS\Opc.MDIS.PredefinedNodes.xml" />
+    <Content Include="MTConnect\MTConnectModel.xml" />
+    <Content Include="MTConnect\Opc.Ua.MTConnect.NodeSet.xml" />
+    <Content Include="MTConnect\Opc.Ua.MTConnect.NodeSet2.xml" />
+    <Content Include="MTConnect\Opc.Ua.MTConnect.PredefinedNodes.xml" />
+    <Content Include="PLCopen\Opc.Ua.Plc.NodeSet2.xml" />
+    <Content Include="PLCopen\Opc.Ua.Plc.PredefinedNodes.xml" />
+    <Content Include="PLCopen\OpcUaPLCopenModel.xml" />
+    <Content Include="Robotics\Opc.Ua.Robotics.NodeSet.xml" />
+    <Content Include="Robotics\Opc.Ua.Robotics.NodeSet2.xml" />
+    <Content Include="Robotics\Opc.Ua.Robotics.PredefinedNodes.xml" />
+    <Content Include="Robotics\OpcUaRoboticsModel.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Sercos\Sercos.NodeSet2.xml" />
+    <Content Include="Sercos\Sercos.PredefinedNodes.xml" />
+    <Content Include="Sercos\SercosModel.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -117,6 +167,37 @@
     <EmbeddedResource Include="Instances\Quickstarts.DataTypes.Instances.PredefinedNodes.uanodes" />
     <Content Include="Instances\Quickstarts.DataTypes.Instances.Types.bsd" />
     <Content Include="Instances\Quickstarts.DataTypes.Instances.Types.xsd" />
+    <EmbeddedResource Include="DI\Opc.Ua.Di.PredefinedNodes.uanodes" />
+    <EmbeddedResource Include="ADI\Opc.Ua.Adi.PredefinedNodes.uanodes" />
+    <None Include="ADI\Opc.Ua.Adi.Types.bsd" />
+    <None Include="ADI\Opc.Ua.Adi.Types.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="ADI\OpcUaAdiModel.csv" />
+    <None Include="DI\Opc.Ua.Di.Types.bsd" />
+    <None Include="DI\Opc.Ua.Di.Types.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="DI\OpcUaDiModel.csv" />
+    <None Include="MDIS\MDIS.csv" />
+    <EmbeddedResource Include="MDIS\Opc.MDIS.PredefinedNodes.uanodes" />
+    <None Include="MDIS\Opc.MDIS.Types.bsd" />
+    <None Include="MDIS\Opc.MDIS.Types.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="MTConnect\MTConnect.NodeIds.csv" />
+    <None Include="MTConnect\MTConnectModel.csv" />
+    <EmbeddedResource Include="MTConnect\Opc.Ua.MTConnect.PredefinedNodes.uanodes" />
+    <None Include="MTConnect\Opc.Ua.MTConnect.Types.bsd" />
+    <None Include="MTConnect\Opc.Ua.MTConnect.Types.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <EmbeddedResource Include="PLCopen\Opc.Ua.Plc.PredefinedNodes.uanodes" />
+    <None Include="PLCopen\Opc.Ua.Plc.Types.bsd" />
+    <None Include="PLCopen\Opc.Ua.Plc.Types.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="PLCopen\OpcUaPLCopenModel.csv" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -126,6 +207,19 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Robotics\NodeIds.csv" />
+    <EmbeddedResource Include="Robotics\Opc.Ua.Robotics.PredefinedNodes.uanodes" />
+    <None Include="Robotics\Opc.Ua.Robotics.Types.bsd" />
+    <None Include="Robotics\Opc.Ua.Robotics.Types.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Robotics\OpcUaRoboticsModel.csv" />
+    <EmbeddedResource Include="Sercos\Sercos.PredefinedNodes.uanodes" />
+    <None Include="Sercos\Sercos.Types.bsd" />
+    <None Include="Sercos\Sercos.Types.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Sercos\SercosModel.csv" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\Stack\Opc.Ua.Core\Opc.Ua.Core.csproj">
@@ -161,6 +255,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
     <BaseNuGetRuntimeIdentifier>win7-x64</BaseNuGetRuntimeIdentifier>
