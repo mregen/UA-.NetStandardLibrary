@@ -6031,10 +6031,10 @@ namespace Opc.Ua.Di
     /// </summary>
     /// <exclude />
     public delegate ServiceResult InitLockMethodStateMethodCallHandler(
-        ISystemContext context,
+        ISystemContext systemContext,
         MethodState method,
         NodeId objectId,
-        string contextString,
+        string context,
         ref int initLockStatus);
     #endif
     #endregion

@@ -33,6 +33,13 @@ using System.Text;
 using System.Xml;
 using System.Runtime.Serialization;
 using Opc.Ua;
+using Opc.Ua.Di;
+using Opc.Ua.Adi;
+using Opc.MDIS;
+using Opc.Ua.MTConnect;
+using Opc.Ua.Plc;
+using Opc.Ua.Robotics;
+using Sercos;
 using Quickstarts.DataTypes.Types;
 
 namespace Quickstarts.DataTypes.Instances

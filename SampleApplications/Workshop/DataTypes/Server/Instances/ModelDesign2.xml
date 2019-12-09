@@ -4,6 +4,13 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:opc="http://opcfoundation.org/UA/ModelDesign.xsd"
   xmlns:ua="http://opcfoundation.org/UA/"
+  xmlns:DI="http://opcfoundation.org/UA/DI/"
+  xmlns:ADI="http://opcfoundation.org/UA/ADI/"
+  xmlns:MDIS="http://opcfoundation.org/UA/MDIS"
+  xmlns:MT="http://opcfoundation.org/UA/MTConnect/"
+  xmlns:PLC="http://PLCopen.org/OpcUa/IEC61131-3/"
+  xmlns:Robotics="http://opcfoundation.org/UA/Robotics/"
+  xmlns:sercos="http://sercos.org/UA/"
   xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd"
   xmlns:s0="http://opcfoundation.org/UA/Quickstarts/DataTypes/Types"
 	xmlns="http://opcfoundation.org/UA/Quickstarts/DataTypes/Instances"
@@ -139,5 +146,4 @@
       </opc:Reference>
     </opc:References>
   </opc:Object>
-
 </opc:ModelDesign>

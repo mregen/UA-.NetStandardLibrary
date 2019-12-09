@@ -1,5 +1,12 @@
 <xs:schema
-  xmlns:s1="http://opcfoundation.org/UA/Quickstarts/DataTypes/Types"
+  xmlns:DI="http://opcfoundation.org/UA/DI/Types.xsd"
+  xmlns:ADI="http://opcfoundation.org/UA/ADI/Types.xsd"
+  xmlns:MDIS="http://opcfoundation.org/UA/MDIS/Types.xsd"
+  xmlns:MT="http://opcfoundation.org/UA/MTConnect/Types.xsd"
+  xmlns:PLC="http://PLCopen.org/OpcUa/IEC61131-3/Types.xsd"
+  xmlns:Robotics="http://opcfoundation.org/UA/Robotics/Types.xsd"
+  xmlns:Sercos="http://sercos.org/UA/Types.xsd"
+  xmlns:s8="http://opcfoundation.org/UA/Quickstarts/DataTypes/Types"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:ua="http://opcfoundation.org/UA/2008/02/Types.xsd"
   xmlns:tns="http://opcfoundation.org/UA/Quickstarts/DataTypes/Instances"
@@ -7,6 +14,13 @@
   elementFormDefault="qualified"
 >
   <xs:import namespace="http://opcfoundation.org/UA/2008/02/Types.xsd" />
+  <xs:import namespace="http://opcfoundation.org/UA/DI/Types.xsd" />
+  <xs:import namespace="http://opcfoundation.org/UA/ADI/Types.xsd" />
+  <xs:import namespace="http://opcfoundation.org/UA/MDIS/Types.xsd" />
+  <xs:import namespace="http://opcfoundation.org/UA/MTConnect/Types.xsd" />
+  <xs:import namespace="http://PLCopen.org/OpcUa/IEC61131-3/Types.xsd" />
+  <xs:import namespace="http://opcfoundation.org/UA/Robotics/Types.xsd" />
+  <xs:import namespace="http://sercos.org/UA/Types.xsd" />
   <xs:import namespace="http://opcfoundation.org/UA/Quickstarts/DataTypes/Types" />
 
   <xs:simpleType  name="ParkingLotType">
@@ -26,7 +40,7 @@
 
   <xs:complexType name="TwoWheelerType">
     <xs:complexContent mixed="false">
-      <xs:extension base="s1:VehicleType">
+      <xs:extension base="s8:VehicleType">
         <xs:sequence>
           <xs:element name="ManufacturerName" type="xs:string" minOccurs="0" nillable="true" />
         </xs:sequence>

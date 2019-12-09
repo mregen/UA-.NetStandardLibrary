@@ -334,6 +334,29 @@
     <uax:SuperTypeId>
       <uax:Identifier>i=29</uax:Identifier>
     </uax:SuperTypeId>
+    <uax:DataTypeDefinition>
+      <uax:TypeId>
+        <uax:Identifier>i=14799</uax:Identifier>
+      </uax:TypeId>
+      <uax:Body>
+        <uax:EnumDefinition>
+          <uax:Fields>
+            <uax:EnumField>
+              <uax:Value>1</uax:Value>
+              <uax:Name>NotAvailable</uax:Name>
+            </uax:EnumField>
+            <uax:EnumField>
+              <uax:Value>2</uax:Value>
+              <uax:Name>Completed</uax:Name>
+            </uax:EnumField>
+            <uax:EnumField>
+              <uax:Value>4</uax:Value>
+              <uax:Name>Failed</uax:Name>
+            </uax:EnumField>
+          </uax:Fields>
+        </uax:EnumDefinition>
+      </uax:Body>
+    </uax:DataTypeDefinition>
     <EnumValues xmlns="http://opcfoundation.org/UA/">
       <uax:NodeClass>Variable_2</uax:NodeClass>
       <uax:NodeId>
@@ -422,6 +445,33 @@
     <uax:SuperTypeId>
       <uax:Identifier>i=29</uax:Identifier>
     </uax:SuperTypeId>
+    <uax:DataTypeDefinition>
+      <uax:TypeId>
+        <uax:Identifier>i=14799</uax:Identifier>
+      </uax:TypeId>
+      <uax:Body>
+        <uax:EnumDefinition>
+          <uax:Fields>
+            <uax:EnumField>
+              <uax:Value>0</uax:Value>
+              <uax:Name>Initial</uax:Name>
+            </uax:EnumField>
+            <uax:EnumField>
+              <uax:Value>1</uax:Value>
+              <uax:Name>Inprogress</uax:Name>
+            </uax:EnumField>
+            <uax:EnumField>
+              <uax:Value>2</uax:Value>
+              <uax:Name>Complete</uax:Name>
+            </uax:EnumField>
+            <uax:EnumField>
+              <uax:Value>4</uax:Value>
+              <uax:Name>Fault</uax:Name>
+            </uax:EnumField>
+          </uax:Fields>
+        </uax:EnumDefinition>
+      </uax:Body>
+    </uax:DataTypeDefinition>
     <EnumValues xmlns="http://opcfoundation.org/UA/">
       <uax:NodeClass>Variable_2</uax:NodeClass>
       <uax:NodeId>
@@ -524,6 +574,29 @@
     <uax:SuperTypeId>
       <uax:Identifier>i=29</uax:Identifier>
     </uax:SuperTypeId>
+    <uax:DataTypeDefinition>
+      <uax:TypeId>
+        <uax:Identifier>i=14799</uax:Identifier>
+      </uax:TypeId>
+      <uax:Body>
+        <uax:EnumDefinition>
+          <uax:Fields>
+            <uax:EnumField>
+              <uax:Value>1</uax:Value>
+              <uax:Name>Close</uax:Name>
+            </uax:EnumField>
+            <uax:EnumField>
+              <uax:Value>2</uax:Value>
+              <uax:Name>Open</uax:Name>
+            </uax:EnumField>
+            <uax:EnumField>
+              <uax:Value>4</uax:Value>
+              <uax:Name>None</uax:Name>
+            </uax:EnumField>
+          </uax:Fields>
+        </uax:EnumDefinition>
+      </uax:Body>
+    </uax:DataTypeDefinition>
     <EnumValues xmlns="http://opcfoundation.org/UA/">
       <uax:NodeClass>Variable_2</uax:NodeClass>
       <uax:NodeId>
@@ -612,6 +685,25 @@
     <uax:SuperTypeId>
       <uax:Identifier>i=29</uax:Identifier>
     </uax:SuperTypeId>
+    <uax:DataTypeDefinition>
+      <uax:TypeId>
+        <uax:Identifier>i=14799</uax:Identifier>
+      </uax:TypeId>
+      <uax:Body>
+        <uax:EnumDefinition>
+          <uax:Fields>
+            <uax:EnumField>
+              <uax:Value>1</uax:Value>
+              <uax:Name>Close</uax:Name>
+            </uax:EnumField>
+            <uax:EnumField>
+              <uax:Value>2</uax:Value>
+              <uax:Name>Open</uax:Name>
+            </uax:EnumField>
+          </uax:Fields>
+        </uax:EnumDefinition>
+      </uax:Body>
+    </uax:DataTypeDefinition>
     <EnumValues xmlns="http://opcfoundation.org/UA/">
       <uax:NodeClass>Variable_2</uax:NodeClass>
       <uax:NodeId>
@@ -686,6 +778,29 @@
     <uax:SuperTypeId>
       <uax:Identifier>i=29</uax:Identifier>
     </uax:SuperTypeId>
+    <uax:DataTypeDefinition>
+      <uax:TypeId>
+        <uax:Identifier>i=14799</uax:Identifier>
+      </uax:TypeId>
+      <uax:Body>
+        <uax:EnumDefinition>
+          <uax:Fields>
+            <uax:EnumField>
+              <uax:Value>1</uax:Value>
+              <uax:Name>SEM_A</uax:Name>
+            </uax:EnumField>
+            <uax:EnumField>
+              <uax:Value>2</uax:Value>
+              <uax:Name>SEM_B</uax:Name>
+            </uax:EnumField>
+            <uax:EnumField>
+              <uax:Value>4</uax:Value>
+              <uax:Name>Auto</uax:Name>
+            </uax:EnumField>
+          </uax:Fields>
+        </uax:EnumDefinition>
+      </uax:Body>
+    </uax:DataTypeDefinition>
     <EnumValues xmlns="http://opcfoundation.org/UA/">
       <uax:NodeClass>Variable_2</uax:NodeClass>
       <uax:NodeId>
@@ -774,6 +889,33 @@
     <uax:SuperTypeId>
       <uax:Identifier>i=29</uax:Identifier>
     </uax:SuperTypeId>
+    <uax:DataTypeDefinition>
+      <uax:TypeId>
+        <uax:Identifier>i=14799</uax:Identifier>
+      </uax:TypeId>
+      <uax:Body>
+        <uax:EnumDefinition>
+          <uax:Fields>
+            <uax:EnumField>
+              <uax:Value>1</uax:Value>
+              <uax:Name>Closed</uax:Name>
+            </uax:EnumField>
+            <uax:EnumField>
+              <uax:Value>2</uax:Value>
+              <uax:Name>Open</uax:Name>
+            </uax:EnumField>
+            <uax:EnumField>
+              <uax:Value>4</uax:Value>
+              <uax:Name>Moving</uax:Name>
+            </uax:EnumField>
+            <uax:EnumField>
+              <uax:Value>8</uax:Value>
+              <uax:Name>Unknown</uax:Name>
+            </uax:EnumField>
+          </uax:Fields>
+        </uax:EnumDefinition>
+      </uax:Body>
+    </uax:DataTypeDefinition>
     <EnumValues xmlns="http://opcfoundation.org/UA/">
       <uax:NodeClass>Variable_2</uax:NodeClass>
       <uax:NodeId>
@@ -876,6 +1018,25 @@
     <uax:SuperTypeId>
       <uax:Identifier>i=29</uax:Identifier>
     </uax:SuperTypeId>
+    <uax:DataTypeDefinition>
+      <uax:TypeId>
+        <uax:Identifier>i=14799</uax:Identifier>
+      </uax:TypeId>
+      <uax:Body>
+        <uax:EnumDefinition>
+          <uax:Fields>
+            <uax:EnumField>
+              <uax:Value>1</uax:Value>
+              <uax:Name>Moving</uax:Name>
+            </uax:EnumField>
+            <uax:EnumField>
+              <uax:Value>2</uax:Value>
+              <uax:Name>Stopped</uax:Name>
+            </uax:EnumField>
+          </uax:Fields>
+        </uax:EnumDefinition>
+      </uax:Body>
+    </uax:DataTypeDefinition>
     <EnumValues xmlns="http://opcfoundation.org/UA/">
       <uax:NodeClass>Variable_2</uax:NodeClass>
       <uax:NodeId>
@@ -950,6 +1111,51 @@
     <uax:SuperTypeId>
       <uax:Identifier>i=22</uax:Identifier>
     </uax:SuperTypeId>
+    <uax:DataTypeDefinition>
+      <uax:TypeId>
+        <uax:Identifier>i=14798</uax:Identifier>
+      </uax:TypeId>
+      <uax:Body>
+        <uax:StructureDefinition>
+          <uax:BaseDataType>
+            <uax:Identifier>i=22</uax:Identifier>
+          </uax:BaseDataType>
+          <uax:StructureType>Structure_0</uax:StructureType>
+          <uax:Fields>
+            <uax:StructureField>
+              <uax:Name>MajorVersion</uax:Name>
+              <uax:DataType>
+                <uax:Identifier>i=3</uax:Identifier>
+              </uax:DataType>
+              <uax:ValueRank>-1</uax:ValueRank>
+              <uax:ArrayDimensions />
+              <uax:MaxStringLength>0</uax:MaxStringLength>
+              <uax:IsOptional>false</uax:IsOptional>
+            </uax:StructureField>
+            <uax:StructureField>
+              <uax:Name>MinorVersion</uax:Name>
+              <uax:DataType>
+                <uax:Identifier>i=3</uax:Identifier>
+              </uax:DataType>
+              <uax:ValueRank>-1</uax:ValueRank>
+              <uax:ArrayDimensions />
+              <uax:MaxStringLength>0</uax:MaxStringLength>
+              <uax:IsOptional>false</uax:IsOptional>
+            </uax:StructureField>
+            <uax:StructureField>
+              <uax:Name>Build</uax:Name>
+              <uax:DataType>
+                <uax:Identifier>i=3</uax:Identifier>
+              </uax:DataType>
+              <uax:ValueRank>-1</uax:ValueRank>
+              <uax:ArrayDimensions />
+              <uax:MaxStringLength>0</uax:MaxStringLength>
+              <uax:IsOptional>false</uax:IsOptional>
+            </uax:StructureField>
+          </uax:Fields>
+        </uax:StructureDefinition>
+      </uax:Body>
+    </uax:DataTypeDefinition>
   </MDISVersionDataType>
   <InterlockVariableType xmlns="http://opcfoundation.org/UA/MDIS">
     <uax:NodeClass>VariableType_16</uax:NodeClass>

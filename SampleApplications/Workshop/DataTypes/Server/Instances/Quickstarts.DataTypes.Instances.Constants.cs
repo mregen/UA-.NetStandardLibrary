@@ -34,6 +34,13 @@ using System.Reflection;
 using System.Xml;
 using System.Runtime.Serialization;
 using Opc.Ua;
+using Opc.Ua.Di;
+using Opc.Ua.Adi;
+using Opc.MDIS;
+using Opc.Ua.MTConnect;
+using Opc.Ua.Plc;
+using Opc.Ua.Robotics;
+using Sercos;
 using Quickstarts.DataTypes.Types;
 
 namespace Quickstarts.DataTypes.Instances
@@ -493,6 +500,76 @@ namespace Quickstarts.DataTypes.Instances
         /// The URI for the OpcUaXsd namespace (.NET code namespace is 'Opc.Ua').
         /// </summary>
         public const string OpcUaXsd = "http://opcfoundation.org/UA/2008/02/Types.xsd";
+
+        /// <summary>
+        /// The URI for the OpcUaDi namespace (.NET code namespace is 'Opc.Ua.Di').
+        /// </summary>
+        public const string OpcUaDi = "http://opcfoundation.org/UA/DI/";
+
+        /// <summary>
+        /// The URI for the OpcUaDiXsd namespace (.NET code namespace is 'Opc.Ua.Di').
+        /// </summary>
+        public const string OpcUaDiXsd = "http://opcfoundation.org/UA/DI/Types.xsd";
+
+        /// <summary>
+        /// The URI for the OpcUaAdi namespace (.NET code namespace is 'Opc.Ua.Adi').
+        /// </summary>
+        public const string OpcUaAdi = "http://opcfoundation.org/UA/ADI/";
+
+        /// <summary>
+        /// The URI for the OpcUaAdiXsd namespace (.NET code namespace is 'Opc.Ua.Adi').
+        /// </summary>
+        public const string OpcUaAdiXsd = "http://opcfoundation.org/UA/ADI/Types.xsd";
+
+        /// <summary>
+        /// The URI for the MDIS namespace (.NET code namespace is 'Opc.MDIS').
+        /// </summary>
+        public const string MDIS = "http://opcfoundation.org/UA/MDIS";
+
+        /// <summary>
+        /// The URI for the MDISXsd namespace (.NET code namespace is 'Opc.MDIS').
+        /// </summary>
+        public const string MDISXsd = "http://opcfoundation.org/UA/MDIS/Types.xsd";
+
+        /// <summary>
+        /// The URI for the OpcUaMTConnect namespace (.NET code namespace is 'Opc.Ua.MTConnect').
+        /// </summary>
+        public const string OpcUaMTConnect = "http://opcfoundation.org/UA/MTConnect/";
+
+        /// <summary>
+        /// The URI for the OpcUaMTConnectXsd namespace (.NET code namespace is 'Opc.Ua.MTConnect').
+        /// </summary>
+        public const string OpcUaMTConnectXsd = "http://opcfoundation.org/UA/MTConnect/Types.xsd";
+
+        /// <summary>
+        /// The URI for the OpcUaPlc namespace (.NET code namespace is 'Opc.Ua.Plc').
+        /// </summary>
+        public const string OpcUaPlc = "http://PLCopen.org/OpcUa/IEC61131-3/";
+
+        /// <summary>
+        /// The URI for the OpcUaPlcXsd namespace (.NET code namespace is 'Opc.Ua.Plc').
+        /// </summary>
+        public const string OpcUaPlcXsd = "http://PLCopen.org/OpcUa/IEC61131-3/Types.xsd";
+
+        /// <summary>
+        /// The URI for the OpcUaRobotics namespace (.NET code namespace is 'Opc.Ua.Robotics').
+        /// </summary>
+        public const string OpcUaRobotics = "http://opcfoundation.org/UA/Robotics/";
+
+        /// <summary>
+        /// The URI for the OpcUaRoboticsXsd namespace (.NET code namespace is 'Opc.Ua.Robotics').
+        /// </summary>
+        public const string OpcUaRoboticsXsd = "http://opcfoundation.org/UA/Robotics/Types.xsd";
+
+        /// <summary>
+        /// The URI for the Sercos namespace (.NET code namespace is 'Sercos').
+        /// </summary>
+        public const string Sercos = "http://sercos.org/UA/";
+
+        /// <summary>
+        /// The URI for the SercosXsd namespace (.NET code namespace is 'Sercos').
+        /// </summary>
+        public const string SercosXsd = "http://sercos.org/UA/Types.xsd";
 
         /// <summary>
         /// The URI for the DataTypes namespace (.NET code namespace is 'Quickstarts.DataTypes.Types').

@@ -1,25 +1,51 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <uax:ListOfNodeState xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
   <uax:NamespaceUris>
+    <uax:NamespaceUri>http://opcfoundation.org/UA/DI/</uax:NamespaceUri>
+    <uax:NamespaceUri>http://opcfoundation.org/UA/ADI/</uax:NamespaceUri>
+    <uax:NamespaceUri>http://opcfoundation.org/UA/MDIS</uax:NamespaceUri>
+    <uax:NamespaceUri>http://opcfoundation.org/UA/MTConnect/</uax:NamespaceUri>
+    <uax:NamespaceUri>http://PLCopen.org/OpcUa/IEC61131-3/</uax:NamespaceUri>
+    <uax:NamespaceUri>http://opcfoundation.org/UA/Robotics/</uax:NamespaceUri>
+    <uax:NamespaceUri>http://sercos.org/UA/</uax:NamespaceUri>
     <uax:NamespaceUri>http://opcfoundation.org/UA/Quickstarts/DataTypes/Types</uax:NamespaceUri>
     <uax:NamespaceUri>http://opcfoundation.org/UA/Quickstarts/DataTypes/Instances</uax:NamespaceUri>
   </uax:NamespaceUris>
   <ParkingLotType xmlns="http://opcfoundation.org/UA/Quickstarts/DataTypes/Instances">
     <uax:NodeClass>DataType_64</uax:NodeClass>
     <uax:NodeId>
-      <uax:Identifier>ns=2;i=378</uax:Identifier>
+      <uax:Identifier>ns=9;i=378</uax:Identifier>
     </uax:NodeId>
     <uax:BrowseName>
-      <uax:NamespaceIndex>2</uax:NamespaceIndex>
+      <uax:NamespaceIndex>9</uax:NamespaceIndex>
       <uax:Name>ParkingLotType</uax:Name>
     </uax:BrowseName>
     <uax:SuperTypeId>
       <uax:Identifier>i=29</uax:Identifier>
     </uax:SuperTypeId>
+    <uax:DataTypeDefinition>
+      <uax:TypeId>
+        <uax:Identifier>i=14799</uax:Identifier>
+      </uax:TypeId>
+      <uax:Body>
+        <uax:EnumDefinition>
+          <uax:Fields>
+            <uax:EnumField>
+              <uax:Value>1</uax:Value>
+              <uax:Name>Open</uax:Name>
+            </uax:EnumField>
+            <uax:EnumField>
+              <uax:Value>2</uax:Value>
+              <uax:Name>Covered</uax:Name>
+            </uax:EnumField>
+          </uax:Fields>
+        </uax:EnumDefinition>
+      </uax:Body>
+    </uax:DataTypeDefinition>
     <EnumValues xmlns="http://opcfoundation.org/UA/">
       <uax:NodeClass>Variable_2</uax:NodeClass>
       <uax:NodeId>
-        <uax:Identifier>ns=2;i=15001</uax:Identifier>
+        <uax:Identifier>ns=9;i=15001</uax:Identifier>
       </uax:NodeId>
       <uax:BrowseName>
         <uax:NamespaceIndex>0</uax:NamespaceIndex>
@@ -81,49 +107,124 @@
   <TwoWheelerType xmlns="http://opcfoundation.org/UA/Quickstarts/DataTypes/Instances">
     <uax:NodeClass>DataType_64</uax:NodeClass>
     <uax:NodeId>
-      <uax:Identifier>ns=2;i=15014</uax:Identifier>
+      <uax:Identifier>ns=9;i=15014</uax:Identifier>
     </uax:NodeId>
     <uax:BrowseName>
-      <uax:NamespaceIndex>2</uax:NamespaceIndex>
+      <uax:NamespaceIndex>9</uax:NamespaceIndex>
       <uax:Name>TwoWheelerType</uax:Name>
     </uax:BrowseName>
     <uax:SuperTypeId>
-      <uax:Identifier>ns=1;i=314</uax:Identifier>
+      <uax:Identifier>ns=8;i=314</uax:Identifier>
     </uax:SuperTypeId>
+    <uax:DataTypeDefinition>
+      <uax:TypeId>
+        <uax:Identifier>i=14798</uax:Identifier>
+      </uax:TypeId>
+      <uax:Body>
+        <uax:StructureDefinition>
+          <uax:BaseDataType>
+            <uax:Identifier>ns=8;i=314</uax:Identifier>
+          </uax:BaseDataType>
+          <uax:StructureType>Structure_0</uax:StructureType>
+          <uax:Fields>
+            <uax:StructureField>
+              <uax:Name>ManufacturerName</uax:Name>
+              <uax:DataType>
+                <uax:Identifier>i=12</uax:Identifier>
+              </uax:DataType>
+              <uax:ValueRank>-1</uax:ValueRank>
+              <uax:ArrayDimensions />
+              <uax:MaxStringLength>0</uax:MaxStringLength>
+              <uax:IsOptional>false</uax:IsOptional>
+            </uax:StructureField>
+          </uax:Fields>
+        </uax:StructureDefinition>
+      </uax:Body>
+    </uax:DataTypeDefinition>
   </TwoWheelerType>
   <BicycleType xmlns="http://opcfoundation.org/UA/Quickstarts/DataTypes/Instances">
     <uax:NodeClass>DataType_64</uax:NodeClass>
     <uax:NodeId>
-      <uax:Identifier>ns=2;i=15004</uax:Identifier>
+      <uax:Identifier>ns=9;i=15004</uax:Identifier>
     </uax:NodeId>
     <uax:BrowseName>
-      <uax:NamespaceIndex>2</uax:NamespaceIndex>
+      <uax:NamespaceIndex>9</uax:NamespaceIndex>
       <uax:Name>BicycleType</uax:Name>
     </uax:BrowseName>
     <uax:SuperTypeId>
-      <uax:Identifier>ns=2;i=15014</uax:Identifier>
+      <uax:Identifier>ns=9;i=15014</uax:Identifier>
     </uax:SuperTypeId>
+    <uax:DataTypeDefinition>
+      <uax:TypeId>
+        <uax:Identifier>i=14798</uax:Identifier>
+      </uax:TypeId>
+      <uax:Body>
+        <uax:StructureDefinition>
+          <uax:BaseDataType>
+            <uax:Identifier>ns=9;i=15014</uax:Identifier>
+          </uax:BaseDataType>
+          <uax:StructureType>Structure_0</uax:StructureType>
+          <uax:Fields>
+            <uax:StructureField>
+              <uax:Name>NoOfGears</uax:Name>
+              <uax:DataType>
+                <uax:Identifier>i=7</uax:Identifier>
+              </uax:DataType>
+              <uax:ValueRank>-1</uax:ValueRank>
+              <uax:ArrayDimensions />
+              <uax:MaxStringLength>0</uax:MaxStringLength>
+              <uax:IsOptional>false</uax:IsOptional>
+            </uax:StructureField>
+          </uax:Fields>
+        </uax:StructureDefinition>
+      </uax:Body>
+    </uax:DataTypeDefinition>
   </BicycleType>
   <ScooterType xmlns="http://opcfoundation.org/UA/Quickstarts/DataTypes/Instances">
     <uax:NodeClass>DataType_64</uax:NodeClass>
     <uax:NodeId>
-      <uax:Identifier>ns=2;i=15015</uax:Identifier>
+      <uax:Identifier>ns=9;i=15015</uax:Identifier>
     </uax:NodeId>
     <uax:BrowseName>
-      <uax:NamespaceIndex>2</uax:NamespaceIndex>
+      <uax:NamespaceIndex>9</uax:NamespaceIndex>
       <uax:Name>ScooterType</uax:Name>
     </uax:BrowseName>
     <uax:SuperTypeId>
-      <uax:Identifier>ns=2;i=15014</uax:Identifier>
+      <uax:Identifier>ns=9;i=15014</uax:Identifier>
     </uax:SuperTypeId>
+    <uax:DataTypeDefinition>
+      <uax:TypeId>
+        <uax:Identifier>i=14798</uax:Identifier>
+      </uax:TypeId>
+      <uax:Body>
+        <uax:StructureDefinition>
+          <uax:BaseDataType>
+            <uax:Identifier>ns=9;i=15014</uax:Identifier>
+          </uax:BaseDataType>
+          <uax:StructureType>Structure_0</uax:StructureType>
+          <uax:Fields>
+            <uax:StructureField>
+              <uax:Name>NoOfSeats</uax:Name>
+              <uax:DataType>
+                <uax:Identifier>i=7</uax:Identifier>
+              </uax:DataType>
+              <uax:ValueRank>-1</uax:ValueRank>
+              <uax:ArrayDimensions />
+              <uax:MaxStringLength>0</uax:MaxStringLength>
+              <uax:IsOptional>false</uax:IsOptional>
+            </uax:StructureField>
+          </uax:Fields>
+        </uax:StructureDefinition>
+      </uax:Body>
+    </uax:DataTypeDefinition>
   </ScooterType>
   <ParkingLot xmlns="http://opcfoundation.org/UA/Quickstarts/DataTypes/Instances">
     <uax:NodeClass>Object_1</uax:NodeClass>
     <uax:NodeId>
-      <uax:Identifier>ns=2;i=281</uax:Identifier>
+      <uax:Identifier>ns=9;i=281</uax:Identifier>
     </uax:NodeId>
     <uax:BrowseName>
-      <uax:NamespaceIndex>2</uax:NamespaceIndex>
+      <uax:NamespaceIndex>9</uax:NamespaceIndex>
       <uax:Name>ParkingLot</uax:Name>
     </uax:BrowseName>
     <uax:ReferenceTypeId>
@@ -147,10 +248,10 @@
     <LotType>
       <uax:NodeClass>Variable_2</uax:NodeClass>
       <uax:NodeId>
-        <uax:Identifier>ns=2;i=380</uax:Identifier>
+        <uax:Identifier>ns=9;i=380</uax:Identifier>
       </uax:NodeId>
       <uax:BrowseName>
-        <uax:NamespaceIndex>2</uax:NamespaceIndex>
+        <uax:NamespaceIndex>9</uax:NamespaceIndex>
         <uax:Name>LotType</uax:Name>
       </uax:BrowseName>
       <uax:ReferenceTypeId>
@@ -166,7 +267,7 @@
         </uax:Value>
       </uax:Value>
       <uax:DataType>
-        <uax:Identifier>ns=2;i=378</uax:Identifier>
+        <uax:Identifier>ns=9;i=378</uax:Identifier>
       </uax:DataType>
       <uax:ValueRank>-1</uax:ValueRank>
       <uax:AccessLevel>3</uax:AccessLevel>
@@ -175,26 +276,26 @@
     <DriverOfTheMonth>
       <uax:NodeClass>Object_1</uax:NodeClass>
       <uax:NodeId>
-        <uax:Identifier>ns=2;i=375</uax:Identifier>
+        <uax:Identifier>ns=9;i=375</uax:Identifier>
       </uax:NodeId>
       <uax:BrowseName>
-        <uax:NamespaceIndex>2</uax:NamespaceIndex>
+        <uax:NamespaceIndex>9</uax:NamespaceIndex>
         <uax:Name>DriverOfTheMonth</uax:Name>
       </uax:BrowseName>
       <uax:ReferenceTypeId>
         <uax:Identifier>i=47</uax:Identifier>
       </uax:ReferenceTypeId>
       <uax:TypeDefinitionId>
-        <uax:Identifier>ns=1;i=341</uax:Identifier>
+        <uax:Identifier>ns=8;i=341</uax:Identifier>
       </uax:TypeDefinitionId>
       <uax:NumericId>375</uax:NumericId>
       <PrimaryVehicle xmlns="http://opcfoundation.org/UA/Quickstarts/DataTypes/Types">
         <uax:NodeClass>Variable_2</uax:NodeClass>
         <uax:NodeId>
-          <uax:Identifier>ns=2;i=376</uax:Identifier>
+          <uax:Identifier>ns=9;i=376</uax:Identifier>
         </uax:NodeId>
         <uax:BrowseName>
-          <uax:NamespaceIndex>1</uax:NamespaceIndex>
+          <uax:NamespaceIndex>8</uax:NamespaceIndex>
           <uax:Name>PrimaryVehicle</uax:Name>
         </uax:BrowseName>
         <uax:ReferenceTypeId>
@@ -208,7 +309,7 @@
           <uax:Value>
             <uax:ExtensionObject>
               <uax:TypeId>
-                <uax:Identifier>ns=2;i=15009</uax:Identifier>
+                <uax:Identifier>ns=9;i=15009</uax:Identifier>
               </uax:TypeId>
               <uax:Body>
                 <BicycleType xmlns="http://opcfoundation.org/UA/Quickstarts/DataTypes/Instances">
@@ -223,7 +324,7 @@
           </uax:Value>
         </uax:Value>
         <uax:DataType>
-          <uax:Identifier>ns=1;i=314</uax:Identifier>
+          <uax:Identifier>ns=8;i=314</uax:Identifier>
         </uax:DataType>
         <uax:ValueRank>-1</uax:ValueRank>
         <uax:AccessLevel>3</uax:AccessLevel>
@@ -232,10 +333,10 @@
       <OwnedVehicles xmlns="http://opcfoundation.org/UA/Quickstarts/DataTypes/Types">
         <uax:NodeClass>Variable_2</uax:NodeClass>
         <uax:NodeId>
-          <uax:Identifier>ns=2;i=377</uax:Identifier>
+          <uax:Identifier>ns=9;i=377</uax:Identifier>
         </uax:NodeId>
         <uax:BrowseName>
-          <uax:NamespaceIndex>1</uax:NamespaceIndex>
+          <uax:NamespaceIndex>8</uax:NamespaceIndex>
           <uax:Name>OwnedVehicles</uax:Name>
         </uax:BrowseName>
         <uax:ReferenceTypeId>
@@ -250,7 +351,7 @@
             <uax:ListOfExtensionObject>
               <uax:ExtensionObject>
                 <uax:TypeId>
-                  <uax:Identifier>ns=1;i=319</uax:Identifier>
+                  <uax:Identifier>ns=8;i=319</uax:Identifier>
                 </uax:TypeId>
                 <uax:Body>
                   <TruckType xmlns="http://opcfoundation.org/UA/Quickstarts/DataTypes/Types">
@@ -263,7 +364,7 @@
               </uax:ExtensionObject>
               <uax:ExtensionObject>
                 <uax:TypeId>
-                  <uax:Identifier>ns=1;i=318</uax:Identifier>
+                  <uax:Identifier>ns=8;i=318</uax:Identifier>
                 </uax:TypeId>
                 <uax:Body>
                   <VehicleType xsi:type="CarType" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://opcfoundation.org/UA/Quickstarts/DataTypes/Types">
@@ -276,7 +377,7 @@
               </uax:ExtensionObject>
               <uax:ExtensionObject>
                 <uax:TypeId>
-                  <uax:Identifier>ns=1;i=318</uax:Identifier>
+                  <uax:Identifier>ns=8;i=318</uax:Identifier>
                 </uax:TypeId>
                 <uax:Body>
                   <VehicleType xsi:type="CarType" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://opcfoundation.org/UA/Quickstarts/DataTypes/Types">
@@ -291,7 +392,7 @@
           </uax:Value>
         </uax:Value>
         <uax:DataType>
-          <uax:Identifier>ns=1;i=314</uax:Identifier>
+          <uax:Identifier>ns=8;i=314</uax:Identifier>
         </uax:DataType>
         <uax:ValueRank>1</uax:ValueRank>
         <uax:ArrayDimensions>0</uax:ArrayDimensions>
@@ -302,10 +403,10 @@
     <VehiclesInLot>
       <uax:NodeClass>Variable_2</uax:NodeClass>
       <uax:NodeId>
-        <uax:Identifier>ns=2;i=283</uax:Identifier>
+        <uax:Identifier>ns=9;i=283</uax:Identifier>
       </uax:NodeId>
       <uax:BrowseName>
-        <uax:NamespaceIndex>2</uax:NamespaceIndex>
+        <uax:NamespaceIndex>9</uax:NamespaceIndex>
         <uax:Name>VehiclesInLot</uax:Name>
       </uax:BrowseName>
       <uax:ReferenceTypeId>
@@ -320,7 +421,7 @@
           <uax:ListOfExtensionObject>
             <uax:ExtensionObject>
               <uax:TypeId>
-                <uax:Identifier>ns=1;i=319</uax:Identifier>
+                <uax:Identifier>ns=8;i=319</uax:Identifier>
               </uax:TypeId>
               <uax:Body>
                 <s0:TruckType xmlns:s0="http://opcfoundation.org/UA/Quickstarts/DataTypes/Types">
@@ -333,7 +434,7 @@
             </uax:ExtensionObject>
             <uax:ExtensionObject>
               <uax:TypeId>
-                <uax:Identifier>ns=1;i=318</uax:Identifier>
+                <uax:Identifier>ns=8;i=318</uax:Identifier>
               </uax:TypeId>
               <uax:Body>
                 <s0:VehicleType xsi:type="s0:CarType" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:s0="http://opcfoundation.org/UA/Quickstarts/DataTypes/Types">
@@ -346,7 +447,7 @@
             </uax:ExtensionObject>
             <uax:ExtensionObject>
               <uax:TypeId>
-                <uax:Identifier>ns=1;i=318</uax:Identifier>
+                <uax:Identifier>ns=8;i=318</uax:Identifier>
               </uax:TypeId>
               <uax:Body>
                 <s0:VehicleType xsi:type="s0:CarType" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:s0="http://opcfoundation.org/UA/Quickstarts/DataTypes/Types">
@@ -359,7 +460,7 @@
             </uax:ExtensionObject>
             <uax:ExtensionObject>
               <uax:TypeId>
-                <uax:Identifier>ns=2;i=15009</uax:Identifier>
+                <uax:Identifier>ns=9;i=15009</uax:Identifier>
               </uax:TypeId>
               <uax:Body>
                 <BicycleType xmlns="http://opcfoundation.org/UA/Quickstarts/DataTypes/Instances">
@@ -373,7 +474,7 @@
             </uax:ExtensionObject>
             <uax:ExtensionObject>
               <uax:TypeId>
-                <uax:Identifier>ns=2;i=15025</uax:Identifier>
+                <uax:Identifier>ns=9;i=15025</uax:Identifier>
               </uax:TypeId>
               <uax:Body>
                 <ScooterType xmlns="http://opcfoundation.org/UA/Quickstarts/DataTypes/Instances">
@@ -389,7 +490,7 @@
         </uax:Value>
       </uax:Value>
       <uax:DataType>
-        <uax:Identifier>ns=1;i=314</uax:Identifier>
+        <uax:Identifier>ns=8;i=314</uax:Identifier>
       </uax:DataType>
       <uax:ValueRank>1</uax:ValueRank>
       <uax:ArrayDimensions>0</uax:ArrayDimensions>
@@ -400,7 +501,7 @@
   <DefaultBinary xmlns="http://opcfoundation.org/UA/">
     <uax:NodeClass>Object_1</uax:NodeClass>
     <uax:NodeId>
-      <uax:Identifier>ns=2;i=15016</uax:Identifier>
+      <uax:Identifier>ns=9;i=15016</uax:Identifier>
     </uax:NodeId>
     <uax:BrowseName>
       <uax:NamespaceIndex>0</uax:NamespaceIndex>
@@ -417,7 +518,7 @@
         </uax:ReferenceTypeId>
         <uax:IsInverse>true</uax:IsInverse>
         <uax:TargetId>
-          <uax:Identifier>ns=2;i=15014</uax:Identifier>
+          <uax:Identifier>ns=9;i=15014</uax:Identifier>
         </uax:TargetId>
       </uax:Reference>
       <uax:Reference>
@@ -425,7 +526,7 @@
           <uax:Identifier>i=39</uax:Identifier>
         </uax:ReferenceTypeId>
         <uax:TargetId>
-          <uax:Identifier>ns=2;i=15018</uax:Identifier>
+          <uax:Identifier>ns=9;i=15018</uax:Identifier>
         </uax:TargetId>
       </uax:Reference>
     </uax:References>
@@ -433,7 +534,7 @@
   <DefaultBinary xmlns="http://opcfoundation.org/UA/">
     <uax:NodeClass>Object_1</uax:NodeClass>
     <uax:NodeId>
-      <uax:Identifier>ns=2;i=15005</uax:Identifier>
+      <uax:Identifier>ns=9;i=15005</uax:Identifier>
     </uax:NodeId>
     <uax:BrowseName>
       <uax:NamespaceIndex>0</uax:NamespaceIndex>
@@ -450,7 +551,7 @@
         </uax:ReferenceTypeId>
         <uax:IsInverse>true</uax:IsInverse>
         <uax:TargetId>
-          <uax:Identifier>ns=2;i=15004</uax:Identifier>
+          <uax:Identifier>ns=9;i=15004</uax:Identifier>
         </uax:TargetId>
       </uax:Reference>
       <uax:Reference>
@@ -458,7 +559,7 @@
           <uax:Identifier>i=39</uax:Identifier>
         </uax:ReferenceTypeId>
         <uax:TargetId>
-          <uax:Identifier>ns=2;i=15006</uax:Identifier>
+          <uax:Identifier>ns=9;i=15006</uax:Identifier>
         </uax:TargetId>
       </uax:Reference>
     </uax:References>
@@ -466,7 +567,7 @@
   <DefaultBinary xmlns="http://opcfoundation.org/UA/">
     <uax:NodeClass>Object_1</uax:NodeClass>
     <uax:NodeId>
-      <uax:Identifier>ns=2;i=15017</uax:Identifier>
+      <uax:Identifier>ns=9;i=15017</uax:Identifier>
     </uax:NodeId>
     <uax:BrowseName>
       <uax:NamespaceIndex>0</uax:NamespaceIndex>
@@ -483,7 +584,7 @@
         </uax:ReferenceTypeId>
         <uax:IsInverse>true</uax:IsInverse>
         <uax:TargetId>
-          <uax:Identifier>ns=2;i=15015</uax:Identifier>
+          <uax:Identifier>ns=9;i=15015</uax:Identifier>
         </uax:TargetId>
       </uax:Reference>
       <uax:Reference>
@@ -491,7 +592,7 @@
           <uax:Identifier>i=39</uax:Identifier>
         </uax:ReferenceTypeId>
         <uax:TargetId>
-          <uax:Identifier>ns=2;i=15021</uax:Identifier>
+          <uax:Identifier>ns=9;i=15021</uax:Identifier>
         </uax:TargetId>
       </uax:Reference>
     </uax:References>
@@ -499,10 +600,10 @@
   <DataTypeInstances_BinarySchema xmlns="http://opcfoundation.org/UA/Quickstarts/DataTypes/Instances">
     <uax:NodeClass>Variable_2</uax:NodeClass>
     <uax:NodeId>
-      <uax:Identifier>ns=2;i=353</uax:Identifier>
+      <uax:Identifier>ns=9;i=353</uax:Identifier>
     </uax:NodeId>
     <uax:BrowseName>
-      <uax:NamespaceIndex>2</uax:NamespaceIndex>
+      <uax:NamespaceIndex>9</uax:NamespaceIndex>
       <uax:Name>Quickstarts.DataTypes.Instances</uax:Name>
     </uax:BrowseName>
     <uax:TypeDefinitionId>
@@ -511,47 +612,66 @@
     <uax:NumericId>353</uax:NumericId>
     <uax:Value>
       <uax:Value>
-        <uax:ByteString>PG9wYzpUeXBlRGljdGlvbmFyeQ0KICB4bWxuczpzMT0iaHR0cDovL29wY2ZvdW5kYXRpb24ub3Jn
-L1VBL1F1aWNrc3RhcnRzL0RhdGFUeXBlcy9UeXBlcyINCiAgeG1sbnM6b3BjPSJodHRwOi8vb3Bj
-Zm91bmRhdGlvbi5vcmcvQmluYXJ5U2NoZW1hLyINCiAgeG1sbnM6eHNpPSJodHRwOi8vd3d3Lncz
-Lm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSINCiAgeG1sbnM6dWE9Imh0dHA6Ly9vcGNmb3Vu
-ZGF0aW9uLm9yZy9VQS8iDQogIHhtbG5zOnRucz0iaHR0cDovL29wY2ZvdW5kYXRpb24ub3JnL1VB
-L1F1aWNrc3RhcnRzL0RhdGFUeXBlcy9JbnN0YW5jZXMiDQogIERlZmF1bHRCeXRlT3JkZXI9Ikxp
-dHRsZUVuZGlhbiINCiAgVGFyZ2V0TmFtZXNwYWNlPSJodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcv
-VUEvUXVpY2tzdGFydHMvRGF0YVR5cGVzL0luc3RhbmNlcyINCj4NCiAgPG9wYzpJbXBvcnQgTmFt
-ZXNwYWNlPSJodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvIiBMb2NhdGlvbj0iT3BjLlVhLkJp
-bmFyeVNjaGVtYS5ic2QiLz4NCiAgPG9wYzpJbXBvcnQgTmFtZXNwYWNlPSJodHRwOi8vb3BjZm91
-bmRhdGlvbi5vcmcvVUEvUXVpY2tzdGFydHMvRGF0YVR5cGVzL1R5cGVzIiBMb2NhdGlvbj0iUXVp
-Y2tzdGFydHMuRGF0YVR5cGVzLlR5cGVzLkJpbmFyeVNjaGVtYS5ic2QiLz4NCg0KICA8b3BjOkVu
-dW1lcmF0ZWRUeXBlIE5hbWU9IlBhcmtpbmdMb3RUeXBlIiBMZW5ndGhJbkJpdHM9IjMyIj4NCiAg
-ICA8b3BjOkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJPcGVuIiBWYWx1ZT0iMSIgLz4NCiAgICA8b3Bj
-OkVudW1lcmF0ZWRWYWx1ZSBOYW1lPSJDb3ZlcmVkIiBWYWx1ZT0iMiIgLz4NCiAgPC9vcGM6RW51
-bWVyYXRlZFR5cGU+DQoNCiAgPG9wYzpTdHJ1Y3R1cmVkVHlwZSBOYW1lPSJUd29XaGVlbGVyVHlw
-ZSIgQmFzZVR5cGU9InMxOlZlaGljbGVUeXBlIj4NCiAgICA8b3BjOkZpZWxkIE5hbWU9Ik1ha2Ui
-IFR5cGVOYW1lPSJvcGM6U3RyaW5nIiBTb3VyY2VUeXBlPSJzMTpWZWhpY2xlVHlwZSIgLz4NCiAg
-ICA8b3BjOkZpZWxkIE5hbWU9Ik1vZGVsIiBUeXBlTmFtZT0ib3BjOlN0cmluZyIgU291cmNlVHlw
-ZT0iczE6VmVoaWNsZVR5cGUiIC8+DQogICAgPG9wYzpGaWVsZCBOYW1lPSJFbmdpbmUiIFR5cGVO
-YW1lPSJzMTpFbmdpbmVUeXBlIiBTb3VyY2VUeXBlPSJzMTpWZWhpY2xlVHlwZSIgLz4NCiAgICA8
-b3BjOkZpZWxkIE5hbWU9Ik1hbnVmYWN0dXJlck5hbWUiIFR5cGVOYW1lPSJvcGM6U3RyaW5nIiAv
-Pg0KICA8L29wYzpTdHJ1Y3R1cmVkVHlwZT4NCg0KICA8b3BjOlN0cnVjdHVyZWRUeXBlIE5hbWU9
-IkJpY3ljbGVUeXBlIiBCYXNlVHlwZT0idG5zOlR3b1doZWVsZXJUeXBlIj4NCiAgICA8b3BjOkZp
-ZWxkIE5hbWU9Ik1ha2UiIFR5cGVOYW1lPSJvcGM6U3RyaW5nIiBTb3VyY2VUeXBlPSJzMTpWZWhp
-Y2xlVHlwZSIgLz4NCiAgICA8b3BjOkZpZWxkIE5hbWU9Ik1vZGVsIiBUeXBlTmFtZT0ib3BjOlN0
-cmluZyIgU291cmNlVHlwZT0iczE6VmVoaWNsZVR5cGUiIC8+DQogICAgPG9wYzpGaWVsZCBOYW1l
-PSJFbmdpbmUiIFR5cGVOYW1lPSJzMTpFbmdpbmVUeXBlIiBTb3VyY2VUeXBlPSJzMTpWZWhpY2xl
-VHlwZSIgLz4NCiAgICA8b3BjOkZpZWxkIE5hbWU9Ik1hbnVmYWN0dXJlck5hbWUiIFR5cGVOYW1l
-PSJvcGM6U3RyaW5nIiBTb3VyY2VUeXBlPSJ0bnM6VHdvV2hlZWxlclR5cGUiIC8+DQogICAgPG9w
-YzpGaWVsZCBOYW1lPSJOb09mR2VhcnMiIFR5cGVOYW1lPSJvcGM6VUludDMyIiAvPg0KICA8L29w
-YzpTdHJ1Y3R1cmVkVHlwZT4NCg0KICA8b3BjOlN0cnVjdHVyZWRUeXBlIE5hbWU9IlNjb290ZXJU
-eXBlIiBCYXNlVHlwZT0idG5zOlR3b1doZWVsZXJUeXBlIj4NCiAgICA8b3BjOkZpZWxkIE5hbWU9
-Ik1ha2UiIFR5cGVOYW1lPSJvcGM6U3RyaW5nIiBTb3VyY2VUeXBlPSJzMTpWZWhpY2xlVHlwZSIg
-Lz4NCiAgICA8b3BjOkZpZWxkIE5hbWU9Ik1vZGVsIiBUeXBlTmFtZT0ib3BjOlN0cmluZyIgU291
-cmNlVHlwZT0iczE6VmVoaWNsZVR5cGUiIC8+DQogICAgPG9wYzpGaWVsZCBOYW1lPSJFbmdpbmUi
-IFR5cGVOYW1lPSJzMTpFbmdpbmVUeXBlIiBTb3VyY2VUeXBlPSJzMTpWZWhpY2xlVHlwZSIgLz4N
-CiAgICA8b3BjOkZpZWxkIE5hbWU9Ik1hbnVmYWN0dXJlck5hbWUiIFR5cGVOYW1lPSJvcGM6U3Ry
-aW5nIiBTb3VyY2VUeXBlPSJ0bnM6VHdvV2hlZWxlclR5cGUiIC8+DQogICAgPG9wYzpGaWVsZCBO
-YW1lPSJOb09mU2VhdHMiIFR5cGVOYW1lPSJvcGM6VUludDMyIiAvPg0KICA8L29wYzpTdHJ1Y3R1
-cmVkVHlwZT4NCg0KPC9vcGM6VHlwZURpY3Rpb25hcnk+</uax:ByteString>
+        <uax:ByteString>PG9wYzpUeXBlRGljdGlvbmFyeQ0KICB4bWxuczpEST0iaHR0cDovL29wY2ZvdW5kYXRpb24ub3Jn
+L1VBL0RJLyINCiAgeG1sbnM6QURJPSJodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvQURJLyIN
+CiAgeG1sbnM6TURJUz0iaHR0cDovL29wY2ZvdW5kYXRpb24ub3JnL1VBL01ESVMiDQogIHhtbG5z
+Ok1UPSJodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvTVRDb25uZWN0LyINCiAgeG1sbnM6UExD
+PSJodHRwOi8vUExDb3Blbi5vcmcvT3BjVWEvSUVDNjExMzEtMy8iDQogIHhtbG5zOlJvYm90aWNz
+PSJodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvUm9ib3RpY3MvIg0KICB4bWxuczpTZXJjb3M9
+Imh0dHA6Ly9zZXJjb3Mub3JnL1VBLyINCiAgeG1sbnM6czg9Imh0dHA6Ly9vcGNmb3VuZGF0aW9u
+Lm9yZy9VQS9RdWlja3N0YXJ0cy9EYXRhVHlwZXMvVHlwZXMiDQogIHhtbG5zOm9wYz0iaHR0cDov
+L29wY2ZvdW5kYXRpb24ub3JnL0JpbmFyeVNjaGVtYS8iDQogIHhtbG5zOnhzaT0iaHR0cDovL3d3
+dy53My5vcmcvMjAwMS9YTUxTY2hlbWEtaW5zdGFuY2UiDQogIHhtbG5zOnVhPSJodHRwOi8vb3Bj
+Zm91bmRhdGlvbi5vcmcvVUEvIg0KICB4bWxuczp0bnM9Imh0dHA6Ly9vcGNmb3VuZGF0aW9uLm9y
+Zy9VQS9RdWlja3N0YXJ0cy9EYXRhVHlwZXMvSW5zdGFuY2VzIg0KICBEZWZhdWx0Qnl0ZU9yZGVy
+PSJMaXR0bGVFbmRpYW4iDQogIFRhcmdldE5hbWVzcGFjZT0iaHR0cDovL29wY2ZvdW5kYXRpb24u
+b3JnL1VBL1F1aWNrc3RhcnRzL0RhdGFUeXBlcy9JbnN0YW5jZXMiDQo+DQogIDxvcGM6SW1wb3J0
+IE5hbWVzcGFjZT0iaHR0cDovL29wY2ZvdW5kYXRpb24ub3JnL1VBLyIgTG9jYXRpb249Ik9wYy5V
+YS5CaW5hcnlTY2hlbWEuYnNkIi8+DQogIDxvcGM6SW1wb3J0IE5hbWVzcGFjZT0iaHR0cDovL29w
+Y2ZvdW5kYXRpb24ub3JnL1VBL0RJLyIgTG9jYXRpb249Ik9wYy5VYS5EaS5CaW5hcnlTY2hlbWEu
+YnNkIi8+DQogIDxvcGM6SW1wb3J0IE5hbWVzcGFjZT0iaHR0cDovL29wY2ZvdW5kYXRpb24ub3Jn
+L1VBL0FESS8iIExvY2F0aW9uPSJPcGMuVWEuQWRpLkJpbmFyeVNjaGVtYS5ic2QiLz4NCiAgPG9w
+YzpJbXBvcnQgTmFtZXNwYWNlPSJodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvTURJUyIgTG9j
+YXRpb249Ik9wYy5NRElTLkJpbmFyeVNjaGVtYS5ic2QiLz4NCiAgPG9wYzpJbXBvcnQgTmFtZXNw
+YWNlPSJodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvTVRDb25uZWN0LyIgTG9jYXRpb249Ik9w
+Yy5VYS5NVENvbm5lY3QuQmluYXJ5U2NoZW1hLmJzZCIvPg0KICA8b3BjOkltcG9ydCBOYW1lc3Bh
+Y2U9Imh0dHA6Ly9QTENvcGVuLm9yZy9PcGNVYS9JRUM2MTEzMS0zLyIgTG9jYXRpb249Ik9wYy5V
+YS5QbGMuQmluYXJ5U2NoZW1hLmJzZCIvPg0KICA8b3BjOkltcG9ydCBOYW1lc3BhY2U9Imh0dHA6
+Ly9vcGNmb3VuZGF0aW9uLm9yZy9VQS9Sb2JvdGljcy8iIExvY2F0aW9uPSJPcGMuVWEuUm9ib3Rp
+Y3MuQmluYXJ5U2NoZW1hLmJzZCIvPg0KICA8b3BjOkltcG9ydCBOYW1lc3BhY2U9Imh0dHA6Ly9z
+ZXJjb3Mub3JnL1VBLyIgTG9jYXRpb249IlNlcmNvcy5CaW5hcnlTY2hlbWEuYnNkIi8+DQogIDxv
+cGM6SW1wb3J0IE5hbWVzcGFjZT0iaHR0cDovL29wY2ZvdW5kYXRpb24ub3JnL1VBL1F1aWNrc3Rh
+cnRzL0RhdGFUeXBlcy9UeXBlcyIgTG9jYXRpb249IlF1aWNrc3RhcnRzLkRhdGFUeXBlcy5UeXBl
+cy5CaW5hcnlTY2hlbWEuYnNkIi8+DQoNCiAgPG9wYzpFbnVtZXJhdGVkVHlwZSBOYW1lPSJQYXJr
+aW5nTG90VHlwZSIgTGVuZ3RoSW5CaXRzPSIzMiI+DQogICAgPG9wYzpFbnVtZXJhdGVkVmFsdWUg
+TmFtZT0iT3BlbiIgVmFsdWU9IjEiIC8+DQogICAgPG9wYzpFbnVtZXJhdGVkVmFsdWUgTmFtZT0i
+Q292ZXJlZCIgVmFsdWU9IjIiIC8+DQogIDwvb3BjOkVudW1lcmF0ZWRUeXBlPg0KDQogIDxvcGM6
+U3RydWN0dXJlZFR5cGUgTmFtZT0iVHdvV2hlZWxlclR5cGUiIEJhc2VUeXBlPSJzODpWZWhpY2xl
+VHlwZSI+DQogICAgPG9wYzpGaWVsZCBOYW1lPSJNYWtlIiBUeXBlTmFtZT0ib3BjOlN0cmluZyIg
+U291cmNlVHlwZT0iczg6VmVoaWNsZVR5cGUiIC8+DQogICAgPG9wYzpGaWVsZCBOYW1lPSJNb2Rl
+bCIgVHlwZU5hbWU9Im9wYzpTdHJpbmciIFNvdXJjZVR5cGU9InM4OlZlaGljbGVUeXBlIiAvPg0K
+ICAgIDxvcGM6RmllbGQgTmFtZT0iRW5naW5lIiBUeXBlTmFtZT0iczg6RW5naW5lVHlwZSIgU291
+cmNlVHlwZT0iczg6VmVoaWNsZVR5cGUiIC8+DQogICAgPG9wYzpGaWVsZCBOYW1lPSJNYW51ZmFj
+dHVyZXJOYW1lIiBUeXBlTmFtZT0ib3BjOlN0cmluZyIgLz4NCiAgPC9vcGM6U3RydWN0dXJlZFR5
+cGU+DQoNCiAgPG9wYzpTdHJ1Y3R1cmVkVHlwZSBOYW1lPSJCaWN5Y2xlVHlwZSIgQmFzZVR5cGU9
+InRuczpUd29XaGVlbGVyVHlwZSI+DQogICAgPG9wYzpGaWVsZCBOYW1lPSJNYWtlIiBUeXBlTmFt
+ZT0ib3BjOlN0cmluZyIgU291cmNlVHlwZT0iczg6VmVoaWNsZVR5cGUiIC8+DQogICAgPG9wYzpG
+aWVsZCBOYW1lPSJNb2RlbCIgVHlwZU5hbWU9Im9wYzpTdHJpbmciIFNvdXJjZVR5cGU9InM4OlZl
+aGljbGVUeXBlIiAvPg0KICAgIDxvcGM6RmllbGQgTmFtZT0iRW5naW5lIiBUeXBlTmFtZT0iczg6
+RW5naW5lVHlwZSIgU291cmNlVHlwZT0iczg6VmVoaWNsZVR5cGUiIC8+DQogICAgPG9wYzpGaWVs
+ZCBOYW1lPSJNYW51ZmFjdHVyZXJOYW1lIiBUeXBlTmFtZT0ib3BjOlN0cmluZyIgU291cmNlVHlw
+ZT0idG5zOlR3b1doZWVsZXJUeXBlIiAvPg0KICAgIDxvcGM6RmllbGQgTmFtZT0iTm9PZkdlYXJz
+IiBUeXBlTmFtZT0ib3BjOlVJbnQzMiIgLz4NCiAgPC9vcGM6U3RydWN0dXJlZFR5cGU+DQoNCiAg
+PG9wYzpTdHJ1Y3R1cmVkVHlwZSBOYW1lPSJTY29vdGVyVHlwZSIgQmFzZVR5cGU9InRuczpUd29X
+aGVlbGVyVHlwZSI+DQogICAgPG9wYzpGaWVsZCBOYW1lPSJNYWtlIiBUeXBlTmFtZT0ib3BjOlN0
+cmluZyIgU291cmNlVHlwZT0iczg6VmVoaWNsZVR5cGUiIC8+DQogICAgPG9wYzpGaWVsZCBOYW1l
+PSJNb2RlbCIgVHlwZU5hbWU9Im9wYzpTdHJpbmciIFNvdXJjZVR5cGU9InM4OlZlaGljbGVUeXBl
+IiAvPg0KICAgIDxvcGM6RmllbGQgTmFtZT0iRW5naW5lIiBUeXBlTmFtZT0iczg6RW5naW5lVHlw
+ZSIgU291cmNlVHlwZT0iczg6VmVoaWNsZVR5cGUiIC8+DQogICAgPG9wYzpGaWVsZCBOYW1lPSJN
+YW51ZmFjdHVyZXJOYW1lIiBUeXBlTmFtZT0ib3BjOlN0cmluZyIgU291cmNlVHlwZT0idG5zOlR3
+b1doZWVsZXJUeXBlIiAvPg0KICAgIDxvcGM6RmllbGQgTmFtZT0iTm9PZlNlYXRzIiBUeXBlTmFt
+ZT0ib3BjOlVJbnQzMiIgLz4NCiAgPC9vcGM6U3RydWN0dXJlZFR5cGU+DQoNCjwvb3BjOlR5cGVE
+aWN0aW9uYXJ5Pg==</uax:ByteString>
       </uax:Value>
     </uax:Value>
     <uax:DataType>
@@ -574,7 +694,7 @@ cmVkVHlwZT4NCg0KPC9vcGM6VHlwZURpY3Rpb25hcnk+</uax:ByteString>
     <NamespaceUri xmlns="http://opcfoundation.org/UA/">
       <uax:NodeClass>Variable_2</uax:NodeClass>
       <uax:NodeId>
-        <uax:Identifier>ns=2;i=355</uax:Identifier>
+        <uax:Identifier>ns=9;i=355</uax:Identifier>
       </uax:NodeId>
       <uax:BrowseName>
         <uax:NamespaceIndex>0</uax:NamespaceIndex>
@@ -602,7 +722,7 @@ cmVkVHlwZT4NCg0KPC9vcGM6VHlwZURpY3Rpb25hcnk+</uax:ByteString>
     <Deprecated xmlns="http://opcfoundation.org/UA/">
       <uax:NodeClass>Variable_2</uax:NodeClass>
       <uax:NodeId>
-        <uax:Identifier>ns=2;i=15002</uax:Identifier>
+        <uax:Identifier>ns=9;i=15002</uax:Identifier>
       </uax:NodeId>
       <uax:BrowseName>
         <uax:NamespaceIndex>0</uax:NamespaceIndex>
@@ -630,10 +750,10 @@ cmVkVHlwZT4NCg0KPC9vcGM6VHlwZURpY3Rpb25hcnk+</uax:ByteString>
     <TwoWheelerType>
       <uax:NodeClass>Variable_2</uax:NodeClass>
       <uax:NodeId>
-        <uax:Identifier>ns=2;i=15018</uax:Identifier>
+        <uax:Identifier>ns=9;i=15018</uax:Identifier>
       </uax:NodeId>
       <uax:BrowseName>
-        <uax:NamespaceIndex>2</uax:NamespaceIndex>
+        <uax:NamespaceIndex>9</uax:NamespaceIndex>
         <uax:Name>TwoWheelerType</uax:Name>
       </uax:BrowseName>
       <uax:ReferenceTypeId>
@@ -658,10 +778,10 @@ cmVkVHlwZT4NCg0KPC9vcGM6VHlwZURpY3Rpb25hcnk+</uax:ByteString>
     <BicycleType>
       <uax:NodeClass>Variable_2</uax:NodeClass>
       <uax:NodeId>
-        <uax:Identifier>ns=2;i=15006</uax:Identifier>
+        <uax:Identifier>ns=9;i=15006</uax:Identifier>
       </uax:NodeId>
       <uax:BrowseName>
-        <uax:NamespaceIndex>2</uax:NamespaceIndex>
+        <uax:NamespaceIndex>9</uax:NamespaceIndex>
         <uax:Name>BicycleType</uax:Name>
       </uax:BrowseName>
       <uax:ReferenceTypeId>
@@ -686,10 +806,10 @@ cmVkVHlwZT4NCg0KPC9vcGM6VHlwZURpY3Rpb25hcnk+</uax:ByteString>
     <ScooterType>
       <uax:NodeClass>Variable_2</uax:NodeClass>
       <uax:NodeId>
-        <uax:Identifier>ns=2;i=15021</uax:Identifier>
+        <uax:Identifier>ns=9;i=15021</uax:Identifier>
       </uax:NodeId>
       <uax:BrowseName>
-        <uax:NamespaceIndex>2</uax:NamespaceIndex>
+        <uax:NamespaceIndex>9</uax:NamespaceIndex>
         <uax:Name>ScooterType</uax:Name>
       </uax:BrowseName>
       <uax:ReferenceTypeId>
@@ -715,7 +835,7 @@ cmVkVHlwZT4NCg0KPC9vcGM6VHlwZURpY3Rpb25hcnk+</uax:ByteString>
   <DefaultXml xmlns="http://opcfoundation.org/UA/">
     <uax:NodeClass>Object_1</uax:NodeClass>
     <uax:NodeId>
-      <uax:Identifier>ns=2;i=15024</uax:Identifier>
+      <uax:Identifier>ns=9;i=15024</uax:Identifier>
     </uax:NodeId>
     <uax:BrowseName>
       <uax:NamespaceIndex>0</uax:NamespaceIndex>
@@ -732,7 +852,7 @@ cmVkVHlwZT4NCg0KPC9vcGM6VHlwZURpY3Rpb25hcnk+</uax:ByteString>
         </uax:ReferenceTypeId>
         <uax:IsInverse>true</uax:IsInverse>
         <uax:TargetId>
-          <uax:Identifier>ns=2;i=15014</uax:Identifier>
+          <uax:Identifier>ns=9;i=15014</uax:Identifier>
         </uax:TargetId>
       </uax:Reference>
       <uax:Reference>
@@ -740,7 +860,7 @@ cmVkVHlwZT4NCg0KPC9vcGM6VHlwZURpY3Rpb25hcnk+</uax:ByteString>
           <uax:Identifier>i=39</uax:Identifier>
         </uax:ReferenceTypeId>
         <uax:TargetId>
-          <uax:Identifier>ns=2;i=15026</uax:Identifier>
+          <uax:Identifier>ns=9;i=15026</uax:Identifier>
         </uax:TargetId>
       </uax:Reference>
     </uax:References>
@@ -748,7 +868,7 @@ cmVkVHlwZT4NCg0KPC9vcGM6VHlwZURpY3Rpb25hcnk+</uax:ByteString>
   <DefaultXml xmlns="http://opcfoundation.org/UA/">
     <uax:NodeClass>Object_1</uax:NodeClass>
     <uax:NodeId>
-      <uax:Identifier>ns=2;i=15009</uax:Identifier>
+      <uax:Identifier>ns=9;i=15009</uax:Identifier>
     </uax:NodeId>
     <uax:BrowseName>
       <uax:NamespaceIndex>0</uax:NamespaceIndex>
@@ -765,7 +885,7 @@ cmVkVHlwZT4NCg0KPC9vcGM6VHlwZURpY3Rpb25hcnk+</uax:ByteString>
         </uax:ReferenceTypeId>
         <uax:IsInverse>true</uax:IsInverse>
         <uax:TargetId>
-          <uax:Identifier>ns=2;i=15004</uax:Identifier>
+          <uax:Identifier>ns=9;i=15004</uax:Identifier>
         </uax:TargetId>
       </uax:Reference>
       <uax:Reference>
@@ -773,7 +893,7 @@ cmVkVHlwZT4NCg0KPC9vcGM6VHlwZURpY3Rpb25hcnk+</uax:ByteString>
           <uax:Identifier>i=39</uax:Identifier>
         </uax:ReferenceTypeId>
         <uax:TargetId>
-          <uax:Identifier>ns=2;i=15010</uax:Identifier>
+          <uax:Identifier>ns=9;i=15010</uax:Identifier>
         </uax:TargetId>
       </uax:Reference>
     </uax:References>
@@ -781,7 +901,7 @@ cmVkVHlwZT4NCg0KPC9vcGM6VHlwZURpY3Rpb25hcnk+</uax:ByteString>
   <DefaultXml xmlns="http://opcfoundation.org/UA/">
     <uax:NodeClass>Object_1</uax:NodeClass>
     <uax:NodeId>
-      <uax:Identifier>ns=2;i=15025</uax:Identifier>
+      <uax:Identifier>ns=9;i=15025</uax:Identifier>
     </uax:NodeId>
     <uax:BrowseName>
       <uax:NamespaceIndex>0</uax:NamespaceIndex>
@@ -798,7 +918,7 @@ cmVkVHlwZT4NCg0KPC9vcGM6VHlwZURpY3Rpb25hcnk+</uax:ByteString>
         </uax:ReferenceTypeId>
         <uax:IsInverse>true</uax:IsInverse>
         <uax:TargetId>
-          <uax:Identifier>ns=2;i=15015</uax:Identifier>
+          <uax:Identifier>ns=9;i=15015</uax:Identifier>
         </uax:TargetId>
       </uax:Reference>
       <uax:Reference>
@@ -806,7 +926,7 @@ cmVkVHlwZT4NCg0KPC9vcGM6VHlwZURpY3Rpb25hcnk+</uax:ByteString>
           <uax:Identifier>i=39</uax:Identifier>
         </uax:ReferenceTypeId>
         <uax:TargetId>
-          <uax:Identifier>ns=2;i=15029</uax:Identifier>
+          <uax:Identifier>ns=9;i=15029</uax:Identifier>
         </uax:TargetId>
       </uax:Reference>
     </uax:References>
@@ -814,10 +934,10 @@ cmVkVHlwZT4NCg0KPC9vcGM6VHlwZURpY3Rpb25hcnk+</uax:ByteString>
   <DataTypeInstances_XmlSchema xmlns="http://opcfoundation.org/UA/Quickstarts/DataTypes/Instances">
     <uax:NodeClass>Variable_2</uax:NodeClass>
     <uax:NodeId>
-      <uax:Identifier>ns=2;i=341</uax:Identifier>
+      <uax:Identifier>ns=9;i=341</uax:Identifier>
     </uax:NodeId>
     <uax:BrowseName>
-      <uax:NamespaceIndex>2</uax:NamespaceIndex>
+      <uax:NamespaceIndex>9</uax:NamespaceIndex>
       <uax:Name>Quickstarts.DataTypes.Instances</uax:Name>
     </uax:BrowseName>
     <uax:TypeDefinitionId>
@@ -826,65 +946,81 @@ cmVkVHlwZT4NCg0KPC9vcGM6VHlwZURpY3Rpb25hcnk+</uax:ByteString>
     <uax:NumericId>341</uax:NumericId>
     <uax:Value>
       <uax:Value>
-        <uax:ByteString>PHhzOnNjaGVtYQ0KICB4bWxuczpzMT0iaHR0cDovL29wY2ZvdW5kYXRpb24ub3JnL1VBL1F1aWNr
-c3RhcnRzL0RhdGFUeXBlcy9UeXBlcyINCiAgeG1sbnM6eHM9Imh0dHA6Ly93d3cudzMub3JnLzIw
-MDEvWE1MU2NoZW1hIg0KICB4bWxuczp1YT0iaHR0cDovL29wY2ZvdW5kYXRpb24ub3JnL1VBLzIw
-MDgvMDIvVHlwZXMueHNkIg0KICB4bWxuczp0bnM9Imh0dHA6Ly9vcGNmb3VuZGF0aW9uLm9yZy9V
-QS9RdWlja3N0YXJ0cy9EYXRhVHlwZXMvSW5zdGFuY2VzIg0KICB0YXJnZXROYW1lc3BhY2U9Imh0
-dHA6Ly9vcGNmb3VuZGF0aW9uLm9yZy9VQS9RdWlja3N0YXJ0cy9EYXRhVHlwZXMvSW5zdGFuY2Vz
-Ig0KICBlbGVtZW50Rm9ybURlZmF1bHQ9InF1YWxpZmllZCINCj4NCiAgPHhzOmltcG9ydCBuYW1l
-c3BhY2U9Imh0dHA6Ly9vcGNmb3VuZGF0aW9uLm9yZy9VQS8yMDA4LzAyL1R5cGVzLnhzZCIgLz4N
-CiAgPHhzOmltcG9ydCBuYW1lc3BhY2U9Imh0dHA6Ly9vcGNmb3VuZGF0aW9uLm9yZy9VQS9RdWlj
-a3N0YXJ0cy9EYXRhVHlwZXMvVHlwZXMiIC8+DQoNCiAgPHhzOnNpbXBsZVR5cGUgIG5hbWU9IlBh
-cmtpbmdMb3RUeXBlIj4NCiAgICA8eHM6cmVzdHJpY3Rpb24gYmFzZT0ieHM6c3RyaW5nIj4NCiAg
-ICAgIDx4czplbnVtZXJhdGlvbiB2YWx1ZT0iT3Blbl8xIiAvPg0KICAgICAgPHhzOmVudW1lcmF0
-aW9uIHZhbHVlPSJDb3ZlcmVkXzIiIC8+DQogICAgPC94czpyZXN0cmljdGlvbj4NCiAgPC94czpz
-aW1wbGVUeXBlPg0KICA8eHM6ZWxlbWVudCBuYW1lPSJQYXJraW5nTG90VHlwZSIgdHlwZT0idG5z
-OlBhcmtpbmdMb3RUeXBlIiAvPg0KDQogIDx4czpjb21wbGV4VHlwZSBuYW1lPSJMaXN0T2ZQYXJr
-aW5nTG90VHlwZSI+DQogICAgPHhzOnNlcXVlbmNlPg0KICAgICAgPHhzOmVsZW1lbnQgbmFtZT0i
-UGFya2luZ0xvdFR5cGUiIHR5cGU9InRuczpQYXJraW5nTG90VHlwZSIgbWluT2NjdXJzPSIwIiBt
-YXhPY2N1cnM9InVuYm91bmRlZCIgLz4NCiAgICA8L3hzOnNlcXVlbmNlPg0KICA8L3hzOmNvbXBs
-ZXhUeXBlPg0KICA8eHM6ZWxlbWVudCBuYW1lPSJMaXN0T2ZQYXJraW5nTG90VHlwZSIgdHlwZT0i
-dG5zOkxpc3RPZlBhcmtpbmdMb3RUeXBlIiBuaWxsYWJsZT0idHJ1ZSI+PC94czplbGVtZW50Pg0K
-DQogIDx4czpjb21wbGV4VHlwZSBuYW1lPSJUd29XaGVlbGVyVHlwZSI+DQogICAgPHhzOmNvbXBs
-ZXhDb250ZW50IG1peGVkPSJmYWxzZSI+DQogICAgICA8eHM6ZXh0ZW5zaW9uIGJhc2U9InMxOlZl
-aGljbGVUeXBlIj4NCiAgICAgICAgPHhzOnNlcXVlbmNlPg0KICAgICAgICAgIDx4czplbGVtZW50
-IG5hbWU9Ik1hbnVmYWN0dXJlck5hbWUiIHR5cGU9InhzOnN0cmluZyIgbWluT2NjdXJzPSIwIiBu
-aWxsYWJsZT0idHJ1ZSIgLz4NCiAgICAgICAgPC94czpzZXF1ZW5jZT4NCiAgICAgIDwveHM6ZXh0
-ZW5zaW9uPg0KICAgIDwveHM6Y29tcGxleENvbnRlbnQ+DQogIDwveHM6Y29tcGxleFR5cGU+DQog
-IDx4czplbGVtZW50IG5hbWU9IlR3b1doZWVsZXJUeXBlIiB0eXBlPSJ0bnM6VHdvV2hlZWxlclR5
-cGUiIC8+DQoNCiAgPHhzOmNvbXBsZXhUeXBlIG5hbWU9Ikxpc3RPZlR3b1doZWVsZXJUeXBlIj4N
-CiAgICA8eHM6c2VxdWVuY2U+DQogICAgICA8eHM6ZWxlbWVudCBuYW1lPSJUd29XaGVlbGVyVHlw
-ZSIgdHlwZT0idG5zOlR3b1doZWVsZXJUeXBlIiBtaW5PY2N1cnM9IjAiIG1heE9jY3Vycz0idW5i
-b3VuZGVkIiBuaWxsYWJsZT0idHJ1ZSIgLz4NCiAgICA8L3hzOnNlcXVlbmNlPg0KICA8L3hzOmNv
-bXBsZXhUeXBlPg0KICA8eHM6ZWxlbWVudCBuYW1lPSJMaXN0T2ZUd29XaGVlbGVyVHlwZSIgdHlw
-ZT0idG5zOkxpc3RPZlR3b1doZWVsZXJUeXBlIiBuaWxsYWJsZT0idHJ1ZSI+PC94czplbGVtZW50
-Pg0KDQogIDx4czpjb21wbGV4VHlwZSBuYW1lPSJCaWN5Y2xlVHlwZSI+DQogICAgPHhzOmNvbXBs
-ZXhDb250ZW50IG1peGVkPSJmYWxzZSI+DQogICAgICA8eHM6ZXh0ZW5zaW9uIGJhc2U9InRuczpU
-d29XaGVlbGVyVHlwZSI+DQogICAgICAgIDx4czpzZXF1ZW5jZT4NCiAgICAgICAgICA8eHM6ZWxl
-bWVudCBuYW1lPSJOb09mR2VhcnMiIHR5cGU9InhzOnVuc2lnbmVkSW50IiBtaW5PY2N1cnM9IjAi
-IC8+DQogICAgICAgIDwveHM6c2VxdWVuY2U+DQogICAgICA8L3hzOmV4dGVuc2lvbj4NCiAgICA8
-L3hzOmNvbXBsZXhDb250ZW50Pg0KICA8L3hzOmNvbXBsZXhUeXBlPg0KICA8eHM6ZWxlbWVudCBu
-YW1lPSJCaWN5Y2xlVHlwZSIgdHlwZT0idG5zOkJpY3ljbGVUeXBlIiAvPg0KDQogIDx4czpjb21w
-bGV4VHlwZSBuYW1lPSJMaXN0T2ZCaWN5Y2xlVHlwZSI+DQogICAgPHhzOnNlcXVlbmNlPg0KICAg
-ICAgPHhzOmVsZW1lbnQgbmFtZT0iQmljeWNsZVR5cGUiIHR5cGU9InRuczpCaWN5Y2xlVHlwZSIg
-bWluT2NjdXJzPSIwIiBtYXhPY2N1cnM9InVuYm91bmRlZCIgbmlsbGFibGU9InRydWUiIC8+DQog
-ICAgPC94czpzZXF1ZW5jZT4NCiAgPC94czpjb21wbGV4VHlwZT4NCiAgPHhzOmVsZW1lbnQgbmFt
-ZT0iTGlzdE9mQmljeWNsZVR5cGUiIHR5cGU9InRuczpMaXN0T2ZCaWN5Y2xlVHlwZSIgbmlsbGFi
-bGU9InRydWUiPjwveHM6ZWxlbWVudD4NCg0KICA8eHM6Y29tcGxleFR5cGUgbmFtZT0iU2Nvb3Rl
-clR5cGUiPg0KICAgIDx4czpjb21wbGV4Q29udGVudCBtaXhlZD0iZmFsc2UiPg0KICAgICAgPHhz
-OmV4dGVuc2lvbiBiYXNlPSJ0bnM6VHdvV2hlZWxlclR5cGUiPg0KICAgICAgICA8eHM6c2VxdWVu
-Y2U+DQogICAgICAgICAgPHhzOmVsZW1lbnQgbmFtZT0iTm9PZlNlYXRzIiB0eXBlPSJ4czp1bnNp
-Z25lZEludCIgbWluT2NjdXJzPSIwIiAvPg0KICAgICAgICA8L3hzOnNlcXVlbmNlPg0KICAgICAg
-PC94czpleHRlbnNpb24+DQogICAgPC94czpjb21wbGV4Q29udGVudD4NCiAgPC94czpjb21wbGV4
-VHlwZT4NCiAgPHhzOmVsZW1lbnQgbmFtZT0iU2Nvb3RlclR5cGUiIHR5cGU9InRuczpTY29vdGVy
-VHlwZSIgLz4NCg0KICA8eHM6Y29tcGxleFR5cGUgbmFtZT0iTGlzdE9mU2Nvb3RlclR5cGUiPg0K
-ICAgIDx4czpzZXF1ZW5jZT4NCiAgICAgIDx4czplbGVtZW50IG5hbWU9IlNjb290ZXJUeXBlIiB0
-eXBlPSJ0bnM6U2Nvb3RlclR5cGUiIG1pbk9jY3Vycz0iMCIgbWF4T2NjdXJzPSJ1bmJvdW5kZWQi
-IG5pbGxhYmxlPSJ0cnVlIiAvPg0KICAgIDwveHM6c2VxdWVuY2U+DQogIDwveHM6Y29tcGxleFR5
-cGU+DQogIDx4czplbGVtZW50IG5hbWU9Ikxpc3RPZlNjb290ZXJUeXBlIiB0eXBlPSJ0bnM6TGlz
-dE9mU2Nvb3RlclR5cGUiIG5pbGxhYmxlPSJ0cnVlIj48L3hzOmVsZW1lbnQ+DQoNCjwveHM6c2No
-ZW1hPg==</uax:ByteString>
+        <uax:ByteString>PHhzOnNjaGVtYQ0KICB4bWxuczpEST0iaHR0cDovL29wY2ZvdW5kYXRpb24ub3JnL1VBL0RJL1R5
+cGVzLnhzZCINCiAgeG1sbnM6QURJPSJodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvQURJL1R5
+cGVzLnhzZCINCiAgeG1sbnM6TURJUz0iaHR0cDovL29wY2ZvdW5kYXRpb24ub3JnL1VBL01ESVMv
+VHlwZXMueHNkIg0KICB4bWxuczpNVD0iaHR0cDovL29wY2ZvdW5kYXRpb24ub3JnL1VBL01UQ29u
+bmVjdC9UeXBlcy54c2QiDQogIHhtbG5zOlBMQz0iaHR0cDovL1BMQ29wZW4ub3JnL09wY1VhL0lF
+QzYxMTMxLTMvVHlwZXMueHNkIg0KICB4bWxuczpSb2JvdGljcz0iaHR0cDovL29wY2ZvdW5kYXRp
+b24ub3JnL1VBL1JvYm90aWNzL1R5cGVzLnhzZCINCiAgeG1sbnM6U2VyY29zPSJodHRwOi8vc2Vy
+Y29zLm9yZy9VQS9UeXBlcy54c2QiDQogIHhtbG5zOnM4PSJodHRwOi8vb3BjZm91bmRhdGlvbi5v
+cmcvVUEvUXVpY2tzdGFydHMvRGF0YVR5cGVzL1R5cGVzIg0KICB4bWxuczp4cz0iaHR0cDovL3d3
+dy53My5vcmcvMjAwMS9YTUxTY2hlbWEiDQogIHhtbG5zOnVhPSJodHRwOi8vb3BjZm91bmRhdGlv
+bi5vcmcvVUEvMjAwOC8wMi9UeXBlcy54c2QiDQogIHhtbG5zOnRucz0iaHR0cDovL29wY2ZvdW5k
+YXRpb24ub3JnL1VBL1F1aWNrc3RhcnRzL0RhdGFUeXBlcy9JbnN0YW5jZXMiDQogIHRhcmdldE5h
+bWVzcGFjZT0iaHR0cDovL29wY2ZvdW5kYXRpb24ub3JnL1VBL1F1aWNrc3RhcnRzL0RhdGFUeXBl
+cy9JbnN0YW5jZXMiDQogIGVsZW1lbnRGb3JtRGVmYXVsdD0icXVhbGlmaWVkIg0KPg0KICA8eHM6
+aW1wb3J0IG5hbWVzcGFjZT0iaHR0cDovL29wY2ZvdW5kYXRpb24ub3JnL1VBLzIwMDgvMDIvVHlw
+ZXMueHNkIiAvPg0KICA8eHM6aW1wb3J0IG5hbWVzcGFjZT0iaHR0cDovL29wY2ZvdW5kYXRpb24u
+b3JnL1VBL0RJL1R5cGVzLnhzZCIgLz4NCiAgPHhzOmltcG9ydCBuYW1lc3BhY2U9Imh0dHA6Ly9v
+cGNmb3VuZGF0aW9uLm9yZy9VQS9BREkvVHlwZXMueHNkIiAvPg0KICA8eHM6aW1wb3J0IG5hbWVz
+cGFjZT0iaHR0cDovL29wY2ZvdW5kYXRpb24ub3JnL1VBL01ESVMvVHlwZXMueHNkIiAvPg0KICA8
+eHM6aW1wb3J0IG5hbWVzcGFjZT0iaHR0cDovL29wY2ZvdW5kYXRpb24ub3JnL1VBL01UQ29ubmVj
+dC9UeXBlcy54c2QiIC8+DQogIDx4czppbXBvcnQgbmFtZXNwYWNlPSJodHRwOi8vUExDb3Blbi5v
+cmcvT3BjVWEvSUVDNjExMzEtMy9UeXBlcy54c2QiIC8+DQogIDx4czppbXBvcnQgbmFtZXNwYWNl
+PSJodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvUm9ib3RpY3MvVHlwZXMueHNkIiAvPg0KICA8
+eHM6aW1wb3J0IG5hbWVzcGFjZT0iaHR0cDovL3NlcmNvcy5vcmcvVUEvVHlwZXMueHNkIiAvPg0K
+ICA8eHM6aW1wb3J0IG5hbWVzcGFjZT0iaHR0cDovL29wY2ZvdW5kYXRpb24ub3JnL1VBL1F1aWNr
+c3RhcnRzL0RhdGFUeXBlcy9UeXBlcyIgLz4NCg0KICA8eHM6c2ltcGxlVHlwZSAgbmFtZT0iUGFy
+a2luZ0xvdFR5cGUiPg0KICAgIDx4czpyZXN0cmljdGlvbiBiYXNlPSJ4czpzdHJpbmciPg0KICAg
+ICAgPHhzOmVudW1lcmF0aW9uIHZhbHVlPSJPcGVuXzEiIC8+DQogICAgICA8eHM6ZW51bWVyYXRp
+b24gdmFsdWU9IkNvdmVyZWRfMiIgLz4NCiAgICA8L3hzOnJlc3RyaWN0aW9uPg0KICA8L3hzOnNp
+bXBsZVR5cGU+DQogIDx4czplbGVtZW50IG5hbWU9IlBhcmtpbmdMb3RUeXBlIiB0eXBlPSJ0bnM6
+UGFya2luZ0xvdFR5cGUiIC8+DQoNCiAgPHhzOmNvbXBsZXhUeXBlIG5hbWU9Ikxpc3RPZlBhcmtp
+bmdMb3RUeXBlIj4NCiAgICA8eHM6c2VxdWVuY2U+DQogICAgICA8eHM6ZWxlbWVudCBuYW1lPSJQ
+YXJraW5nTG90VHlwZSIgdHlwZT0idG5zOlBhcmtpbmdMb3RUeXBlIiBtaW5PY2N1cnM9IjAiIG1h
+eE9jY3Vycz0idW5ib3VuZGVkIiAvPg0KICAgIDwveHM6c2VxdWVuY2U+DQogIDwveHM6Y29tcGxl
+eFR5cGU+DQogIDx4czplbGVtZW50IG5hbWU9Ikxpc3RPZlBhcmtpbmdMb3RUeXBlIiB0eXBlPSJ0
+bnM6TGlzdE9mUGFya2luZ0xvdFR5cGUiIG5pbGxhYmxlPSJ0cnVlIj48L3hzOmVsZW1lbnQ+DQoN
+CiAgPHhzOmNvbXBsZXhUeXBlIG5hbWU9IlR3b1doZWVsZXJUeXBlIj4NCiAgICA8eHM6Y29tcGxl
+eENvbnRlbnQgbWl4ZWQ9ImZhbHNlIj4NCiAgICAgIDx4czpleHRlbnNpb24gYmFzZT0iczg6VmVo
+aWNsZVR5cGUiPg0KICAgICAgICA8eHM6c2VxdWVuY2U+DQogICAgICAgICAgPHhzOmVsZW1lbnQg
+bmFtZT0iTWFudWZhY3R1cmVyTmFtZSIgdHlwZT0ieHM6c3RyaW5nIiBtaW5PY2N1cnM9IjAiIG5p
+bGxhYmxlPSJ0cnVlIiAvPg0KICAgICAgICA8L3hzOnNlcXVlbmNlPg0KICAgICAgPC94czpleHRl
+bnNpb24+DQogICAgPC94czpjb21wbGV4Q29udGVudD4NCiAgPC94czpjb21wbGV4VHlwZT4NCiAg
+PHhzOmVsZW1lbnQgbmFtZT0iVHdvV2hlZWxlclR5cGUiIHR5cGU9InRuczpUd29XaGVlbGVyVHlw
+ZSIgLz4NCg0KICA8eHM6Y29tcGxleFR5cGUgbmFtZT0iTGlzdE9mVHdvV2hlZWxlclR5cGUiPg0K
+ICAgIDx4czpzZXF1ZW5jZT4NCiAgICAgIDx4czplbGVtZW50IG5hbWU9IlR3b1doZWVsZXJUeXBl
+IiB0eXBlPSJ0bnM6VHdvV2hlZWxlclR5cGUiIG1pbk9jY3Vycz0iMCIgbWF4T2NjdXJzPSJ1bmJv
+dW5kZWQiIG5pbGxhYmxlPSJ0cnVlIiAvPg0KICAgIDwveHM6c2VxdWVuY2U+DQogIDwveHM6Y29t
+cGxleFR5cGU+DQogIDx4czplbGVtZW50IG5hbWU9Ikxpc3RPZlR3b1doZWVsZXJUeXBlIiB0eXBl
+PSJ0bnM6TGlzdE9mVHdvV2hlZWxlclR5cGUiIG5pbGxhYmxlPSJ0cnVlIj48L3hzOmVsZW1lbnQ+
+DQoNCiAgPHhzOmNvbXBsZXhUeXBlIG5hbWU9IkJpY3ljbGVUeXBlIj4NCiAgICA8eHM6Y29tcGxl
+eENvbnRlbnQgbWl4ZWQ9ImZhbHNlIj4NCiAgICAgIDx4czpleHRlbnNpb24gYmFzZT0idG5zOlR3
+b1doZWVsZXJUeXBlIj4NCiAgICAgICAgPHhzOnNlcXVlbmNlPg0KICAgICAgICAgIDx4czplbGVt
+ZW50IG5hbWU9Ik5vT2ZHZWFycyIgdHlwZT0ieHM6dW5zaWduZWRJbnQiIG1pbk9jY3Vycz0iMCIg
+Lz4NCiAgICAgICAgPC94czpzZXF1ZW5jZT4NCiAgICAgIDwveHM6ZXh0ZW5zaW9uPg0KICAgIDwv
+eHM6Y29tcGxleENvbnRlbnQ+DQogIDwveHM6Y29tcGxleFR5cGU+DQogIDx4czplbGVtZW50IG5h
+bWU9IkJpY3ljbGVUeXBlIiB0eXBlPSJ0bnM6QmljeWNsZVR5cGUiIC8+DQoNCiAgPHhzOmNvbXBs
+ZXhUeXBlIG5hbWU9Ikxpc3RPZkJpY3ljbGVUeXBlIj4NCiAgICA8eHM6c2VxdWVuY2U+DQogICAg
+ICA8eHM6ZWxlbWVudCBuYW1lPSJCaWN5Y2xlVHlwZSIgdHlwZT0idG5zOkJpY3ljbGVUeXBlIiBt
+aW5PY2N1cnM9IjAiIG1heE9jY3Vycz0idW5ib3VuZGVkIiBuaWxsYWJsZT0idHJ1ZSIgLz4NCiAg
+ICA8L3hzOnNlcXVlbmNlPg0KICA8L3hzOmNvbXBsZXhUeXBlPg0KICA8eHM6ZWxlbWVudCBuYW1l
+PSJMaXN0T2ZCaWN5Y2xlVHlwZSIgdHlwZT0idG5zOkxpc3RPZkJpY3ljbGVUeXBlIiBuaWxsYWJs
+ZT0idHJ1ZSI+PC94czplbGVtZW50Pg0KDQogIDx4czpjb21wbGV4VHlwZSBuYW1lPSJTY29vdGVy
+VHlwZSI+DQogICAgPHhzOmNvbXBsZXhDb250ZW50IG1peGVkPSJmYWxzZSI+DQogICAgICA8eHM6
+ZXh0ZW5zaW9uIGJhc2U9InRuczpUd29XaGVlbGVyVHlwZSI+DQogICAgICAgIDx4czpzZXF1ZW5j
+ZT4NCiAgICAgICAgICA8eHM6ZWxlbWVudCBuYW1lPSJOb09mU2VhdHMiIHR5cGU9InhzOnVuc2ln
+bmVkSW50IiBtaW5PY2N1cnM9IjAiIC8+DQogICAgICAgIDwveHM6c2VxdWVuY2U+DQogICAgICA8
+L3hzOmV4dGVuc2lvbj4NCiAgICA8L3hzOmNvbXBsZXhDb250ZW50Pg0KICA8L3hzOmNvbXBsZXhU
+eXBlPg0KICA8eHM6ZWxlbWVudCBuYW1lPSJTY29vdGVyVHlwZSIgdHlwZT0idG5zOlNjb290ZXJU
+eXBlIiAvPg0KDQogIDx4czpjb21wbGV4VHlwZSBuYW1lPSJMaXN0T2ZTY29vdGVyVHlwZSI+DQog
+ICAgPHhzOnNlcXVlbmNlPg0KICAgICAgPHhzOmVsZW1lbnQgbmFtZT0iU2Nvb3RlclR5cGUiIHR5
+cGU9InRuczpTY29vdGVyVHlwZSIgbWluT2NjdXJzPSIwIiBtYXhPY2N1cnM9InVuYm91bmRlZCIg
+bmlsbGFibGU9InRydWUiIC8+DQogICAgPC94czpzZXF1ZW5jZT4NCiAgPC94czpjb21wbGV4VHlw
+ZT4NCiAgPHhzOmVsZW1lbnQgbmFtZT0iTGlzdE9mU2Nvb3RlclR5cGUiIHR5cGU9InRuczpMaXN0
+T2ZTY29vdGVyVHlwZSIgbmlsbGFibGU9InRydWUiPjwveHM6ZWxlbWVudD4NCg0KPC94czpzY2hl
+bWE+</uax:ByteString>
       </uax:Value>
     </uax:Value>
     <uax:DataType>
@@ -907,7 +1043,7 @@ ZW1hPg==</uax:ByteString>
     <NamespaceUri xmlns="http://opcfoundation.org/UA/">
       <uax:NodeClass>Variable_2</uax:NodeClass>
       <uax:NodeId>
-        <uax:Identifier>ns=2;i=343</uax:Identifier>
+        <uax:Identifier>ns=9;i=343</uax:Identifier>
       </uax:NodeId>
       <uax:BrowseName>
         <uax:NamespaceIndex>0</uax:NamespaceIndex>
@@ -935,7 +1071,7 @@ ZW1hPg==</uax:ByteString>
     <Deprecated xmlns="http://opcfoundation.org/UA/">
       <uax:NodeClass>Variable_2</uax:NodeClass>
       <uax:NodeId>
-        <uax:Identifier>ns=2;i=15003</uax:Identifier>
+        <uax:Identifier>ns=9;i=15003</uax:Identifier>
       </uax:NodeId>
       <uax:BrowseName>
         <uax:NamespaceIndex>0</uax:NamespaceIndex>
@@ -963,10 +1099,10 @@ ZW1hPg==</uax:ByteString>
     <TwoWheelerType>
       <uax:NodeClass>Variable_2</uax:NodeClass>
       <uax:NodeId>
-        <uax:Identifier>ns=2;i=15026</uax:Identifier>
+        <uax:Identifier>ns=9;i=15026</uax:Identifier>
       </uax:NodeId>
       <uax:BrowseName>
-        <uax:NamespaceIndex>2</uax:NamespaceIndex>
+        <uax:NamespaceIndex>9</uax:NamespaceIndex>
         <uax:Name>TwoWheelerType</uax:Name>
       </uax:BrowseName>
       <uax:ReferenceTypeId>
@@ -991,10 +1127,10 @@ ZW1hPg==</uax:ByteString>
     <BicycleType>
       <uax:NodeClass>Variable_2</uax:NodeClass>
       <uax:NodeId>
-        <uax:Identifier>ns=2;i=15010</uax:Identifier>
+        <uax:Identifier>ns=9;i=15010</uax:Identifier>
       </uax:NodeId>
       <uax:BrowseName>
-        <uax:NamespaceIndex>2</uax:NamespaceIndex>
+        <uax:NamespaceIndex>9</uax:NamespaceIndex>
         <uax:Name>BicycleType</uax:Name>
       </uax:BrowseName>
       <uax:ReferenceTypeId>
@@ -1019,10 +1155,10 @@ ZW1hPg==</uax:ByteString>
     <ScooterType>
       <uax:NodeClass>Variable_2</uax:NodeClass>
       <uax:NodeId>
-        <uax:Identifier>ns=2;i=15029</uax:Identifier>
+        <uax:Identifier>ns=9;i=15029</uax:Identifier>
       </uax:NodeId>
       <uax:BrowseName>
-        <uax:NamespaceIndex>2</uax:NamespaceIndex>
+        <uax:NamespaceIndex>9</uax:NamespaceIndex>
         <uax:Name>ScooterType</uax:Name>
       </uax:BrowseName>
       <uax:ReferenceTypeId>
@@ -1048,7 +1184,7 @@ ZW1hPg==</uax:ByteString>
   <DefaultJson xmlns="http://opcfoundation.org/UA/">
     <uax:NodeClass>Object_1</uax:NodeClass>
     <uax:NodeId>
-      <uax:Identifier>ns=2;i=15032</uax:Identifier>
+      <uax:Identifier>ns=9;i=15032</uax:Identifier>
     </uax:NodeId>
     <uax:BrowseName>
       <uax:NamespaceIndex>0</uax:NamespaceIndex>
@@ -1065,7 +1201,7 @@ ZW1hPg==</uax:ByteString>
         </uax:ReferenceTypeId>
         <uax:IsInverse>true</uax:IsInverse>
         <uax:TargetId>
-          <uax:Identifier>ns=2;i=15014</uax:Identifier>
+          <uax:Identifier>ns=9;i=15014</uax:Identifier>
         </uax:TargetId>
       </uax:Reference>
     </uax:References>
@@ -1073,7 +1209,7 @@ ZW1hPg==</uax:ByteString>
   <DefaultJson xmlns="http://opcfoundation.org/UA/">
     <uax:NodeClass>Object_1</uax:NodeClass>
     <uax:NodeId>
-      <uax:Identifier>ns=2;i=15013</uax:Identifier>
+      <uax:Identifier>ns=9;i=15013</uax:Identifier>
     </uax:NodeId>
     <uax:BrowseName>
       <uax:NamespaceIndex>0</uax:NamespaceIndex>
@@ -1090,7 +1226,7 @@ ZW1hPg==</uax:ByteString>
         </uax:ReferenceTypeId>
         <uax:IsInverse>true</uax:IsInverse>
         <uax:TargetId>
-          <uax:Identifier>ns=2;i=15004</uax:Identifier>
+          <uax:Identifier>ns=9;i=15004</uax:Identifier>
         </uax:TargetId>
       </uax:Reference>
     </uax:References>
@@ -1098,7 +1234,7 @@ ZW1hPg==</uax:ByteString>
   <DefaultJson xmlns="http://opcfoundation.org/UA/">
     <uax:NodeClass>Object_1</uax:NodeClass>
     <uax:NodeId>
-      <uax:Identifier>ns=2;i=15033</uax:Identifier>
+      <uax:Identifier>ns=9;i=15033</uax:Identifier>
     </uax:NodeId>
     <uax:BrowseName>
       <uax:NamespaceIndex>0</uax:NamespaceIndex>
@@ -1115,7 +1251,7 @@ ZW1hPg==</uax:ByteString>
         </uax:ReferenceTypeId>
         <uax:IsInverse>true</uax:IsInverse>
         <uax:TargetId>
-          <uax:Identifier>ns=2;i=15015</uax:Identifier>
+          <uax:Identifier>ns=9;i=15015</uax:Identifier>
         </uax:TargetId>
       </uax:Reference>
     </uax:References>
