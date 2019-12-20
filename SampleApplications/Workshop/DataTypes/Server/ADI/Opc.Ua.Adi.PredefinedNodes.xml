@@ -22221,6 +22221,9 @@
           <uax:Fields>
             <uax:EnumField>
               <uax:Value>0</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>IDLE</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Idle, no cleaning or acquisition cycle in progress</uax:Text>
               </uax:Description>
@@ -22228,6 +22231,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>1</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>DIAGNOSTIC</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Scquisition cycle collecting data for diagnostic purpose</uax:Text>
               </uax:Description>
@@ -22235,6 +22241,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>2</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>CLEANING</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Cleaning cycle</uax:Text>
               </uax:Description>
@@ -22242,6 +22251,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>4</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>CALIBRATION</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Calibration acquisition cycle</uax:Text>
               </uax:Description>
@@ -22249,6 +22261,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>8</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>VALIDATION</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Validation acquisition cycle</uax:Text>
               </uax:Description>
@@ -22256,6 +22271,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>16</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>SAMPLING</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Sample acquisition cycle</uax:Text>
               </uax:Description>
@@ -22263,6 +22281,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>32769</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>DIAGNOSTIC_WITH_GRAB_SAMPLE</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Scquisition cycle collecting data for diagnostic purpose and sample is extracted from the process to be sent in control lab</uax:Text>
               </uax:Description>
@@ -22270,6 +22291,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>32770</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>CLEANING_WITH_GRAB_SAMPLE</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Cleaning cycle with or without acquisition and sample is extracted from the process to be sent in control lab</uax:Text>
               </uax:Description>
@@ -22277,6 +22301,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>32772</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>CALIBRATION_WITH_GRAB_SAMPLE</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Calibration acquisition cycle and sample is extracted from the process to be sent in control lab</uax:Text>
               </uax:Description>
@@ -22284,6 +22311,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>32776</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>VALIDATION_WITH_GRAB_SAMPLE</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Validation acquisition cycle and sample is extracted from the process to be sent in control lab</uax:Text>
               </uax:Description>
@@ -22291,6 +22321,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>32784</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>SAMPLING_WITH_GRAB_SAMPLE</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Sample acquisition cycle and sample is extracted from the process to be sent in control lab</uax:Text>
               </uax:Description>
@@ -22553,6 +22586,9 @@
           <uax:Fields>
             <uax:EnumField>
               <uax:Value>0</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>NOT_USED</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>No longer used.</uax:Text>
               </uax:Description>
@@ -22560,6 +22596,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>1</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>GOOD</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>The acquisition has been completed as requested without any error.</uax:Text>
               </uax:Description>
@@ -22567,6 +22606,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>2</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>BAD</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>The acquisition has been completed as requested with error.</uax:Text>
               </uax:Description>
@@ -22574,6 +22616,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>3</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>UNKNOWN</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>The acquisition has been completed but nothing can be said about the quality of the result.</uax:Text>
               </uax:Description>
@@ -22581,6 +22626,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>4</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>PARTIAL</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>The acquisition has been partially completed as requested without any error.</uax:Text>
               </uax:Description>
@@ -23343,6 +23391,9 @@
           <uax:Fields>
             <uax:EnumField>
               <uax:Value>0</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>NORMAL_0</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Normal</uax:Text>
               </uax:Description>
@@ -23350,6 +23401,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>1</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>WARNING_LOW_1</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>In low warning range</uax:Text>
               </uax:Description>
@@ -23357,6 +23411,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>2</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>WARNING_HIGH_2</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>In high warning range</uax:Text>
               </uax:Description>
@@ -23364,6 +23421,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>4</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>WARNING_4</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>In warning range (low or high) or some other warning cause</uax:Text>
               </uax:Description>
@@ -23371,6 +23431,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>8</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>ALARM_LOW_8</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>In low alarm range</uax:Text>
               </uax:Description>
@@ -23378,6 +23441,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>16</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>ALARM_HIGH_16</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>In high alarm range</uax:Text>
               </uax:Description>
@@ -23385,6 +23451,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>32</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>ALARM_32</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>In alarm range (low or high) or some other alarm cause</uax:Text>
               </uax:Description>

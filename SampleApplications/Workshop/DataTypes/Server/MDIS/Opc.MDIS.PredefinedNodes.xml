@@ -343,14 +343,23 @@
           <uax:Fields>
             <uax:EnumField>
               <uax:Value>1</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>NotAvailable</uax:Text>
+              </uax:DisplayName>
               <uax:Name>NotAvailable</uax:Name>
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>2</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>Completed</uax:Text>
+              </uax:DisplayName>
               <uax:Name>Completed</uax:Name>
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>4</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>Failed</uax:Text>
+              </uax:DisplayName>
               <uax:Name>Failed</uax:Name>
             </uax:EnumField>
           </uax:Fields>
@@ -454,18 +463,30 @@
           <uax:Fields>
             <uax:EnumField>
               <uax:Value>0</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>Initial</uax:Text>
+              </uax:DisplayName>
               <uax:Name>Initial</uax:Name>
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>1</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>Inprogress</uax:Text>
+              </uax:DisplayName>
               <uax:Name>Inprogress</uax:Name>
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>2</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>Complete</uax:Text>
+              </uax:DisplayName>
               <uax:Name>Complete</uax:Name>
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>4</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>Fault</uax:Text>
+              </uax:DisplayName>
               <uax:Name>Fault</uax:Name>
             </uax:EnumField>
           </uax:Fields>
@@ -583,14 +604,23 @@
           <uax:Fields>
             <uax:EnumField>
               <uax:Value>1</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>Close</uax:Text>
+              </uax:DisplayName>
               <uax:Name>Close</uax:Name>
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>2</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>Open</uax:Text>
+              </uax:DisplayName>
               <uax:Name>Open</uax:Name>
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>4</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>None</uax:Text>
+              </uax:DisplayName>
               <uax:Name>None</uax:Name>
             </uax:EnumField>
           </uax:Fields>
@@ -694,10 +724,16 @@
           <uax:Fields>
             <uax:EnumField>
               <uax:Value>1</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>Close</uax:Text>
+              </uax:DisplayName>
               <uax:Name>Close</uax:Name>
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>2</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>Open</uax:Text>
+              </uax:DisplayName>
               <uax:Name>Open</uax:Name>
             </uax:EnumField>
           </uax:Fields>
@@ -787,14 +823,23 @@
           <uax:Fields>
             <uax:EnumField>
               <uax:Value>1</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>SEM_A</uax:Text>
+              </uax:DisplayName>
               <uax:Name>SEM_A</uax:Name>
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>2</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>SEM_B</uax:Text>
+              </uax:DisplayName>
               <uax:Name>SEM_B</uax:Name>
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>4</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>Auto</uax:Text>
+              </uax:DisplayName>
               <uax:Name>Auto</uax:Name>
             </uax:EnumField>
           </uax:Fields>
@@ -898,18 +943,30 @@
           <uax:Fields>
             <uax:EnumField>
               <uax:Value>1</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>Closed</uax:Text>
+              </uax:DisplayName>
               <uax:Name>Closed</uax:Name>
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>2</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>Open</uax:Text>
+              </uax:DisplayName>
               <uax:Name>Open</uax:Name>
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>4</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>Moving</uax:Text>
+              </uax:DisplayName>
               <uax:Name>Moving</uax:Name>
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>8</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>Unknown</uax:Text>
+              </uax:DisplayName>
               <uax:Name>Unknown</uax:Name>
             </uax:EnumField>
           </uax:Fields>
@@ -1027,10 +1084,16 @@
           <uax:Fields>
             <uax:EnumField>
               <uax:Value>1</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>Moving</uax:Text>
+              </uax:DisplayName>
               <uax:Name>Moving</uax:Name>
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>2</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>Stopped</uax:Text>
+              </uax:DisplayName>
               <uax:Name>Stopped</uax:Name>
             </uax:EnumField>
           </uax:Fields>

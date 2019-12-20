@@ -6521,6 +6521,9 @@
           <uax:Fields>
             <uax:EnumField>
               <uax:Value>0</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>CYCLE</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Single execution of a task program according to ISO 8373.</uax:Text>
               </uax:Description>
@@ -6528,6 +6531,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>1</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>CONTINUOUS</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Task program is executed continuously and starts again automatically.</uax:Text>
               </uax:Description>
@@ -6535,6 +6541,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>2</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>STEP</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Task program is executed in steps.</uax:Text>
               </uax:Description>
@@ -6611,6 +6620,9 @@
           <uax:Fields>
             <uax:EnumField>
               <uax:Value>0</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>OTHER</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Any MotionDevice which is not defined by the MotionDeviceCategoryEnumeration.</uax:Text>
               </uax:Description>
@@ -6618,6 +6630,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>1</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>ARTICULATED_ROBOT</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>This robot design features rotary joints and can range from simple two joint structures to 10 or more joints. The arm is connected to the base with a twisting joint. The links in the arm are connected by rotary joints.</uax:Text>
               </uax:Description>
@@ -6625,6 +6640,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>2</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>SCARA_ROBOT</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>The robot has two parallel rotary joints that ensure compliance in a specified plane.</uax:Text>
               </uax:Description>
@@ -6632,6 +6650,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>3</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>CARTESIAN_ROBOT</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Cartesian robots have three linear joints that use the Cartesian coordinate system (X, Y, and Z). They also may have an attached wrist to allow for rotational movement. The three prismatic joints provide linear movement along the axis.</uax:Text>
               </uax:Description>
@@ -6639,6 +6660,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>4</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>SPHERICAL_ROBOT</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>The arm is connected to the base with a twisting joint and a combination of two rotary joints and one linear joint. The axes form a polar coordinate system and create a spherical shaped work envelope.</uax:Text>
               </uax:Description>
@@ -6646,6 +6670,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>5</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>PARALLEL_ROBOT</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>These spider like robots are built from jointed parallelograms connected to a common base. The parallelograms move a single EOAT in a dome-shaped work area.</uax:Text>
               </uax:Description>
@@ -6653,6 +6680,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>6</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>CYLINDRICAL_ROBOT</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>The robot has at least one rotary joint at the base and at least one prismatic joint to connect the links. The rotary joint uses a rotational motion along the joint axis, while the prismatic joint moves in a linear motion. Cylindrical robots operate within a cylindrical-shaped work envelope.</uax:Text>
               </uax:Description>
@@ -6745,6 +6775,9 @@
           <uax:Fields>
             <uax:EnumField>
               <uax:Value>0</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>OTHER</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Any motion-profile which is not defined by the AxisMotionProfileEnumeration.</uax:Text>
               </uax:Description>
@@ -6752,6 +6785,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>1</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>ROTARY</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Rotary motion is a rotation along a circular path with defined limits. Motion movement is not going always in the same direction. Control unit is mainly degree.</uax:Text>
               </uax:Description>
@@ -6759,6 +6795,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>2</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>ROTARY_ENDLESS</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Rotary motion is a rotation along a circular path with no limits. Motion movement is going endless in the same direction. Control unit is mainly degree.</uax:Text>
               </uax:Description>
@@ -6766,6 +6805,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>3</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>LINEAR</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Linear motion is a one dimensional motion along a straight line with defined limits. Motion movement is not going always in the same direction. Control unit is mainly mm.</uax:Text>
               </uax:Description>
@@ -6773,6 +6815,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>4</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>LINEAR_ENDLESS</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Linear motion is a one dimensional motion along a straight line with no limits. Motion movement is going endless in the same direction. Control unit is mainly mm.</uax:Text>
               </uax:Description>
@@ -6857,6 +6902,9 @@
           <uax:Fields>
             <uax:EnumField>
               <uax:Value>0</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>OTHER</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>Other for when there is a system-boot (unknown) or a failure of the safety, there is no valid operational mode.</uax:Text>
               </uax:Description>
@@ -6864,6 +6912,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>1</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>MANUAL_REDUCED_SPEED</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>"Manual reduced speed" - name according to ISO 10218-1:2011.</uax:Text>
               </uax:Description>
@@ -6871,6 +6922,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>2</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>MANUAL_HIGH_SPEED</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>"Manual high speed" - name according to ISO 10218-1:2011.</uax:Text>
               </uax:Description>
@@ -6878,6 +6932,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>3</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>AUTOMATIC</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>"Automatic" - name according to ISO 10218-1:2011.</uax:Text>
               </uax:Description>
@@ -6885,6 +6942,9 @@
             </uax:EnumField>
             <uax:EnumField>
               <uax:Value>4</uax:Value>
+              <uax:DisplayName>
+                <uax:Text>AUTOMATIC_EXTERNAL</uax:Text>
+              </uax:DisplayName>
               <uax:Description>
                 <uax:Text>"Automatic external" - Same as "Automatic" but with external control, e.g. by a PLC.</uax:Text>
               </uax:Description>

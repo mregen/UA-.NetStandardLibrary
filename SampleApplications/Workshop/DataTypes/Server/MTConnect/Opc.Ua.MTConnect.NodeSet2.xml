@@ -1829,8 +1829,12 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:ActuatorStateTypeEnum">
-      <Field Name="ACTIVE_1" Value="1" />
-      <Field Name="INACTIVE_2" Value="2" />
+      <Field Name="ACTIVE_1" Value="1">
+        <DisplayName>ACTIVE_1</DisplayName>
+      </Field>
+      <Field Name="INACTIVE_2" Value="2">
+        <DisplayName>INACTIVE_2</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=9964" BrowseName="EnumValues" ParentNodeId="ns=1;i=9963" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -1882,8 +1886,12 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:AlarmStateTypeEnum">
-      <Field Name="ACTIVE_1" Value="1" />
-      <Field Name="CLEARED_2" Value="2" />
+      <Field Name="ACTIVE_1" Value="1">
+        <DisplayName>ACTIVE_1</DisplayName>
+      </Field>
+      <Field Name="CLEARED_2" Value="2">
+        <DisplayName>CLEARED_2</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=9966" BrowseName="EnumValues" ParentNodeId="ns=1;i=9965" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -1959,8 +1967,12 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:AvailabilityTypeEnum">
-      <Field Name="AVAILABLE_1" Value="1" />
-      <Field Name="UNAVAILABLE_2" Value="2" />
+      <Field Name="AVAILABLE_1" Value="1">
+        <DisplayName>AVAILABLE_1</DisplayName>
+      </Field>
+      <Field Name="UNAVAILABLE_2" Value="2">
+        <DisplayName>UNAVAILABLE_2</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=9972" BrowseName="EnumValues" ParentNodeId="ns=1;i=9971" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -2012,11 +2024,21 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:AxesCouplingTypeEnum">
-      <Field Name="MASTER_1" Value="1" />
-      <Field Name="SLAVE_2" Value="2" />
-      <Field Name="SYCHRONOUS_3" Value="3" />
-      <Field Name="TANDEM_4" Value="4" />
-      <Field Name="UNAVAILABLE_5" Value="5" />
+      <Field Name="MASTER_1" Value="1">
+        <DisplayName>MASTER_1</DisplayName>
+      </Field>
+      <Field Name="SLAVE_2" Value="2">
+        <DisplayName>SLAVE_2</DisplayName>
+      </Field>
+      <Field Name="SYCHRONOUS_3" Value="3">
+        <DisplayName>SYCHRONOUS_3</DisplayName>
+      </Field>
+      <Field Name="TANDEM_4" Value="4">
+        <DisplayName>TANDEM_4</DisplayName>
+      </Field>
+      <Field Name="UNAVAILABLE_5" Value="5">
+        <DisplayName>UNAVAILABLE_5</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=9974" BrowseName="EnumValues" ParentNodeId="ns=1;i=9973" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -2137,9 +2159,15 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:CategoryTypeEnum">
-      <Field Name="CONDITION_1" Value="1" />
-      <Field Name="EVENT_2" Value="2" />
-      <Field Name="SAMPLE_3" Value="3" />
+      <Field Name="CONDITION_1" Value="1">
+        <DisplayName>CONDITION_1</DisplayName>
+      </Field>
+      <Field Name="EVENT_2" Value="2">
+        <DisplayName>EVENT_2</DisplayName>
+      </Field>
+      <Field Name="SAMPLE_3" Value="3">
+        <DisplayName>SAMPLE_3</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=9980" BrowseName="EnumValues" ParentNodeId="ns=1;i=9979" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -2212,10 +2240,18 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:ClampStateTypeEnum">
-      <Field Name="CLOSED_1" Value="1" />
-      <Field Name="INDETERMINATE_2" Value="2" />
-      <Field Name="OPEN_3" Value="3" />
-      <Field Name="UNAVAILABLE_4" Value="4" />
+      <Field Name="CLOSED_1" Value="1">
+        <DisplayName>CLOSED_1</DisplayName>
+      </Field>
+      <Field Name="INDETERMINATE_2" Value="2">
+        <DisplayName>INDETERMINATE_2</DisplayName>
+      </Field>
+      <Field Name="OPEN_3" Value="3">
+        <DisplayName>OPEN_3</DisplayName>
+      </Field>
+      <Field Name="UNAVAILABLE_4" Value="4">
+        <DisplayName>UNAVAILABLE_4</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=9983" BrowseName="EnumValues" ParentNodeId="ns=1;i=9982" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -2303,11 +2339,21 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:ControllerModeTypeEnum">
-      <Field Name="AUTOMATIC_1" Value="1" />
-      <Field Name="MANUAL_2" Value="2" />
-      <Field Name="MANUAL_DATA_INPUT_3" Value="3" />
-      <Field Name="SEMI_AUTOMATIC_4" Value="4" />
-      <Field Name="UNAVAILABLE_5" Value="5" />
+      <Field Name="AUTOMATIC_1" Value="1">
+        <DisplayName>AUTOMATIC_1</DisplayName>
+      </Field>
+      <Field Name="MANUAL_2" Value="2">
+        <DisplayName>MANUAL_2</DisplayName>
+      </Field>
+      <Field Name="MANUAL_DATA_INPUT_3" Value="3">
+        <DisplayName>MANUAL_DATA_INPUT_3</DisplayName>
+      </Field>
+      <Field Name="SEMI_AUTOMATIC_4" Value="4">
+        <DisplayName>SEMI_AUTOMATIC_4</DisplayName>
+      </Field>
+      <Field Name="UNAVAILABLE_5" Value="5">
+        <DisplayName>UNAVAILABLE_5</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=9986" BrowseName="EnumValues" ParentNodeId="ns=1;i=9985" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -2404,8 +2450,12 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:CoordinateSystemTypeEnum">
-      <Field Name="MACHINE_1" Value="1" />
-      <Field Name="WORK_2" Value="2" />
+      <Field Name="MACHINE_1" Value="1">
+        <DisplayName>MACHINE_1</DisplayName>
+      </Field>
+      <Field Name="WORK_2" Value="2">
+        <DisplayName>WORK_2</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=9988" BrowseName="EnumValues" ParentNodeId="ns=1;i=9987" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -2493,19 +2543,45 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:CutterStatusValueTypeEnum">
-      <Field Name="ALLOCATED_1" Value="1" />
-      <Field Name="AVAILABLE_2" Value="2" />
-      <Field Name="BROKEN_3" Value="3" />
-      <Field Name="EXPIRED_4" Value="4" />
-      <Field Name="MEASURED_5" Value="5" />
-      <Field Name="NEW_6" Value="6" />
-      <Field Name="NOT_REGISTERED_7" Value="7" />
-      <Field Name="RECONDITIONED_8" Value="8" />
-      <Field Name="TAGGED_OUT_9" Value="9" />
-      <Field Name="UNALLOCATED_10" Value="10" />
-      <Field Name="UNAVAILABLE_11" Value="11" />
-      <Field Name="UNKNOWN_12" Value="12" />
-      <Field Name="USED_13" Value="13" />
+      <Field Name="ALLOCATED_1" Value="1">
+        <DisplayName>ALLOCATED_1</DisplayName>
+      </Field>
+      <Field Name="AVAILABLE_2" Value="2">
+        <DisplayName>AVAILABLE_2</DisplayName>
+      </Field>
+      <Field Name="BROKEN_3" Value="3">
+        <DisplayName>BROKEN_3</DisplayName>
+      </Field>
+      <Field Name="EXPIRED_4" Value="4">
+        <DisplayName>EXPIRED_4</DisplayName>
+      </Field>
+      <Field Name="MEASURED_5" Value="5">
+        <DisplayName>MEASURED_5</DisplayName>
+      </Field>
+      <Field Name="NEW_6" Value="6">
+        <DisplayName>NEW_6</DisplayName>
+      </Field>
+      <Field Name="NOT_REGISTERED_7" Value="7">
+        <DisplayName>NOT_REGISTERED_7</DisplayName>
+      </Field>
+      <Field Name="RECONDITIONED_8" Value="8">
+        <DisplayName>RECONDITIONED_8</DisplayName>
+      </Field>
+      <Field Name="TAGGED_OUT_9" Value="9">
+        <DisplayName>TAGGED_OUT_9</DisplayName>
+      </Field>
+      <Field Name="UNALLOCATED_10" Value="10">
+        <DisplayName>UNALLOCATED_10</DisplayName>
+      </Field>
+      <Field Name="UNAVAILABLE_11" Value="11">
+        <DisplayName>UNAVAILABLE_11</DisplayName>
+      </Field>
+      <Field Name="UNKNOWN_12" Value="12">
+        <DisplayName>UNKNOWN_12</DisplayName>
+      </Field>
+      <Field Name="USED_13" Value="13">
+        <DisplayName>USED_13</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=9996" BrowseName="EnumValues" ParentNodeId="ns=1;i=9995" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -2732,47 +2808,129 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:DataItemEnumTypeEnum">
-      <Field Name="ACCELERATION_1" Value="1" />
-      <Field Name="ACCUMULATED_TIME_2" Value="2" />
-      <Field Name="ACTIVE_AXES_3" Value="3" />
-      <Field Name="ACTUATOR_4" Value="4" />
-      <Field Name="ACTUATOR_STATE_5" Value="5" />
-      <Field Name="ALARM_6" Value="6" />
-      <Field Name="AMPERAGE_7" Value="7" />
-      <Field Name="ANGLE_8" Value="8" />
-      <Field Name="ANGULAR_ACCELERATION_9" Value="9" />
-      <Field Name="ANGULAR_VELOCITY_10" Value="10" />
-      <Field Name="ASSET_CHANGED_11" Value="11" />
-      <Field Name="AVAILABILITY_12" Value="12" />
-      <Field Name="AXIS_COUPLING_13" Value="13" />
-      <Field Name="AXIS_FEEDRATE_14" Value="14" />
-      <Field Name="BLOCK_15" Value="15" />
-      <Field Name="CODE_16" Value="16" />
-      <Field Name="COMMUNICATIONS_17" Value="17" />
-      <Field Name="CONCENTRATION_18" Value="18" />
-      <Field Name="CONDUCTIVITY_19" Value="19" />
-      <Field Name="CONTROLLER_MODE_20" Value="20" />
-      <Field Name="COUPLED_AXES_21" Value="21" />
-      <Field Name="DIRECTION_22" Value="22" />
-      <Field Name="DISPLACEMENT_23" Value="23" />
-      <Field Name="DOOR_STATE_24" Value="24" />
-      <Field Name="ELECTRICAL_POWER_25" Value="25" />
-      <Field Name="EMERGENCY_STOP_26" Value="26" />
-      <Field Name="EXECUTION_27" Value="27" />
-      <Field Name="FILL_LEVEL_28" Value="28" />
-      <Field Name="FLOW_29" Value="29" />
-      <Field Name="FREQUENCY_30" Value="30" />
-      <Field Name="HARDWARE_31" Value="31" />
-      <Field Name="LEVEL_32" Value="32" />
-      <Field Name="LINE_33" Value="33" />
-      <Field Name="LINEAR_FORCE_34" Value="34" />
-      <Field Name="LOAD_35" Value="35" />
-      <Field Name="LOGIC_PROGRAM_36" Value="36" />
-      <Field Name="MASS_37" Value="37" />
-      <Field Name="MESSAGE_38" Value="38" />
-      <Field Name="MOTION_PROGRAM_39" Value="39" />
-      <Field Name="PART_COUNT_40" Value="40" />
-      <Field Name="PART_ID_41" Value="41" />
+      <Field Name="ACCELERATION_1" Value="1">
+        <DisplayName>ACCELERATION_1</DisplayName>
+      </Field>
+      <Field Name="ACCUMULATED_TIME_2" Value="2">
+        <DisplayName>ACCUMULATED_TIME_2</DisplayName>
+      </Field>
+      <Field Name="ACTIVE_AXES_3" Value="3">
+        <DisplayName>ACTIVE_AXES_3</DisplayName>
+      </Field>
+      <Field Name="ACTUATOR_4" Value="4">
+        <DisplayName>ACTUATOR_4</DisplayName>
+      </Field>
+      <Field Name="ACTUATOR_STATE_5" Value="5">
+        <DisplayName>ACTUATOR_STATE_5</DisplayName>
+      </Field>
+      <Field Name="ALARM_6" Value="6">
+        <DisplayName>ALARM_6</DisplayName>
+      </Field>
+      <Field Name="AMPERAGE_7" Value="7">
+        <DisplayName>AMPERAGE_7</DisplayName>
+      </Field>
+      <Field Name="ANGLE_8" Value="8">
+        <DisplayName>ANGLE_8</DisplayName>
+      </Field>
+      <Field Name="ANGULAR_ACCELERATION_9" Value="9">
+        <DisplayName>ANGULAR_ACCELERATION_9</DisplayName>
+      </Field>
+      <Field Name="ANGULAR_VELOCITY_10" Value="10">
+        <DisplayName>ANGULAR_VELOCITY_10</DisplayName>
+      </Field>
+      <Field Name="ASSET_CHANGED_11" Value="11">
+        <DisplayName>ASSET_CHANGED_11</DisplayName>
+      </Field>
+      <Field Name="AVAILABILITY_12" Value="12">
+        <DisplayName>AVAILABILITY_12</DisplayName>
+      </Field>
+      <Field Name="AXIS_COUPLING_13" Value="13">
+        <DisplayName>AXIS_COUPLING_13</DisplayName>
+      </Field>
+      <Field Name="AXIS_FEEDRATE_14" Value="14">
+        <DisplayName>AXIS_FEEDRATE_14</DisplayName>
+      </Field>
+      <Field Name="BLOCK_15" Value="15">
+        <DisplayName>BLOCK_15</DisplayName>
+      </Field>
+      <Field Name="CODE_16" Value="16">
+        <DisplayName>CODE_16</DisplayName>
+      </Field>
+      <Field Name="COMMUNICATIONS_17" Value="17">
+        <DisplayName>COMMUNICATIONS_17</DisplayName>
+      </Field>
+      <Field Name="CONCENTRATION_18" Value="18">
+        <DisplayName>CONCENTRATION_18</DisplayName>
+      </Field>
+      <Field Name="CONDUCTIVITY_19" Value="19">
+        <DisplayName>CONDUCTIVITY_19</DisplayName>
+      </Field>
+      <Field Name="CONTROLLER_MODE_20" Value="20">
+        <DisplayName>CONTROLLER_MODE_20</DisplayName>
+      </Field>
+      <Field Name="COUPLED_AXES_21" Value="21">
+        <DisplayName>COUPLED_AXES_21</DisplayName>
+      </Field>
+      <Field Name="DIRECTION_22" Value="22">
+        <DisplayName>DIRECTION_22</DisplayName>
+      </Field>
+      <Field Name="DISPLACEMENT_23" Value="23">
+        <DisplayName>DISPLACEMENT_23</DisplayName>
+      </Field>
+      <Field Name="DOOR_STATE_24" Value="24">
+        <DisplayName>DOOR_STATE_24</DisplayName>
+      </Field>
+      <Field Name="ELECTRICAL_POWER_25" Value="25">
+        <DisplayName>ELECTRICAL_POWER_25</DisplayName>
+      </Field>
+      <Field Name="EMERGENCY_STOP_26" Value="26">
+        <DisplayName>EMERGENCY_STOP_26</DisplayName>
+      </Field>
+      <Field Name="EXECUTION_27" Value="27">
+        <DisplayName>EXECUTION_27</DisplayName>
+      </Field>
+      <Field Name="FILL_LEVEL_28" Value="28">
+        <DisplayName>FILL_LEVEL_28</DisplayName>
+      </Field>
+      <Field Name="FLOW_29" Value="29">
+        <DisplayName>FLOW_29</DisplayName>
+      </Field>
+      <Field Name="FREQUENCY_30" Value="30">
+        <DisplayName>FREQUENCY_30</DisplayName>
+      </Field>
+      <Field Name="HARDWARE_31" Value="31">
+        <DisplayName>HARDWARE_31</DisplayName>
+      </Field>
+      <Field Name="LEVEL_32" Value="32">
+        <DisplayName>LEVEL_32</DisplayName>
+      </Field>
+      <Field Name="LINE_33" Value="33">
+        <DisplayName>LINE_33</DisplayName>
+      </Field>
+      <Field Name="LINEAR_FORCE_34" Value="34">
+        <DisplayName>LINEAR_FORCE_34</DisplayName>
+      </Field>
+      <Field Name="LOAD_35" Value="35">
+        <DisplayName>LOAD_35</DisplayName>
+      </Field>
+      <Field Name="LOGIC_PROGRAM_36" Value="36">
+        <DisplayName>LOGIC_PROGRAM_36</DisplayName>
+      </Field>
+      <Field Name="MASS_37" Value="37">
+        <DisplayName>MASS_37</DisplayName>
+      </Field>
+      <Field Name="MESSAGE_38" Value="38">
+        <DisplayName>MESSAGE_38</DisplayName>
+      </Field>
+      <Field Name="MOTION_PROGRAM_39" Value="39">
+        <DisplayName>MOTION_PROGRAM_39</DisplayName>
+      </Field>
+      <Field Name="PART_COUNT_40" Value="40">
+        <DisplayName>PART_COUNT_40</DisplayName>
+      </Field>
+      <Field Name="PART_ID_41" Value="41">
+        <DisplayName>PART_ID_41</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=9999" BrowseName="EnumValues" ParentNodeId="ns=1;i=9998" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -3425,15 +3583,33 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:DataItemStatisticsTypeEnum">
-      <Field Name="AVERAGE_1" Value="1" />
-      <Field Name="KURTOSIS_2" Value="2" />
-      <Field Name="MAXIMUM_3" Value="3" />
-      <Field Name="MEAN_4" Value="4" />
-      <Field Name="MINIMUM_5" Value="5" />
-      <Field Name="MODE_6" Value="6" />
-      <Field Name="RANGE_7" Value="7" />
-      <Field Name="ROOT_MEAN_SQUARE_8" Value="8" />
-      <Field Name="STANDARD_DEVIATION_9" Value="9" />
+      <Field Name="AVERAGE_1" Value="1">
+        <DisplayName>AVERAGE_1</DisplayName>
+      </Field>
+      <Field Name="KURTOSIS_2" Value="2">
+        <DisplayName>KURTOSIS_2</DisplayName>
+      </Field>
+      <Field Name="MAXIMUM_3" Value="3">
+        <DisplayName>MAXIMUM_3</DisplayName>
+      </Field>
+      <Field Name="MEAN_4" Value="4">
+        <DisplayName>MEAN_4</DisplayName>
+      </Field>
+      <Field Name="MINIMUM_5" Value="5">
+        <DisplayName>MINIMUM_5</DisplayName>
+      </Field>
+      <Field Name="MODE_6" Value="6">
+        <DisplayName>MODE_6</DisplayName>
+      </Field>
+      <Field Name="RANGE_7" Value="7">
+        <DisplayName>RANGE_7</DisplayName>
+      </Field>
+      <Field Name="ROOT_MEAN_SQUARE_8" Value="8">
+        <DisplayName>ROOT_MEAN_SQUARE_8</DisplayName>
+      </Field>
+      <Field Name="STANDARD_DEVIATION_9" Value="9">
+        <DisplayName>STANDARD_DEVIATION_9</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=10003" BrowseName="EnumValues" ParentNodeId="ns=1;i=10002" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -3590,31 +3766,81 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:DataItemSubEnumTypeEnum">
-      <Field Name="ACTUAL_1" Value="1" />
-      <Field Name="ALL_2" Value="2" />
-      <Field Name="ALTERNATING_3" Value="3" />
-      <Field Name="A_SCALE_4" Value="4" />
-      <Field Name="BAD_5" Value="5" />
-      <Field Name="B_SCALE_6" Value="6" />
-      <Field Name="COMMANDED_7" Value="7" />
-      <Field Name="CONTROL_8" Value="8" />
-      <Field Name="C_SCALE_9" Value="9" />
-      <Field Name="DIRECT_10" Value="10" />
-      <Field Name="DYNAMIC_11" Value="11" />
-      <Field Name="D_SCALE_12" Value="12" />
-      <Field Name="GOOD_13" Value="13" />
-      <Field Name="KINETIC_14" Value="14" />
-      <Field Name="LINE_15" Value="15" />
-      <Field Name="MAXIMUM_16" Value="16" />
-      <Field Name="MINIMUM_17" Value="17" />
-      <Field Name="MOLE_18" Value="18" />
-      <Field Name="NO_SCALE_19" Value="19" />
-      <Field Name="OTHER_20" Value="20" />
-      <Field Name="OVERRIDE_21" Value="21" />
-      <Field Name="PROBE_22" Value="22" />
-      <Field Name="TARGET_23" Value="23" />
-      <Field Name="VOLUME_24" Value="24" />
-      <Field Name="WEIGHT_25" Value="25" />
+      <Field Name="ACTUAL_1" Value="1">
+        <DisplayName>ACTUAL_1</DisplayName>
+      </Field>
+      <Field Name="ALL_2" Value="2">
+        <DisplayName>ALL_2</DisplayName>
+      </Field>
+      <Field Name="ALTERNATING_3" Value="3">
+        <DisplayName>ALTERNATING_3</DisplayName>
+      </Field>
+      <Field Name="A_SCALE_4" Value="4">
+        <DisplayName>A_SCALE_4</DisplayName>
+      </Field>
+      <Field Name="BAD_5" Value="5">
+        <DisplayName>BAD_5</DisplayName>
+      </Field>
+      <Field Name="B_SCALE_6" Value="6">
+        <DisplayName>B_SCALE_6</DisplayName>
+      </Field>
+      <Field Name="COMMANDED_7" Value="7">
+        <DisplayName>COMMANDED_7</DisplayName>
+      </Field>
+      <Field Name="CONTROL_8" Value="8">
+        <DisplayName>CONTROL_8</DisplayName>
+      </Field>
+      <Field Name="C_SCALE_9" Value="9">
+        <DisplayName>C_SCALE_9</DisplayName>
+      </Field>
+      <Field Name="DIRECT_10" Value="10">
+        <DisplayName>DIRECT_10</DisplayName>
+      </Field>
+      <Field Name="DYNAMIC_11" Value="11">
+        <DisplayName>DYNAMIC_11</DisplayName>
+      </Field>
+      <Field Name="D_SCALE_12" Value="12">
+        <DisplayName>D_SCALE_12</DisplayName>
+      </Field>
+      <Field Name="GOOD_13" Value="13">
+        <DisplayName>GOOD_13</DisplayName>
+      </Field>
+      <Field Name="KINETIC_14" Value="14">
+        <DisplayName>KINETIC_14</DisplayName>
+      </Field>
+      <Field Name="LINE_15" Value="15">
+        <DisplayName>LINE_15</DisplayName>
+      </Field>
+      <Field Name="MAXIMUM_16" Value="16">
+        <DisplayName>MAXIMUM_16</DisplayName>
+      </Field>
+      <Field Name="MINIMUM_17" Value="17">
+        <DisplayName>MINIMUM_17</DisplayName>
+      </Field>
+      <Field Name="MOLE_18" Value="18">
+        <DisplayName>MOLE_18</DisplayName>
+      </Field>
+      <Field Name="NO_SCALE_19" Value="19">
+        <DisplayName>NO_SCALE_19</DisplayName>
+      </Field>
+      <Field Name="OTHER_20" Value="20">
+        <DisplayName>OTHER_20</DisplayName>
+      </Field>
+      <Field Name="OVERRIDE_21" Value="21">
+        <DisplayName>OVERRIDE_21</DisplayName>
+      </Field>
+      <Field Name="PROBE_22" Value="22">
+        <DisplayName>PROBE_22</DisplayName>
+      </Field>
+      <Field Name="TARGET_23" Value="23">
+        <DisplayName>TARGET_23</DisplayName>
+      </Field>
+      <Field Name="VOLUME_24" Value="24">
+        <DisplayName>VOLUME_24</DisplayName>
+      </Field>
+      <Field Name="WEIGHT_25" Value="25">
+        <DisplayName>WEIGHT_25</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=10005" BrowseName="EnumValues" ParentNodeId="ns=1;i=10004" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -4011,10 +4237,18 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:DefinitionFormatTypeEnum">
-      <Field Name="EXPRESS_1" Value="1" />
-      <Field Name="TEXT_2" Value="2" />
-      <Field Name="UNDEFINED_3" Value="3" />
-      <Field Name="XML_4" Value="4" />
+      <Field Name="EXPRESS_1" Value="1">
+        <DisplayName>EXPRESS_1</DisplayName>
+      </Field>
+      <Field Name="TEXT_2" Value="2">
+        <DisplayName>TEXT_2</DisplayName>
+      </Field>
+      <Field Name="UNDEFINED_3" Value="3">
+        <DisplayName>UNDEFINED_3</DisplayName>
+      </Field>
+      <Field Name="XML_4" Value="4">
+        <DisplayName>XML_4</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=10007" BrowseName="EnumValues" ParentNodeId="ns=1;i=10006" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -4108,11 +4342,21 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:DirectionTypeEnum">
-      <Field Name="CLOCKWISE_1" Value="1" />
-      <Field Name="COUNTER_CLOCKWISE_2" Value="2" />
-      <Field Name="NEGATIVE_3" Value="3" />
-      <Field Name="POSITIVE_4" Value="4" />
-      <Field Name="UNAVAILABLE_5" Value="5" />
+      <Field Name="CLOCKWISE_1" Value="1">
+        <DisplayName>CLOCKWISE_1</DisplayName>
+      </Field>
+      <Field Name="COUNTER_CLOCKWISE_2" Value="2">
+        <DisplayName>COUNTER_CLOCKWISE_2</DisplayName>
+      </Field>
+      <Field Name="NEGATIVE_3" Value="3">
+        <DisplayName>NEGATIVE_3</DisplayName>
+      </Field>
+      <Field Name="POSITIVE_4" Value="4">
+        <DisplayName>POSITIVE_4</DisplayName>
+      </Field>
+      <Field Name="UNAVAILABLE_5" Value="5">
+        <DisplayName>UNAVAILABLE_5</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=10011" BrowseName="EnumValues" ParentNodeId="ns=1;i=10010" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -4209,10 +4453,18 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:DoorStateTypeEnum">
-      <Field Name="CLOSED_1" Value="1" />
-      <Field Name="INDETERMINATE_2" Value="2" />
-      <Field Name="OPEN_3" Value="3" />
-      <Field Name="UNAVAILABLE_4" Value="4" />
+      <Field Name="CLOSED_1" Value="1">
+        <DisplayName>CLOSED_1</DisplayName>
+      </Field>
+      <Field Name="INDETERMINATE_2" Value="2">
+        <DisplayName>INDETERMINATE_2</DisplayName>
+      </Field>
+      <Field Name="OPEN_3" Value="3">
+        <DisplayName>OPEN_3</DisplayName>
+      </Field>
+      <Field Name="UNAVAILABLE_4" Value="4">
+        <DisplayName>UNAVAILABLE_4</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=10013" BrowseName="EnumValues" ParentNodeId="ns=1;i=10012" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -4312,9 +4564,15 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:EmergencyStopTypeEnum">
-      <Field Name="ARMED_1" Value="1" />
-      <Field Name="TRIGGERED_2" Value="2" />
-      <Field Name="UNAVAILABLE_3" Value="3" />
+      <Field Name="ARMED_1" Value="1">
+        <DisplayName>ARMED_1</DisplayName>
+      </Field>
+      <Field Name="TRIGGERED_2" Value="2">
+        <DisplayName>TRIGGERED_2</DisplayName>
+      </Field>
+      <Field Name="UNAVAILABLE_3" Value="3">
+        <DisplayName>UNAVAILABLE_3</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=10018" BrowseName="EnumValues" ParentNodeId="ns=1;i=10017" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -4387,11 +4645,21 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:ExecutionTypeEnum">
-      <Field Name="ACTIVE_1" Value="1" />
-      <Field Name="INTERRUPTED_2" Value="2" />
-      <Field Name="READY_3" Value="3" />
-      <Field Name="STOPPED_4" Value="4" />
-      <Field Name="UNAVAILABLE_5" Value="5" />
+      <Field Name="ACTIVE_1" Value="1">
+        <DisplayName>ACTIVE_1</DisplayName>
+      </Field>
+      <Field Name="INTERRUPTED_2" Value="2">
+        <DisplayName>INTERRUPTED_2</DisplayName>
+      </Field>
+      <Field Name="READY_3" Value="3">
+        <DisplayName>READY_3</DisplayName>
+      </Field>
+      <Field Name="STOPPED_4" Value="4">
+        <DisplayName>STOPPED_4</DisplayName>
+      </Field>
+      <Field Name="UNAVAILABLE_5" Value="5">
+        <DisplayName>UNAVAILABLE_5</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=10021" BrowseName="EnumValues" ParentNodeId="ns=1;i=10020" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -4530,10 +4798,18 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:InterfaceStateTypeEnum">
-      <Field Name="ACTIVE_1" Value="1" />
-      <Field Name="COMPLETE_2" Value="2" />
-      <Field Name="FAIL_3" Value="3" />
-      <Field Name="READY_4" Value="4" />
+      <Field Name="ACTIVE_1" Value="1">
+        <DisplayName>ACTIVE_1</DisplayName>
+      </Field>
+      <Field Name="COMPLETE_2" Value="2">
+        <DisplayName>COMPLETE_2</DisplayName>
+      </Field>
+      <Field Name="FAIL_3" Value="3">
+        <DisplayName>FAIL_3</DisplayName>
+      </Field>
+      <Field Name="READY_4" Value="4">
+        <DisplayName>READY_4</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=10030" BrowseName="EnumValues" ParentNodeId="ns=1;i=10029" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -4633,10 +4909,18 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:LocationsTypeEnum">
-      <Field Name="CRIB_1" Value="1" />
-      <Field Name="POT_2" Value="2" />
-      <Field Name="STATION_3" Value="3" />
-      <Field Name="READY_4" Value="4" />
+      <Field Name="CRIB_1" Value="1">
+        <DisplayName>CRIB_1</DisplayName>
+      </Field>
+      <Field Name="POT_2" Value="2">
+        <DisplayName>POT_2</DisplayName>
+      </Field>
+      <Field Name="STATION_3" Value="3">
+        <DisplayName>STATION_3</DisplayName>
+      </Field>
+      <Field Name="READY_4" Value="4">
+        <DisplayName>READY_4</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=10035" BrowseName="EnumValues" ParentNodeId="ns=1;i=10034" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -4808,15 +5092,33 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:NotificationCodeTypeEnum">
-      <Field Name="CRASH_1" Value="1" />
-      <Field Name="ESTOP_2" Value="2" />
-      <Field Name="FAILURE_3" Value="3" />
-      <Field Name="FAULT_4" Value="4" />
-      <Field Name="JAM_5" Value="5" />
-      <Field Name="MATERIAL_6" Value="6" />
-      <Field Name="MESSAGE_7" Value="7" />
-      <Field Name="OTHER_8" Value="8" />
-      <Field Name="OVERLOAD_9" Value="9" />
+      <Field Name="CRASH_1" Value="1">
+        <DisplayName>CRASH_1</DisplayName>
+      </Field>
+      <Field Name="ESTOP_2" Value="2">
+        <DisplayName>ESTOP_2</DisplayName>
+      </Field>
+      <Field Name="FAILURE_3" Value="3">
+        <DisplayName>FAILURE_3</DisplayName>
+      </Field>
+      <Field Name="FAULT_4" Value="4">
+        <DisplayName>FAULT_4</DisplayName>
+      </Field>
+      <Field Name="JAM_5" Value="5">
+        <DisplayName>JAM_5</DisplayName>
+      </Field>
+      <Field Name="MATERIAL_6" Value="6">
+        <DisplayName>MATERIAL_6</DisplayName>
+      </Field>
+      <Field Name="MESSAGE_7" Value="7">
+        <DisplayName>MESSAGE_7</DisplayName>
+      </Field>
+      <Field Name="OTHER_8" Value="8">
+        <DisplayName>OTHER_8</DisplayName>
+      </Field>
+      <Field Name="OVERLOAD_9" Value="9">
+        <DisplayName>OVERLOAD_9</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=10052" BrowseName="EnumValues" ParentNodeId="ns=1;i=10051" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -4991,9 +5293,15 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:PathModeTypeEnum">
-      <Field Name="INDEPENDENT_1" Value="1" />
-      <Field Name="MIRROR_2" Value="2" />
-      <Field Name="SYNCHRONOUS_3" Value="3" />
+      <Field Name="INDEPENDENT_1" Value="1">
+        <DisplayName>INDEPENDENT_1</DisplayName>
+      </Field>
+      <Field Name="MIRROR_2" Value="2">
+        <DisplayName>MIRROR_2</DisplayName>
+      </Field>
+      <Field Name="SYNCHRONOUS_3" Value="3">
+        <DisplayName>SYNCHRONOUS_3</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=10057" BrowseName="EnumValues" ParentNodeId="ns=1;i=10056" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -5060,9 +5368,15 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:PowerStateTypeEnum">
-      <Field Name="OFF_1" Value="1" />
-      <Field Name="ON_2" Value="2" />
-      <Field Name="UNAVAILABLE_3" Value="3" />
+      <Field Name="OFF_1" Value="1">
+        <DisplayName>OFF_1</DisplayName>
+      </Field>
+      <Field Name="ON_2" Value="2">
+        <DisplayName>ON_2</DisplayName>
+      </Field>
+      <Field Name="UNAVAILABLE_3" Value="3">
+        <DisplayName>UNAVAILABLE_3</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=10059" BrowseName="EnumValues" ParentNodeId="ns=1;i=10058" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -5135,8 +5449,12 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:QualifierTypeEnum">
-      <Field Name="HIGH_1" Value="1" />
-      <Field Name="LOW_2" Value="2" />
+      <Field Name="HIGH_1" Value="1">
+        <DisplayName>HIGH_1</DisplayName>
+      </Field>
+      <Field Name="LOW_2" Value="2">
+        <DisplayName>LOW_2</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=10062" BrowseName="EnumValues" ParentNodeId="ns=1;i=10061" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -5200,10 +5518,18 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:RotaryModeTypeEnum">
-      <Field Name="CONTOUR_1" Value="1" />
-      <Field Name="INDEX_2" Value="2" />
-      <Field Name="SPINDLE_3" Value="3" />
-      <Field Name="UNAVAILABLE_4" Value="4" />
+      <Field Name="CONTOUR_1" Value="1">
+        <DisplayName>CONTOUR_1</DisplayName>
+      </Field>
+      <Field Name="INDEX_2" Value="2">
+        <DisplayName>INDEX_2</DisplayName>
+      </Field>
+      <Field Name="SPINDLE_3" Value="3">
+        <DisplayName>SPINDLE_3</DisplayName>
+      </Field>
+      <Field Name="UNAVAILABLE_4" Value="4">
+        <DisplayName>UNAVAILABLE_4</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=10066" BrowseName="EnumValues" ParentNodeId="ns=1;i=10065" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -5291,10 +5617,18 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:SeverityTypeEnum">
-      <Field Name="CRITICAL_1" Value="1" />
-      <Field Name="ERROR_2" Value="2" />
-      <Field Name="INFORMATION_3" Value="3" />
-      <Field Name="WARNING_4" Value="4" />
+      <Field Name="CRITICAL_1" Value="1">
+        <DisplayName>CRITICAL_1</DisplayName>
+      </Field>
+      <Field Name="ERROR_2" Value="2">
+        <DisplayName>ERROR_2</DisplayName>
+      </Field>
+      <Field Name="INFORMATION_3" Value="3">
+        <DisplayName>INFORMATION_3</DisplayName>
+      </Field>
+      <Field Name="WARNING_4" Value="4">
+        <DisplayName>WARNING_4</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=10069" BrowseName="EnumValues" ParentNodeId="ns=1;i=10068" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -5436,8 +5770,12 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:ToolLifeDirectionTypeEnum">
-      <Field Name="DOWN_1" Value="1" />
-      <Field Name="UP_2" Value="2" />
+      <Field Name="DOWN_1" Value="1">
+        <DisplayName>DOWN_1</DisplayName>
+      </Field>
+      <Field Name="UP_2" Value="2">
+        <DisplayName>UP_2</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=10081" BrowseName="EnumValues" ParentNodeId="ns=1;i=10080" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -5489,9 +5827,15 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:ToolLifeTypeEnum">
-      <Field Name="MINUTES_1" Value="1" />
-      <Field Name="PART_COUNT_2" Value="2" />
-      <Field Name="WEAR_3" Value="3" />
+      <Field Name="MINUTES_1" Value="1">
+        <DisplayName>MINUTES_1</DisplayName>
+      </Field>
+      <Field Name="PART_COUNT_2" Value="2">
+        <DisplayName>PART_COUNT_2</DisplayName>
+      </Field>
+      <Field Name="WEAR_3" Value="3">
+        <DisplayName>WEAR_3</DisplayName>
+      </Field>
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=10083" BrowseName="EnumValues" ParentNodeId="ns=1;i=10082" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
