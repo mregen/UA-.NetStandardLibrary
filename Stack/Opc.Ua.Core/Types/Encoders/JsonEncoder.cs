@@ -269,6 +269,11 @@ namespace Opc.Ua
         public bool UseReversibleEncoding { get; private set; }
 
         /// <summary>
+        /// The Json encoder reversible encoding option
+        /// </summary>
+        public bool UseReversibleEncoding { get; private set; }
+
+        /// <summary>
         /// Pushes a namespace onto the namespace stack.
         /// </summary>
         public void PushNamespace(string namespaceUri)

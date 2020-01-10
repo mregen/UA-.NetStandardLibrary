@@ -41,7 +41,6 @@ namespace Opc.Ua
             {
                 throw new ArgumentNullException(nameof(context));
             }
-
             Initialize();
 
             m_context = context;
