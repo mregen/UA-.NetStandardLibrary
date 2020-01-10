@@ -29,11 +29,6 @@ namespace Opc.Ua
         /// <summary>
         /// The message context associated with the encoder.
         /// </summary>
-        bool UseReversibleEncoding { get; }
-
-        /// <summary>
-        /// The message context associated with the encoder.
-        /// </summary>
         ServiceMessageContext Context { get; }
 
         /// <summary>
@@ -44,6 +39,11 @@ namespace Opc.Ua
         void SetMappingTables(NamespaceTable namespaceUris, StringTable serverUris);
 
         /// <summary>
+        /// Selects the reversible encoding type.
+        /// </summary>
+        bool UseReversibleEncoding { get; }
+
+        /// <summary>
         /// Pushes a namespace onto the namespace stack.
         /// </summary>
         void PushNamespace(string namespaceUri);
@@ -52,6 +52,26 @@ namespace Opc.Ua
         /// Pops a namespace from the namespace stack.
         /// </summary>
         void PopNamespace();
+
+        /// <summary>
+        /// Pushes a structure onto the stack.
+        /// </summary>
+        void PushStructure(string fieldName);
+
+        /// <summary>
+        /// Pops a structure from the stack.
+        /// </summary>
+        void PopStructure();
+
+        /// <summary>
+        /// Pushes an array onto the stack.
+        /// </summary>
+        void PushArray(string fieldName);
+
+        /// <summary>
+        /// Pops an array from the stack.
+        /// </summary>
+        void PopArray();
 
         /// <summary>
         /// Writes a boolean to the stream.

@@ -713,7 +713,7 @@ namespace Opc.Ua
 
                 if (throwOnError)
                 {
-                    throw e;
+                    throw;
                 }
 
                 return filePath;
@@ -877,7 +877,7 @@ namespace Opc.Ua
             get { return s_TimeBase; }
         }
 
-        private static readonly DateTime s_TimeBase = new DateTime(1601, 1, 1);
+        private static readonly DateTime s_TimeBase = new DateTime(1601, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
         /// Returns an absolute deadline for a timeout.
@@ -1902,6 +1902,12 @@ namespace Opc.Ua
                 return value1.Equals(value2);
             }
 
+            // check for DateTime objects
+            if (value1 is DateTime)
+            {
+                return ((DateTime)value1).ToUniversalTime().CompareTo(((DateTime)value2).ToUniversalTime()) == 0;
+            }
+
             // check for compareable objects.
             IComparable comparable1 = value1 as IComparable;
 
@@ -2321,7 +2327,7 @@ namespace Opc.Ua
                 catch (Exception ex)
                 {
                     Utils.Trace("Exception parsing extension: " + ex.Message);
-                    throw ex;
+                    throw;
                 }
                 finally
                 {
@@ -2703,7 +2709,7 @@ namespace Opc.Ua
         /// </summary>
         public static byte[] PSHA1(byte[] secret, string label, byte[] data, int offset, int length)
         {
-            if (secret == null) throw new ArgumentNullException("secret");
+            if (secret == null) throw new ArgumentNullException(nameof(secret));
             // create the hmac.
             HMACSHA1 hmac = new HMACSHA1(secret);
             return PSHA(hmac, label, data, offset, length);
@@ -2714,7 +2720,7 @@ namespace Opc.Ua
         /// </summary>
         public static byte[] PSHA256(byte[] secret, string label, byte[] data, int offset, int length)
         {
-            if (secret == null) throw new ArgumentNullException("secret");
+            if (secret == null) throw new ArgumentNullException(nameof(secret));
             // create the hmac.
             HMACSHA256 hmac = new HMACSHA256(secret);
             return PSHA(hmac, label, data, offset, length);
@@ -2725,9 +2731,9 @@ namespace Opc.Ua
         /// </summary>
         private static byte[] PSHA(HMAC hmac, string label, byte[] data, int offset, int length)
         {
-            if (hmac == null) throw new ArgumentNullException("hmac");
-            if (offset < 0) throw new ArgumentOutOfRangeException("offset");
-            if (length < 0) throw new ArgumentOutOfRangeException("length");
+            if (hmac == null) throw new ArgumentNullException(nameof(hmac));
+            if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
+            if (length < 0) throw new ArgumentOutOfRangeException(nameof(length));
 
             byte[] seed = null;
 

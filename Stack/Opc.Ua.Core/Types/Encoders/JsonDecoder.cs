@@ -39,7 +39,7 @@ namespace Opc.Ua
         {
             if (context == null)
             {
-                throw new ArgumentNullException("context");
+                throw new ArgumentNullException(nameof(context));
             }
 
             Initialize();
@@ -81,12 +81,12 @@ namespace Opc.Ua
         {
             if (buffer == null)
             {
-                throw new ArgumentNullException("buffer");
+                throw new ArgumentNullException(nameof(buffer));
             }
 
             if (context == null)
             {
-                throw new ArgumentNullException("context");
+                throw new ArgumentNullException(nameof(context));
             }
 
             JsonDecoder decoder = new JsonDecoder(UTF8Encoding.UTF8.GetString(buffer), context);
@@ -121,7 +121,7 @@ namespace Opc.Ua
         {
             if (context == null)
             {
-                throw new ArgumentNullException("context");
+                throw new ArgumentNullException(nameof(context));
             }
 
             // check that the max message size was not exceeded.
@@ -900,14 +900,64 @@ namespace Opc.Ua
                 return null;
             }
 
-            var value = token as string;
+            var value = token as Dictionary<string, object>;
 
             if (value == null)
             {
                 return null;
             }
 
-            return NodeId.Parse(value);
+            IdType idType = IdType.Numeric;
+            ushort namespaceIndex = 0;
+
+            try
+            {
+                m_stack.Push(value);
+
+                if (value.ContainsKey("IdType"))
+                {
+                    idType = (IdType)ReadInt32("IdType");
+                }
+
+                if (value.ContainsKey("Namespace"))
+                {
+                    namespaceIndex = ReadUInt16("Namespace");
+                }
+
+                if (value.ContainsKey("Id"))
+                {
+                    switch (idType)
+                    {
+                        default:
+                        case IdType.Numeric:
+                        {
+                            return new NodeId(ReadUInt32("Id"), namespaceIndex);
+                        }
+
+                        case IdType.Opaque:
+                        {
+                            return new NodeId(ReadByteString("Id"), namespaceIndex);
+                        }
+
+                        case IdType.String:
+                        {
+                            return new NodeId(ReadString("Id"), namespaceIndex);
+                        }
+
+                        case IdType.Guid:
+                        {
+                            return new NodeId(ReadGuid("Id"), namespaceIndex);
+                        }
+
+                    }
+                }
+
+                return new NodeId(0U, namespaceIndex);
+            }
+            finally
+            {
+                m_stack.Pop();
+            }
         }
 
         /// <summary>
@@ -921,16 +971,89 @@ namespace Opc.Ua
             {
                 return null;
             }
-
-            var value = token as string;
+            
+            var value = token as Dictionary<string, object>;
 
             if (value == null)
             {
                 return null;
             }
 
-            return ExpandedNodeId.Parse(value);
+            IdType idType = IdType.Numeric;
+            ushort namespaceIndex = 0;
+            string namespaceUri = null;
+            uint serverIndex = 0;
+
+            try
+            {
+                m_stack.Push(value);
+
+                if (value.ContainsKey("IdType"))
+                {
+                    idType = (IdType)ReadInt32("IdType");
+                }
+
+                object namespaceToken = null;
+
+                if (ReadField("Namespace", out namespaceToken))
+                {
+                    var index = namespaceToken as long?;
+
+                    if (index == null)
+                    {
+                        namespaceUri = namespaceToken as string;
+                    }
+                    else
+                    {
+                        if (index.Value >= 0 || index.Value < UInt16.MaxValue)
+                        {
+                            namespaceIndex = (ushort)index.Value;
+                        }
+                    }
+
+                    return null;
+                }
+
+                if (value.ContainsKey("ServerUri"))
+                {
+                    serverIndex = ReadUInt32("ServerUri");
+                }
+
+                if (value.ContainsKey("Id"))
+                {
+                    switch (idType)
+                    {
+                        default:
+                        case IdType.Numeric:
+                        {
+                            return new ExpandedNodeId(ReadUInt32("Id"), namespaceIndex, namespaceUri, serverIndex);
+                        }
+
+                        case IdType.Opaque:
+                        {
+                            return new ExpandedNodeId(ReadByteString("Id"), namespaceIndex, namespaceUri, serverIndex);
+                        }
+
+                        case IdType.String:
+                        {
+                            return new ExpandedNodeId(ReadString("Id"), namespaceIndex, namespaceUri, serverIndex);
+                        }
+
+                        case IdType.Guid:
+                        {
+                            return new ExpandedNodeId(ReadGuid("Id"), namespaceIndex, namespaceUri, serverIndex);
+                        }
+                    }
+                }
+
+                return new ExpandedNodeId(0U, namespaceIndex, namespaceUri, serverIndex);
+            }
+            finally
+            {
+                m_stack.Pop();
+            }
         }
+
 
         /// <summary>
         /// Reads an StatusCode from the stream.
@@ -1038,8 +1161,26 @@ namespace Opc.Ua
                 return null;
             }
 
-            var name = ReadString("Name");
-            var namespaceIndex = ReadUInt16("Uri");
+            UInt16 namespaceIndex = 0;
+            string name = null;
+            try
+            {
+                m_stack.Push(value);
+
+                if (value.ContainsKey("Name"))
+                {
+                    name = ReadString("Name");
+                }
+
+                if (value.ContainsKey("Uri"))
+                {
+                    namespaceIndex = ReadUInt16("Uri");
+                }
+            }
+            finally
+            {
+                m_stack.Pop();
+            }
 
             return new QualifiedName(name, namespaceIndex);
         }
@@ -1212,6 +1353,10 @@ namespace Opc.Ua
 
                     return array;
                 }
+                else if (token is List<object>)
+                {
+                    return ReadVariantArrayBody("Body", type);
+                }
                 else
                 {
                     return ReadVariantBody("Body", type);
@@ -1341,16 +1486,21 @@ namespace Opc.Ua
 
                 byte encoding = ReadByte("Encoding");
 
-                if (encoding == 1)
+                if (encoding == (byte)ExtensionObjectEncoding.Binary)
                 {
                     var bytes = ReadByteString("Body");
                     return new ExtensionObject(typeId, bytes);
                 }
 
-                if (encoding == 2)
+                if (encoding == (byte)ExtensionObjectEncoding.Xml)
                 {
                     var xml = ReadXmlElement("Body");
                     return new ExtensionObject(typeId, xml);
+                }
+
+                if (encoding == (byte)ExtensionObjectEncoding.Json)
+                {
+                    // TODO
                 }
 
                 Type systemType = m_context.Factory.GetSystemType(typeId);
@@ -1385,7 +1535,7 @@ namespace Opc.Ua
         {
             if (systemType == null)
             {
-                throw new ArgumentNullException("systemType");
+                throw new ArgumentNullException(nameof(systemType));
             }
 
             object token = null;
@@ -1436,7 +1586,7 @@ namespace Opc.Ua
         {
             if (enumType == null)
             {
-                throw new ArgumentNullException("enumType");
+                throw new ArgumentNullException(nameof(enumType));
             }
 
             return (Enum)Enum.ToObject(enumType, ReadInt32(fieldName));
@@ -2235,7 +2385,7 @@ namespace Opc.Ua
         {
             if (systemType == null)
             {
-                throw new ArgumentNullException("systemType");
+                throw new ArgumentNullException(nameof(systemType));
             }
 
             List<object> token = null;
@@ -2271,7 +2421,7 @@ namespace Opc.Ua
         {
             if (enumType == null)
             {
-                throw new ArgumentNullException("enumType");
+                throw new ArgumentNullException(nameof(enumType));
             }
 
             List<object> token = null;

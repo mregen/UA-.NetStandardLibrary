@@ -50,7 +50,7 @@ namespace Opc.Ua
         /// <exception cref="ArgumentNullException">Thrown when the parameter is null</exception>
         public ExpandedNodeId(ExpandedNodeId value)
         {
-            if (value == null) throw new ArgumentNullException("value");
+            if (value == null) throw new ArgumentNullException(nameof(value));
 
             m_namespaceUri = value.m_namespaceUri;
 
@@ -157,7 +157,7 @@ namespace Opc.Ua
         }
 
         /// <summary>
-        /// Initializes a guid node identifier with a namespace index.
+        /// Initializes a numeric node identifier with a namespace index.
         /// </summary>
         /// <remarks>
         /// Creates a new instance of the class while accepting both the id and namespace
@@ -172,7 +172,7 @@ namespace Opc.Ua
         }
 
         /// <summary>
-        /// Initializes a guid node identifier with a namespace URI.
+        /// Initializes a numeric node identifier with a namespace URI.
         /// </summary>
         /// <remarks>
         /// Creates a new instance of the class while accepting both the numeric id of the
@@ -235,6 +235,37 @@ namespace Opc.Ua
         /// Initializes a guid node identifier.
         /// </summary>
         /// <remarks>
+        /// Creates a new instance of the class while specifying the <see cref="Guid"/> value
+        /// of the node and the namesapceIndex we are wrapping.
+        /// </remarks>
+        /// <param name="value">The Guid value of the node we are wrapping</param>
+        /// <param name="namespaceIndex">The index of the namespace that this node should belong to</param>
+        public ExpandedNodeId(Guid value, ushort namespaceIndex)
+        {
+            Initialize();
+            m_nodeId = new NodeId(value, namespaceIndex);
+        }
+
+        /// <summary>
+        /// Initializes a guid node identifier.
+        /// </summary>
+        /// <remarks>
+        /// Creates a new instance of the class while specifying the <see cref="Guid"/> value
+        /// of the node and the namespaceUri we are wrapping.
+        /// </remarks>
+        /// <param name="value">The Guid value of the node we are wrapping</param>
+        /// <param name="namespaceUri">The namespace that this node belongs to</param>
+        public ExpandedNodeId(Guid value, string namespaceUri)
+        {
+            Initialize();
+            m_nodeId = new NodeId(value);
+            SetNamespaceUri(namespaceUri);
+        }
+
+        /// <summary>
+        /// Initializes a opaque node identifier.
+        /// </summary>
+        /// <remarks>
         /// Creates a new instance of the class while allowing you to specify the byte[] id
         /// of the node.
         /// </remarks>
@@ -244,7 +275,7 @@ namespace Opc.Ua
             Initialize();
             m_nodeId = new NodeId(value);
         }
-                
+
         /// <summary>
         /// Initializes an opaque node identifier with a namespace index.
         /// </summary>
@@ -252,8 +283,8 @@ namespace Opc.Ua
         /// Creates a new instance of the class while allowing you to specify the node
         /// and namespace index.
         /// </remarks>
-        /// <param name="namespaceIndex">The index of the namespace that this node should belong to</param>
         /// <param name="value">The id of the node we are wrapping</param>
+        /// <param name="namespaceIndex">The index of the namespace that this node should belong to</param>
         public ExpandedNodeId(byte[] value, ushort namespaceIndex)
         {
             Initialize();
@@ -266,8 +297,8 @@ namespace Opc.Ua
         /// <remarks>
         /// Creates a new instance of the class while allowing you to specify the node and namespace.
         /// </remarks>
-        /// <param name="namespaceUri">The namespace that this node belongs to</param>
         /// <param name="value">The node we are wrapping</param>
+        /// <param name="namespaceUri">The namespace that this node belongs to</param>
         public ExpandedNodeId(byte[] value, string namespaceUri)
         {
             Initialize();
