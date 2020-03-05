@@ -58,7 +58,13 @@ namespace Opc.Ua.Client.ComplexTypes
 
         #region Public Properties
 
-        UInt32 EncodingMask => m_encodingMask;
+        /// <summary cref="IStructureTypeInfo.StructureType" />
+        new public StructureType StructureType => StructureType.StructureWithOptionalFields;
+
+        /// <summary>
+        /// The encoding mask for the optional fields.
+        /// </summary>
+        public UInt32 EncodingMask => m_encodingMask;
 
         /// <summary>
         /// Makes a deep copy of the object.
@@ -76,11 +82,9 @@ namespace Opc.Ua.Client.ComplexTypes
         /// <summary cref="IEncodeable.Encode(IEncoder)" />
         public override void Encode(IEncoder encoder)
         {
-            bool useReversibleEncoding = GetUseReversibleEncoding(encoder);
-
             encoder.PushNamespace(TypeId.NamespaceUri);
 
-            if (useReversibleEncoding)
+            if (encoder.UseReversibleEncoding)
             {
                 encoder.WriteUInt32("EncodingMask", m_encodingMask);
             }

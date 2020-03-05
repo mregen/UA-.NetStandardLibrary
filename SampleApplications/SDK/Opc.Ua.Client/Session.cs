@@ -40,6 +40,7 @@ using System.IO;
 using System.Xml;
 using System.Threading.Tasks;
 using System.Reflection;
+using Opc.Ua.Bindings;
 
 namespace Opc.Ua.Client
 {
@@ -311,8 +312,14 @@ namespace Opc.Ua.Client
         /// <summary>
         /// Validates the server nonce and security parameters of user identity.
         /// </summary>
-        private void ValidateServerNonce(IUserIdentity identity, byte[] serverNonce, string securityPolicyUri)
+        private void ValidateServerNonce(IUserIdentity identity, byte[] serverNonce, string securityPolicyUri, byte[] previousServerNonce)
         {
+            // skip validation if server nonce is not used for encryption.
+            if (String.IsNullOrEmpty(securityPolicyUri) || securityPolicyUri == SecurityPolicies.None)
+            {
+                return;
+            }
+
             if (identity!= null && identity.TokenType != UserTokenType.Anonymous)
             {
                 // the server nonce should be validated if the token includes a secret.
@@ -321,12 +328,13 @@ namespace Opc.Ua.Client
                     throw ServiceResultException.Create(StatusCodes.BadNonceInvalid, "Server nonce is not the correct length or not random enough.");
                 }
 
-                // token encryption is mandatory over a channel without security if it includes a secret.
-                if (m_endpoint != null && m_endpoint.Description != null &&
-                    m_endpoint.Description.SecurityPolicyUri == SecurityPolicies.None &&
-                    securityPolicyUri == SecurityPolicies.None)
+                // check that new nonce is different from the previously returned server nonce.
+                if (previousServerNonce!= null && Utils.CompareNonce(serverNonce, previousServerNonce))
                 {
-                    throw ServiceResultException.Create(StatusCodes.BadSecurityModeInsufficient, "User identity cannot be sent over the current secure channel without encryption.");
+                    if (!m_configuration.SecurityConfiguration.SuppressNonceValidationErrors)
+                    {
+                        throw ServiceResultException.Create(StatusCodes.BadNonceInvalid, "Server nonce is equal with previously returned nonce.");
+                    }
                 }
             }
         }
@@ -347,7 +355,7 @@ namespace Opc.Ua.Client
                 bool isLocalHost = false;
                 if (endpoint.EndpointUrl.HostNameType == UriHostNameType.Dns)
                 {
-                    if (dnsHostName.ToLowerInvariant() == "localhost")
+                    if (String.Equals(dnsHostName, "localhost", StringComparison.InvariantCultureIgnoreCase))
                     {
                         isLocalHost = true;
                     }
@@ -374,8 +382,8 @@ namespace Opc.Ua.Client
 
                 for (int ii = 0; ii < domains.Count; ii++)
                 {
-                    if (String.Compare(hostname, domains[ii], StringComparison.OrdinalIgnoreCase) == 0 ||
-                        String.Compare(dnsHostName, domains[ii], StringComparison.OrdinalIgnoreCase) == 0)
+                    if (String.Equals(hostname, domains[ii], StringComparison.OrdinalIgnoreCase) ||
+                        String.Equals(dnsHostName, domains[ii], StringComparison.OrdinalIgnoreCase))
                     {
                         domainFound = true;
                         break;
@@ -944,10 +952,10 @@ namespace Opc.Ua.Client
             {
                 session.Open(sessionName, sessionTimeout, identity, preferredLocales, checkDomain);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 session.Dispose();
-                throw e;
+                throw;
             }
 
             return session;
@@ -1084,7 +1092,7 @@ namespace Opc.Ua.Client
                 }
 
                 // validate server nonce and security parameters for user identity.
-                ValidateServerNonce(m_identity, m_serverNonce, securityPolicyUri);
+                ValidateServerNonce(m_identity, m_serverNonce, securityPolicyUri, m_previousServerNonce);
 
                 // sign data with user token.
                 UserIdentityToken identityToken = m_identity.GetIdentityToken();
@@ -1152,6 +1160,7 @@ namespace Opc.Ua.Client
                 lock (SyncRoot)
                 {
                     Utils.Trace("Session RECONNECT completed successfully.");
+                    m_previousServerNonce = m_serverNonce;
                     m_serverNonce = serverNonce;
                     m_reconnecting = false;
                     publishCount = m_subscriptions.Count;
@@ -2573,8 +2582,15 @@ namespace Opc.Ua.Client
                     securityPolicyUri = m_endpoint.Description.SecurityPolicyUri;
                 }
 
+                byte[] previousServerNonce = null;
+
+                if (TransportChannel.CurrentToken!= null)
+                {
+                    previousServerNonce = TransportChannel.CurrentToken.ServerNonce;
+                }
+
                 // validate server nonce and security parameters for user identity.
-                ValidateServerNonce(identity, serverNonce, securityPolicyUri);
+                ValidateServerNonce(identity, serverNonce, securityPolicyUri, previousServerNonce);
 
                 // sign data with user token.
                 SignatureData userTokenSignature = identityToken.Sign(dataToSign, securityPolicyUri);
@@ -2627,6 +2643,7 @@ namespace Opc.Ua.Client
                     // save nonces.
                     m_sessionName = sessionName;
                     m_identity = identity;
+                    m_previousServerNonce = previousServerNonce;
                     m_serverNonce = serverNonce;
                     m_serverCertificate = serverCertificate;
 
@@ -2639,7 +2656,7 @@ namespace Opc.Ua.Client
                 // start keep alive thread.
                 StartKeepAliveTimer();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 try
                 {
@@ -2655,7 +2672,7 @@ namespace Opc.Ua.Client
                     SessionCreated(null, null);
                 }
 
-                throw ex;
+                throw;
             }
         }
 
@@ -2737,7 +2754,7 @@ namespace Opc.Ua.Client
             }
 
             // validate server nonce and security parameters for user identity.
-            ValidateServerNonce(identity, serverNonce, securityPolicyUri);
+            ValidateServerNonce(identity, serverNonce, securityPolicyUri, m_previousServerNonce);
 
             // sign data with user token.
             identityToken = identity.GetIdentityToken();
@@ -2773,6 +2790,7 @@ namespace Opc.Ua.Client
                     m_identity = identity;
                 }
 
+                m_previousServerNonce = m_serverNonce;
                 m_serverNonce = serverNonce;
                 m_preferredLocales = preferredLocales;
 
@@ -3141,7 +3159,7 @@ namespace Opc.Ua.Client
         /// <returns></returns>
         public bool AddSubscription(Subscription subscription)
         {
-            if (subscription == null) throw new ArgumentNullException("subscription");
+            if (subscription == null) throw new ArgumentNullException(nameof(subscription));
 
             lock (SyncRoot)
             {
@@ -3169,7 +3187,7 @@ namespace Opc.Ua.Client
         /// <returns></returns>
         public bool RemoveSubscription(Subscription subscription)
         {
-            if (subscription == null) throw new ArgumentNullException("subscription");
+            if (subscription == null) throw new ArgumentNullException(nameof(subscription));
 
             if (subscription.Created)
             {
@@ -3201,7 +3219,7 @@ namespace Opc.Ua.Client
         /// <returns></returns>
         public bool RemoveSubscriptions(IEnumerable<Subscription> subscriptions)
         {
-            if (subscriptions == null) throw new ArgumentNullException("subscriptions");
+            if (subscriptions == null) throw new ArgumentNullException(nameof(subscriptions));
 
             bool removed = false;
             List<Subscription> subscriptionsToDelete = new List<Subscription>();
@@ -4392,6 +4410,7 @@ namespace Opc.Ua.Client
         private object m_handle;
         private IUserIdentity m_identity;
         private byte[] m_serverNonce;
+        private byte[] m_previousServerNonce;
         private X509Certificate2 m_serverCertificate;
         private long m_publishCounter;
         private DateTime m_lastKeepAliveTime;

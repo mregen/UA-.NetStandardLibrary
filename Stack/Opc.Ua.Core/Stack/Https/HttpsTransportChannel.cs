@@ -52,6 +52,11 @@ namespace Opc.Ua.Bindings
             get { return m_quotas.MessageContext; }
         }
 
+        public ChannelToken CurrentToken
+        {
+            get { return null; }
+        }
+
         public int OperationTimeout
         {
             get { return m_operationTimeout; }
@@ -114,7 +119,7 @@ namespace Opc.Ua.Bindings
             catch (Exception ex)
             {
                 Utils.Trace("Exception creating HTTPS Client: " + ex.Message);
-                throw ex;
+                throw;
             }
         }
 
@@ -189,7 +194,7 @@ namespace Opc.Ua.Bindings
             AsyncResult result2 = result as AsyncResult;
             if (result2 == null)
             {
-                throw new ArgumentException("Invalid result object passed.", "result");
+                throw new ArgumentException("Invalid result object passed.", nameof(result));
             }
 
             try

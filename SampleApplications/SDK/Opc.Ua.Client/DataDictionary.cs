@@ -131,6 +131,13 @@ namespace Opc.Ua.Client
                 throw ServiceResultException.Create(StatusCodes.BadUnexpectedError, "Cannot parse empty data dictionary.");
             }
 
+            // Interoperability: some server may return a null terminated dictionary string, adjust length
+            int zeroTerminator = Array.IndexOf<byte>(schema, (byte)0);
+            if (zeroTerminator >= 0)
+            {
+                Array.Resize(ref schema, zeroTerminator);
+            }
+
             await Validate(schema);
 
             ReadDataTypes(dictionaryId);
@@ -193,6 +200,11 @@ namespace Opc.Ua.Client
         /// <summary>
         /// Retrieves the data types in the dictionary.
         /// </summary>
+        /// <remarks>
+        /// In order to allow for fast Linq matching of dictionary
+        /// QNames with the data type nodes, the BrowseName of
+        /// the DataType node is replaced with Value string.
+        /// </remarks>
         private void ReadDataTypes(NodeId dictionaryId)
         {
             Browser browser = new Browser(m_session);
@@ -210,6 +222,11 @@ namespace Opc.Ua.Client
 
                 if (datatypeId != null)
                 {
+                    // read the value to get the name that is used in the dictionary
+                    var value = m_session.ReadValue(datatypeId);
+                    var dictName = (String)value.Value;
+                    // replace the BrowseName with type name used in the dictionary
+                    reference.BrowseName = new QualifiedName(dictName, datatypeId.NamespaceIndex);
                     DataTypes[datatypeId] = reference;
                 }
             }

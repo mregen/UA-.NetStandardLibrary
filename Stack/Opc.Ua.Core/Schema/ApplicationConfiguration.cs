@@ -1037,6 +1037,19 @@ namespace Opc.Ua
                 }
             }
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the server nonce validation errors should be suppressed.
+        /// </summary>
+        /// <remarks>
+        /// If set to true the server nonce validation errors are suppressed.
+        /// </remarks>
+        [DataMember(IsRequired = false, EmitDefaultValue = false, Order = 19)]
+        public bool SuppressNonceValidationErrors
+        {
+            get { return m_suppressNonceValidationErrors; }
+            set { m_suppressNonceValidationErrors = value; }
+        }
         #endregion
 
         #region Private Fields
@@ -1056,6 +1069,7 @@ namespace Opc.Ua
         private ushort m_minCertificateKeySize;
         private bool m_addAppCertToTrustedStore;
         private bool m_sendCertificateChain;
+        private bool m_suppressNonceValidationErrors;
         #endregion
     }
     #endregion
@@ -1246,10 +1260,10 @@ namespace Opc.Ua
                             SecurityMode = securityPolicy.SecurityMode,
                             SecurityPolicyUri = policyUri
                         };
-                        if (newPolicies.Where(s =>
+                        if (newPolicies.Find(s =>
                             s.SecurityMode == newPolicy.SecurityMode &&
                             String.Compare(s.SecurityPolicyUri, newPolicy.SecurityPolicyUri) == 0
-                            ).FirstOrDefault() == null)
+                            ) == null)
                         {
                             newPolicies.Add(newPolicy);
                         }
@@ -1261,10 +1275,10 @@ namespace Opc.Ua
                     {
                         if (securityPolicy.SecurityPolicyUri.Contains(supportedPolicies[i]))
                         {
-                            if (newPolicies.Where(s =>
+                            if (newPolicies.Find(s =>
                                 s.SecurityMode == securityPolicy.SecurityMode &&
                                 String.Compare(s.SecurityPolicyUri, securityPolicy.SecurityPolicyUri) == 0
-                                ).FirstOrDefault() == null)
+                                ) == null)
                             {
                                 newPolicies.Add(securityPolicy);
                             }

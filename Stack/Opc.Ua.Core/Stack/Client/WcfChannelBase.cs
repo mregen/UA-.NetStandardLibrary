@@ -209,6 +209,14 @@ namespace Opc.Ua
         }
 
         /// <summary>
+        ///  Gets the the channel's current security token.
+        /// </summary>
+        public ChannelToken CurrentToken
+        {
+            get { return null; }
+        }
+
+        /// <summary>
         /// Gets or sets the default timeout for requests send via the channel.
         /// </summary>
         public int OperationTimeout
@@ -1015,7 +1023,7 @@ namespace Opc.Ua
 
                 if (asyncResult == null)
                 {
-                    throw new ArgumentException("End called with an invalid IAsyncResult object.", "ar");
+                    throw new ArgumentException("End called with an invalid IAsyncResult object.", nameof(ar));
                 }
 
                 if (!asyncResult.WaitForComplete())
