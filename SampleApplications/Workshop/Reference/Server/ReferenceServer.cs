@@ -64,8 +64,15 @@ namespace Quickstarts.ReferenceServer
 
             List<INodeManager> nodeManagers = new List<INodeManager>();
 
+            // add the types defined in the quickstart information model library to the factory.
+            server.Factory.AddEncodeableTypes(typeof(Quickstarts.DataTypes.Types.VehicleType).Assembly);
+            server.Factory.AddEncodeableTypes(this.GetType().Assembly);
+
             // create the custom node managers.
-            nodeManagers.Add(new EmptyNodeManager(server, configuration));
+            nodeManagers.Add(new ReferenceNodeManager(server, configuration));
+            nodeManagers.Add(new global::TestData.TestDataNodeManager(server, configuration));
+            nodeManagers.Add(new global::MemoryBuffer.MemoryBufferNodeManager(server, configuration));
+            nodeManagers.Add(new global::Boiler.BoilerNodeManager(server, configuration));
 
             // create master node manager.
             return new MasterNodeManager(server, configuration, null, nodeManagers.ToArray());
@@ -83,7 +90,7 @@ namespace Quickstarts.ReferenceServer
 
             properties.ManufacturerName = "OPC Foundation";
             properties.ProductName = "Quickstart Reference Server";
-            properties.ProductUri = "http://opcfoundation.org/Quickstart/ReferenceServer/v1.03";
+            properties.ProductUri = "http://opcfoundation.org/Quickstart/ReferenceServer/v1.04";
             properties.SoftwareVersion = Utils.GetAssemblySoftwareVersion();
             properties.BuildNumber = Utils.GetAssemblyBuildNumber();
             properties.BuildDate = Utils.GetAssemblyTimestamp();

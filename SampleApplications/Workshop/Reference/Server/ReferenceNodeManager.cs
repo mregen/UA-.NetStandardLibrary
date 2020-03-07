@@ -29,28 +29,45 @@
 
 using System;
 using System.Collections.Generic;
-using System.Xml;
-using System.Threading;
+using System.IO;
 using System.Numerics;
+using System.Reflection;
+using System.Threading;
+using System.Xml;
 using Opc.Ua;
 using Opc.Ua.Server;
+using TypeInfo = Opc.Ua.TypeInfo;
 
 namespace Quickstarts.ReferenceServer
 {
     /// <summary>
     /// A node manager for a server that exposes several variables.
     /// </summary>
-    public class EmptyNodeManager : CustomNodeManager2
+    public class ReferenceNodeManager : CustomNodeManager2
     {
         #region Constructors
         /// <summary>
         /// Initializes the node manager.
         /// </summary>
-        public EmptyNodeManager(IServerInternal server, ApplicationConfiguration configuration)
+        public ReferenceNodeManager(IServerInternal server, ApplicationConfiguration configuration)
         :
-            base(server, configuration, Namespaces.ReferenceApplications)
+            base(server, configuration)
         {
             SystemContext.NodeIdFactory = this;
+
+            SetNamespaces(
+                Namespaces.ReferenceApplications,
+                Quickstarts.DataTypes.Types.Namespaces.DataTypes,
+                Quickstarts.DataTypes.Instances.Namespaces.DataTypeInstances,
+                Opc.Ua.Di.Namespaces.OpcUaDi,
+                Opc.Ua.Adi.Namespaces.OpcUaAdi,
+                Opc.MDIS.Namespaces.MDIS,
+                Opc.Ua.MTConnect.Namespaces.OpcUaMTConnect,
+                Opc.Ua.Plc.Namespaces.OpcUaPlc,
+                Opc.Ua.Robotics.Namespaces.OpcUaRobotics,
+                Sercos.Namespaces.Sercos
+                );
+
 
             // get the configuration for the node manager.
             m_configuration = configuration.ParseExtension<ReferenceServerConfiguration>();
@@ -175,6 +192,21 @@ namespace Quickstarts.ReferenceServer
         {
             lock (Lock)
             {
+
+                base.CreateAddressSpace(externalReferences);
+
+                BaseDataVariableState dictionary = (BaseDataVariableState)FindPredefinedNode(
+                    ExpandedNodeId.ToNodeId(Quickstarts.DataTypes.Types.VariableIds.DataTypes_BinarySchema, Server.NamespaceUris),
+                    typeof(BaseDataVariableState));
+
+                dictionary.Value = LoadSchemaFromResource("Quickstarts.DataTypes.Types.Quickstarts.DataTypes.Types.Types.bsd", typeof(Quickstarts.DataTypes.Types.VehicleType).Assembly);
+
+                dictionary = (BaseDataVariableState)FindPredefinedNode(
+                    ExpandedNodeId.ToNodeId(Quickstarts.DataTypes.Types.VariableIds.DataTypes_XmlSchema, Server.NamespaceUris),
+                    typeof(BaseDataVariableState));
+
+                dictionary.Value = LoadSchemaFromResource("Quickstarts.DataTypes.Types.Quickstarts.DataTypes.Types.Types.xsd", typeof(Quickstarts.DataTypes.Types.VehicleType).Assembly);
+
                 IList<IReference> references = null;
 
                 if (!externalReferences.TryGetValue(ObjectIds.ObjectsFolder, out references))
@@ -570,7 +602,7 @@ namespace Quickstarts.ReferenceServer
                     CreateAnalogItemVariable(analogArrayFolder, daAnalogArray + "LocalizedText", "LocalizedText", BuiltInType.LocalizedText, ValueRanks.OneDimension, new LocalizedText[] { new LocalizedText("en", "Hello World1"), new LocalizedText("en", "Hello World2"), new LocalizedText("en", "Hello World3"), new LocalizedText("en", "Hello World4"), new LocalizedText("en", "Hello World5"), new LocalizedText("en", "Hello World6"), new LocalizedText("en", "Hello World7"), new LocalizedText("en", "Hello World8"), new LocalizedText("en", "Hello World9"), new LocalizedText("en", "Hello World10") });
                     CreateAnalogItemVariable(analogArrayFolder, daAnalogArray + "NodeId", "NodeId", BuiltInType.NodeId, ValueRanks.OneDimension, new NodeId[] { new NodeId(Guid.NewGuid()), new NodeId(Guid.NewGuid()), new NodeId(Guid.NewGuid()), new NodeId(Guid.NewGuid()), new NodeId(Guid.NewGuid()), new NodeId(Guid.NewGuid()), new NodeId(Guid.NewGuid()), new NodeId(Guid.NewGuid()), new NodeId(Guid.NewGuid()), new NodeId(Guid.NewGuid()) });
                     CreateAnalogItemVariable(analogArrayFolder, daAnalogArray + "Number", "Number", BuiltInType.Number, ValueRanks.OneDimension, new Int16[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
-                    CreateAnalogItemVariable(analogArrayFolder, daAnalogArray + "QualifiedName", "QualifiedName", BuiltInType.QualifiedName, ValueRanks.OneDimension, new QualifiedName[] { "q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8", "q9"});
+                    CreateAnalogItemVariable(analogArrayFolder, daAnalogArray + "QualifiedName", "QualifiedName", BuiltInType.QualifiedName, ValueRanks.OneDimension, new QualifiedName[] { "q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8", "q9" });
                     CreateAnalogItemVariable(analogArrayFolder, daAnalogArray + "SByte", "SByte", BuiltInType.SByte, ValueRanks.OneDimension, new SByte[] { 10, 20, 30, 40, 50, 60, 70, 80, 90 });
                     CreateAnalogItemVariable(analogArrayFolder, daAnalogArray + "String", "String", BuiltInType.String, ValueRanks.OneDimension, new String[] { "a00", "b10", "c20", "d30", "e40", "f50", "g60", "h70", "i80", "j90" });
                     CreateAnalogItemVariable(analogArrayFolder, daAnalogArray + "Time", "Time", DataTypeIds.Time, ValueRanks.OneDimension, new String[] { DateTime.MinValue.ToString(), DateTime.MaxValue.ToString(), DateTime.MinValue.ToString(), DateTime.MaxValue.ToString(), DateTime.MinValue.ToString(), DateTime.MaxValue.ToString(), DateTime.MinValue.ToString(), DateTime.MaxValue.ToString(), DateTime.MinValue.ToString(), DateTime.MaxValue.ToString() }, null);
@@ -2581,6 +2613,77 @@ namespace Quickstarts.ReferenceServer
             {
                 Utils.Trace(e, "Unexpected error doing simulation.");
             }
+        }
+
+        /// <summary>
+        /// Loads the schema from an embedded resource.
+        /// </summary>
+        public byte[] LoadSchemaFromResource(string resourcePath, System.Reflection.Assembly assembly)
+        {
+            if (resourcePath == null) throw new ArgumentNullException("resourcePath");
+
+            if (assembly == null)
+            {
+                assembly = System.Reflection.Assembly.GetCallingAssembly();
+            }
+
+            Stream istrm = assembly.GetManifestResourceStream(resourcePath);
+
+            if (istrm == null)
+            {
+                throw ServiceResultException.Create(StatusCodes.BadDecodingError, "Could not load nodes from resource: {0}", resourcePath);
+            }
+
+            byte[] buffer = new byte[istrm.Length];
+            istrm.Read(buffer, 0, (int)istrm.Length);
+            return buffer;
+        }
+
+        /// <summary>
+        /// Loads a node set from a file or resource and addes them to the set of predefined nodes.
+        /// </summary>
+        protected override NodeStateCollection LoadPredefinedNodes(ISystemContext context)
+        {
+            NodeStateCollection predefinedNodes = new NodeStateCollection();
+
+            predefinedNodes.LoadFromBinaryResource(context,
+                "Quickstarts.DataTypes.Types.Quickstarts.DataTypes.Types.PredefinedNodes.uanodes",
+                typeof(Quickstarts.DataTypes.Types.VehicleType).Assembly,
+                true);
+            predefinedNodes.LoadFromBinaryResource(context,
+                "Quickstarts.ReferenceServer.Instances.Quickstarts.DataTypes.Instances.PredefinedNodes.uanodes",
+                typeof(ReferenceNodeManager).GetTypeInfo().Assembly,
+                true);
+            predefinedNodes.LoadFromBinaryResource(context,
+                "Quickstarts.DataTypes.DI.Opc.Ua.Di.PredefinedNodes.uanodes",
+                typeof(Opc.Ua.Di.IVendorNameplateState).GetTypeInfo().Assembly,
+                true);
+            predefinedNodes.LoadFromBinaryResource(context,
+                "Quickstarts.DataTypes.ADI.Opc.Ua.Adi.PredefinedNodes.uanodes",
+                typeof(Opc.Ua.Adi.AccessoryState).GetTypeInfo().Assembly,
+                true);
+            predefinedNodes.LoadFromBinaryResource(context,
+                "Quickstarts.DataTypes.MDIS.Opc.MDIS.PredefinedNodes.uanodes",
+                typeof(Opc.MDIS.ChokeMoveEnum).GetTypeInfo().Assembly,
+                true);
+            predefinedNodes.LoadFromBinaryResource(context,
+                "Quickstarts.DataTypes.MTConnect.Opc.Ua.MTConnect.PredefinedNodes.uanodes",
+                typeof(Opc.Ua.MTConnect.ActiveAxesState).GetTypeInfo().Assembly,
+                true);
+            predefinedNodes.LoadFromBinaryResource(context,
+                "Quickstarts.DataTypes.PLCopen.Opc.Ua.Plc.PredefinedNodes.uanodes",
+                typeof(Opc.Ua.Plc.CtrlProgramState).GetTypeInfo().Assembly,
+                true);
+            predefinedNodes.LoadFromBinaryResource(context,
+                "Quickstarts.DataTypes.Robotics.Opc.Ua.Robotics.PredefinedNodes.uanodes",
+                typeof(Opc.Ua.Robotics.MotionDeviceSystemState).GetTypeInfo().Assembly,
+                true);
+            predefinedNodes.LoadFromBinaryResource(context,
+                "Quickstarts.DataTypes.Sercos.Sercos.PredefinedNodes.uanodes",
+                typeof(Sercos.FunctionGroupSetState).GetTypeInfo().Assembly,
+                true);
+
+            return predefinedNodes;
         }
 
         /// <summary>
