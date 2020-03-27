@@ -65,7 +65,10 @@ namespace Quickstarts.ReferenceServer
                 Opc.Ua.MTConnect.Namespaces.OpcUaMTConnect,
                 Opc.Ua.Plc.Namespaces.OpcUaPlc,
                 Opc.Ua.Robotics.Namespaces.OpcUaRobotics,
-                Sercos.Namespaces.Sercos
+                Sercos.Namespaces.Sercos,
+                fortiss.Di.Namespaces.fortissDi,
+                fortiss.Robotics.Namespaces.fortissRobotics,
+                Kuka.iiwa.Namespaces.KukaIiwa
                 );
 
 
@@ -2681,6 +2684,18 @@ namespace Quickstarts.ReferenceServer
             predefinedNodes.LoadFromBinaryResource(context,
                 "Quickstarts.DataTypes.Sercos.Sercos.PredefinedNodes.uanodes",
                 typeof(Sercos.FunctionGroupSetState).GetTypeInfo().Assembly,
+                true);
+            predefinedNodes.LoadFromBinaryResource(context,
+                "Quickstarts.DataTypes.fortiss_di.fortiss.Di.PredefinedNodes.uanodes",
+                typeof(fortiss.Di.GripperSkillState).GetTypeInfo().Assembly,
+                true);
+            predefinedNodes.LoadFromBinaryResource(context,
+                "Quickstarts.DataTypes.fortiss_robotics.fortiss.Robotics.PredefinedNodes.uanodes",
+                typeof(fortiss.Robotics.LinearMoveSkillState).GetTypeInfo().Assembly,
+                true);
+            predefinedNodes.LoadFromBinaryResource(context,
+                "Quickstarts.DataTypes.kuka_iiwa.Kuka.iiwa.PredefinedNodes.uanodes",
+                typeof(fortiss.Robotics.LinearMoveSkillState).GetTypeInfo().Assembly,
                 true);
 
             return predefinedNodes;

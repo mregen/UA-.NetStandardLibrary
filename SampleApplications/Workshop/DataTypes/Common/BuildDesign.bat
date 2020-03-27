@@ -28,6 +28,14 @@ Opc.Ua.ModelCompiler.exe -version v104 -d2 ".\Robotics\OpcUaRoboticsModel.xml" -
 echo Building Sercos
 Opc.Ua.ModelCompiler.exe -version v104 -d2 ".\Sercos\SercosModel.xml" -cg ".\Sercos\SercosModel.csv" -o2 ".\Sercos"
 
+echo Building Fortiss DI
+Opc.Ua.ModelCompiler.exe -version v104 -d2 ".\fortiss_di\fortissDiModel.xml" -cg ".\fortiss_di\fortissDiModel.csv" -o2 ".\fortiss_di"
+
+echo Building Fortiss Robotics
+Opc.Ua.ModelCompiler.exe -version v104 -d2 ".\fortiss_robotics\fortissRoboticsModel.xml" -cg ".\fortiss_robotics\fortissRoboticsModel.csv" -o2 ".\fortiss_robotics"
+
+echo Building Kuka Iiwa
+Opc.Ua.ModelCompiler.exe -version v104 -d2 ".\kuka_iiwa\kukaIiwaModel.xml" -cg ".\kuka_iiwa\kukaIiwaModel.csv" -o2 ".\kuka_iiwa"
 
 
 

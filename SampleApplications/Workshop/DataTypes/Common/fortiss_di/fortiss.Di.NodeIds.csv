@@ -1,0 +1,11 @@
+ForceTorqueSensorType,15728,ObjectType
+FortissDiNamespaceMetadata,15473,Object
+GraspGripperSkillType,15168,ObjectType
+GripperDeviceControllerType,15463,ObjectType
+GripperSkillType,15101,ObjectType
+ISkillControllerType,15396,ObjectType
+MoveGripperSkill,15316,ObjectType
+ReleaseGripperSkill,15242,ObjectType
+SensorType,15692,ObjectType
+SkillTransitionEventType,15844,ObjectType
+SkillType,15034,ObjectType

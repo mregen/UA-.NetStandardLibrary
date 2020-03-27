@@ -5,7 +5,7 @@
   </NamespaceUris>
   <Models>
     <Model ModelUri="http://opcfoundation.org/UA/DI/" Version="1.02" PublicationDate="2019-05-01T00:00:00Z">
-      <RequiredModel ModelUri="http://opcfoundation.org/UA/" Version="1.04.4" PublicationDate="2019-11-20T00:00:00Z" />
+      <RequiredModel ModelUri="http://opcfoundation.org/UA/" Version="1.04.5" PublicationDate="2020-03-06T00:00:00Z" />
     </Model>
   </Models>
   <Aliases>
@@ -1318,23 +1318,18 @@
     </References>
     <Definition Name="1:DeviceHealthEnumeration">
       <Field Name="NORMAL" Value="0">
-        <DisplayName>NORMAL</DisplayName>
         <Description>This device functions normally.</Description>
       </Field>
       <Field Name="FAILURE" Value="1">
-        <DisplayName>FAILURE</DisplayName>
         <Description>Malfunction of the device or any of its peripherals.</Description>
       </Field>
       <Field Name="CHECK_FUNCTION" Value="2">
-        <DisplayName>CHECK_FUNCTION</DisplayName>
         <Description>Functional checks are currently performed.</Description>
       </Field>
       <Field Name="OFF_SPEC" Value="3">
-        <DisplayName>OFF_SPEC</DisplayName>
         <Description>The device is currently working outside of its specified range or that internal diagnoses indicate deviations from measured or set values.</Description>
       </Field>
       <Field Name="MAINTENANCE_REQUIRED" Value="4">
-        <DisplayName>MAINTENANCE_REQUIRED</DisplayName>
         <Description>This element is working, but a maintenance operation is required.</Description>
       </Field>
     </Definition>

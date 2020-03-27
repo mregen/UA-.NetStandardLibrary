@@ -1,0 +1,13 @@
+CartesianLinearMoveSkillType,15295,ObjectType
+CartesianPtpMoveSkillType,15457,ObjectType
+FortissMotionDeviceType,15768,ObjectType
+FortissRoboticsNamespaceMetadata,15001,Object
+ICartesianMoveSkillParameterType,15265,ObjectType
+IJointMoveSkillParameterType,15287,ObjectType
+JointLinearMoveSkillType,15376,ObjectType
+JointPtpMoveSkillType,15538,ObjectType
+LinearMoveSkillType,15103,ObjectType
+MoveSkillType,15034,ObjectType
+PositionStreamSkillType,15686,ObjectType
+PtpMoveSkillType,15184,ObjectType
+StreamSkillType,15619,ObjectType

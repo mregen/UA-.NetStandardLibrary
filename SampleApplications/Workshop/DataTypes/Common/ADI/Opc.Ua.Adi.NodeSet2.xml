@@ -6,7 +6,7 @@
   </NamespaceUris>
   <Models>
     <Model ModelUri="http://opcfoundation.org/UA/ADI/" Version="1.01" PublicationDate="2013-07-31T00:00:00Z">
-      <RequiredModel ModelUri="http://opcfoundation.org/UA/" Version="1.04.4" PublicationDate="2019-11-20T00:00:00Z" />
+      <RequiredModel ModelUri="http://opcfoundation.org/UA/" Version="1.04.5" PublicationDate="2020-03-06T00:00:00Z" />
       <RequiredModel ModelUri="http://opcfoundation.org/UA/DI/" Version="1.02" PublicationDate="2019-05-01T00:00:00Z" />
     </Model>
   </Models>
@@ -7328,47 +7328,36 @@
     </References>
     <Definition Name="1:ExecutionCycleEnumeration">
       <Field Name="IDLE" Value="0">
-        <DisplayName>IDLE</DisplayName>
         <Description>Idle, no cleaning or acquisition cycle in progress</Description>
       </Field>
       <Field Name="DIAGNOSTIC" Value="1">
-        <DisplayName>DIAGNOSTIC</DisplayName>
         <Description>Scquisition cycle collecting data for diagnostic purpose</Description>
       </Field>
       <Field Name="CLEANING" Value="2">
-        <DisplayName>CLEANING</DisplayName>
         <Description>Cleaning cycle</Description>
       </Field>
       <Field Name="CALIBRATION" Value="4">
-        <DisplayName>CALIBRATION</DisplayName>
         <Description>Calibration acquisition cycle</Description>
       </Field>
       <Field Name="VALIDATION" Value="8">
-        <DisplayName>VALIDATION</DisplayName>
         <Description>Validation acquisition cycle</Description>
       </Field>
       <Field Name="SAMPLING" Value="16">
-        <DisplayName>SAMPLING</DisplayName>
         <Description>Sample acquisition cycle</Description>
       </Field>
       <Field Name="DIAGNOSTIC_WITH_GRAB_SAMPLE" Value="32769">
-        <DisplayName>DIAGNOSTIC_WITH_GRAB_SAMPLE</DisplayName>
         <Description>Scquisition cycle collecting data for diagnostic purpose and sample is extracted from the process to be sent in control lab</Description>
       </Field>
       <Field Name="CLEANING_WITH_GRAB_SAMPLE" Value="32770">
-        <DisplayName>CLEANING_WITH_GRAB_SAMPLE</DisplayName>
         <Description>Cleaning cycle with or without acquisition and sample is extracted from the process to be sent in control lab</Description>
       </Field>
       <Field Name="CALIBRATION_WITH_GRAB_SAMPLE" Value="32772">
-        <DisplayName>CALIBRATION_WITH_GRAB_SAMPLE</DisplayName>
         <Description>Calibration acquisition cycle and sample is extracted from the process to be sent in control lab</Description>
       </Field>
       <Field Name="VALIDATION_WITH_GRAB_SAMPLE" Value="32776">
-        <DisplayName>VALIDATION_WITH_GRAB_SAMPLE</DisplayName>
         <Description>Validation acquisition cycle and sample is extracted from the process to be sent in control lab</Description>
       </Field>
       <Field Name="SAMPLING_WITH_GRAB_SAMPLE" Value="32784">
-        <DisplayName>SAMPLING_WITH_GRAB_SAMPLE</DisplayName>
         <Description>Sample acquisition cycle and sample is extracted from the process to be sent in control lab</Description>
       </Field>
     </Definition>
@@ -7613,23 +7602,18 @@
     </References>
     <Definition Name="1:AcquisitionResultStatusEnumeration">
       <Field Name="NOT_USED" Value="0">
-        <DisplayName>NOT_USED</DisplayName>
         <Description>No longer used.</Description>
       </Field>
       <Field Name="GOOD" Value="1">
-        <DisplayName>GOOD</DisplayName>
         <Description>The acquisition has been completed as requested without any error.</Description>
       </Field>
       <Field Name="BAD" Value="2">
-        <DisplayName>BAD</DisplayName>
         <Description>The acquisition has been completed as requested with error.</Description>
       </Field>
       <Field Name="UNKNOWN" Value="3">
-        <DisplayName>UNKNOWN</DisplayName>
         <Description>The acquisition has been completed but nothing can be said about the quality of the result.</Description>
       </Field>
       <Field Name="PARTIAL" Value="4">
-        <DisplayName>PARTIAL</DisplayName>
         <Description>The acquisition has been partially completed as requested without any error.</Description>
       </Field>
     </Definition>
@@ -7914,31 +7898,24 @@
     </References>
     <Definition Name="1:AlarmStateEnumeration">
       <Field Name="NORMAL_0" Value="0">
-        <DisplayName>NORMAL_0</DisplayName>
         <Description>Normal</Description>
       </Field>
       <Field Name="WARNING_LOW_1" Value="1">
-        <DisplayName>WARNING_LOW_1</DisplayName>
         <Description>In low warning range</Description>
       </Field>
       <Field Name="WARNING_HIGH_2" Value="2">
-        <DisplayName>WARNING_HIGH_2</DisplayName>
         <Description>In high warning range</Description>
       </Field>
       <Field Name="WARNING_4" Value="4">
-        <DisplayName>WARNING_4</DisplayName>
         <Description>In warning range (low or high) or some other warning cause</Description>
       </Field>
       <Field Name="ALARM_LOW_8" Value="8">
-        <DisplayName>ALARM_LOW_8</DisplayName>
         <Description>In low alarm range</Description>
       </Field>
       <Field Name="ALARM_HIGH_16" Value="16">
-        <DisplayName>ALARM_HIGH_16</DisplayName>
         <Description>In high alarm range</Description>
       </Field>
       <Field Name="ALARM_32" Value="32">
-        <DisplayName>ALARM_32</DisplayName>
         <Description>In alarm range (low or high) or some other alarm cause</Description>
       </Field>
     </Definition>

@@ -120,6 +120,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
+    <None Include="BuildDesign.bat" />
     <None Include="Instances\ModelDesign2.csv" />
     <EmbeddedResource Include="Instances\Quickstarts.DataTypes.Instances.PredefinedNodes.uanodes" />
     <None Include="Instances\Quickstarts.DataTypes.Instances.Types.bsd" />

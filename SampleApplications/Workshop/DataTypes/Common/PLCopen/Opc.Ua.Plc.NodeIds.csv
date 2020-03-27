@@ -1,0 +1,14 @@
+CtrlConfigurationType,1001,ObjectType
+CtrlFunctionBlockType,1005,ObjectType
+CtrlProgramOrganizationUnitType,1003,ObjectType
+CtrlProgramType,1004,ObjectType
+CtrlResourceType,1002,ObjectType
+CtrlTaskType,1006,ObjectType
+HasExternalVars,4005,ReferenceType
+HasInOutVars,4003,ReferenceType
+HasInputVars,4001,ReferenceType
+HasLocalVars,4004,ReferenceType
+HasOutputVars,4002,ReferenceType
+OpcUaPlcNamespaceMetadata,15001,Object
+SFCType,1007,ObjectType
+With,4006,ReferenceType

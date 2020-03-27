@@ -5,7 +5,7 @@
   </NamespaceUris>
   <Models>
     <Model ModelUri="http://opcfoundation.org/UA/MDIS">
-      <RequiredModel ModelUri="http://opcfoundation.org/UA/" Version="1.04.4" PublicationDate="2019-11-20T00:00:00Z" />
+      <RequiredModel ModelUri="http://opcfoundation.org/UA/" Version="1.04.5" PublicationDate="2020-03-06T00:00:00Z" />
     </Model>
   </Models>
   <Aliases>
@@ -179,15 +179,9 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:SignatureStatusEnum">
-      <Field Name="NotAvailable" Value="1">
-        <DisplayName>NotAvailable</DisplayName>
-      </Field>
-      <Field Name="Completed" Value="2">
-        <DisplayName>Completed</DisplayName>
-      </Field>
-      <Field Name="Failed" Value="4">
-        <DisplayName>Failed</DisplayName>
-      </Field>
+      <Field Name="NotAvailable" Value="1" />
+      <Field Name="Completed" Value="2" />
+      <Field Name="Failed" Value="4" />
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=700" BrowseName="EnumValues" ParentNodeId="ns=1;i=699" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -254,18 +248,10 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:SetCalculatedPositionEnum">
-      <Field Name="Initial" Value="0">
-        <DisplayName>Initial</DisplayName>
-      </Field>
-      <Field Name="Inprogress" Value="1">
-        <DisplayName>Inprogress</DisplayName>
-      </Field>
-      <Field Name="Complete" Value="2">
-        <DisplayName>Complete</DisplayName>
-      </Field>
-      <Field Name="Fault" Value="4">
-        <DisplayName>Fault</DisplayName>
-      </Field>
+      <Field Name="Initial" Value="0" />
+      <Field Name="Inprogress" Value="1" />
+      <Field Name="Complete" Value="2" />
+      <Field Name="Fault" Value="4" />
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=1288" BrowseName="EnumValues" ParentNodeId="ns=1;i=1287" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -347,15 +333,9 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:CommandEnum">
-      <Field Name="Close" Value="1">
-        <DisplayName>Close</DisplayName>
-      </Field>
-      <Field Name="Open" Value="2">
-        <DisplayName>Open</DisplayName>
-      </Field>
-      <Field Name="None" Value="4">
-        <DisplayName>None</DisplayName>
-      </Field>
+      <Field Name="Close" Value="1" />
+      <Field Name="Open" Value="2" />
+      <Field Name="None" Value="4" />
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=616" BrowseName="EnumValues" ParentNodeId="ns=1;i=3" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -422,12 +402,8 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:ChokeCommandEnum">
-      <Field Name="Close" Value="1">
-        <DisplayName>Close</DisplayName>
-      </Field>
-      <Field Name="Open" Value="2">
-        <DisplayName>Open</DisplayName>
-      </Field>
+      <Field Name="Close" Value="1" />
+      <Field Name="Open" Value="2" />
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=702" BrowseName="EnumValues" ParentNodeId="ns=1;i=701" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -479,15 +455,9 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:SEMEnum">
-      <Field Name="SEM_A" Value="1">
-        <DisplayName>SEM_A</DisplayName>
-      </Field>
-      <Field Name="SEM_B" Value="2">
-        <DisplayName>SEM_B</DisplayName>
-      </Field>
-      <Field Name="Auto" Value="4">
-        <DisplayName>Auto</DisplayName>
-      </Field>
+      <Field Name="SEM_A" Value="1" />
+      <Field Name="SEM_B" Value="2" />
+      <Field Name="Auto" Value="4" />
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=6" BrowseName="EnumValues" ParentNodeId="ns=1;i=5" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -554,18 +524,10 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:ValvePositionEnum">
-      <Field Name="Closed" Value="1">
-        <DisplayName>Closed</DisplayName>
-      </Field>
-      <Field Name="Open" Value="2">
-        <DisplayName>Open</DisplayName>
-      </Field>
-      <Field Name="Moving" Value="4">
-        <DisplayName>Moving</DisplayName>
-      </Field>
-      <Field Name="Unknown" Value="8">
-        <DisplayName>Unknown</DisplayName>
-      </Field>
+      <Field Name="Closed" Value="1" />
+      <Field Name="Open" Value="2" />
+      <Field Name="Moving" Value="4" />
+      <Field Name="Unknown" Value="8" />
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=704" BrowseName="EnumValues" ParentNodeId="ns=1;i=703" DataType="i=7594" ValueRank="1" ArrayDimensions="0">
@@ -647,12 +609,8 @@
       <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
     </References>
     <Definition Name="1:ChokeMoveEnum">
-      <Field Name="Moving" Value="1">
-        <DisplayName>Moving</DisplayName>
-      </Field>
-      <Field Name="Stopped" Value="2">
-        <DisplayName>Stopped</DisplayName>
-      </Field>
+      <Field Name="Moving" Value="1" />
+      <Field Name="Stopped" Value="2" />
     </Definition>
   </UADataType>
   <UAVariable NodeId="ns=1;i=603" BrowseName="EnumValues" ParentNodeId="ns=1;i=602" DataType="i=7594" ValueRank="1" ArrayDimensions="0">

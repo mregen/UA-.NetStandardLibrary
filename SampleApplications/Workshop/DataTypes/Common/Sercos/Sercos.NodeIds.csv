@@ -1,0 +1,10 @@
+ClassSet,6077,ObjectType
+FunctionalGroupType,6012,ObjectType
+FunctionGroupSet,6079,ObjectType
+ProfileSet,6075,ObjectType
+SercosClassType,1003,ObjectType
+SercosDeviceType,1001,ObjectType
+SercosFunctionGroupType,1004,ObjectType
+SercosNamespaceMetadata,6081,Object
+SercosParameterType,2001,VariableType
+SercosProfileType,1002,ObjectType

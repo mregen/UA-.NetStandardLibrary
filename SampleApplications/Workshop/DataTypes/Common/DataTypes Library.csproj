@@ -12,6 +12,9 @@
   <ItemGroup>
     <None Remove="ADI\Opc.Ua.Adi.PredefinedNodes.uanodes" />
     <None Remove="DI\Opc.Ua.Di.PredefinedNodes.uanodes" />
+    <None Remove="fortiss_di\fortiss.Di.PredefinedNodes.uanodes" />
+    <None Remove="fortiss_robotics\fortiss.Robotics.PredefinedNodes.uanodes" />
+    <None Remove="kuka_iiwa\Kuka.iiwa.PredefinedNodes.uanodes" />
     <None Remove="MDIS\Opc.MDIS.PredefinedNodes.uanodes" />
     <None Remove="MTConnect\Opc.Ua.MTConnect.PredefinedNodes.uanodes" />
     <None Remove="PLCopen\Opc.Ua.Plc.PredefinedNodes.uanodes" />
@@ -25,6 +28,9 @@
   <ItemGroup>
     <EmbeddedResource Include="ADI\Opc.Ua.Adi.PredefinedNodes.uanodes" />
     <EmbeddedResource Include="DI\Opc.Ua.Di.PredefinedNodes.uanodes" />
+    <EmbeddedResource Include="fortiss_di\fortiss.Di.PredefinedNodes.uanodes" />
+    <EmbeddedResource Include="fortiss_robotics\fortiss.Robotics.PredefinedNodes.uanodes" />
+    <EmbeddedResource Include="kuka_iiwa\Kuka.iiwa.PredefinedNodes.uanodes" />
     <EmbeddedResource Include="MDIS\Opc.MDIS.PredefinedNodes.uanodes" />
     <EmbeddedResource Include="MTConnect\Opc.Ua.MTConnect.PredefinedNodes.uanodes" />
     <EmbeddedResource Include="PLCopen\Opc.Ua.Plc.PredefinedNodes.uanodes" />
