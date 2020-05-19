@@ -32,12 +32,13 @@ jobs:
       projects: '**/*[.t]Tests.csproj'
       arguments: '--configuration ${{ parameters.configuration }}'
   - task: SonarCloudPrepare@1
+    condition: ne( variables['SONAR_PROJECTKEY'], '')
     displayName: 'Prepare SonarCloud'
     inputs:
       SonarCloud: 'SonarCloud'
-      organization: 'sonarsource'
+      organization: $(SONAR_ORGANIZATION)
       scannerMode: 'MSBuild'
-      projectKey: 'opcua-core'
+      projectKey: $(SONAR_PROJECTKEY)
       projectName: 'OPC UA Core Library'
   - task: DotNetCoreCLI@2
     displayName: Test ${{ parameters.configuration }}
@@ -52,8 +53,10 @@ jobs:
     continueOnError: true
     displayName: 'Upload to codecov.io'
   - task: SonarCloudAnalyze@1
+    condition: ne( variables['SONAR_PROJECTKEY'], '')
     displayName: 'Run SonarCloud analysis'
   - task: SonarCloudPublish@1
+    condition: ne( variables['SONAR_PROJECTKEY'], '')
     displayName: 'Publish SonarCloud results'
     inputs:
       pollingTimeoutSec: '300'
