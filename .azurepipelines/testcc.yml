@@ -31,6 +31,14 @@ jobs:
       command: restore
       projects: '**/*[.t]Tests.csproj'
       arguments: '--configuration ${{ parameters.configuration }}'
+  - task: SonarCloudPrepare@1
+    displayName: 'Prepare SonarCloud'
+    inputs:
+      SonarCloud: 'SonarCloud'
+      organization: 'sonarsource'
+      scannerMode: 'MSBuild'
+      projectKey: 'opcua-core'
+      projectName: 'OPC UA Core Library'
   - task: DotNetCoreCLI@2
     displayName: Test ${{ parameters.configuration }}
     timeoutInMinutes: 20
@@ -43,6 +51,12 @@ jobs:
 
     continueOnError: true
     displayName: 'Upload to codecov.io'
+  - task: SonarCloudAnalyze@1
+    displayName: 'Run SonarCloud analysis'
+  - task: SonarCloudPublish@1
+    displayName: 'Publish SonarCloud results'
+    inputs:
+      pollingTimeoutSec: '300'
   - task: DotNetCoreCLI@2
     inputs:
       command: custom
