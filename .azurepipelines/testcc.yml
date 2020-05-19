@@ -35,7 +35,7 @@ jobs:
     condition: ne( variables['SONAR_PROJECTKEY'], '')
     displayName: 'Prepare SonarCloud'
     inputs:
-      SonarCloud: 'SonarCloud'
+      SonarCloud: 'sonar_connection'
       organization: $(SONAR_ORGANIZATION)
       scannerMode: 'MSBuild'
       projectKey: $(SONAR_PROJECTKEY)
