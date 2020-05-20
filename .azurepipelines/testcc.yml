@@ -41,11 +41,6 @@ jobs:
       projectKey: $(SONAR_PROJECTKEY)
       projectName: 'OPC UA Core Library'
   - task: DotNetCoreCLI@2
-    displayName: 'Build solution'
-    inputs:
-      command: 'build'
-      projects: 'UA Core Library.sln'
-  - task: DotNetCoreCLI@2
     displayName: Test ${{ parameters.configuration }}
     timeoutInMinutes: 20
     inputs:

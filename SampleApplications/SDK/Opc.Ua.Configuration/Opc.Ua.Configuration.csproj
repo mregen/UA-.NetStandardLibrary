@@ -7,6 +7,7 @@
     <PackageId>Opc.Ua.Configuration</PackageId>
     <RootNamespace>Opc.Ua.Configuration</RootNamespace>
     <Description>OPC UA Configuration Class Library</Description>
+    <ProjectGuid>EEBFD472-E523-4942-8C23-B4B999A86B26</ProjectGuid>
   </PropertyGroup>
 
   <ItemGroup>

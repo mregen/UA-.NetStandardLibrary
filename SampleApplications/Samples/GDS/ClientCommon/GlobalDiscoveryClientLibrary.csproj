@@ -8,6 +8,7 @@
     <RootNamespace>Opc.Ua.Gds.Client</RootNamespace>
     <LangVersion>6</LangVersion>
     <Description>OPC UA GDS Client Class Library</Description>
+    <ProjectGuid>46806B4B-6600-42C7-A384-B853EC5C907A</ProjectGuid>
   </PropertyGroup>
 
   <ItemGroup>

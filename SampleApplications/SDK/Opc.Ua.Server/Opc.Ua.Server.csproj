@@ -8,6 +8,7 @@
     <RootNamespace>Opc.Ua.Server</RootNamespace>
     <Description>OPC UA Server Class Library</Description>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <ProjectGuid>C8BE36F3-BC2B-4D9C-937E-828637E562F3</ProjectGuid>
   </PropertyGroup>
 
   <PropertyGroup>

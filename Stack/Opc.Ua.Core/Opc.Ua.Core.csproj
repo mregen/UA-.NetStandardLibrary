@@ -8,6 +8,7 @@
     <PackageId>Opc.Ua.Core</PackageId>
     <RootNamespace>Opc.Ua</RootNamespace>
     <Description>OPC UA Core Class Library</Description>
+    <ProjectGuid>D3069B1E-F08D-4D17-A617-906FB08FA88B</ProjectGuid>    
   </PropertyGroup>
 
   <PropertyGroup>

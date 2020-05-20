@@ -7,6 +7,7 @@
     <PackageId>Opc.Ua.Client.ComplexTypes</PackageId>
     <RootNameSpace>Opc.Ua.Client.ComplexTypes</RootNameSpace>
     <Description>OPC UA Complex Types Client Class Library</Description>
+    <ProjectGuid>077F4301-4557-4858-BD7E-C937C4BB399E</ProjectGuid>
   </PropertyGroup>
 
   <ItemGroup>
