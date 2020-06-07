@@ -168,7 +168,7 @@ namespace NetCoreConsoleClient
         {
             try
             {
-                ThreadPool.SetMinThreads(25, 25);
+                //ThreadPool.SetMinThreads(25, 25);
                 await ConsoleSampleClient();
             }
             catch (Exception ex)
@@ -245,7 +245,8 @@ namespace NetCoreConsoleClient
             //await _staticLock.WaitAsync();
             //try
             //{
-                selectedEndpoint = CoreClientUtils.SelectEndpoint(endpointURL, haveAppCertificate, 15000);
+            //selectedEndpoint = CoreClientUtils.SelectEndpoint(endpointURL, haveAppCertificate, 15000);
+            selectedEndpoint = await CoreClientUtils.SelectEndpointAsync(endpointURL, haveAppCertificate, 15000);
             //}
             //finally
             //{
@@ -278,9 +279,9 @@ namespace NetCoreConsoleClient
             ReferenceDescriptionCollection references;
             Byte[] continuationPoint;
 
-            references = session.FetchReferences(ObjectIds.ObjectsFolder);
+            references = await session.FetchReferencesAsync(ObjectIds.ObjectsFolder, CancellationToken.None);
 
-            session.Browse(
+            var response = await session.BrowseAsync(
                 null,
                 null,
                 ObjectIds.ObjectsFolder,
@@ -289,8 +290,10 @@ namespace NetCoreConsoleClient
                 ReferenceTypeIds.HierarchicalReferences,
                 true,
                 (uint)NodeClass.Variable | (uint)NodeClass.Object | (uint)NodeClass.Method,
-                out continuationPoint,
-                out references);
+                CancellationToken.None);
+
+            continuationPoint = response.Results[0].ContinuationPoint;
+            references = response.Results[0].References;
 
             Console.WriteLine(" DisplayName, BrowseName, NodeClass");
             foreach (var rd in references)
@@ -298,7 +301,7 @@ namespace NetCoreConsoleClient
                 Console.WriteLine(" {0}, {1}, {2}", rd.DisplayName, rd.BrowseName, rd.NodeClass);
                 ReferenceDescriptionCollection nextRefs;
                 byte[] nextCp;
-                session.Browse(
+                response = await session.BrowseAsync(
                     null,
                     null,
                     ExpandedNodeId.ToNodeId(rd.NodeId, session.NamespaceUris),
@@ -307,8 +310,10 @@ namespace NetCoreConsoleClient
                     ReferenceTypeIds.HierarchicalReferences,
                     true,
                     (uint)NodeClass.Variable | (uint)NodeClass.Object | (uint)NodeClass.Method,
-                    out nextCp,
-                    out nextRefs);
+                    CancellationToken.None);
+
+                nextCp = response.Results[0].ContinuationPoint;
+                nextRefs = response.Results[0].References;
 
                 foreach (var nextRd in nextRefs)
                 {
