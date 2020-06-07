@@ -28,11 +28,11 @@
  * ======================================================================*/
 
 using System;
+using System.ServiceModel;
 
 #if (!NET_STANDARD)
 using System.Collections.Generic;
 using System.Xml;
-using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Runtime.Serialization;
 #endif
@@ -49,11 +49,7 @@ namespace Opc.Ua
     /// </summary>
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.CodeGenerator", "1.0.0.0")]
-    #if (NET_STANDARD)
-    public partial class SessionChannel : UaChannelBase<ISessionChannel>, ISessionChannel
-    #else
     public partial class SessionChannel : WcfChannelBase<ISessionChannel>, ISessionChannel
-    #endif
     {
         /// <summary>
         /// Initializes the object with the endpoint address.
@@ -2374,11 +2370,7 @@ namespace Opc.Ua
     /// </summary>
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.CodeGenerator", "1.0.0.0")]
-    #if (NET_STANDARD)
-    public partial class DiscoveryChannel : UaChannelBase<IDiscoveryChannel>, IDiscoveryChannel
-    #else
     public partial class DiscoveryChannel : WcfChannelBase<IDiscoveryChannel>, IDiscoveryChannel
-    #endif
     {
         /// <summary>
         /// Initializes the object with the endpoint address.
@@ -2611,11 +2603,7 @@ namespace Opc.Ua
     /// </summary>
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.CodeGenerator", "1.0.0.0")]
-    #if (NET_STANDARD)
-    public partial class RegistrationChannel : UaChannelBase<IRegistrationChannel>, IRegistrationChannel
-    #else
     public partial class RegistrationChannel : WcfChannelBase<IRegistrationChannel>, IRegistrationChannel
-    #endif
     {
         /// <summary>
         /// Initializes the object with the endpoint address.
