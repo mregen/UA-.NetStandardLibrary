@@ -897,7 +897,7 @@ namespace Opc.Ua
     /// <summary>
     /// A base class for UA channel objects used access UA interfaces
     /// </summary>
-    public class WcfChannelBase<TChannel> : UaChannelBase where TChannel : class, IChannelBase
+    public class UaChannelBase<TChannel> : UaChannelBase where TChannel : class, IChannelBase
     {
         #region IDisposable Members
         /// <summary>
