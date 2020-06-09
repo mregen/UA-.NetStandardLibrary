@@ -246,7 +246,7 @@ namespace NetCoreConsoleClient
             //try
             //{
             //selectedEndpoint = CoreClientUtils.SelectEndpoint(endpointURL, haveAppCertificate, 15000);
-            selectedEndpoint = await CoreClientUtils.SelectEndpointAsync(endpointURL, haveAppCertificate, 15000);
+            selectedEndpoint = await CoreClientUtils.SelectEndpointAsync(endpointURL, haveAppCertificate, 15000).ConfigureAwait(false);
             //}
             //finally
             //{
@@ -264,7 +264,7 @@ namespace NetCoreConsoleClient
             //await _staticLock.WaitAsync();
             //try
             //{
-                session = await Session.Create(config, endpoint, false, "OPC UA Console Client", 60000, new UserIdentity(new AnonymousIdentityToken()), null);
+                session = await Session.Create(config, endpoint, false, "OPC UA Console Client", 60000, new UserIdentity(new AnonymousIdentityToken()), null).ConfigureAwait(false);
             //}
             //finally
             //{
@@ -279,7 +279,7 @@ namespace NetCoreConsoleClient
             ReferenceDescriptionCollection references;
             Byte[] continuationPoint;
 
-            references = await session.FetchReferencesAsync(ObjectIds.ObjectsFolder, CancellationToken.None);
+            references = await session.FetchReferencesAsync(ObjectIds.ObjectsFolder, CancellationToken.None).ConfigureAwait(false);
 
             var response = await session.BrowseAsync(
                 null,
@@ -290,7 +290,7 @@ namespace NetCoreConsoleClient
                 ReferenceTypeIds.HierarchicalReferences,
                 true,
                 (uint)NodeClass.Variable | (uint)NodeClass.Object | (uint)NodeClass.Method,
-                CancellationToken.None);
+                CancellationToken.None).ConfigureAwait(false); ;
 
             continuationPoint = response.Results[0].ContinuationPoint;
             references = response.Results[0].References;
@@ -310,7 +310,7 @@ namespace NetCoreConsoleClient
                     ReferenceTypeIds.HierarchicalReferences,
                     true,
                     (uint)NodeClass.Variable | (uint)NodeClass.Object | (uint)NodeClass.Method,
-                    CancellationToken.None);
+                    CancellationToken.None).ConfigureAwait(false);
 
                 nextCp = response.Results[0].ContinuationPoint;
                 nextRefs = response.Results[0].References;
@@ -341,9 +341,9 @@ namespace NetCoreConsoleClient
             exitCode = ExitCode.ErrorAddSubscription;
             session.AddSubscription(subscription);
 
-            await subscription.CreateAsync();
+            await subscription.CreateAsync().ConfigureAwait(false);
             // test special case, no change on server
-            await subscription.CreateItemsAsync();
+            await subscription.CreateItemsAsync().ConfigureAwait(false);
 
             Console.WriteLine($"{endpointURL} 8 - Running...Press Ctrl-C to exit...");
             exitCode = ExitCode.ErrorRunning;

@@ -29,6 +29,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Opc.Ua.Bindings;
 
@@ -164,9 +165,40 @@ namespace Opc.Ua.Client
         /// Creates all items on the server that have not already been created.
         /// </summary>
 
-        public Task CreateItemsAsync()
+        public async Task CreateItemsAsync()
         {
-            return Task.Factory.FromAsync(BeginCreateMonitoredItems(EndCreateMonitoredItems), EndCreateMonitoredItems);
+            List<MonitoredItem> itemsToCreate;
+            MonitoredItemCreateRequestCollection requestItems = PrepareItemsToCreate(out itemsToCreate);
+
+            if (requestItems.Count == 0)
+            {
+                return;
+            }
+
+            var response = await m_session.CreateMonitoredItemsAsync(
+                null,
+                m_id,
+                m_timestampsToReturn,
+                requestItems,
+                CancellationToken.None).ConfigureAwait(false);
+
+            var results = response.Results;
+            var diagnosticInfos = response.DiagnosticInfos;
+            ClientBase.ValidateResponse(results, itemsToCreate);
+            ClientBase.ValidateDiagnosticInfos(response.DiagnosticInfos, itemsToCreate);
+
+            // update results.
+            for (int ii = 0; ii < results.Count; ii++)
+            {
+                itemsToCreate[ii].SetCreateResult(requestItems[ii], results[ii], ii, diagnosticInfos, response.ResponseHeader);
+            }
+
+            m_changeMask |= SubscriptionChangeMask.ItemsCreated;
+
+            ChangesCompleted();
+
+            // or just map to Begin/End
+            //return Task.Factory.FromAsync(BeginCreateMonitoredItems(EndCreateMonitoredItems), EndCreateMonitoredItems);
         }
         #endregion
     }
