@@ -2,7 +2,7 @@
  * Copyright (c) 2005-2019 The OPC Foundation, Inc. All rights reserved.
  *
  * OPC Foundation MIT License 1.00
- * 
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without
@@ -11,7 +11,7 @@
  * copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following
  * conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
@@ -28,12 +28,19 @@
  * ======================================================================*/
 
 using System;
+
+#if (!NET_STANDARD)
 using System.Collections.Generic;
 using System.Xml;
 using System.Threading;
 using System.Security.Principal;
 using System.ServiceModel;
 using System.Runtime.Serialization;
+#endif
+
+#if (NET_STANDARD_ASYNC)
+using System.Threading.Tasks;
+#endif
 
 namespace Opc.Ua
 {
@@ -43,7 +50,7 @@ namespace Opc.Ua
     /// </summary>
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.CodeGenerator", "1.0.0.0")]
-    #if !NET_STANDARD
+    #if (!NET_STANDARD)
     [ServiceMessageContextBehavior()]
     [ServiceBehavior(Namespace = Namespaces.OpcUaWsdl, InstanceContextMode=InstanceContextMode.PerSession, ConcurrencyMode=ConcurrencyMode.Multiple)]
     #endif
@@ -95,7 +102,7 @@ namespace Opc.Ua
         #endregion
 
         #region ISessionEndpoint Members
-        #region FindServers Service
+            #region FindServers Service
         #if (!OPCUA_EXCLUDE_FindServers)
         /// <summary>
         /// Invokes the FindServers service.
@@ -121,6 +128,7 @@ namespace Opc.Ua
                    request.ServerUris,
                    out servers);
 
+
                 response.Servers = servers;
             }
             finally
@@ -131,7 +139,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the FindServers service.
         /// </summary>
@@ -145,6 +153,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (FindServersResponse)FindServers(request.FindServersRequest);
+
                 // OnResponseSent(response);
                 return new FindServersResponseMessage(response);
             }
@@ -163,10 +172,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.FindServersRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.FindServersRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -201,11 +210,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region FindServersOnNetwork Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the FindServers service.
+        /// </summary>
+        public virtual Task<FindServersResponseMessage> FindServersAsync(FindServersMessage message)
+        {
+            var tcs = new TaskCompletionSource<FindServersResponseMessage>();
+            BeginFindServers(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<FindServersResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndFindServers(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region FindServersOnNetwork Service
         #if (!OPCUA_EXCLUDE_FindServersOnNetwork)
         /// <summary>
         /// Invokes the FindServersOnNetwork service.
@@ -233,6 +266,7 @@ namespace Opc.Ua
                    out lastCounterResetTime,
                    out servers);
 
+
                 response.LastCounterResetTime = lastCounterResetTime;
                 response.Servers              = servers;
             }
@@ -244,7 +278,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the FindServersOnNetwork service.
         /// </summary>
@@ -258,6 +292,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (FindServersOnNetworkResponse)FindServersOnNetwork(request.FindServersOnNetworkRequest);
+
                 // OnResponseSent(response);
                 return new FindServersOnNetworkResponseMessage(response);
             }
@@ -276,10 +311,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.FindServersOnNetworkRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.FindServersOnNetworkRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -314,11 +349,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region GetEndpoints Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the FindServersOnNetwork service.
+        /// </summary>
+        public virtual Task<FindServersOnNetworkResponseMessage> FindServersOnNetworkAsync(FindServersOnNetworkMessage message)
+        {
+            var tcs = new TaskCompletionSource<FindServersOnNetworkResponseMessage>();
+            BeginFindServersOnNetwork(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<FindServersOnNetworkResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndFindServersOnNetwork(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region GetEndpoints Service
         #if (!OPCUA_EXCLUDE_GetEndpoints)
         /// <summary>
         /// Invokes the GetEndpoints service.
@@ -344,6 +403,7 @@ namespace Opc.Ua
                    request.ProfileUris,
                    out endpoints);
 
+
                 response.Endpoints = endpoints;
             }
             finally
@@ -354,7 +414,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the GetEndpoints service.
         /// </summary>
@@ -368,6 +428,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (GetEndpointsResponse)GetEndpoints(request.GetEndpointsRequest);
+
                 // OnResponseSent(response);
                 return new GetEndpointsResponseMessage(response);
             }
@@ -386,10 +447,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.GetEndpointsRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.GetEndpointsRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -424,11 +485,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region CreateSession Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the GetEndpoints service.
+        /// </summary>
+        public virtual Task<GetEndpointsResponseMessage> GetEndpointsAsync(GetEndpointsMessage message)
+        {
+            var tcs = new TaskCompletionSource<GetEndpointsResponseMessage>();
+            BeginGetEndpoints(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<GetEndpointsResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndGetEndpoints(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region CreateSession Service
         #if (!OPCUA_EXCLUDE_CreateSession)
         /// <summary>
         /// Invokes the CreateSession service.
@@ -475,6 +560,7 @@ namespace Opc.Ua
                    out serverSignature,
                    out maxRequestMessageSize);
 
+
                 response.SessionId                  = sessionId;
                 response.AuthenticationToken        = authenticationToken;
                 response.RevisedSessionTimeout      = revisedSessionTimeout;
@@ -493,7 +579,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the CreateSession service.
         /// </summary>
@@ -507,6 +593,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (CreateSessionResponse)CreateSession(request.CreateSessionRequest);
+
                 // OnResponseSent(response);
                 return new CreateSessionResponseMessage(response);
             }
@@ -525,10 +612,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.CreateSessionRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.CreateSessionRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -563,11 +650,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region ActivateSession Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the CreateSession service.
+        /// </summary>
+        public virtual Task<CreateSessionResponseMessage> CreateSessionAsync(CreateSessionMessage message)
+        {
+            var tcs = new TaskCompletionSource<CreateSessionResponseMessage>();
+            BeginCreateSession(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<CreateSessionResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndCreateSession(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region ActivateSession Service
         #if (!OPCUA_EXCLUDE_ActivateSession)
         /// <summary>
         /// Invokes the ActivateSession service.
@@ -599,6 +710,7 @@ namespace Opc.Ua
                    out results,
                    out diagnosticInfos);
 
+
                 response.ServerNonce     = serverNonce;
                 response.Results         = results;
                 response.DiagnosticInfos = diagnosticInfos;
@@ -611,7 +723,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the ActivateSession service.
         /// </summary>
@@ -625,6 +737,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (ActivateSessionResponse)ActivateSession(request.ActivateSessionRequest);
+
                 // OnResponseSent(response);
                 return new ActivateSessionResponseMessage(response);
             }
@@ -643,10 +756,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.ActivateSessionRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.ActivateSessionRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -681,11 +794,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region CloseSession Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the ActivateSession service.
+        /// </summary>
+        public virtual Task<ActivateSessionResponseMessage> ActivateSessionAsync(ActivateSessionMessage message)
+        {
+            var tcs = new TaskCompletionSource<ActivateSessionResponseMessage>();
+            BeginActivateSession(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<ActivateSessionResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndActivateSession(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region CloseSession Service
         #if (!OPCUA_EXCLUDE_CloseSession)
         /// <summary>
         /// Invokes the CloseSession service.
@@ -707,6 +844,7 @@ namespace Opc.Ua
                    request.RequestHeader,
                    request.DeleteSubscriptions);
 
+
             }
             finally
             {
@@ -716,7 +854,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the CloseSession service.
         /// </summary>
@@ -730,6 +868,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (CloseSessionResponse)CloseSession(request.CloseSessionRequest);
+
                 // OnResponseSent(response);
                 return new CloseSessionResponseMessage(response);
             }
@@ -748,10 +887,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.CloseSessionRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.CloseSessionRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -786,11 +925,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region Cancel Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the CloseSession service.
+        /// </summary>
+        public virtual Task<CloseSessionResponseMessage> CloseSessionAsync(CloseSessionMessage message)
+        {
+            var tcs = new TaskCompletionSource<CloseSessionResponseMessage>();
+            BeginCloseSession(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<CloseSessionResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndCloseSession(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region Cancel Service
         #if (!OPCUA_EXCLUDE_Cancel)
         /// <summary>
         /// Invokes the Cancel service.
@@ -814,6 +977,7 @@ namespace Opc.Ua
                    request.RequestHandle,
                    out cancelCount);
 
+
                 response.CancelCount = cancelCount;
             }
             finally
@@ -824,7 +988,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the Cancel service.
         /// </summary>
@@ -838,6 +1002,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (CancelResponse)Cancel(request.CancelRequest);
+
                 // OnResponseSent(response);
                 return new CancelResponseMessage(response);
             }
@@ -856,10 +1021,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.CancelRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.CancelRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -894,11 +1059,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region AddNodes Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the Cancel service.
+        /// </summary>
+        public virtual Task<CancelResponseMessage> CancelAsync(CancelMessage message)
+        {
+            var tcs = new TaskCompletionSource<CancelResponseMessage>();
+            BeginCancel(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<CancelResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndCancel(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region AddNodes Service
         #if (!OPCUA_EXCLUDE_AddNodes)
         /// <summary>
         /// Invokes the AddNodes service.
@@ -924,6 +1113,7 @@ namespace Opc.Ua
                    out results,
                    out diagnosticInfos);
 
+
                 response.Results         = results;
                 response.DiagnosticInfos = diagnosticInfos;
             }
@@ -935,7 +1125,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the AddNodes service.
         /// </summary>
@@ -949,6 +1139,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (AddNodesResponse)AddNodes(request.AddNodesRequest);
+
                 // OnResponseSent(response);
                 return new AddNodesResponseMessage(response);
             }
@@ -967,10 +1158,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.AddNodesRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.AddNodesRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -1005,11 +1196,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region AddReferences Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the AddNodes service.
+        /// </summary>
+        public virtual Task<AddNodesResponseMessage> AddNodesAsync(AddNodesMessage message)
+        {
+            var tcs = new TaskCompletionSource<AddNodesResponseMessage>();
+            BeginAddNodes(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<AddNodesResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndAddNodes(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region AddReferences Service
         #if (!OPCUA_EXCLUDE_AddReferences)
         /// <summary>
         /// Invokes the AddReferences service.
@@ -1035,6 +1250,7 @@ namespace Opc.Ua
                    out results,
                    out diagnosticInfos);
 
+
                 response.Results         = results;
                 response.DiagnosticInfos = diagnosticInfos;
             }
@@ -1046,7 +1262,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the AddReferences service.
         /// </summary>
@@ -1060,6 +1276,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (AddReferencesResponse)AddReferences(request.AddReferencesRequest);
+
                 // OnResponseSent(response);
                 return new AddReferencesResponseMessage(response);
             }
@@ -1078,10 +1295,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.AddReferencesRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.AddReferencesRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -1116,11 +1333,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region DeleteNodes Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the AddReferences service.
+        /// </summary>
+        public virtual Task<AddReferencesResponseMessage> AddReferencesAsync(AddReferencesMessage message)
+        {
+            var tcs = new TaskCompletionSource<AddReferencesResponseMessage>();
+            BeginAddReferences(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<AddReferencesResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndAddReferences(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region DeleteNodes Service
         #if (!OPCUA_EXCLUDE_DeleteNodes)
         /// <summary>
         /// Invokes the DeleteNodes service.
@@ -1146,6 +1387,7 @@ namespace Opc.Ua
                    out results,
                    out diagnosticInfos);
 
+
                 response.Results         = results;
                 response.DiagnosticInfos = diagnosticInfos;
             }
@@ -1157,7 +1399,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the DeleteNodes service.
         /// </summary>
@@ -1171,6 +1413,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (DeleteNodesResponse)DeleteNodes(request.DeleteNodesRequest);
+
                 // OnResponseSent(response);
                 return new DeleteNodesResponseMessage(response);
             }
@@ -1189,10 +1432,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.DeleteNodesRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.DeleteNodesRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -1227,11 +1470,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region DeleteReferences Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the DeleteNodes service.
+        /// </summary>
+        public virtual Task<DeleteNodesResponseMessage> DeleteNodesAsync(DeleteNodesMessage message)
+        {
+            var tcs = new TaskCompletionSource<DeleteNodesResponseMessage>();
+            BeginDeleteNodes(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<DeleteNodesResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndDeleteNodes(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region DeleteReferences Service
         #if (!OPCUA_EXCLUDE_DeleteReferences)
         /// <summary>
         /// Invokes the DeleteReferences service.
@@ -1257,6 +1524,7 @@ namespace Opc.Ua
                    out results,
                    out diagnosticInfos);
 
+
                 response.Results         = results;
                 response.DiagnosticInfos = diagnosticInfos;
             }
@@ -1268,7 +1536,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the DeleteReferences service.
         /// </summary>
@@ -1282,6 +1550,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (DeleteReferencesResponse)DeleteReferences(request.DeleteReferencesRequest);
+
                 // OnResponseSent(response);
                 return new DeleteReferencesResponseMessage(response);
             }
@@ -1300,10 +1569,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.DeleteReferencesRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.DeleteReferencesRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -1338,11 +1607,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region Browse Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the DeleteReferences service.
+        /// </summary>
+        public virtual Task<DeleteReferencesResponseMessage> DeleteReferencesAsync(DeleteReferencesMessage message)
+        {
+            var tcs = new TaskCompletionSource<DeleteReferencesResponseMessage>();
+            BeginDeleteReferences(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<DeleteReferencesResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndDeleteReferences(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region Browse Service
         #if (!OPCUA_EXCLUDE_Browse)
         /// <summary>
         /// Invokes the Browse service.
@@ -1370,6 +1663,7 @@ namespace Opc.Ua
                    out results,
                    out diagnosticInfos);
 
+
                 response.Results         = results;
                 response.DiagnosticInfos = diagnosticInfos;
             }
@@ -1381,7 +1675,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the Browse service.
         /// </summary>
@@ -1395,6 +1689,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (BrowseResponse)Browse(request.BrowseRequest);
+
                 // OnResponseSent(response);
                 return new BrowseResponseMessage(response);
             }
@@ -1413,10 +1708,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.BrowseRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.BrowseRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -1451,11 +1746,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region BrowseNext Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the Browse service.
+        /// </summary>
+        public virtual Task<BrowseResponseMessage> BrowseAsync(BrowseMessage message)
+        {
+            var tcs = new TaskCompletionSource<BrowseResponseMessage>();
+            BeginBrowse(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<BrowseResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndBrowse(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region BrowseNext Service
         #if (!OPCUA_EXCLUDE_BrowseNext)
         /// <summary>
         /// Invokes the BrowseNext service.
@@ -1482,6 +1801,7 @@ namespace Opc.Ua
                    out results,
                    out diagnosticInfos);
 
+
                 response.Results         = results;
                 response.DiagnosticInfos = diagnosticInfos;
             }
@@ -1493,7 +1813,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the BrowseNext service.
         /// </summary>
@@ -1507,6 +1827,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (BrowseNextResponse)BrowseNext(request.BrowseNextRequest);
+
                 // OnResponseSent(response);
                 return new BrowseNextResponseMessage(response);
             }
@@ -1525,10 +1846,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.BrowseNextRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.BrowseNextRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -1563,11 +1884,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region TranslateBrowsePathsToNodeIds Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the BrowseNext service.
+        /// </summary>
+        public virtual Task<BrowseNextResponseMessage> BrowseNextAsync(BrowseNextMessage message)
+        {
+            var tcs = new TaskCompletionSource<BrowseNextResponseMessage>();
+            BeginBrowseNext(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<BrowseNextResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndBrowseNext(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region TranslateBrowsePathsToNodeIds Service
         #if (!OPCUA_EXCLUDE_TranslateBrowsePathsToNodeIds)
         /// <summary>
         /// Invokes the TranslateBrowsePathsToNodeIds service.
@@ -1593,6 +1938,7 @@ namespace Opc.Ua
                    out results,
                    out diagnosticInfos);
 
+
                 response.Results         = results;
                 response.DiagnosticInfos = diagnosticInfos;
             }
@@ -1604,7 +1950,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the TranslateBrowsePathsToNodeIds service.
         /// </summary>
@@ -1618,6 +1964,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (TranslateBrowsePathsToNodeIdsResponse)TranslateBrowsePathsToNodeIds(request.TranslateBrowsePathsToNodeIdsRequest);
+
                 // OnResponseSent(response);
                 return new TranslateBrowsePathsToNodeIdsResponseMessage(response);
             }
@@ -1636,10 +1983,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.TranslateBrowsePathsToNodeIdsRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.TranslateBrowsePathsToNodeIdsRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -1674,11 +2021,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region RegisterNodes Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the TranslateBrowsePathsToNodeIds service.
+        /// </summary>
+        public virtual Task<TranslateBrowsePathsToNodeIdsResponseMessage> TranslateBrowsePathsToNodeIdsAsync(TranslateBrowsePathsToNodeIdsMessage message)
+        {
+            var tcs = new TaskCompletionSource<TranslateBrowsePathsToNodeIdsResponseMessage>();
+            BeginTranslateBrowsePathsToNodeIds(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<TranslateBrowsePathsToNodeIdsResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndTranslateBrowsePathsToNodeIds(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region RegisterNodes Service
         #if (!OPCUA_EXCLUDE_RegisterNodes)
         /// <summary>
         /// Invokes the RegisterNodes service.
@@ -1702,6 +2073,7 @@ namespace Opc.Ua
                    request.NodesToRegister,
                    out registeredNodeIds);
 
+
                 response.RegisteredNodeIds = registeredNodeIds;
             }
             finally
@@ -1712,7 +2084,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the RegisterNodes service.
         /// </summary>
@@ -1726,6 +2098,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (RegisterNodesResponse)RegisterNodes(request.RegisterNodesRequest);
+
                 // OnResponseSent(response);
                 return new RegisterNodesResponseMessage(response);
             }
@@ -1744,10 +2117,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.RegisterNodesRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.RegisterNodesRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -1782,11 +2155,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region UnregisterNodes Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the RegisterNodes service.
+        /// </summary>
+        public virtual Task<RegisterNodesResponseMessage> RegisterNodesAsync(RegisterNodesMessage message)
+        {
+            var tcs = new TaskCompletionSource<RegisterNodesResponseMessage>();
+            BeginRegisterNodes(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<RegisterNodesResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndRegisterNodes(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region UnregisterNodes Service
         #if (!OPCUA_EXCLUDE_UnregisterNodes)
         /// <summary>
         /// Invokes the UnregisterNodes service.
@@ -1808,6 +2205,7 @@ namespace Opc.Ua
                    request.RequestHeader,
                    request.NodesToUnregister);
 
+
             }
             finally
             {
@@ -1817,7 +2215,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the UnregisterNodes service.
         /// </summary>
@@ -1831,6 +2229,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (UnregisterNodesResponse)UnregisterNodes(request.UnregisterNodesRequest);
+
                 // OnResponseSent(response);
                 return new UnregisterNodesResponseMessage(response);
             }
@@ -1849,10 +2248,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.UnregisterNodesRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.UnregisterNodesRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -1887,11 +2286,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region QueryFirst Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the UnregisterNodes service.
+        /// </summary>
+        public virtual Task<UnregisterNodesResponseMessage> UnregisterNodesAsync(UnregisterNodesMessage message)
+        {
+            var tcs = new TaskCompletionSource<UnregisterNodesResponseMessage>();
+            BeginUnregisterNodes(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<UnregisterNodesResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndUnregisterNodes(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region QueryFirst Service
         #if (!OPCUA_EXCLUDE_QueryFirst)
         /// <summary>
         /// Invokes the QueryFirst service.
@@ -1927,6 +2350,7 @@ namespace Opc.Ua
                    out diagnosticInfos,
                    out filterResult);
 
+
                 response.QueryDataSets     = queryDataSets;
                 response.ContinuationPoint = continuationPoint;
                 response.ParsingResults    = parsingResults;
@@ -1941,7 +2365,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the QueryFirst service.
         /// </summary>
@@ -1955,6 +2379,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (QueryFirstResponse)QueryFirst(request.QueryFirstRequest);
+
                 // OnResponseSent(response);
                 return new QueryFirstResponseMessage(response);
             }
@@ -1973,10 +2398,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.QueryFirstRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.QueryFirstRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -2011,11 +2436,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region QueryNext Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the QueryFirst service.
+        /// </summary>
+        public virtual Task<QueryFirstResponseMessage> QueryFirstAsync(QueryFirstMessage message)
+        {
+            var tcs = new TaskCompletionSource<QueryFirstResponseMessage>();
+            BeginQueryFirst(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<QueryFirstResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndQueryFirst(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region QueryNext Service
         #if (!OPCUA_EXCLUDE_QueryNext)
         /// <summary>
         /// Invokes the QueryNext service.
@@ -2042,6 +2491,7 @@ namespace Opc.Ua
                    out queryDataSets,
                    out revisedContinuationPoint);
 
+
                 response.QueryDataSets            = queryDataSets;
                 response.RevisedContinuationPoint = revisedContinuationPoint;
             }
@@ -2053,7 +2503,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the QueryNext service.
         /// </summary>
@@ -2067,6 +2517,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (QueryNextResponse)QueryNext(request.QueryNextRequest);
+
                 // OnResponseSent(response);
                 return new QueryNextResponseMessage(response);
             }
@@ -2085,10 +2536,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.QueryNextRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.QueryNextRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -2123,11 +2574,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region Read Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the QueryNext service.
+        /// </summary>
+        public virtual Task<QueryNextResponseMessage> QueryNextAsync(QueryNextMessage message)
+        {
+            var tcs = new TaskCompletionSource<QueryNextResponseMessage>();
+            BeginQueryNext(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<QueryNextResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndQueryNext(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region Read Service
         #if (!OPCUA_EXCLUDE_Read)
         /// <summary>
         /// Invokes the Read service.
@@ -2155,6 +2630,7 @@ namespace Opc.Ua
                    out results,
                    out diagnosticInfos);
 
+
                 response.Results         = results;
                 response.DiagnosticInfos = diagnosticInfos;
             }
@@ -2166,7 +2642,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the Read service.
         /// </summary>
@@ -2180,6 +2656,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (ReadResponse)Read(request.ReadRequest);
+
                 // OnResponseSent(response);
                 return new ReadResponseMessage(response);
             }
@@ -2198,10 +2675,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.ReadRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.ReadRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -2236,11 +2713,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region HistoryRead Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the Read service.
+        /// </summary>
+        public virtual Task<ReadResponseMessage> ReadAsync(ReadMessage message)
+        {
+            var tcs = new TaskCompletionSource<ReadResponseMessage>();
+            BeginRead(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<ReadResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndRead(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region HistoryRead Service
         #if (!OPCUA_EXCLUDE_HistoryRead)
         /// <summary>
         /// Invokes the HistoryRead service.
@@ -2269,6 +2770,7 @@ namespace Opc.Ua
                    out results,
                    out diagnosticInfos);
 
+
                 response.Results         = results;
                 response.DiagnosticInfos = diagnosticInfos;
             }
@@ -2280,7 +2782,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the HistoryRead service.
         /// </summary>
@@ -2294,6 +2796,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (HistoryReadResponse)HistoryRead(request.HistoryReadRequest);
+
                 // OnResponseSent(response);
                 return new HistoryReadResponseMessage(response);
             }
@@ -2312,10 +2815,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.HistoryReadRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.HistoryReadRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -2350,11 +2853,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region Write Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the HistoryRead service.
+        /// </summary>
+        public virtual Task<HistoryReadResponseMessage> HistoryReadAsync(HistoryReadMessage message)
+        {
+            var tcs = new TaskCompletionSource<HistoryReadResponseMessage>();
+            BeginHistoryRead(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<HistoryReadResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndHistoryRead(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region Write Service
         #if (!OPCUA_EXCLUDE_Write)
         /// <summary>
         /// Invokes the Write service.
@@ -2380,6 +2907,7 @@ namespace Opc.Ua
                    out results,
                    out diagnosticInfos);
 
+
                 response.Results         = results;
                 response.DiagnosticInfos = diagnosticInfos;
             }
@@ -2391,7 +2919,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the Write service.
         /// </summary>
@@ -2405,6 +2933,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (WriteResponse)Write(request.WriteRequest);
+
                 // OnResponseSent(response);
                 return new WriteResponseMessage(response);
             }
@@ -2423,10 +2952,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.WriteRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.WriteRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -2461,11 +2990,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region HistoryUpdate Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the Write service.
+        /// </summary>
+        public virtual Task<WriteResponseMessage> WriteAsync(WriteMessage message)
+        {
+            var tcs = new TaskCompletionSource<WriteResponseMessage>();
+            BeginWrite(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<WriteResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndWrite(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region HistoryUpdate Service
         #if (!OPCUA_EXCLUDE_HistoryUpdate)
         /// <summary>
         /// Invokes the HistoryUpdate service.
@@ -2491,6 +3044,7 @@ namespace Opc.Ua
                    out results,
                    out diagnosticInfos);
 
+
                 response.Results         = results;
                 response.DiagnosticInfos = diagnosticInfos;
             }
@@ -2502,7 +3056,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the HistoryUpdate service.
         /// </summary>
@@ -2516,6 +3070,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (HistoryUpdateResponse)HistoryUpdate(request.HistoryUpdateRequest);
+
                 // OnResponseSent(response);
                 return new HistoryUpdateResponseMessage(response);
             }
@@ -2534,10 +3089,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.HistoryUpdateRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.HistoryUpdateRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -2572,11 +3127,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region Call Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the HistoryUpdate service.
+        /// </summary>
+        public virtual Task<HistoryUpdateResponseMessage> HistoryUpdateAsync(HistoryUpdateMessage message)
+        {
+            var tcs = new TaskCompletionSource<HistoryUpdateResponseMessage>();
+            BeginHistoryUpdate(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<HistoryUpdateResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndHistoryUpdate(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region Call Service
         #if (!OPCUA_EXCLUDE_Call)
         /// <summary>
         /// Invokes the Call service.
@@ -2602,6 +3181,7 @@ namespace Opc.Ua
                    out results,
                    out diagnosticInfos);
 
+
                 response.Results         = results;
                 response.DiagnosticInfos = diagnosticInfos;
             }
@@ -2613,7 +3193,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the Call service.
         /// </summary>
@@ -2627,6 +3207,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (CallResponse)Call(request.CallRequest);
+
                 // OnResponseSent(response);
                 return new CallResponseMessage(response);
             }
@@ -2645,10 +3226,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.CallRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.CallRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -2683,11 +3264,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region CreateMonitoredItems Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the Call service.
+        /// </summary>
+        public virtual Task<CallResponseMessage> CallAsync(CallMessage message)
+        {
+            var tcs = new TaskCompletionSource<CallResponseMessage>();
+            BeginCall(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<CallResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndCall(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region CreateMonitoredItems Service
         #if (!OPCUA_EXCLUDE_CreateMonitoredItems)
         /// <summary>
         /// Invokes the CreateMonitoredItems service.
@@ -2715,6 +3320,7 @@ namespace Opc.Ua
                    out results,
                    out diagnosticInfos);
 
+
                 response.Results         = results;
                 response.DiagnosticInfos = diagnosticInfos;
             }
@@ -2726,7 +3332,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the CreateMonitoredItems service.
         /// </summary>
@@ -2740,6 +3346,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (CreateMonitoredItemsResponse)CreateMonitoredItems(request.CreateMonitoredItemsRequest);
+
                 // OnResponseSent(response);
                 return new CreateMonitoredItemsResponseMessage(response);
             }
@@ -2758,10 +3365,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.CreateMonitoredItemsRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.CreateMonitoredItemsRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -2796,11 +3403,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region ModifyMonitoredItems Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the CreateMonitoredItems service.
+        /// </summary>
+        public virtual Task<CreateMonitoredItemsResponseMessage> CreateMonitoredItemsAsync(CreateMonitoredItemsMessage message)
+        {
+            var tcs = new TaskCompletionSource<CreateMonitoredItemsResponseMessage>();
+            BeginCreateMonitoredItems(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<CreateMonitoredItemsResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndCreateMonitoredItems(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region ModifyMonitoredItems Service
         #if (!OPCUA_EXCLUDE_ModifyMonitoredItems)
         /// <summary>
         /// Invokes the ModifyMonitoredItems service.
@@ -2828,6 +3459,7 @@ namespace Opc.Ua
                    out results,
                    out diagnosticInfos);
 
+
                 response.Results         = results;
                 response.DiagnosticInfos = diagnosticInfos;
             }
@@ -2839,7 +3471,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the ModifyMonitoredItems service.
         /// </summary>
@@ -2853,6 +3485,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (ModifyMonitoredItemsResponse)ModifyMonitoredItems(request.ModifyMonitoredItemsRequest);
+
                 // OnResponseSent(response);
                 return new ModifyMonitoredItemsResponseMessage(response);
             }
@@ -2871,10 +3504,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.ModifyMonitoredItemsRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.ModifyMonitoredItemsRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -2909,11 +3542,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region SetMonitoringMode Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the ModifyMonitoredItems service.
+        /// </summary>
+        public virtual Task<ModifyMonitoredItemsResponseMessage> ModifyMonitoredItemsAsync(ModifyMonitoredItemsMessage message)
+        {
+            var tcs = new TaskCompletionSource<ModifyMonitoredItemsResponseMessage>();
+            BeginModifyMonitoredItems(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<ModifyMonitoredItemsResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndModifyMonitoredItems(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region SetMonitoringMode Service
         #if (!OPCUA_EXCLUDE_SetMonitoringMode)
         /// <summary>
         /// Invokes the SetMonitoringMode service.
@@ -2941,6 +3598,7 @@ namespace Opc.Ua
                    out results,
                    out diagnosticInfos);
 
+
                 response.Results         = results;
                 response.DiagnosticInfos = diagnosticInfos;
             }
@@ -2952,7 +3610,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the SetMonitoringMode service.
         /// </summary>
@@ -2966,6 +3624,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (SetMonitoringModeResponse)SetMonitoringMode(request.SetMonitoringModeRequest);
+
                 // OnResponseSent(response);
                 return new SetMonitoringModeResponseMessage(response);
             }
@@ -2984,10 +3643,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.SetMonitoringModeRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.SetMonitoringModeRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -3022,11 +3681,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region SetTriggering Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the SetMonitoringMode service.
+        /// </summary>
+        public virtual Task<SetMonitoringModeResponseMessage> SetMonitoringModeAsync(SetMonitoringModeMessage message)
+        {
+            var tcs = new TaskCompletionSource<SetMonitoringModeResponseMessage>();
+            BeginSetMonitoringMode(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<SetMonitoringModeResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndSetMonitoringMode(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region SetTriggering Service
         #if (!OPCUA_EXCLUDE_SetTriggering)
         /// <summary>
         /// Invokes the SetTriggering service.
@@ -3059,6 +3742,7 @@ namespace Opc.Ua
                    out removeResults,
                    out removeDiagnosticInfos);
 
+
                 response.AddResults            = addResults;
                 response.AddDiagnosticInfos    = addDiagnosticInfos;
                 response.RemoveResults         = removeResults;
@@ -3072,7 +3756,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the SetTriggering service.
         /// </summary>
@@ -3086,6 +3770,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (SetTriggeringResponse)SetTriggering(request.SetTriggeringRequest);
+
                 // OnResponseSent(response);
                 return new SetTriggeringResponseMessage(response);
             }
@@ -3104,10 +3789,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.SetTriggeringRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.SetTriggeringRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -3142,11 +3827,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region DeleteMonitoredItems Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the SetTriggering service.
+        /// </summary>
+        public virtual Task<SetTriggeringResponseMessage> SetTriggeringAsync(SetTriggeringMessage message)
+        {
+            var tcs = new TaskCompletionSource<SetTriggeringResponseMessage>();
+            BeginSetTriggering(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<SetTriggeringResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndSetTriggering(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region DeleteMonitoredItems Service
         #if (!OPCUA_EXCLUDE_DeleteMonitoredItems)
         /// <summary>
         /// Invokes the DeleteMonitoredItems service.
@@ -3173,6 +3882,7 @@ namespace Opc.Ua
                    out results,
                    out diagnosticInfos);
 
+
                 response.Results         = results;
                 response.DiagnosticInfos = diagnosticInfos;
             }
@@ -3184,7 +3894,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the DeleteMonitoredItems service.
         /// </summary>
@@ -3198,6 +3908,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (DeleteMonitoredItemsResponse)DeleteMonitoredItems(request.DeleteMonitoredItemsRequest);
+
                 // OnResponseSent(response);
                 return new DeleteMonitoredItemsResponseMessage(response);
             }
@@ -3216,10 +3927,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.DeleteMonitoredItemsRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.DeleteMonitoredItemsRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -3254,11 +3965,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region CreateSubscription Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the DeleteMonitoredItems service.
+        /// </summary>
+        public virtual Task<DeleteMonitoredItemsResponseMessage> DeleteMonitoredItemsAsync(DeleteMonitoredItemsMessage message)
+        {
+            var tcs = new TaskCompletionSource<DeleteMonitoredItemsResponseMessage>();
+            BeginDeleteMonitoredItems(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<DeleteMonitoredItemsResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndDeleteMonitoredItems(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region CreateSubscription Service
         #if (!OPCUA_EXCLUDE_CreateSubscription)
         /// <summary>
         /// Invokes the CreateSubscription service.
@@ -3293,6 +4028,7 @@ namespace Opc.Ua
                    out revisedLifetimeCount,
                    out revisedMaxKeepAliveCount);
 
+
                 response.SubscriptionId            = subscriptionId;
                 response.RevisedPublishingInterval = revisedPublishingInterval;
                 response.RevisedLifetimeCount      = revisedLifetimeCount;
@@ -3306,7 +4042,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the CreateSubscription service.
         /// </summary>
@@ -3320,6 +4056,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (CreateSubscriptionResponse)CreateSubscription(request.CreateSubscriptionRequest);
+
                 // OnResponseSent(response);
                 return new CreateSubscriptionResponseMessage(response);
             }
@@ -3338,10 +4075,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.CreateSubscriptionRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.CreateSubscriptionRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -3376,11 +4113,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region ModifySubscription Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the CreateSubscription service.
+        /// </summary>
+        public virtual Task<CreateSubscriptionResponseMessage> CreateSubscriptionAsync(CreateSubscriptionMessage message)
+        {
+            var tcs = new TaskCompletionSource<CreateSubscriptionResponseMessage>();
+            BeginCreateSubscription(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<CreateSubscriptionResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndCreateSubscription(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region ModifySubscription Service
         #if (!OPCUA_EXCLUDE_ModifySubscription)
         /// <summary>
         /// Invokes the ModifySubscription service.
@@ -3413,6 +4174,7 @@ namespace Opc.Ua
                    out revisedLifetimeCount,
                    out revisedMaxKeepAliveCount);
 
+
                 response.RevisedPublishingInterval = revisedPublishingInterval;
                 response.RevisedLifetimeCount      = revisedLifetimeCount;
                 response.RevisedMaxKeepAliveCount  = revisedMaxKeepAliveCount;
@@ -3425,7 +4187,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the ModifySubscription service.
         /// </summary>
@@ -3439,6 +4201,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (ModifySubscriptionResponse)ModifySubscription(request.ModifySubscriptionRequest);
+
                 // OnResponseSent(response);
                 return new ModifySubscriptionResponseMessage(response);
             }
@@ -3457,10 +4220,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.ModifySubscriptionRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.ModifySubscriptionRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -3495,11 +4258,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region SetPublishingMode Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the ModifySubscription service.
+        /// </summary>
+        public virtual Task<ModifySubscriptionResponseMessage> ModifySubscriptionAsync(ModifySubscriptionMessage message)
+        {
+            var tcs = new TaskCompletionSource<ModifySubscriptionResponseMessage>();
+            BeginModifySubscription(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<ModifySubscriptionResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndModifySubscription(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region SetPublishingMode Service
         #if (!OPCUA_EXCLUDE_SetPublishingMode)
         /// <summary>
         /// Invokes the SetPublishingMode service.
@@ -3526,6 +4313,7 @@ namespace Opc.Ua
                    out results,
                    out diagnosticInfos);
 
+
                 response.Results         = results;
                 response.DiagnosticInfos = diagnosticInfos;
             }
@@ -3537,7 +4325,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the SetPublishingMode service.
         /// </summary>
@@ -3551,6 +4339,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (SetPublishingModeResponse)SetPublishingMode(request.SetPublishingModeRequest);
+
                 // OnResponseSent(response);
                 return new SetPublishingModeResponseMessage(response);
             }
@@ -3569,10 +4358,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.SetPublishingModeRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.SetPublishingModeRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -3607,11 +4396,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region Publish Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the SetPublishingMode service.
+        /// </summary>
+        public virtual Task<SetPublishingModeResponseMessage> SetPublishingModeAsync(SetPublishingModeMessage message)
+        {
+            var tcs = new TaskCompletionSource<SetPublishingModeResponseMessage>();
+            BeginSetPublishingMode(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<SetPublishingModeResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndSetPublishingMode(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region Publish Service
         #if (!OPCUA_EXCLUDE_Publish)
         /// <summary>
         /// Invokes the Publish service.
@@ -3645,6 +4458,7 @@ namespace Opc.Ua
                    out results,
                    out diagnosticInfos);
 
+
                 response.SubscriptionId           = subscriptionId;
                 response.AvailableSequenceNumbers = availableSequenceNumbers;
                 response.MoreNotifications        = moreNotifications;
@@ -3660,7 +4474,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the Publish service.
         /// </summary>
@@ -3674,6 +4488,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (PublishResponse)Publish(request.PublishRequest);
+
                 // OnResponseSent(response);
                 return new PublishResponseMessage(response);
             }
@@ -3692,10 +4507,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.PublishRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.PublishRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -3730,11 +4545,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region Republish Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the Publish service.
+        /// </summary>
+        public virtual Task<PublishResponseMessage> PublishAsync(PublishMessage message)
+        {
+            var tcs = new TaskCompletionSource<PublishResponseMessage>();
+            BeginPublish(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<PublishResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndPublish(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region Republish Service
         #if (!OPCUA_EXCLUDE_Republish)
         /// <summary>
         /// Invokes the Republish service.
@@ -3759,6 +4598,7 @@ namespace Opc.Ua
                    request.RetransmitSequenceNumber,
                    out notificationMessage);
 
+
                 response.NotificationMessage = notificationMessage;
             }
             finally
@@ -3769,7 +4609,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the Republish service.
         /// </summary>
@@ -3783,6 +4623,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (RepublishResponse)Republish(request.RepublishRequest);
+
                 // OnResponseSent(response);
                 return new RepublishResponseMessage(response);
             }
@@ -3801,10 +4642,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.RepublishRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.RepublishRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -3839,11 +4680,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region TransferSubscriptions Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the Republish service.
+        /// </summary>
+        public virtual Task<RepublishResponseMessage> RepublishAsync(RepublishMessage message)
+        {
+            var tcs = new TaskCompletionSource<RepublishResponseMessage>();
+            BeginRepublish(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<RepublishResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndRepublish(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region TransferSubscriptions Service
         #if (!OPCUA_EXCLUDE_TransferSubscriptions)
         /// <summary>
         /// Invokes the TransferSubscriptions service.
@@ -3870,6 +4735,7 @@ namespace Opc.Ua
                    out results,
                    out diagnosticInfos);
 
+
                 response.Results         = results;
                 response.DiagnosticInfos = diagnosticInfos;
             }
@@ -3881,7 +4747,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the TransferSubscriptions service.
         /// </summary>
@@ -3895,6 +4761,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (TransferSubscriptionsResponse)TransferSubscriptions(request.TransferSubscriptionsRequest);
+
                 // OnResponseSent(response);
                 return new TransferSubscriptionsResponseMessage(response);
             }
@@ -3913,10 +4780,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.TransferSubscriptionsRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.TransferSubscriptionsRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -3951,11 +4818,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region DeleteSubscriptions Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the TransferSubscriptions service.
+        /// </summary>
+        public virtual Task<TransferSubscriptionsResponseMessage> TransferSubscriptionsAsync(TransferSubscriptionsMessage message)
+        {
+            var tcs = new TaskCompletionSource<TransferSubscriptionsResponseMessage>();
+            BeginTransferSubscriptions(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<TransferSubscriptionsResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndTransferSubscriptions(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region DeleteSubscriptions Service
         #if (!OPCUA_EXCLUDE_DeleteSubscriptions)
         /// <summary>
         /// Invokes the DeleteSubscriptions service.
@@ -3981,6 +4872,7 @@ namespace Opc.Ua
                    out results,
                    out diagnosticInfos);
 
+
                 response.Results         = results;
                 response.DiagnosticInfos = diagnosticInfos;
             }
@@ -3992,7 +4884,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the DeleteSubscriptions service.
         /// </summary>
@@ -4006,6 +4898,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (DeleteSubscriptionsResponse)DeleteSubscriptions(request.DeleteSubscriptionsRequest);
+
                 // OnResponseSent(response);
                 return new DeleteSubscriptionsResponseMessage(response);
             }
@@ -4024,10 +4917,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.DeleteSubscriptionsRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.DeleteSubscriptionsRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -4062,9 +4955,33 @@ namespace Opc.Ua
                 throw fault;
             }
         }
+
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the DeleteSubscriptions service.
+        /// </summary>
+        public virtual Task<DeleteSubscriptionsResponseMessage> DeleteSubscriptionsAsync(DeleteSubscriptionsMessage message)
+        {
+            var tcs = new TaskCompletionSource<DeleteSubscriptionsResponseMessage>();
+            BeginDeleteSubscriptions(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<DeleteSubscriptionsResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndDeleteSubscriptions(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
         #endif
         #endif
-        #endregion
+        #endif
+            #endregion
         #endregion
 
         #region Protected Members
@@ -4189,7 +5106,7 @@ namespace Opc.Ua
     /// </summary>
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.CodeGenerator", "1.0.0.0")]
-    #if !NET_STANDARD
+    #if (!NET_STANDARD)
     [ServiceMessageContextBehavior()]
     [ServiceBehavior(Namespace = Namespaces.OpcUaWsdl, InstanceContextMode=InstanceContextMode.PerSession, ConcurrencyMode=ConcurrencyMode.Multiple)]
     #endif
@@ -4241,7 +5158,7 @@ namespace Opc.Ua
         #endregion
 
         #region IDiscoveryEndpoint Members
-        #region FindServers Service
+            #region FindServers Service
         #if (!OPCUA_EXCLUDE_FindServers)
         /// <summary>
         /// Invokes the FindServers service.
@@ -4267,6 +5184,7 @@ namespace Opc.Ua
                    request.ServerUris,
                    out servers);
 
+
                 response.Servers = servers;
             }
             finally
@@ -4277,7 +5195,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the FindServers service.
         /// </summary>
@@ -4291,6 +5209,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (FindServersResponse)FindServers(request.FindServersRequest);
+
                 // OnResponseSent(response);
                 return new FindServersResponseMessage(response);
             }
@@ -4309,10 +5228,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.FindServersRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.FindServersRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -4347,11 +5266,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region FindServersOnNetwork Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the FindServers service.
+        /// </summary>
+        public virtual Task<FindServersResponseMessage> FindServersAsync(FindServersMessage message)
+        {
+            var tcs = new TaskCompletionSource<FindServersResponseMessage>();
+            BeginFindServers(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<FindServersResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndFindServers(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region FindServersOnNetwork Service
         #if (!OPCUA_EXCLUDE_FindServersOnNetwork)
         /// <summary>
         /// Invokes the FindServersOnNetwork service.
@@ -4379,6 +5322,7 @@ namespace Opc.Ua
                    out lastCounterResetTime,
                    out servers);
 
+
                 response.LastCounterResetTime = lastCounterResetTime;
                 response.Servers              = servers;
             }
@@ -4390,7 +5334,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the FindServersOnNetwork service.
         /// </summary>
@@ -4404,6 +5348,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (FindServersOnNetworkResponse)FindServersOnNetwork(request.FindServersOnNetworkRequest);
+
                 // OnResponseSent(response);
                 return new FindServersOnNetworkResponseMessage(response);
             }
@@ -4422,10 +5367,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.FindServersOnNetworkRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.FindServersOnNetworkRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -4460,11 +5405,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region GetEndpoints Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the FindServersOnNetwork service.
+        /// </summary>
+        public virtual Task<FindServersOnNetworkResponseMessage> FindServersOnNetworkAsync(FindServersOnNetworkMessage message)
+        {
+            var tcs = new TaskCompletionSource<FindServersOnNetworkResponseMessage>();
+            BeginFindServersOnNetwork(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<FindServersOnNetworkResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndFindServersOnNetwork(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region GetEndpoints Service
         #if (!OPCUA_EXCLUDE_GetEndpoints)
         /// <summary>
         /// Invokes the GetEndpoints service.
@@ -4490,6 +5459,7 @@ namespace Opc.Ua
                    request.ProfileUris,
                    out endpoints);
 
+
                 response.Endpoints = endpoints;
             }
             finally
@@ -4500,7 +5470,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the GetEndpoints service.
         /// </summary>
@@ -4514,6 +5484,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (GetEndpointsResponse)GetEndpoints(request.GetEndpointsRequest);
+
                 // OnResponseSent(response);
                 return new GetEndpointsResponseMessage(response);
             }
@@ -4532,10 +5503,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.GetEndpointsRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.GetEndpointsRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -4570,11 +5541,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region RegisterServer Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the GetEndpoints service.
+        /// </summary>
+        public virtual Task<GetEndpointsResponseMessage> GetEndpointsAsync(GetEndpointsMessage message)
+        {
+            var tcs = new TaskCompletionSource<GetEndpointsResponseMessage>();
+            BeginGetEndpoints(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<GetEndpointsResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndGetEndpoints(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region RegisterServer Service
         #if (!OPCUA_EXCLUDE_RegisterServer)
         /// <summary>
         /// Invokes the RegisterServer service.
@@ -4596,6 +5591,7 @@ namespace Opc.Ua
                    request.RequestHeader,
                    request.Server);
 
+
             }
             finally
             {
@@ -4605,7 +5601,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the RegisterServer service.
         /// </summary>
@@ -4619,6 +5615,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (RegisterServerResponse)RegisterServer(request.RegisterServerRequest);
+
                 // OnResponseSent(response);
                 return new RegisterServerResponseMessage(response);
             }
@@ -4637,10 +5634,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.RegisterServerRequest);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.RegisterServerRequest);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -4675,11 +5672,35 @@ namespace Opc.Ua
                 throw fault;
             }
         }
-        #endif
-        #endif
-        #endregion
 
-        #region RegisterServer2 Service
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the RegisterServer service.
+        /// </summary>
+        public virtual Task<RegisterServerResponseMessage> RegisterServerAsync(RegisterServerMessage message)
+        {
+            var tcs = new TaskCompletionSource<RegisterServerResponseMessage>();
+            BeginRegisterServer(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<RegisterServerResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndRegisterServer(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
+        #endif
+        #endif
+        #endif
+            #endregion
+
+            #region RegisterServer2 Service
         #if (!OPCUA_EXCLUDE_RegisterServer2)
         /// <summary>
         /// Invokes the RegisterServer2 service.
@@ -4706,6 +5727,7 @@ namespace Opc.Ua
                    out configurationResults,
                    out diagnosticInfos);
 
+
                 response.ConfigurationResults = configurationResults;
                 response.DiagnosticInfos      = diagnosticInfos;
             }
@@ -4717,7 +5739,7 @@ namespace Opc.Ua
             return response;
         }
 
-        #if OPCUA_USE_SYNCHRONOUS_ENDPOINTS
+        #if (OPCUA_USE_SYNCHRONOUS_ENDPOINTS)
         /// <summary>
         /// The operation contract for the RegisterServer2 service.
         /// </summary>
@@ -4731,6 +5753,7 @@ namespace Opc.Ua
 
                 SetRequestContext(RequestEncoding.Xml);
                 response = (RegisterServer2Response)RegisterServer2(request.RegisterServer2Request);
+
                 // OnResponseSent(response);
                 return new RegisterServer2ResponseMessage(response);
             }
@@ -4749,10 +5772,10 @@ namespace Opc.Ua
         {
             try
             {
-                OnRequestReceived(message.RegisterServer2Request);
-
                 // check for bad data.
-                if (message == null) throw new ArgumentNullException("message");
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                OnRequestReceived(message.RegisterServer2Request);
 
                 // set the request context.
                 SetRequestContext(RequestEncoding.Xml);
@@ -4787,9 +5810,33 @@ namespace Opc.Ua
                 throw fault;
             }
         }
+
+        #if (NET_STANDARD_ASYNC)
+        /// <summary>
+        /// Asynchronously calls the RegisterServer2 service.
+        /// </summary>
+        public virtual Task<RegisterServer2ResponseMessage> RegisterServer2Async(RegisterServer2Message message)
+        {
+            var tcs = new TaskCompletionSource<RegisterServer2ResponseMessage>();
+            BeginRegisterServer2(message, 
+                new AsyncCallback((result) => 
+                {
+                    var completion = (System.Threading.Tasks.TaskCompletionSource<RegisterServer2ResponseMessage>)result.AsyncState;
+                    try 
+                    {
+                        completion.SetResult(EndRegisterServer2(result));
+                    }
+                    catch(Exception ex)
+                    {
+                        completion.SetException(ex);
+                    }
+                }), tcs);
+            return tcs.Task;
+        }
         #endif
         #endif
-        #endregion
+        #endif
+            #endregion
         #endregion
 
         #region Protected Members

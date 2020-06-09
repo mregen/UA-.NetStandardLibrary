@@ -11,6 +11,8 @@
 */
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Opc.Ua.Bindings
 {
@@ -64,7 +66,10 @@ namespace Opc.Ua.Bindings
         /// <summary>
         /// A masking indicating which features are implemented.
         /// </summary>
-        public TransportChannelFeatures SupportedFeatures => TransportChannelFeatures.Open | TransportChannelFeatures.BeginOpen | TransportChannelFeatures.Reconnect | TransportChannelFeatures.BeginSendRequest;
+        public TransportChannelFeatures SupportedFeatures =>
+            TransportChannelFeatures.Open | TransportChannelFeatures.BeginOpen |
+            TransportChannelFeatures.Reconnect | TransportChannelFeatures.BeginSendRequest |
+            TransportChannelFeatures.SendRequestAsync | TransportChannelFeatures.ReverseConnect;
 
         /// <summary>
         /// Gets the description for the endpoint used by the channel.
@@ -335,6 +340,12 @@ namespace Opc.Ua.Bindings
         {
             IAsyncResult result = BeginSendRequest(request, null, null);
             return EndSendRequest(result);
+        }
+
+        /// <inheritdoc/>
+        public Task<IServiceResponse> SendRequestAsync(IServiceRequest request, CancellationToken ct)
+        {
+            return Task.Factory.FromAsync(BeginSendRequest(request, null, null), EndSendRequest);
         }
 
         /// <summary>

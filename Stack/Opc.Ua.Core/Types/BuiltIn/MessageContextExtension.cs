@@ -16,7 +16,7 @@ namespace Opc.Ua
 {
     #region MessageContextExtension Class
     /// <summary>
-    /// Uses to add the service message context to the WCF operation context.
+    /// Uses to add the service message context to the operation context.
     /// </summary>
     public class MessageContextExtension : IExtension<OperationContext>
     {
@@ -29,7 +29,7 @@ namespace Opc.Ua
         }
 
         /// <summary>
-        /// Returns the message context associated with the current WCF operation context.
+        /// Returns the message context associated with the current operation context.
         /// </summary>
         public static MessageContextExtension Current
         {
@@ -47,7 +47,7 @@ namespace Opc.Ua
         }
 
         /// <summary>
-        /// Returns the message context associated with the current WCF operation context.
+        /// Returns the message context associated with the current operation context.
         /// </summary>
         public static ServiceMessageContext CurrentContext
         {

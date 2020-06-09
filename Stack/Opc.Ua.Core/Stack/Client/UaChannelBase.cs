@@ -13,6 +13,8 @@
 using System;
 using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel;
+using System.Threading;
+using System.Threading.Tasks;
 using Opc.Ua.Bindings;
 
 namespace Opc.Ua
@@ -144,7 +146,7 @@ namespace Opc.Ua
                     return m_uaBypassChannel.SupportedFeatures;
                 }
 
-                return TransportChannelFeatures.Reconnect | TransportChannelFeatures.BeginSendRequest | TransportChannelFeatures.BeginClose;
+                return TransportChannelFeatures.Reconnect | TransportChannelFeatures.BeginSendRequest | TransportChannelFeatures.BeginClose | TransportChannelFeatures.SendRequestAsync;
             }
         }
 
@@ -440,6 +442,12 @@ namespace Opc.Ua
             InvokeServiceResponseMessage responseMessage = EndInvokeService(result);
             return (IServiceResponse)BinaryDecoder.DecodeMessage(responseMessage.InvokeServiceResponse, null, m_messageContext);
 #endif
+        }
+
+        /// <inheritdoc/>
+        public Task<IServiceResponse> SendRequestAsync(IServiceRequest request, CancellationToken ct)
+        {
+            return Task.Factory.FromAsync<IServiceRequest, IServiceResponse>(BeginSendRequest, EndSendRequest, request, null);
         }
 
         /// <summary>
@@ -856,24 +864,6 @@ namespace Opc.Ua
                     serverCertificate,
                     BinaryEncodingSupport.Optional);
         }
-
-        /// <summary>
-        /// Converts a FaultException into a ServiceResultException.
-        /// </summary>
-        public ServiceResultException HandleSoapFault(System.ServiceModel.FaultException<ServiceFault> exception)
-        {
-            if (exception == null || exception.Detail == null || exception.Detail.ResponseHeader == null)
-            {
-                return ServiceResultException.Create(StatusCodes.BadUnexpectedError, exception, "SOAP fault did not contain any details.");
-            }
-
-            ResponseHeader header = exception.Detail.ResponseHeader;
-
-            return new ServiceResultException(new ServiceResult(
-                header.ServiceResult,
-                header.ServiceDiagnostics,
-                header.StringTable));
-        }
         #endregion
 
         #region Private Fields
@@ -883,14 +873,14 @@ namespace Opc.Ua
         internal int m_operationTimeout;
         internal ChannelFactory m_channelFactory;
         internal IChannelBase m_channel;
-        internal string g_ImplementationString = "Opc.Ua.ChannelBase WCF Client " + Utils.GetAssemblySoftwareVersion();
+        internal string g_ImplementationString = "Opc.Ua.ChannelBase UA Client " + Utils.GetAssemblySoftwareVersion();
         #endregion
     }
 
     /// <summary>
     /// A base class for UA channel objects used access UA interfaces
     /// </summary>
-    public class WcfChannelBase<TChannel> : UaChannelBase where TChannel : class, IChannelBase
+    public class UaChannelBase<TChannel> : UaChannelBase where TChannel : class, IChannelBase
     {
         #region IDisposable Members
         /// <summary>
@@ -932,7 +922,7 @@ namespace Opc.Ua
         /// </summary>
         public override IAsyncResult BeginInvokeService(InvokeServiceMessage request, AsyncCallback callback, object asyncState)
         {
-            WcfChannelAsyncResult asyncResult = new WcfChannelAsyncResult(m_channel, callback, asyncState);
+            UaChannelAsyncResult asyncResult = new UaChannelAsyncResult(m_channel, callback, asyncState);
 
             lock (asyncResult.Lock)
             {
@@ -947,7 +937,7 @@ namespace Opc.Ua
         /// </summary>
         public override InvokeServiceResponseMessage EndInvokeService(IAsyncResult result)
         {
-            WcfChannelAsyncResult asyncResult = WcfChannelAsyncResult.WaitForComplete(result);
+            UaChannelAsyncResult asyncResult = UaChannelAsyncResult.WaitForComplete(result);
             return asyncResult.Channel.EndInvokeService(asyncResult.InnerResult);
         }
         #endregion
@@ -1002,19 +992,19 @@ namespace Opc.Ua
         }
         #endregion
 
-        #region WcfChannelAsyncResult Class
+        #region UaChannelAsyncResult Class
         /// <summary>
-        /// An async result object that wraps the WCF channel.
+        /// An async result object that wraps the UA channel.
         /// </summary>
-        protected class WcfChannelAsyncResult : AsyncResultBase
+        protected class UaChannelAsyncResult : AsyncResultBase
         {
             /// <summary>
-            /// Initializes a new instance of the <see cref="WcfChannelAsyncResult"/> class.
+            /// Initializes a new instance of the <see cref="UaChannelAsyncResult"/> class.
             /// </summary>
             /// <param name="channel">The channel.</param>
             /// <param name="callback">The callback.</param>
             /// <param name="callbackData">The callback data.</param>
-            public WcfChannelAsyncResult(
+            public UaChannelAsyncResult(
                 TChannel channel,
                 AsyncCallback callback,
                 object callbackData)
@@ -1052,7 +1042,7 @@ namespace Opc.Ua
                 }
                 catch (Exception e)
                 {
-                    Utils.Trace(e, "Unexpected exception invoking WcfChannelAsyncResult callback function.");
+                    Utils.Trace(e, "Unexpected exception invoking UaChannelAsyncResult callback function.");
                 }
             }
 
@@ -1061,9 +1051,9 @@ namespace Opc.Ua
             /// </summary>
             /// <param name="ar">The IAsyncResult object for the operation.</param>
             /// <returns>The oject that </returns>
-            public static new WcfChannelAsyncResult WaitForComplete(IAsyncResult ar)
+            public static new UaChannelAsyncResult WaitForComplete(IAsyncResult ar)
             {
-                WcfChannelAsyncResult asyncResult = ar as WcfChannelAsyncResult;
+                UaChannelAsyncResult asyncResult = ar as UaChannelAsyncResult;
 
                 if (asyncResult == null)
                 {

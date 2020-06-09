@@ -13,6 +13,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Opc.Ua.Bindings;
 
 namespace Opc.Ua
@@ -167,6 +169,15 @@ namespace Opc.Ua
         IServiceResponse SendRequest(IServiceRequest request);
 
         /// <summary>
+        /// Sends a request over the secure channel.
+        /// </summary>
+        /// <param name="request">The request to send.</param>
+        /// <param name="ct">The cancellation token.</param>
+        /// <returns>The response returned by the server.</returns>
+        /// <exception cref="ServiceResultException">Thrown if any communication error occurs.</exception>
+        Task<IServiceResponse> SendRequestAsync(IServiceRequest request, CancellationToken ct);
+
+        /// <summary>
         /// Begins an asynchronous operation to send a request over the secure channel.
         /// </summary>
         /// <param name="request">The request to send.</param>
@@ -223,8 +234,18 @@ namespace Opc.Ua
         BeginClose = 0x0010,
 
         /// <summary>
-        /// The channel supports asynchronous SendRequest.
+        /// The channel supports asynchronous Begin/EndSendRequest.
         /// </summary>
-        BeginSendRequest = 0x0020
+        BeginSendRequest = 0x0020,
+
+        /// <summary>
+        /// The channel supports asynchronous SendRequestAsync.
+        /// </summary>
+        SendRequestAsync = 0x0040,
+
+        /// <summary>
+        /// The channel supports reverse connect.
+        /// </summary>
+        ReverseConnect = 0x0080
     }
 }
