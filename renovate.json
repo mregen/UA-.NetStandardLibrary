@@ -4,8 +4,9 @@
   ],
   "packageRules": [
     {
-      "packageNames": ["^Opc.Ua"],
-      "rangeStrategy": "auto"
+      "packageNames": ["OPCFoundation.NetStandard.Opc.Ua"],
+      "rangeStrategy": "auto",
+      "schedule": ["after 9pm on sunday"]
     }
   ]
 }
