@@ -11,10 +11,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.ServiceModel;
-using System.Runtime.Serialization;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Opc.Ua
 {
@@ -28,23 +24,20 @@ namespace Opc.Ua
         /// </summary>
         public Range(double high, double low)
         {
-            m_low  = low;
+            m_low = low;
             m_high = high;
 
             // swap values if high is not actually higher.
             if (low > high)
             {
                 m_high = low;
-                m_low  = high;
+                m_low = high;
             }
         }
 
         /// <summary>
         /// Returns the difference between high and low.
         /// </summary>
-        public double Magnitude
-        {
-            get { return Math.Abs(m_high - m_low); }
-        }
+        public double Magnitude => Math.Abs(m_high - m_low);
     }
 }

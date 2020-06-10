@@ -11,16 +11,12 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.ServiceModel;
-using System.Runtime.Serialization;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Opc.Ua
 {
-	/// <summary>
-	/// The description of a value to write.
-	/// </summary>
+    /// <summary>
+    /// The description of a value to write.
+    /// </summary>
     public partial class WriteValue
     {
         #region Supporting Properties and Methods
@@ -29,7 +25,7 @@ namespace Opc.Ua
         /// </summary>
         public object Handle
         {
-            get { return m_handle;  }
+            get { return m_handle; }
             set { m_handle = value; }
         }
 
@@ -38,7 +34,7 @@ namespace Opc.Ua
         /// </summary>
         public bool Processed
         {
-            get { return m_processed;  }
+            get { return m_processed; }
             set { m_processed = value; }
         }
 
@@ -47,10 +43,10 @@ namespace Opc.Ua
         /// </summary>
         public NumericRange ParsedIndexRange
         {
-            get { return m_parsedIndexRange;  }
+            get { return m_parsedIndexRange; }
             set { m_parsedIndexRange = value; }
         }
-        
+
         /// <summary>
         /// Validates a write value parameter.
         /// </summary>
@@ -67,7 +63,7 @@ namespace Opc.Ua
             {
                 return StatusCodes.BadNodeIdInvalid;
             }
-            
+
             // must be a legimate attribute value.
             if (!Attributes.IsValid(value.AttributeId))
             {
@@ -88,7 +84,7 @@ namespace Opc.Ua
                 {
                     return ServiceResult.Create(e, StatusCodes.BadIndexRangeInvalid, String.Empty);
                 }
-                
+
                 // check that value provided is actually an array.
                 Array array = value.Value.Value as Array;
 
@@ -96,11 +92,11 @@ namespace Opc.Ua
                 {
                     return StatusCodes.BadTypeMismatch;
                 }
-                
+
                 NumericRange range = value.ParsedIndexRange;
 
                 // check that the number of elements to write matches the index range.
-                if (range.End >= 0 && (range.End - range.Begin != array.Length-1))
+                if (range.End >= 0 && (range.End - range.Begin != array.Length - 1))
                 {
                     return StatusCodes.BadIndexRangeNoData;
                 }
@@ -118,9 +114,9 @@ namespace Opc.Ua
 
             // passed basic validation.
             return null;
-        }        
+        }
         #endregion
-        
+
         #region Private Fields
         private object m_handle;
         private bool m_processed;

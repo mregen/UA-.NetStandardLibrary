@@ -11,17 +11,13 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.ServiceModel;
-using System.Runtime.Serialization;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Opc.Ua
 {
     #region ReadValueId Class
-	/// <summary>
-	/// The description of a value to read.
-	/// </summary>
+    /// <summary>
+    /// The description of a value to read.
+    /// </summary>
     public partial class ReadValueId
     {
         #region Supporting Properties and Methods
@@ -30,16 +26,16 @@ namespace Opc.Ua
         /// </summary>
         public object Handle
         {
-            get { return m_handle;  }
+            get { return m_handle; }
             set { m_handle = value; }
         }
-        
+
         /// <summary>
         /// Whether the value has been processed.
         /// </summary>
         public bool Processed
         {
-            get { return m_processed;  }
+            get { return m_processed; }
             set { m_processed = value; }
         }
 
@@ -48,10 +44,10 @@ namespace Opc.Ua
         /// </summary>
         public NumericRange ParsedIndexRange
         {
-            get { return m_parsedIndexRange;  }
+            get { return m_parsedIndexRange; }
             set { m_parsedIndexRange = value; }
         }
-                
+
         /// <summary>
         /// Validates a read value id parameter.
         /// </summary>
@@ -68,13 +64,13 @@ namespace Opc.Ua
             {
                 return StatusCodes.BadNodeIdInvalid;
             }
-            
+
             // must be a legimate attribute value.
             if (!Attributes.IsValid(valueId.AttributeId))
             {
                 return StatusCodes.BadAttributeIdInvalid;
             }
-            
+
             // data encoding and index range is only valid for value attributes. 
             if (valueId.AttributeId != Attributes.Value)
             {
@@ -113,7 +109,7 @@ namespace Opc.Ua
             return null;
         }
         #endregion
-                            
+
         #region Private Fields
         private object m_handle;
         private bool m_processed;

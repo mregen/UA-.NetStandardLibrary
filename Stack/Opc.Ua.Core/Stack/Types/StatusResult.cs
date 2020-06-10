@@ -10,11 +10,6 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
 
-using System;
-using System.Collections.Generic;
-using System.ServiceModel;
-using System.Runtime.Serialization;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Opc.Ua
 {
@@ -46,12 +41,12 @@ namespace Opc.Ua
         {
             if (m_result != null)
             {
-                m_statusCode     = m_result.StatusCode;
+                m_statusCode = m_result.StatusCode;
                 m_diagnosticInfo = new DiagnosticInfo(m_result, diagnosticMasks, false, stringTable);
             }
         }
         #endregion
-        
+
         #region Private Fields
         private ServiceResult m_result;
         #endregion

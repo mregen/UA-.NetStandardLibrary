@@ -12,7 +12,6 @@
 
 using System;
 using System.Security.Cryptography.X509Certificates;
-using System.ServiceModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Opc.Ua.Bindings;
@@ -97,12 +96,7 @@ namespace Opc.Ua
         /// </summary>
         public void OpenChannel()
         {
-            ICommunicationObject channel = m_channel as ICommunicationObject;
-
-            if (channel != null && channel.State == CommunicationState.Closed)
-            {
-                channel.Open();
-            }
+            throw new NotImplementedException("UaBaseChannel does not implement OpenChannel()");
         }
 
         /// <summary>
@@ -110,12 +104,7 @@ namespace Opc.Ua
         /// </summary>
         public void CloseChannel()
         {
-            ICommunicationObject channel = m_channel as ICommunicationObject;
-
-            if (channel != null && channel.State == CommunicationState.Opened)
-            {
-                channel.Abort();
-            }
+            throw new NotImplementedException("UaBaseChannel does not implement CloseChannel()");
         }
 
         /// <summary>
@@ -124,12 +113,7 @@ namespace Opc.Ua
         /// <param name="request">The request.</param>
         public void ScheduleOutgoingRequest(IChannelOutgoingRequest request)
         {
-#if MANAGE_CHANNEL_THREADS
-            System.Threading.Thread thread = new System.Threading.Thread(OnSendRequest);
-            thread.Start(request);
-#else
-            throw new NotImplementedException();
-#endif
+            throw new NotImplementedException("UaBaseChannel does not implement ScheduleOutgoingRequest()");
         }
         #endregion
 
@@ -842,28 +826,6 @@ namespace Opc.Ua
 
             return channel;
         }
-
-        /// <summary>
-        /// Handles the Opened event of the InnerChannel control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-        internal void InnerChannel_Opened(object sender, EventArgs e)
-        {
-            Uri endpointUrl = this.m_channelFactory.Endpoint.Address.Uri;
-
-            X509Certificate2 clientCertificate = null;
-            X509Certificate2 serverCertificate = null;
-
-            Security.Audit.SecureChannelCreated(
-                    g_ImplementationString,
-                    m_channelFactory.Endpoint.Address.Uri.ToString(),
-                    null,
-                    EndpointDescription,
-                    clientCertificate,
-                    serverCertificate,
-                    BinaryEncodingSupport.Optional);
-        }
         #endregion
 
         #region Private Fields
@@ -871,7 +833,6 @@ namespace Opc.Ua
         internal ServiceMessageContext m_messageContext;
         internal ITransportChannel m_uaBypassChannel;
         internal int m_operationTimeout;
-        internal ChannelFactory m_channelFactory;
         internal IChannelBase m_channel;
         internal string g_ImplementationString = "Opc.Ua.ChannelBase UA Client " + Utils.GetAssemblySoftwareVersion();
         #endregion
@@ -892,9 +853,6 @@ namespace Opc.Ua
             {
                 Utils.SilentDispose(m_channel);
                 m_channel = null;
-
-                Utils.SilentDispose(m_channelFactory);
-                m_channelFactory = null;
             }
 
             base.Dispose(disposing);
@@ -955,40 +913,6 @@ namespace Opc.Ua
             }
 
             Utils.Trace("RECONNECT: Reconnecting to {0}.", m_settings.Description.EndpointUrl);
-
-            // grap the existing channel.
-            TChannel channel = m_channel;
-            ChannelFactory<TChannel> channelFactory = m_channelFactory as ChannelFactory<TChannel>;
-
-            // create the new channel.
-            base.m_channel = m_channel = channelFactory.CreateChannel();
-
-            ICommunicationObject communicationObject = null;
-
-            if (channel != null)
-            {
-                try
-                {
-                    communicationObject = channel as ICommunicationObject;
-
-                    if (communicationObject != null)
-                    {
-                        communicationObject.Close();
-                    }
-                }
-                catch (Exception)
-                {
-                    // ignore errors.
-                }
-            }
-
-            // register callback with new channel.
-            communicationObject = m_channel as ICommunicationObject;
-
-            if (communicationObject != null)
-            {
-                communicationObject.Opened += new EventHandler(InnerChannel_Opened);
-            }
         }
         #endregion
 
@@ -1008,8 +932,7 @@ namespace Opc.Ua
                 TChannel channel,
                 AsyncCallback callback,
                 object callbackData)
-                :
-                    base(callback, callbackData, 0)
+                : base(callback, callbackData, 0)
             {
                 m_channel = channel;
             }

@@ -10,14 +10,9 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
 
-using System;
-using System.Collections.Generic;
-using System.ServiceModel;
-using System.Runtime.Serialization;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Opc.Ua
-{    
+{
     #region BrowsePath Class
     public partial class BrowsePath
     {
@@ -27,11 +22,11 @@ namespace Opc.Ua
         /// </summary>
         public object Handle
         {
-            get { return m_handle;  }
+            get { return m_handle; }
             set { m_handle = value; }
         }
         #endregion
-                            
+
         #region Private Fields
         private object m_handle;
         #endregion

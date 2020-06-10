@@ -161,11 +161,10 @@ namespace Opc.Ua.Client
                     ServiceResultException sre = exception as ServiceResultException;
 
                     // check if the server endpoint could not be reached.
-                    if ((sre != null &&
+                    if (sre != null &&
                         (sre.StatusCode == StatusCodes.BadTcpInternalError ||
                          sre.StatusCode == StatusCodes.BadCommunicationError ||
-                         sre.StatusCode == StatusCodes.BadNotConnected)) ||
-                        exception is System.ServiceModel.EndpointNotFoundException)
+                         sre.StatusCode == StatusCodes.BadNotConnected))
                     {
                         // check if reconnecting is still an option.
                         if (m_session.LastKeepAliveTime.AddMilliseconds(m_session.SessionTimeout) > DateTime.UtcNow)

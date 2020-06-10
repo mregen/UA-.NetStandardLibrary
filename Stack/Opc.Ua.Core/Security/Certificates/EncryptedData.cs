@@ -10,11 +10,6 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Xml;
-using System.ServiceModel;
-using System.Runtime.Serialization;
 
 namespace Opc.Ua
 {

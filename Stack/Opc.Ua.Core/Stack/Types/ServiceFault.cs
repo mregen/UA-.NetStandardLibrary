@@ -10,20 +10,15 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
 
-using System;
-using System.Collections.Generic;
-using System.ServiceModel;
-using System.Runtime.Serialization;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Opc.Ua
 {
-	#region ServiceFault Class
-	/// <summary>
-	/// The ServiceFault class.
-	/// </summary>
-	public partial class ServiceFault : IServiceResponse
-	{
-	}
-	#endregion
+    #region ServiceFault Class
+    /// <summary>
+    /// The ServiceFault class.
+    /// </summary>
+    public partial class ServiceFault : IServiceResponse
+    {
+    }
+    #endregion
 }

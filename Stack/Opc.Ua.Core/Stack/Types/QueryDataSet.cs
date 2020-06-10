@@ -10,11 +10,6 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
 
-using System;
-using System.Collections.Generic;
-using System.ServiceModel;
-using System.Runtime.Serialization;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Opc.Ua
 {
@@ -26,13 +21,13 @@ namespace Opc.Ua
         /// A handle assigned to the item during processing.
         /// </summary>
         public object Handle { get; set; }
-        
+
         /// <summary>
         /// Whether the value has been processed.
         /// </summary>
         public bool Processed { get; set; }
         #endregion
-                            
+
         #region Private Fields
         #endregion
     }

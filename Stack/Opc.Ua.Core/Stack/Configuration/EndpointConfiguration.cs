@@ -11,8 +11,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.ServiceModel.Channels;
 
 namespace Opc.Ua
 {

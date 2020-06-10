@@ -31,7 +31,6 @@ using Opc.Ua;
 using Opc.Ua.Server;
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Selectors;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Quickstarts.ReferenceServer

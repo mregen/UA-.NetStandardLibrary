@@ -2,7 +2,7 @@
  * Copyright (c) 2005-2019 The OPC Foundation, Inc. All rights reserved.
  *
  * OPC Foundation MIT License 1.00
- *
+ * 
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without
@@ -11,7 +11,7 @@
  * copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following
  * conditions:
- *
+ * 
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
@@ -102,7 +102,7 @@ namespace Opc.Ua
         #endregion
 
         #region ISessionEndpoint Members
-            #region FindServers Service
+        #region FindServers Service
         #if (!OPCUA_EXCLUDE_FindServers)
         /// <summary>
         /// Invokes the FindServers service.
@@ -211,7 +211,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the FindServers service.
         /// </summary>
@@ -236,9 +236,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region FindServersOnNetwork Service
+        #region FindServersOnNetwork Service
         #if (!OPCUA_EXCLUDE_FindServersOnNetwork)
         /// <summary>
         /// Invokes the FindServersOnNetwork service.
@@ -350,7 +350,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the FindServersOnNetwork service.
         /// </summary>
@@ -375,9 +375,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region GetEndpoints Service
+        #region GetEndpoints Service
         #if (!OPCUA_EXCLUDE_GetEndpoints)
         /// <summary>
         /// Invokes the GetEndpoints service.
@@ -486,7 +486,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the GetEndpoints service.
         /// </summary>
@@ -511,9 +511,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region CreateSession Service
+        #region CreateSession Service
         #if (!OPCUA_EXCLUDE_CreateSession)
         /// <summary>
         /// Invokes the CreateSession service.
@@ -651,7 +651,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the CreateSession service.
         /// </summary>
@@ -676,9 +676,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region ActivateSession Service
+        #region ActivateSession Service
         #if (!OPCUA_EXCLUDE_ActivateSession)
         /// <summary>
         /// Invokes the ActivateSession service.
@@ -795,7 +795,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the ActivateSession service.
         /// </summary>
@@ -820,9 +820,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region CloseSession Service
+        #region CloseSession Service
         #if (!OPCUA_EXCLUDE_CloseSession)
         /// <summary>
         /// Invokes the CloseSession service.
@@ -926,7 +926,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the CloseSession service.
         /// </summary>
@@ -951,9 +951,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region Cancel Service
+        #region Cancel Service
         #if (!OPCUA_EXCLUDE_Cancel)
         /// <summary>
         /// Invokes the Cancel service.
@@ -1060,7 +1060,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the Cancel service.
         /// </summary>
@@ -1085,9 +1085,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region AddNodes Service
+        #region AddNodes Service
         #if (!OPCUA_EXCLUDE_AddNodes)
         /// <summary>
         /// Invokes the AddNodes service.
@@ -1197,7 +1197,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the AddNodes service.
         /// </summary>
@@ -1222,9 +1222,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region AddReferences Service
+        #region AddReferences Service
         #if (!OPCUA_EXCLUDE_AddReferences)
         /// <summary>
         /// Invokes the AddReferences service.
@@ -1334,7 +1334,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the AddReferences service.
         /// </summary>
@@ -1359,9 +1359,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region DeleteNodes Service
+        #region DeleteNodes Service
         #if (!OPCUA_EXCLUDE_DeleteNodes)
         /// <summary>
         /// Invokes the DeleteNodes service.
@@ -1471,7 +1471,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the DeleteNodes service.
         /// </summary>
@@ -1496,9 +1496,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region DeleteReferences Service
+        #region DeleteReferences Service
         #if (!OPCUA_EXCLUDE_DeleteReferences)
         /// <summary>
         /// Invokes the DeleteReferences service.
@@ -1608,7 +1608,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the DeleteReferences service.
         /// </summary>
@@ -1633,9 +1633,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region Browse Service
+        #region Browse Service
         #if (!OPCUA_EXCLUDE_Browse)
         /// <summary>
         /// Invokes the Browse service.
@@ -1747,7 +1747,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the Browse service.
         /// </summary>
@@ -1772,9 +1772,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region BrowseNext Service
+        #region BrowseNext Service
         #if (!OPCUA_EXCLUDE_BrowseNext)
         /// <summary>
         /// Invokes the BrowseNext service.
@@ -1885,7 +1885,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the BrowseNext service.
         /// </summary>
@@ -1910,9 +1910,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region TranslateBrowsePathsToNodeIds Service
+        #region TranslateBrowsePathsToNodeIds Service
         #if (!OPCUA_EXCLUDE_TranslateBrowsePathsToNodeIds)
         /// <summary>
         /// Invokes the TranslateBrowsePathsToNodeIds service.
@@ -2022,7 +2022,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the TranslateBrowsePathsToNodeIds service.
         /// </summary>
@@ -2047,9 +2047,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region RegisterNodes Service
+        #region RegisterNodes Service
         #if (!OPCUA_EXCLUDE_RegisterNodes)
         /// <summary>
         /// Invokes the RegisterNodes service.
@@ -2156,7 +2156,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the RegisterNodes service.
         /// </summary>
@@ -2181,9 +2181,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region UnregisterNodes Service
+        #region UnregisterNodes Service
         #if (!OPCUA_EXCLUDE_UnregisterNodes)
         /// <summary>
         /// Invokes the UnregisterNodes service.
@@ -2287,7 +2287,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the UnregisterNodes service.
         /// </summary>
@@ -2312,9 +2312,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region QueryFirst Service
+        #region QueryFirst Service
         #if (!OPCUA_EXCLUDE_QueryFirst)
         /// <summary>
         /// Invokes the QueryFirst service.
@@ -2437,7 +2437,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the QueryFirst service.
         /// </summary>
@@ -2462,9 +2462,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region QueryNext Service
+        #region QueryNext Service
         #if (!OPCUA_EXCLUDE_QueryNext)
         /// <summary>
         /// Invokes the QueryNext service.
@@ -2575,7 +2575,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the QueryNext service.
         /// </summary>
@@ -2600,9 +2600,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region Read Service
+        #region Read Service
         #if (!OPCUA_EXCLUDE_Read)
         /// <summary>
         /// Invokes the Read service.
@@ -2714,7 +2714,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the Read service.
         /// </summary>
@@ -2739,9 +2739,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region HistoryRead Service
+        #region HistoryRead Service
         #if (!OPCUA_EXCLUDE_HistoryRead)
         /// <summary>
         /// Invokes the HistoryRead service.
@@ -2854,7 +2854,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the HistoryRead service.
         /// </summary>
@@ -2879,9 +2879,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region Write Service
+        #region Write Service
         #if (!OPCUA_EXCLUDE_Write)
         /// <summary>
         /// Invokes the Write service.
@@ -2991,7 +2991,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the Write service.
         /// </summary>
@@ -3016,9 +3016,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region HistoryUpdate Service
+        #region HistoryUpdate Service
         #if (!OPCUA_EXCLUDE_HistoryUpdate)
         /// <summary>
         /// Invokes the HistoryUpdate service.
@@ -3128,7 +3128,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the HistoryUpdate service.
         /// </summary>
@@ -3153,9 +3153,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region Call Service
+        #region Call Service
         #if (!OPCUA_EXCLUDE_Call)
         /// <summary>
         /// Invokes the Call service.
@@ -3265,7 +3265,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the Call service.
         /// </summary>
@@ -3290,9 +3290,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region CreateMonitoredItems Service
+        #region CreateMonitoredItems Service
         #if (!OPCUA_EXCLUDE_CreateMonitoredItems)
         /// <summary>
         /// Invokes the CreateMonitoredItems service.
@@ -3404,7 +3404,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the CreateMonitoredItems service.
         /// </summary>
@@ -3429,9 +3429,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region ModifyMonitoredItems Service
+        #region ModifyMonitoredItems Service
         #if (!OPCUA_EXCLUDE_ModifyMonitoredItems)
         /// <summary>
         /// Invokes the ModifyMonitoredItems service.
@@ -3543,7 +3543,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the ModifyMonitoredItems service.
         /// </summary>
@@ -3568,9 +3568,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region SetMonitoringMode Service
+        #region SetMonitoringMode Service
         #if (!OPCUA_EXCLUDE_SetMonitoringMode)
         /// <summary>
         /// Invokes the SetMonitoringMode service.
@@ -3682,7 +3682,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the SetMonitoringMode service.
         /// </summary>
@@ -3707,9 +3707,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region SetTriggering Service
+        #region SetTriggering Service
         #if (!OPCUA_EXCLUDE_SetTriggering)
         /// <summary>
         /// Invokes the SetTriggering service.
@@ -3828,7 +3828,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the SetTriggering service.
         /// </summary>
@@ -3853,9 +3853,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region DeleteMonitoredItems Service
+        #region DeleteMonitoredItems Service
         #if (!OPCUA_EXCLUDE_DeleteMonitoredItems)
         /// <summary>
         /// Invokes the DeleteMonitoredItems service.
@@ -3966,7 +3966,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the DeleteMonitoredItems service.
         /// </summary>
@@ -3991,9 +3991,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region CreateSubscription Service
+        #region CreateSubscription Service
         #if (!OPCUA_EXCLUDE_CreateSubscription)
         /// <summary>
         /// Invokes the CreateSubscription service.
@@ -4114,7 +4114,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the CreateSubscription service.
         /// </summary>
@@ -4139,9 +4139,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region ModifySubscription Service
+        #region ModifySubscription Service
         #if (!OPCUA_EXCLUDE_ModifySubscription)
         /// <summary>
         /// Invokes the ModifySubscription service.
@@ -4259,7 +4259,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the ModifySubscription service.
         /// </summary>
@@ -4284,9 +4284,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region SetPublishingMode Service
+        #region SetPublishingMode Service
         #if (!OPCUA_EXCLUDE_SetPublishingMode)
         /// <summary>
         /// Invokes the SetPublishingMode service.
@@ -4397,7 +4397,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the SetPublishingMode service.
         /// </summary>
@@ -4422,9 +4422,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region Publish Service
+        #region Publish Service
         #if (!OPCUA_EXCLUDE_Publish)
         /// <summary>
         /// Invokes the Publish service.
@@ -4546,7 +4546,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the Publish service.
         /// </summary>
@@ -4571,9 +4571,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region Republish Service
+        #region Republish Service
         #if (!OPCUA_EXCLUDE_Republish)
         /// <summary>
         /// Invokes the Republish service.
@@ -4681,7 +4681,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the Republish service.
         /// </summary>
@@ -4706,9 +4706,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region TransferSubscriptions Service
+        #region TransferSubscriptions Service
         #if (!OPCUA_EXCLUDE_TransferSubscriptions)
         /// <summary>
         /// Invokes the TransferSubscriptions service.
@@ -4819,7 +4819,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the TransferSubscriptions service.
         /// </summary>
@@ -4844,9 +4844,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region DeleteSubscriptions Service
+        #region DeleteSubscriptions Service
         #if (!OPCUA_EXCLUDE_DeleteSubscriptions)
         /// <summary>
         /// Invokes the DeleteSubscriptions service.
@@ -4956,7 +4956,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the DeleteSubscriptions service.
         /// </summary>
@@ -4981,7 +4981,7 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
         #endregion
 
         #region Protected Members
@@ -5158,7 +5158,7 @@ namespace Opc.Ua
         #endregion
 
         #region IDiscoveryEndpoint Members
-            #region FindServers Service
+        #region FindServers Service
         #if (!OPCUA_EXCLUDE_FindServers)
         /// <summary>
         /// Invokes the FindServers service.
@@ -5267,7 +5267,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the FindServers service.
         /// </summary>
@@ -5292,9 +5292,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region FindServersOnNetwork Service
+        #region FindServersOnNetwork Service
         #if (!OPCUA_EXCLUDE_FindServersOnNetwork)
         /// <summary>
         /// Invokes the FindServersOnNetwork service.
@@ -5406,7 +5406,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the FindServersOnNetwork service.
         /// </summary>
@@ -5431,9 +5431,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region GetEndpoints Service
+        #region GetEndpoints Service
         #if (!OPCUA_EXCLUDE_GetEndpoints)
         /// <summary>
         /// Invokes the GetEndpoints service.
@@ -5542,7 +5542,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the GetEndpoints service.
         /// </summary>
@@ -5567,9 +5567,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region RegisterServer Service
+        #region RegisterServer Service
         #if (!OPCUA_EXCLUDE_RegisterServer)
         /// <summary>
         /// Invokes the RegisterServer service.
@@ -5673,7 +5673,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the RegisterServer service.
         /// </summary>
@@ -5698,9 +5698,9 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
 
-            #region RegisterServer2 Service
+        #region RegisterServer2 Service
         #if (!OPCUA_EXCLUDE_RegisterServer2)
         /// <summary>
         /// Invokes the RegisterServer2 service.
@@ -5811,7 +5811,7 @@ namespace Opc.Ua
             }
         }
 
-        #if (NET_STANDARD_ASYNC)
+        #if (NET_STANDARD_ASYNC_SERVER)
         /// <summary>
         /// Asynchronously calls the RegisterServer2 service.
         /// </summary>
@@ -5836,7 +5836,7 @@ namespace Opc.Ua
         #endif
         #endif
         #endif
-            #endregion
+        #endregion
         #endregion
 
         #region Protected Members
