@@ -7,4 +7,5 @@
       "packageNames": ["^Opc.Ua"],
       "rangeStrategy": "auto"
     }
+  ]
 }
