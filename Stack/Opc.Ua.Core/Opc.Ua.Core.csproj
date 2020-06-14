@@ -8,10 +8,13 @@
     <PackageId>Opc.Ua.Core</PackageId>
     <RootNamespace>Opc.Ua</RootNamespace>
     <Description>OPC UA Core Class Library</Description>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
 
   <PropertyGroup>
     <DefineConstants Condition=" '$(NoHttps)' == 'true' ">$(DefineConstants);NO_HTTPS</DefineConstants>
+    <AssemblyOriginatorKeyFile>Opc.Ua.Core.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>true</DelaySign>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(SignAssembly)' == 'true'">
