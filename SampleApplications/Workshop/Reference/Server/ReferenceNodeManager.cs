@@ -1384,27 +1384,6 @@ namespace Quickstarts.ReferenceServer
                     myCompanyInstructions.Value = "A place for the vendor to describe their address-space.";
                     variables.Add(myCompanyInstructions);
                     #endregion
-
-                    #region OPC UA DI
-                    FolderState diFolder = CreateFolder(root, "OPCUADI", "OPC-UA-DI");
-
-                    var vendorNameplate = new Opc.Ua.Di.IVendorNameplateState(diFolder);
-                    vendorNameplate.Create(SystemContext, new NodeId("VendorNameplateState", Server.NamespaceUris.GetIndexOrAppend(Opc.Ua.Di.Namespaces.OpcUaDi)), new QualifiedName("VendorNameplate"), new LocalizedText("en", "Vendor Nameplate"), true);
-                    vendorNameplate.Manufacturer.Value = new LocalizedText("en", "OPC Foundation");
-                    vendorNameplate.ManufacturerUri.Value = "https://opc-foundation.org";
-                    vendorNameplate.Model.Value = new LocalizedText("en", "welding Robotic");
-                    vendorNameplate.SerialNumber.Value = "312-4567-89";
-                    vendorNameplate.HardwareRevision.Value = "V1.2.3.4";
-                    vendorNameplate.DeviceClass.Value = "Robotic";
-                    vendorNameplate.DeviceManual.Value = "n/a";
-                    vendorNameplate.ProductInstanceUri.Value = "https://opc-foundation.org/robotics";
-                    vendorNameplate.ProductCode.Value = "Welding robotic";
-                    vendorNameplate.DeviceRevision.Value = DateTime.UtcNow.Year.ToString();
-                    vendorNameplate.RevisionCounter.Value = DateTime.UtcNow.Second;
-                    vendorNameplate.SoftwareRevision.Value = "V3.2.1";
-
-                    diFolder.AddChild(vendorNameplate);
-                    #endregion
                 }
                 catch (Exception e)
                 {
