@@ -602,20 +602,22 @@ namespace Opc.Ua
             {
                 if (buffer.Length > 0)
                 {
-                    buffer.AppendFormat(CultureInfo.InvariantCulture, "\r\n\r\n");
+                    buffer.AppendLine();
+                    buffer.AppendLine();
                 }
 
                 buffer.AppendFormat(CultureInfo.InvariantCulture, ">>> {0}", exception.Message);
 
                 if (!String.IsNullOrEmpty(exception.StackTrace))
                 {
-                    string[] trace = exception.StackTrace.Split(new char[] { '\r', '\n' });
+                    string[] trace = exception.StackTrace.Split(Environment.NewLine.ToCharArray());
 
                     for (int ii = 0; ii < trace.Length; ii++)
                     {
                         if (trace[ii] != null && trace[ii].Length > 0)
                         {
-                            buffer.AppendFormat(CultureInfo.InvariantCulture, "\r\n--- {0}", trace[ii]);
+                            buffer.AppendLine();
+                            buffer.AppendFormat(CultureInfo.InvariantCulture, "--- {0}", trace[ii]);
                         }
                     }
                 }

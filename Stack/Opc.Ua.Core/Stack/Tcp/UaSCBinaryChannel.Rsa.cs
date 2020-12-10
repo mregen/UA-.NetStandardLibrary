@@ -78,13 +78,17 @@ namespace Opc.Ua.Bindings
                     string messageType = new UTF8Encoding().GetString(dataToVerify.Array, dataToVerify.Offset, 4);
                     int messageLength = BitConverter.ToInt32(dataToVerify.Array, dataToVerify.Offset + 4);
                     string actualSignature = Utils.ToHexString(signature);
-
-                    Utils.Trace(
-                        "Could not validate signature.\r\nCertificate={0}, MessageType={1}, Length={2}\r\nActualSignature={3}",
+                    var message = new StringBuilder();
+                    message.Append("Could not validate signature.");
+                    message.AppendLine();
+                    message.AppendFormat("Certificate={0}, MessageType={1}, Length={2}",
                         signingCertificate.Subject,
                         messageType,
-                        messageLength,
-                        actualSignature);
+                        messageLength);
+                    message.AppendLine();
+                    message.AppendFormat("ActualSignature={0}", actualSignature);
+
+                    Utils.Trace(message.ToString());
 
                     return false;
                 }

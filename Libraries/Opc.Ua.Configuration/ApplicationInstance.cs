@@ -31,6 +31,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Threading.Tasks;
 using Opc.Ua.Security.Certificates;
 
@@ -365,16 +366,20 @@ namespace Opc.Ua.Configuration
 
                     if (certificate != null)
                     {
-                        string message = Utils.Format(
-                            "Thumbprint was explicitly specified in the configuration." +
-                            "\r\nAnother certificate with the same subject name was found." +
-                            "\r\nUse it instead?\r\n" +
-                            "\r\nRequested: {0}" +
-                            "\r\nFound: {1}",
-                            id.SubjectName,
-                            certificate.Subject);
+                        var message = new StringBuilder();
+                        message.Append("Thumbprint was explicitly specified in the configuration.");
+                        message.AppendLine();
+                        message.Append("Another certificate with the same subject name was found.");
+                        message.AppendLine();
+                        message.Append("Use it instead?");
+                        message.AppendLine();
+                        message.AppendLine();
+                        message.Append($"Requested: {id.SubjectName}");
+                        message.AppendLine();
+                        message.Append($"Found: {certificate.Subject}");
+                        message.AppendLine();
 
-                        throw ServiceResultException.Create(StatusCodes.BadConfigurationError, message);
+                        throw ServiceResultException.Create(StatusCodes.BadConfigurationError, message.ToString());
                     }
                     else
                     {
@@ -391,14 +396,15 @@ namespace Opc.Ua.Configuration
 
                 if (certificate == null)
                 {
-                    string message = Utils.Format(
-                        "There is no cert with subject {0} in the configuration." +
-                        "\r\n Please generate a cert for your application,",
-                        "\r\n then copy the new cert to this location:" +
-                        "\r\n{1}",
-                        id.SubjectName,
-                        id.StorePath);
-                    throw ServiceResultException.Create(StatusCodes.BadConfigurationError, message);
+                    var message = new StringBuilder();
+                    message.AppendFormat("There is no cert with subject {0} in the configuration.", id.SubjectName);
+                    message.AppendLine();
+                    message.Append("Please generate a cert for your application,");
+                    message.AppendLine();
+                    message.Append(" then copy the new cert to this location:");
+                    message.AppendLine();
+                    message.AppendFormat("{1}", id.StorePath);
+                    throw ServiceResultException.Create(StatusCodes.BadConfigurationError, message.ToString());
                 }
             }
             else

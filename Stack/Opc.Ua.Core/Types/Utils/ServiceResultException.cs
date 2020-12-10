@@ -196,7 +196,7 @@ namespace Opc.Ua
             StringBuilder buffer = new StringBuilder();
 
             buffer.Append(Message);
-            buffer.Append("\r\n");
+            buffer.AppendLine();
             buffer.Append(m_status.ToLongString());
 
             return buffer.ToString();

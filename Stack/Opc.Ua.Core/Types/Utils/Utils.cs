@@ -323,7 +323,8 @@ namespace Opc.Ua
                     }
                     catch (Exception e)
                     {
-                        Debug.WriteLine("Could not write to trace file. Error={0}\r\nFilePath={1}", e.Message, traceFileName);
+                        Debug.WriteLine("Could not write to trace file. Error={0}", e.Message);
+                        Debug.WriteLine("-- FilePath={1}", traceFileName);
                     }
                 }
             }
@@ -361,8 +362,9 @@ namespace Opc.Ua
                     }
 
                     // write initial log message.
+                    TraceWriteLine("");
                     TraceWriteLine(
-                        "\r\n{1} Logging started at {0}",
+                        "{1} Logging started at {0}",
                         DateTime.Now,
                         new String('*', 25));
                 }
@@ -439,9 +441,15 @@ namespace Opc.Ua
                 // append stack trace.
                 if ((s_traceMasks & (int)TraceMasks.StackTrace) != 0)
                 {
-                    message.AppendFormat(CultureInfo.InvariantCulture, "\r\n\r\n{0}\r\n", new String('=', 40));
+                    string separator = new String('=', 40);
+                    message.AppendLine();
+                    message.AppendLine();
+                    message.AppendFormat(CultureInfo.InvariantCulture, separator);
+                    message.AppendLine();
                     message.Append(new ServiceResult(e).ToLongString());
-                    message.AppendFormat(CultureInfo.InvariantCulture, "\r\n{0}\r\n", new String('=', 40));
+                    message.AppendLine();
+                    message.AppendFormat(CultureInfo.InvariantCulture, separator);
+                    message.AppendLine();
                 }
             }
 
@@ -727,11 +735,12 @@ namespace Opc.Ua
             // file does not exist.
             if (throwOnError)
             {
+                var message = new StringBuilder();
+                message.AppendFormat("File does not exist: {0}", filePath);
+                message.AppendLine();
+                message.AppendFormat("Current directory is: {1}", Directory.GetCurrentDirectory());
                 throw ServiceResultException.Create(
-                    StatusCodes.BadConfigurationError,
-                    "File does not exist: {0}\r\nCurrent directory is: {1}",
-                    filePath,
-                    Directory.GetCurrentDirectory());
+                    StatusCodes.BadConfigurationError, message.ToString());
             }
 
             return null;
@@ -847,11 +856,12 @@ namespace Opc.Ua
             // file does not exist.
             if (throwOnError)
             {
+                var message = new StringBuilder();
+                message.AppendFormat("Directory does not exist: {0}", originalPath);
+                message.AppendLine();
+                message.AppendFormat("Current directory is: {1}", Directory.GetCurrentDirectory());
                 throw ServiceResultException.Create(
-                    StatusCodes.BadConfigurationError,
-                    "Directory does not exist: {0}\r\nCurrent directory is: {1}",
-                    originalPath,
-                    Directory.GetCurrentDirectory());
+                    StatusCodes.BadConfigurationError, message.ToString());
             }
 
             return null;

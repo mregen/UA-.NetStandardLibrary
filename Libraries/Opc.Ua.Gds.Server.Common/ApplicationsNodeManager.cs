@@ -340,7 +340,12 @@ namespace Opc.Ua.Gds.Server
                     }
                     catch (Exception e)
                     {
-                        Utils.Trace(e, "Unexpected error initializing certificateGroup: " + certificateGroupConfiguration.Id + "\r\n" + e.StackTrace);
+                        var message = new StringBuilder();
+                        message.AppendFormat("Unexpected error initializing certificateGroup: {0}",
+                            certificateGroupConfiguration.Id);
+                        message.AppendLine();
+                        message.Append(e.StackTrace);
+                        Utils.Trace(e, message.ToString());
                         // make sure gds server doesn't start without cert groups!
                         throw;
                     }
@@ -1054,11 +1059,13 @@ namespace Opc.Ua.Gds.Server
                     catch (Exception e)
                     {
                         StringBuilder error = new StringBuilder();
-
                         error.Append("Error Generating Certificate=" + e.Message);
-                        error.Append("\r\nApplicationId=" + applicationId.ToString());
-                        error.Append("\r\nApplicationUri=" + application.ApplicationUri);
-                        error.Append("\r\nApplicationName=" + application.ApplicationNames[0].Text);
+                        error.AppendLine();
+                        error.Append("ApplicationId=" + applicationId.ToString());
+                        error.AppendLine();
+                        error.Append("ApplicationUri=" + application.ApplicationUri);
+                        error.AppendLine();
+                        error.Append("ApplicationName=" + application.ApplicationNames[0].Text);
 
                         return new ServiceResult(StatusCodes.BadConfigurationError, error.ToString());
                     }
@@ -1078,10 +1085,11 @@ namespace Opc.Ua.Gds.Server
                     catch (Exception e)
                     {
                         StringBuilder error = new StringBuilder();
-
                         error.Append("Error Generating New Key Pair Certificate=" + e.Message);
-                        error.Append("\r\nApplicationId=" + applicationId.ToString());
-                        error.Append("\r\nApplicationUri=" + application.ApplicationUri);
+                        error.AppendLine();
+                        error.Append("ApplicationId=" + applicationId.ToString());
+                        error.AppendLine();
+                        error.Append("ApplicationUri=" + application.ApplicationUri);
 
                         return new ServiceResult(StatusCodes.BadConfigurationError, error.ToString());
                     }
