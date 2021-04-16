@@ -189,15 +189,9 @@ namespace Opc.Ua.Security.Certificates
         /// </summary>
         private bool VerifyForRSA(X509Certificate2 certificate, RSASignaturePadding padding)
         {
-            RSA rsa = null;
-            try
+            using (RSA rsa = certificate.GetRSAPublicKey())
             {
-                rsa = certificate.GetRSAPublicKey();
                 return rsa.VerifyData(Tbs, Signature, Name, padding);
-            }
-            finally
-            {
-                RsaUtils.RSADispose(rsa);
             }
         }
 
@@ -208,7 +202,8 @@ namespace Opc.Ua.Security.Certificates
         {
             using (ECDsa key = certificate.GetECDsaPublicKey())
             {
-                return key.VerifyData(Tbs, Signature, Name);
+                var decodedSignature = DecodeECDsa(Signature, key.KeySize);
+                return key.VerifyData(Tbs, decodedSignature, Name);
             }
         }
 
@@ -234,8 +229,8 @@ namespace Opc.Ua.Security.Certificates
         /// <summary>
         /// Encode a ECDSA signature as ASN.1.
         /// </summary>
-        /// <param name="signature"></param>
-        private static byte[] EncodeECDSA(byte[] signature)
+        /// <param name="signature">The signature to encode as ASN.1</param>
+        private static byte[] EncodeECDsa(byte[] signature)
         {
             // Encode from IEEE signature format to ASN1 DER encoded 
             // signature format for ecdsa certificates.
@@ -251,6 +246,36 @@ namespace Opc.Ua.Security.Certificates
             writer.PopSequence(tag);
 
             return writer.Encode();
+        }
+
+        /// <summary>
+        /// Decode a ECDSA signature from ASN.1.
+        /// </summary>
+        /// <param name="signature">The signature to decode from ASN.1</param>
+        /// <param name="keySize">The keySize in bits.</param>
+        private static byte[] DecodeECDsa(ReadOnlyMemory<byte> signature, int keySize)
+        {
+            AsnReader reader = new AsnReader(signature, AsnEncodingRules.DER);
+            var seqReader = reader.ReadSequence();
+            reader.ThrowIfNotEmpty();
+            var r = seqReader.ReadIntegerBytes();
+            var s = seqReader.ReadIntegerBytes();
+            seqReader.ThrowIfNotEmpty();
+            keySize >>= 3;
+            if (r.Span[0] == 0 && r.Length > keySize)
+            {
+                r = r.Slice(1);
+            }
+            if (s.Span[0] == 0 && s.Length > keySize)
+            {
+                s = s.Slice(1);
+            }
+            var result = new byte[2 * keySize];
+            int offset = keySize - r.Length;
+            r.CopyTo(new Memory<byte>(result, offset, r.Length));
+            offset = 2 * keySize - s.Length;
+            s.CopyTo(new Memory<byte>(result, offset, s.Length));
+            return result;
         }
     }
 }

@@ -27,18 +27,13 @@
  * http://opcfoundation.org/License/MIT/1.00/
  * ======================================================================*/
 
+#if NETSTANDARD2_1
+
 using System;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
 using System.IO;
 using System.Text;
-
-#if !NETSTANDARD2_1
-using Opc.Ua.Security.Certificates.BouncyCastle;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Pkcs;
-using Org.BouncyCastle.Asn1.Pkcs;
-#endif
 
 namespace Opc.Ua.Security.Certificates
 {
@@ -64,7 +59,6 @@ namespace Opc.Ua.Security.Certificates
             return EncodeAsPEM(certificate.RawData, "CERTIFICATE");
         }
 
-#if NETSTANDARD2_1
         /// <summary>
         /// Returns a byte array containing the public key in PEM format.
         /// </summary>
@@ -89,7 +83,7 @@ namespace Opc.Ua.Security.Certificates
             byte[] exportedRSAPrivateKey = null;
             using (RSA rsaPrivateKey = certificate.GetRSAPrivateKey())
             {
-                // write private key as PKCS#8
+                // write private key as PKCS#1
                 exportedRSAPrivateKey = rsaPrivateKey.ExportRSAPrivateKey();
             }
             return EncodeAsPEM(exportedRSAPrivateKey, "RSA PRIVATE KEY");
@@ -115,26 +109,6 @@ namespace Opc.Ua.Security.Certificates
             return EncodeAsPEM(exportedPkcs8PrivateKey,
                 String.IsNullOrEmpty(password) ? "PRIVATE KEY" : "ENCRYPTED PRIVATE KEY");
         }
-#else
-        /// <summary>
-        /// Returns a byte array containing the private key in PEM format.
-        /// </summary>
-        public static byte[] ExportPrivateKeyAsPEM(
-            X509Certificate2 certificate,
-            string password = null
-            )
-        {
-            if (!String.IsNullOrEmpty(password)) throw new ArgumentException(nameof(password), "Export with password not supported on this platform.");
-            RsaPrivateCrtKeyParameters privateKeyParameter = X509Utils.GetPrivateKeyParameter(certificate);
-            using (TextWriter textWriter = new StringWriter())
-            {
-                // write private key as PKCS#8
-                PrivateKeyInfo privateKeyInfo = PrivateKeyInfoFactory.CreatePrivateKeyInfo(privateKeyParameter);
-                byte[] serializedPrivateBytes = privateKeyInfo.ToAsn1Object().GetDerEncoded();
-                return EncodeAsPEM(serializedPrivateBytes, "PRIVATE KEY");
-            }
-        }
-#endif
         #endregion
 
         #region Private Methods
@@ -158,3 +132,4 @@ namespace Opc.Ua.Security.Certificates
         #endregion
     }
 }
+#endif

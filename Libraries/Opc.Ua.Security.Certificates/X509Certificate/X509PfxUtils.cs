@@ -50,25 +50,25 @@ namespace Opc.Ua.Security.Certificates
             bool throwOnError = false)
         {
             bool result = false;
-            RSA rsaPrivateKey = null;
-            RSA rsaPublicKey = null;
             try
             {
                 // verify the public and private key match
-                rsaPrivateKey = certWithPrivateKey.GetRSAPrivateKey();
-                rsaPublicKey = certWithPublicKey.GetRSAPublicKey();
-                X509KeyUsageFlags keyUsage = GetKeyUsage(certWithPublicKey);
-                if ((keyUsage & X509KeyUsageFlags.DataEncipherment) != 0)
+                using (RSA rsaPrivateKey = certWithPrivateKey.GetRSAPrivateKey())
+                using (RSA rsaPublicKey = certWithPublicKey.GetRSAPublicKey())
                 {
-                    result = VerifyRSAKeyPairCrypt(rsaPublicKey, rsaPrivateKey);
-                }
-                else if ((keyUsage & X509KeyUsageFlags.DigitalSignature) != 0)
-                {
-                    result = VerifyRSAKeyPairSign(rsaPublicKey, rsaPrivateKey);
-                }
-                else
-                {
-                    throw new CryptographicException("Don't know how to verify the public/private key pair.");
+                    X509KeyUsageFlags keyUsage = GetKeyUsage(certWithPublicKey);
+                    if ((keyUsage & X509KeyUsageFlags.DataEncipherment) != 0)
+                    {
+                        result = VerifyRSAKeyPairCrypt(rsaPublicKey, rsaPrivateKey);
+                    }
+                    else if ((keyUsage & X509KeyUsageFlags.DigitalSignature) != 0)
+                    {
+                        result = VerifyRSAKeyPairSign(rsaPublicKey, rsaPrivateKey);
+                    }
+                    else
+                    {
+                        throw new CryptographicException("Don't know how to verify the public/private key pair.");
+                    }
                 }
             }
             catch (Exception)
@@ -81,8 +81,6 @@ namespace Opc.Ua.Security.Certificates
             }
             finally
             {
-                RsaUtils.RSADispose(rsaPrivateKey);
-                RsaUtils.RSADispose(rsaPublicKey);
                 if (!result && throwOnError)
                 {
                     throw new CryptographicException("The public/private key pair in the certficates do not match.");
@@ -146,8 +144,6 @@ namespace Opc.Ua.Security.Certificates
         /// <summary>
         /// Verify a RSA key pair using a encryption.
         /// </summary>
-        /// <param name="rsaPublicKey"></param>
-        /// <param name="rsaPrivateKey"></param>
         internal static bool VerifyRSAKeyPairCrypt(
             RSA rsaPublicKey,
             RSA rsaPrivateKey)
@@ -167,8 +163,6 @@ namespace Opc.Ua.Security.Certificates
         /// <summary>
         /// Verify a RSA key pair using a signature.
         /// </summary>
-        /// <param name="rsaPublicKey"></param>
-        /// <param name="rsaPrivateKey"></param>
         internal static bool VerifyRSAKeyPairSign(
             RSA rsaPublicKey,
             RSA rsaPrivateKey)
@@ -179,5 +173,65 @@ namespace Opc.Ua.Security.Certificates
             byte[] signature = rsaPrivateKey.SignData(testBlock, HashAlgorithmName.SHA1, RSASignaturePadding.Pkcs1);
             return rsaPublicKey.VerifyData(testBlock, signature, HashAlgorithmName.SHA1, RSASignaturePadding.Pkcs1);
         }
+
+#if ECC_SUPPORT
+        /// <summary>
+        /// Verify ECDsa key pair of two certificates.
+        /// </summary>
+        public static bool VerifyECDsaKeyPair(
+            X509Certificate2 certWithPublicKey,
+            X509Certificate2 certWithPrivateKey,
+            bool throwOnError = false)
+        {
+            bool result = false;
+            using (ECDsa ecdsaPublicKey = certWithPrivateKey.GetECDsaPublicKey())
+            using (ECDsa ecdsaPrivateKey = certWithPublicKey.GetECDsaPrivateKey())
+            {
+                try
+                {
+                    // verify the public and private key match
+                    X509KeyUsageFlags keyUsage = GetKeyUsage(certWithPublicKey);
+                    if ((keyUsage & X509KeyUsageFlags.DigitalSignature) != 0)
+                    {
+                        result = VerifyECDsaKeyPairSign(ecdsaPublicKey, ecdsaPrivateKey);
+                    }
+                    else
+                    {
+                        if (throwOnError)
+                        {
+                            throw new CryptographicException("Don't know how to verify the public/private key pair.");
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    if (throwOnError)
+                    {
+                        throwOnError = false;
+                        throw;
+                    }
+                }
+            }
+            if (!result && throwOnError)
+            {
+                throw new CryptographicException("The public/private key pair in the certficates do not match.");
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Verify a ECDsa key pair using a signature.
+        /// </summary>
+        internal static bool VerifyECDsaKeyPairSign(
+            ECDsa ecdsaPublicKey,
+            ECDsa ecdsaPrivateKey)
+        {
+            byte[] testBlock = new byte[TestBlockSize];
+            var rnd = new Random();
+            rnd.NextBytes(testBlock);
+            byte[] signature = ecdsaPrivateKey.SignData(testBlock, HashAlgorithmName.SHA256);
+            return ecdsaPublicKey.VerifyData(testBlock, signature, HashAlgorithmName.SHA256);
+        }
+#endif
     }
 }

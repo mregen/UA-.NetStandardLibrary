@@ -295,6 +295,7 @@ namespace Opc.Ua.Export
                 exportedNode.Description = new LocalizedText[0];
             }
 
+            exportedNode.Documentation = node.NodeSetDocumentation;
             exportedNode.Category = (node.Categories != null && node.Categories.Count > 0) ? new List<string>(node.Categories).ToArray() : null;
             exportedNode.ReleaseStatus = node.ReleaseStatus;
             exportedNode.WriteMask = (uint)node.WriteMask;
@@ -584,20 +585,6 @@ namespace Opc.Ua.Export
                     Opc.Ua.DataTypeDefinition dataTypeDefinition = Import(o, o.Definition, context.NamespaceUris);
                     value.DataTypeDefinition = new ExtensionObject(dataTypeDefinition);
                     value.Purpose = o.Purpose;
-                    value.DataTypeModifier = DataTypeModifier.None;
-
-                    if (o.Definition != null)
-                    {
-                        if (o.Definition.IsOptionSet)
-                        {
-                            value.DataTypeModifier = DataTypeModifier.OptionSet;
-                        }
-                        else if (o.Definition.IsUnion)
-                        {
-                            value.DataTypeModifier = DataTypeModifier.Union;
-                        }
-                    }
-
                     importedNode = value;
                     break;
                 }
@@ -624,6 +611,7 @@ namespace Opc.Ua.Export
             }
 
             importedNode.Description = Import(node.Description);
+            importedNode.NodeSetDocumentation = node.Documentation;
             importedNode.Categories = (node.Category != null && node.Category.Length > 0) ? node.Category : null;
             importedNode.ReleaseStatus = node.ReleaseStatus;
             importedNode.WriteMask = (AttributeWriteMask)node.WriteMask;
@@ -890,32 +878,44 @@ namespace Opc.Ua.Export
                 definition.SymbolicName = dataType.SymbolicName;
             }
 
-            switch (dataType.DataTypeModifier)
-            {
-                case DataTypeModifier.Union: { definition.IsUnion = true; break; }
-                case DataTypeModifier.OptionSet: { definition.IsOptionSet = true; break; }
-            }
+            StructureDefinition sd = source.Body as StructureDefinition;
 
-            StructureDefinition structureDefinition = source.Body as StructureDefinition;
-
-            if (structureDefinition != null)
+            if (sd != null)
             {
-                if (structureDefinition.StructureType == StructureType.Union)
+                if (sd.StructureType == StructureType.Union || sd.StructureType == (StructureType)4) // StructureType.UnionWithSubtypedValues)
                 {
                     definition.IsUnion = true;
                 }
 
-                if (structureDefinition.Fields != null)
+                if (sd.Fields != null)
                 {
                     List<Opc.Ua.Export.DataTypeField> fields = new List<DataTypeField>();
 
-                    foreach (StructureField field in structureDefinition.Fields)
+                    for (int ii = sd.FirstExplicitFieldIndex; ii < sd.Fields.Count; ii++)
                     {
+                        StructureField field = sd.Fields[ii];
+
                         Opc.Ua.Export.DataTypeField output = new Opc.Ua.Export.DataTypeField();
 
                         output.Name = field.Name;
                         output.Description = Export(new Opc.Ua.LocalizedText[] { field.Description });
-                        output.IsOptional = field.IsOptional;
+
+                        if (sd.StructureType == StructureType.StructureWithOptionalFields)
+                        {
+                            output.IsOptional = field.IsOptional;
+                            output.AllowSubTypes = false;
+                        }
+                        else if (sd.StructureType == (StructureType)3 || // StructureType.StructureWithSubtypedValues ||
+                                 sd.StructureType == (StructureType)4)   // StructureType.UnionWithSubtypedValues)
+                        {
+                            output.IsOptional = false;
+                            output.AllowSubTypes = field.IsOptional;
+                        }
+                        else
+                        {
+                            output.IsOptional = false;
+                            output.AllowSubTypes = false;
+                        }
 
                         if (NodeId.IsNull(field.DataType))
                         {
@@ -935,20 +935,31 @@ namespace Opc.Ua.Export
                 }
             }
 
-            EnumDefinition enumDefinition = source.Body as EnumDefinition;
+            EnumDefinition ed = source.Body as EnumDefinition;
 
-            if (enumDefinition != null)
+            if (ed != null)
             {
-                if (enumDefinition.Fields != null)
+                definition.IsOptionSet = ed.IsOptionSet;
+
+                if (ed.Fields != null)
                 {
                     List<Opc.Ua.Export.DataTypeField> fields = new List<DataTypeField>();
 
-                    foreach (EnumField field in enumDefinition.Fields)
+                    foreach (EnumField field in ed.Fields)
                     {
                         Opc.Ua.Export.DataTypeField output = new Opc.Ua.Export.DataTypeField();
 
                         output.Name = field.Name;
-                        output.DisplayName = Export(new Opc.Ua.LocalizedText[] { field.Name });
+
+                        if (field.DisplayName != null && output.Name != field.DisplayName.Text)
+                        {
+                            output.DisplayName = Export(new Opc.Ua.LocalizedText[] { field.DisplayName });
+                        }
+                        else
+                        {
+                            output.DisplayName = new LocalizedText[0];
+                        }
+
                         output.Description = Export(new Opc.Ua.LocalizedText[] { field.Description });
                         output.ValueRank = ValueRanks.Scalar;
                         output.Value = (int)field.Value;
@@ -985,12 +996,12 @@ namespace Opc.Ua.Export
 
                 if (isStructure)
                 {
-                    StructureDefinition structureDefinition = new StructureDefinition();
-                    structureDefinition.BaseDataType = ImportNodeId(source.BaseType, namespaceUris, true);
+                    StructureDefinition sd = new StructureDefinition();
+                    sd.BaseDataType = ImportNodeId(source.BaseType, namespaceUris, true);
 
                     if (source.IsUnion)
                     {
-                        structureDefinition.StructureType = StructureType.Union;
+                        sd.StructureType = StructureType.Union;
                     }
 
                     if (source.Field != null)
@@ -999,9 +1010,24 @@ namespace Opc.Ua.Export
 
                         foreach (DataTypeField field in source.Field)
                         {
-                            if (field.IsOptional)
+                            if (sd.StructureType == StructureType.Structure ||
+                                sd.StructureType == StructureType.Union)
                             {
-                                structureDefinition.StructureType = StructureType.StructureWithOptionalFields;
+                                if (field.IsOptional)
+                                {
+                                    sd.StructureType = StructureType.StructureWithOptionalFields;
+                                }
+                                else if (field.AllowSubTypes)
+                                {
+                                    if (source.IsUnion)
+                                    {
+                                        sd.StructureType = (StructureType)4; // StructureType.UnionWithSubtypedValues;
+                                    }
+                                    else
+                                    {
+                                        sd.StructureType = (StructureType)3; // StructureType.StructureWithSubtypedValues;
+                                    }
+                                }
                             }
 
                             StructureField output = new StructureField();
@@ -1010,18 +1036,35 @@ namespace Opc.Ua.Export
                             output.Description = Import(field.Description);
                             output.DataType = ImportNodeId(field.DataType, namespaceUris, true);
                             output.ValueRank = field.ValueRank;
-                            output.IsOptional = field.IsOptional;
+
+                            if (sd.StructureType == StructureType.Structure ||
+                                sd.StructureType == StructureType.Union)
+                            {
+                                output.IsOptional = false;
+                            }
+                            else if(sd.StructureType == (StructureType)3 || //StructureType.StructureWithSubtypedValues ||
+                                    sd.StructureType == (StructureType)4)   //StructureType.UnionWithSubtypedValues)
+                            {
+                                output.IsOptional = field.AllowSubTypes;
+                            }
+                            else
+                            {
+                                output.IsOptional = field.IsOptional;
+                            }
 
                             fields.Add(output);
                         }
 
-                        structureDefinition.Fields = fields.ToArray();
+                        sd.Fields = fields.ToArray();
                     }
-                    definition = structureDefinition;
+
+                    definition = sd;
                 }
                 else
                 {
-                    EnumDefinition enumDefinition = new EnumDefinition();
+                    EnumDefinition ed = new EnumDefinition();
+                    ed.IsOptionSet = source.IsOptionSet;
+
                     if (source.Field != null)
                     {
                         List<EnumField> fields = new List<EnumField>();
@@ -1038,9 +1081,10 @@ namespace Opc.Ua.Export
                             fields.Add(output);
                         }
 
-                        enumDefinition.Fields = fields.ToArray();
+                        ed.Fields = fields.ToArray();
                     }
-                    definition = enumDefinition;
+
+                    definition = ed;
                 }
             }
 

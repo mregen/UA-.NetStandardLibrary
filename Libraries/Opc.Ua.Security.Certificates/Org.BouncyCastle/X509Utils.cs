@@ -27,26 +27,6 @@ using Org.BouncyCastle.Security;
 namespace Opc.Ua.Security.Certificates.BouncyCastle
 {
     /// <summary>
-    /// Wrapper for a password string.
-    /// </summary>
-    internal class Password
-        : IPasswordFinder
-    {
-        private readonly char[] password;
-
-        public Password(
-            char[] word)
-        {
-            this.password = (char[])word.Clone();
-        }
-
-        public char[] GetPassword()
-        {
-            return (char[])password.Clone();
-        }
-    }
-
-    /// <summary>
     /// Helpers to create certificates, CRLs and extensions.
     /// </summary>
     internal static class X509Utils
@@ -110,15 +90,9 @@ namespace Opc.Ua.Security.Certificates.BouncyCastle
         /// </summary>
         internal static RsaKeyParameters GetPublicKeyParameter(X509Certificate2 certificate)
         {
-            RSA rsa = null;
-            try
+            using (RSA rsa = certificate.GetRSAPublicKey())
             {
-                rsa = certificate.GetRSAPublicKey();
                 return GetPublicKeyParameter(rsa);
-            }
-            finally
-            {
-                RsaUtils.RSADispose(rsa);
             }
         }
 
@@ -140,16 +114,10 @@ namespace Opc.Ua.Security.Certificates.BouncyCastle
         /// </summary>
         internal static RsaPrivateCrtKeyParameters GetPrivateKeyParameter(X509Certificate2 certificate)
         {
-            RSA rsa = null;
-            try
+            // try to get signing/private key from certificate passed in
+            using (RSA rsa = certificate.GetRSAPrivateKey())
             {
-                // try to get signing/private key from certificate passed in
-                rsa = certificate.GetRSAPrivateKey();
                 return GetPrivateKeyParameter(rsa);
-            }
-            finally
-            {
-                RsaUtils.RSADispose(rsa);
             }
         }
 
