@@ -180,7 +180,7 @@ namespace Opc.Ua.PubSub
                 return;
             }
 
-            
+
             if (!singleDataSetMessage)
             {
                 encoder.PushStructure(null);
@@ -394,13 +394,35 @@ namespace Opc.Ua.PubSub
             if (Messages != null && Messages.Count > 0)
             {
                 var fieldName = popStructure ? "Messages" : null;
-                if ((MessageContentMask & JsonNetworkMessageContentMask.SingleDataSetMessage) != 0)
+                bool singleDataSetMessage = (MessageContentMask & JsonNetworkMessageContentMask.SingleDataSetMessage) != 0;
+                if ((MessageContentMask & JsonNetworkMessageContentMask.DataSetMessageHeader) != 0)
                 {
-                    encoder.WriteEncodeable(fieldName, Messages[0], typeof(JsonDataSetMessage));
+                    if (singleDataSetMessage)
+                    {
+                        encoder.WriteEncodeable(fieldName, Messages[0], typeof(JsonDataSetMessage));
+                    }
+                    else
+                    {
+                        encoder.WriteEncodeableArray(fieldName, Messages.ToArray(), typeof(JsonDataSetMessage));
+                    }
                 }
                 else
                 {
-                    encoder.WriteEncodeableArray(fieldName, Messages.ToArray(), typeof(JsonDataSetMessage));
+                    if (singleDataSetMessage)
+                    {
+                        encoder.PushStructure(fieldName);
+                        Messages[0].Encode(encoder, MessageContentMask);
+                        encoder.PopStructure();
+                    }
+                    else
+                    {
+                        encoder.PushArray(fieldName);
+                        foreach (var message in Messages)
+                        {
+                            message.Encode(encoder, MessageContentMask);
+                        }
+                        encoder.PopArray();
+                    }
                 }
             }
 

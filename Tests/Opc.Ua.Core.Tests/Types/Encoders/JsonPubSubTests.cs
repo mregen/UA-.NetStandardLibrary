@@ -164,7 +164,10 @@ namespace Opc.Ua.Core.Tests.Types.Encoders
                 TestContext.Out.WriteLine(encoded);
 
                 TestContext.Out.WriteLine("Formatted Encoded:");
-                _ = PrettifyAndValidateJson(encoded);
+                var prettyText = PrettifyAndValidateJson(encoded);
+
+                var fileName = $"NMH{networkMessageHeader}_DSMH{datasetMessageHeader}_SDSM{singleDataSetMessage}.json";
+                File.WriteAllText(fileName, prettyText);
             }
         }
 
