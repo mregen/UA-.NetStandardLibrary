@@ -164,18 +164,41 @@ namespace Opc.Ua.PubSub
 
         public void Encode(JsonEncoder encoder, JsonNetworkMessageContentMask messageContentMask)
         {
+            bool singleDataSetMessage = (messageContentMask & JsonNetworkMessageContentMask.SingleDataSetMessage) != 0;
             if ((messageContentMask & JsonNetworkMessageContentMask.DataSetMessageHeader) != 0)
             {
+                bool networkMessageHeader = (messageContentMask & JsonNetworkMessageContentMask.NetworkMessageHeader) != 0;
+                if (!networkMessageHeader && !singleDataSetMessage)
+                {
+                    encoder.PushStructure(null);
+                }
                 Encode(encoder);
+                if (!networkMessageHeader && !singleDataSetMessage)
+                {
+                    encoder.PopStructure();
+                }
                 return;
             }
 
+            
+            if (!singleDataSetMessage)
+            {
+                encoder.PushStructure(null);
+            }
             if (Payload != null)
             {
                 foreach (var ii in Payload)
                 {
                     EncodeField(encoder, ii.Key, ii.Value);
                 }
+            }
+            else
+            {
+                // write null
+            }
+            if (!singleDataSetMessage)
+            {
+                encoder.PopStructure();
             }
         }
 
@@ -296,7 +319,8 @@ namespace Opc.Ua.PubSub
         {
             bool topLevelIsArray = false;
 
-            if ((MessageContentMask & JsonNetworkMessageContentMask.NetworkMessageHeader) == 0 && (MessageContentMask & JsonNetworkMessageContentMask.SingleDataSetMessage) == 0)
+            if ((MessageContentMask & JsonNetworkMessageContentMask.NetworkMessageHeader) == 0 &&
+                (MessageContentMask & JsonNetworkMessageContentMask.SingleDataSetMessage) == 0)
             {
                 topLevelIsArray = true;
             }
@@ -317,9 +341,17 @@ namespace Opc.Ua.PubSub
                     }
                     else
                     {
+                        if (!topLevelIsArray)
+                        {
+                            encoder.PushArray(null);
+                        }
                         foreach (var message in Messages)
                         {
                             message.Encode(encoder, MessageContentMask);
+                        }
+                        if (!topLevelIsArray)
+                        {
+                            encoder.PopArray();
                         }
                     }
                 }
@@ -328,7 +360,7 @@ namespace Opc.Ua.PubSub
             }
         }
 
-        public void Encode(JsonEncoder encoder)
+        protected void Encode(JsonEncoder encoder)
         {
             bool popStructure = false;
 

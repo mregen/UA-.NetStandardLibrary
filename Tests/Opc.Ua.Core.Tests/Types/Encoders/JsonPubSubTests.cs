@@ -29,7 +29,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using NUnit.Framework;
 using Opc.Ua.PubSub;
 
@@ -78,12 +80,14 @@ namespace Opc.Ua.Core.Tests.Types.Encoders
         [Theory]
         public void JsonPubSubEncodeNetworkMessage(
             bool networkMessageHeader,
-            bool singleDataSetMessage,
-            bool datasetMessageHeader)
+            bool datasetMessageHeader,
+            bool singleDataSetMessage)
         {
             JsonNetworkMessageContentMask messageContentMask =
                 JsonNetworkMessageContentMask.PublisherId |
-                JsonNetworkMessageContentMask.DataSetClassId;
+                JsonNetworkMessageContentMask.DataSetClassId |
+                JsonNetworkMessageContentMask.ReplyTo;
+
             if (networkMessageHeader)
             {
                 messageContentMask |= JsonNetworkMessageContentMask.NetworkMessageHeader;
@@ -150,23 +154,23 @@ namespace Opc.Ua.Core.Tests.Types.Encoders
                 networkMessage.Messages.Add(dataSetMessage);
             }
 
-            var encoder = new JsonEncoder(Context, true, null, false);
+            using (MemoryStream stream = new MemoryStream(1024))
+            using (var writer = new StreamWriter(stream, new UTF8Encoding(false), 65535, true))
+            {
+                networkMessage.Encode(Context, true, writer);
+                var encoded = Encoding.UTF8.GetString(stream.ToArray());
 
-            networkMessage.Encode(encoder);
+                TestContext.Out.WriteLine("Encoded:");
+                TestContext.Out.WriteLine(encoded);
 
-            var encoded = encoder.CloseAndReturnText();
-            TestContext.Out.WriteLine("Encoded:");
-            TestContext.Out.WriteLine(encoded);
-
-            TestContext.Out.WriteLine("Formatted Encoded:");
-            _ = PrettifyAndValidateJson(encoded);
-
+                TestContext.Out.WriteLine("Formatted Encoded:");
+                _ = PrettifyAndValidateJson(encoded);
+            }
         }
 
         #endregion
 
         #region Private Methods
-
         private void RunWriteEncodeableArrayTest(string fieldName, List<FooBarEncodeable> encodeables, string expected, bool topLevelIsArray, bool noExpectedValidation = false)
         {
             try
