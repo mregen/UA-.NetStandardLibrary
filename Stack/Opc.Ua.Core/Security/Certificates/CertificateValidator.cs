@@ -33,6 +33,7 @@ namespace Opc.Ua
         public CertificateValidator()
         {
             m_validatedCertificates = new Dictionary<string, X509Certificate2>();
+            m_autoAcceptUntrustedCertificates = false;
             m_rejectSHA1SignedCertificates = CertificateFactory.DefaultHashSize >= 256;
             m_rejectUnknownRevocationStatus = false;
             m_minimumCertificateKeySize = CertificateFactory.DefaultKeySize;
@@ -95,7 +96,7 @@ namespace Opc.Ua
                 throw new ArgumentNullException(nameof(configuration));
             }
 
-            await Update(configuration.SecurityConfiguration);
+            await Update(configuration.SecurityConfiguration).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -172,6 +173,7 @@ namespace Opc.Ua
                     configuration.TrustedIssuerCertificates,
                     configuration.TrustedPeerCertificates,
                     configuration.RejectedCertificateStore);
+                m_autoAcceptUntrustedCertificates = configuration.AutoAcceptUntrustedCertificates;
                 m_rejectSHA1SignedCertificates = configuration.RejectSHA1SignedCertificates;
                 m_rejectUnknownRevocationStatus = configuration.RejectUnknownRevocationStatus;
                 m_minimumCertificateKeySize = configuration.MinimumCertificateKeySize;
@@ -179,7 +181,7 @@ namespace Opc.Ua
 
             if (configuration.ApplicationCertificate != null)
             {
-                m_applicationCertificate = await configuration.ApplicationCertificate.Find(true);
+                m_applicationCertificate = await configuration.ApplicationCertificate.Find(true).ConfigureAwait(false);
             }
         }
 
@@ -193,9 +195,9 @@ namespace Opc.Ua
                 securityConfiguration.ApplicationCertificate.Certificate = null;
             }
 
-            await Update(securityConfiguration);
+            await Update(securityConfiguration).ConfigureAwait(false);
             await securityConfiguration.ApplicationCertificate.LoadPrivateKeyEx(
-                securityConfiguration.CertificatePasswordProvider);
+                securityConfiguration.CertificatePasswordProvider).ConfigureAwait(false);
 
             lock (m_callbackLock)
             {
@@ -404,7 +406,7 @@ namespace Opc.Ua
             {
                 for (int ii = 0; ii < m_trustedCertificateList.Count; ii++)
                 {
-                    X509Certificate2 trusted = await m_trustedCertificateList[ii].Find(false);
+                    X509Certificate2 trusted = await m_trustedCertificateList[ii].Find(false).ConfigureAwait(false);
 
                     if (trusted != null && trusted.Thumbprint == certificate.Thumbprint)
                     {
@@ -423,7 +425,7 @@ namespace Opc.Ua
 
                 try
                 {
-                    X509Certificate2Collection trusted = await store.FindByThumbprint(certificate.Thumbprint);
+                    X509Certificate2Collection trusted = await store.FindByThumbprint(certificate.Thumbprint).ConfigureAwait(false);
 
                     for (int ii = 0; ii < trusted.Count; ii++)
                     {
@@ -508,15 +510,15 @@ namespace Opc.Ua
 
             do
             {
-                issuer = await GetIssuer(certificate, m_trustedCertificateList, m_trustedCertificateStore, true);
+                issuer = await GetIssuer(certificate, m_trustedCertificateList, m_trustedCertificateStore, true).ConfigureAwait(false);
 
                 if (issuer == null)
                 {
-                    issuer = await GetIssuer(certificate, m_issuerCertificateList, m_issuerCertificateStore, true);
+                    issuer = await GetIssuer(certificate, m_issuerCertificateList, m_issuerCertificateStore, true).ConfigureAwait(false);
 
                     if (issuer == null)
                     {
-                        issuer = await GetIssuer(certificate, collection, null, true);
+                        issuer = await GetIssuer(certificate, collection, null, true).ConfigureAwait(false);
                     }
                 }
                 else
@@ -527,7 +529,7 @@ namespace Opc.Ua
                 if (issuer != null)
                 {
                     issuers.Add(issuer);
-                    certificate = await issuer.Find(false);
+                    certificate = await issuer.Find(false).ConfigureAwait(false);
 
                     // check for root.
                     if (X509Utils.CompareDistinguishedName(certificate.Subject, certificate.Issuer))
@@ -585,7 +587,7 @@ namespace Opc.Ua
             {
                 for (int ii = 0; ii < explicitList.Count; ii++)
                 {
-                    X509Certificate2 issuer = await explicitList[ii].Find(false);
+                    X509Certificate2 issuer = await explicitList[ii].Find(false).ConfigureAwait(false);
 
                     if (issuer != null)
                     {
@@ -610,7 +612,7 @@ namespace Opc.Ua
 
                 try
                 {
-                    X509Certificate2Collection certificates = await store.Enumerate();
+                    X509Certificate2Collection certificates = await store.Enumerate().ConfigureAwait(false);
 
                     for (int ii = 0; ii < certificates.Count; ii++)
                     {
@@ -691,11 +693,11 @@ namespace Opc.Ua
                 }
             }
 
-            CertificateIdentifier trustedCertificate = await GetTrustedCertificate(certificate);
+            CertificateIdentifier trustedCertificate = await GetTrustedCertificate(certificate).ConfigureAwait(false);
 
             // get the issuers (checks the revocation lists if using directory stores).
             List<CertificateIdentifier> issuers = new List<CertificateIdentifier>();
-            bool isIssuerTrusted = await GetIssuers(certificates, issuers);
+            bool isIssuerTrusted = await GetIssuers(certificates, issuers).ConfigureAwait(false);
 
             // setup policy chain
             X509ChainPolicy policy = new X509ChainPolicy();
@@ -781,22 +783,25 @@ namespace Opc.Ua
                 }
             }
 
-            // check if certificate issuer is trusted.
-            if (issuedByCA && !isIssuerTrusted && trustedCertificate == null)
+            if (!m_autoAcceptUntrustedCertificates)
             {
-                var message = CertificateMessage("Certificate Issuer is not trusted.", certificate);
-                sresult = new ServiceResult(StatusCodes.BadCertificateUntrusted,
-                    null, null, message, null, sresult);
-            }
-
-            // check if certificate is trusted.
-            if (trustedCertificate == null && !isIssuerTrusted)
-            {
-                if (m_applicationCertificate == null || !Utils.IsEqual(m_applicationCertificate.RawData, certificate.RawData))
+                // check if certificate issuer is trusted.
+                if (issuedByCA && !isIssuerTrusted && trustedCertificate == null)
                 {
-                    var message = CertificateMessage("Certificate is not trusted.", certificate);
+                    var message = CertificateMessage("Certificate Issuer is not trusted.", certificate);
                     sresult = new ServiceResult(StatusCodes.BadCertificateUntrusted,
-                    null, null, message, null, sresult);
+                        null, null, message, null, sresult);
+                }
+
+                // check if certificate is trusted.
+                if (trustedCertificate == null && !isIssuerTrusted)
+                {
+                    if (m_applicationCertificate == null || !Utils.IsEqual(m_applicationCertificate.RawData, certificate.RawData))
+                    {
+                        var message = CertificateMessage("Certificate is not trusted.", certificate);
+                        sresult = new ServiceResult(StatusCodes.BadCertificateUntrusted,
+                        null, null, message, null, sresult);
+                    }
                 }
             }
 
@@ -1039,11 +1044,11 @@ namespace Opc.Ua
         private string CertificateMessage(string error, X509Certificate2 certificate)
         {
             var message = new StringBuilder();
-            message.AppendLine(error);
-            message.AppendFormat("SubjectName: {0}", certificate.SubjectName.Name);
-            message.AppendLine();
-            message.AppendFormat("IssuerName: {0}", certificate.IssuerName.Name);
-            message.AppendLine();
+            message.AppendLine(error)
+                .AppendFormat("SubjectName: {0}", certificate.SubjectName.Name)
+                .AppendLine()
+                .AppendFormat("IssuerName: {0}", certificate.IssuerName.Name)
+                .AppendLine();
             return message.ToString();
         }
 
@@ -1146,6 +1151,7 @@ namespace Opc.Ua
         private event CertificateValidationEventHandler m_CertificateValidation;
         private event CertificateUpdateEventHandler m_CertificateUpdate;
         private X509Certificate2 m_applicationCertificate;
+        private bool m_autoAcceptUntrustedCertificates;
         private bool m_rejectSHA1SignedCertificates;
         private bool m_rejectUnknownRevocationStatus;
         private ushort m_minimumCertificateKeySize;
