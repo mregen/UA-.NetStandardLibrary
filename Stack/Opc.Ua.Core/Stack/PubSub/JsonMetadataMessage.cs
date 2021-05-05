@@ -82,8 +82,6 @@ namespace Opc.Ua.PubSub
                 output.PublisherId = decoder.ReadString("PublisherId");
                 output.DataSetClassId = decoder.ReadString("DataSetClassId");
                 output.MetaData = (DataSetMetaDataType)decoder.ReadEncodeable("MetaData", typeof(DataSetMetaDataType));
-
-                decoder.Close();
             }
 
             return output;

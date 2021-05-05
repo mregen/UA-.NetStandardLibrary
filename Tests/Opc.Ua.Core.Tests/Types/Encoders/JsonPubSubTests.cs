@@ -157,7 +157,7 @@ namespace Opc.Ua.Core.Tests.Types.Encoders
             using (MemoryStream stream = new MemoryStream(1024))
             using (var writer = new StreamWriter(stream, new UTF8Encoding(false), 65535, true))
             {
-                networkMessage.Encode(Context, true, writer);
+                networkMessage.Encode(Context, writer);
                 var encoded = Encoding.UTF8.GetString(stream.ToArray());
 
                 TestContext.Out.WriteLine("Encoded:");
