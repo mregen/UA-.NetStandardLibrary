@@ -19,18 +19,37 @@ using Opc.Ua;
 
 namespace Opc.Ua.PubSub
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class JsonDataSetMetaData
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public string MessageId { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string MessageType { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string PublisherId { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string DataSetClassId { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public DataSetMetaDataType MetaData { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="useReversibleEncoding"></param>
+        /// <param name="writer"></param>
         public void Encode(ServiceMessageContext context, bool useReversibleEncoding, StreamWriter writer)
         {
             using (JsonEncoder encoder = new JsonEncoder(context, useReversibleEncoding, writer, false))
@@ -44,7 +63,12 @@ namespace Opc.Ua.PubSub
                 encoder.Close();
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="reader"></param>
+        /// <returns></returns>
         public static JsonDataSetMetaData Decode(ServiceMessageContext context, StreamReader reader)
         {
             var json = reader.ReadToEnd();

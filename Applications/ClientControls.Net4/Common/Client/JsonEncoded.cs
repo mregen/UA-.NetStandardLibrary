@@ -369,7 +369,7 @@ namespace Opc.Ua.Client.Controls
 
         private void OkBtn_Click(object sender, EventArgs e)
         {
-
+            this.DialogResult = DialogResult.OK;
         }
     }
 }

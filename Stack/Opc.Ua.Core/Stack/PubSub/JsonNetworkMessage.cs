@@ -19,9 +19,14 @@ using Opc.Ua;
 
 namespace Opc.Ua.PubSub
 {
-
+    /// <summary>
+    /// 
+    /// </summary>
     public class JsonNetworkMessage
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public JsonNetworkMessage()
         {
             MessageContentMask =
@@ -31,26 +36,42 @@ namespace Opc.Ua.PubSub
                 JsonNetworkMessageContentMask.DataSetClassId;
 
             Messages = new List<JsonDataSetMessage>();
-
             MessageType = "ua-data";
-
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public JsonNetworkMessageContentMask MessageContentMask { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string MessageId { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string MessageType { get; private set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string PublisherId { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string DataSetClassId { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string ReplyTo { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public List<JsonDataSetMessage> Messages { get; set; }
-
-        public void Encode(ServiceMessageContext context, bool useReversibleEncoding, StreamWriter writer)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="writer"></param>
+        public void Encode(ServiceMessageContext context, StreamWriter writer)
         {
             bool topLevelIsArray = false;
 
@@ -60,7 +81,7 @@ namespace Opc.Ua.PubSub
                 topLevelIsArray = true;
             }
 
-            using (JsonEncoder encoder = new JsonEncoder(context, useReversibleEncoding, writer, topLevelIsArray) { IncludeDefaultNumberValues = false })
+            using (JsonEncoder encoder = new JsonEncoder(context, true, writer, topLevelIsArray) { IncludeDefaultNumberValues = false })
             {
                 if ((MessageContentMask & JsonNetworkMessageContentMask.NetworkMessageHeader) != 0)
                 {
@@ -94,7 +115,10 @@ namespace Opc.Ua.PubSub
                 encoder.Close();
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="encoder"></param>
         protected void Encode(JsonEncoder encoder)
         {
             bool popStructure = false;

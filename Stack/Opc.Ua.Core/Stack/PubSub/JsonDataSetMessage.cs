@@ -24,6 +24,9 @@ namespace Opc.Ua.PubSub
     /// </summary>
     public class JsonDataSetMessage : IEncodeable
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public JsonDataSetMessage()
         {
             MessageContentMask =
@@ -35,29 +38,56 @@ namespace Opc.Ua.PubSub
 
             Payload = new Dictionary<string, DataValue>();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public JsonDataSetMessageContentMask MessageContentMask { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string DataSetWriterId { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public uint SequenceNumber { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public ConfigurationVersionDataType MetaDataVersion { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public DateTime Timestamp { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public StatusCode Status { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public DataSetFieldContentMask FieldContentMask { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public Dictionary<string, DataValue> Payload { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public ExpandedNodeId TypeId { get { return ExpandedNodeId.Null; } }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public ExpandedNodeId BinaryEncodingId { get { return ExpandedNodeId.Null; } }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public ExpandedNodeId XmlEncodingId { get { return ExpandedNodeId.Null; } }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="encoder"></param>
+        /// <param name="fieldName"></param>
+        /// <param name="value"></param>
         private void EncodeField(JsonEncoder encoder, string fieldName, DataValue value)
         {
             if (FieldContentMask == 0)
@@ -117,7 +147,11 @@ namespace Opc.Ua.PubSub
             // https://reference.opcfoundation.org/v104/Core/docs/Part14/7.2.3/
             encoder.WriteDataValue(fieldName, dv, reversible);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="encoder"></param>
+        /// <param name="messageContentMask"></param>
         public void Encode(JsonEncoder encoder, JsonNetworkMessageContentMask messageContentMask)
         {
             bool singleDataSetMessage = (messageContentMask & JsonNetworkMessageContentMask.SingleDataSetMessage) != 0;
@@ -161,7 +195,10 @@ namespace Opc.Ua.PubSub
         {
             Encode((JsonEncoder)encoder);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="encoder"></param>
         public void Encode(JsonEncoder encoder)
         {
             if ((MessageContentMask & JsonDataSetMessageContentMask.DataSetWriterId) != 0)
@@ -221,12 +258,19 @@ namespace Opc.Ua.PubSub
                 ((JsonEncoder)encoder).PopStructure();
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="decoder"></param>
         public void Decode(IDecoder decoder)
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="encodeable"></param>
+        /// <returns></returns>
         public bool IsEqual(IEncodeable encodeable)
         {
             if (Object.ReferenceEquals(this, encodeable))
