@@ -70,7 +70,7 @@ namespace Opc.Ua.Security.Certificates
             string password = null
             )
         {
-            if (!string.IsNullOrEmpty(password)) throw new ArgumentException("Export with password not supported on this platform.", nameof(password));
+            if (!String.IsNullOrEmpty(password)) throw new ArgumentException("Export with password not supported on this platform.", nameof(password));
             RsaPrivateCrtKeyParameters privateKeyParameter = X509Utils.GetPrivateKeyParameter(certificate);
             // write private key as PKCS#8
             PrivateKeyInfo privateKeyInfo = PrivateKeyInfoFactory.CreatePrivateKeyInfo(privateKeyParameter);

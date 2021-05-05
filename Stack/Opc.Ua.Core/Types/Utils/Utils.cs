@@ -61,6 +61,16 @@ namespace Opc.Ua
         public const string UriSchemeOpcUdp = "opc.udp";
 
         /// <summary>
+        /// The URI scheme for the MQTT protocol. 
+        /// </summary>
+        public const string UriSchemeMqtt = "mqtt";
+
+        /// <summary>
+        /// The URI scheme for the MQTTS protocol. 
+        /// </summary>
+        public const string UriSchemeMqtts = "mqtts";
+
+        /// <summary>
         /// The URI schemes which are supported in the core server. 
         /// </summary>
         public static readonly string[] DefaultUriSchemes = new string[]
@@ -78,6 +88,11 @@ namespace Opc.Ua
         /// The default port for the UA TCP protocol over WebSockets.
         /// </summary>
         public const int UaWebSocketsDefaultPort = 4843;
+
+        /// <summary>
+        /// The default port for the MQTT protocol.
+        /// </summary>
+        public const int MqttDefaultPort = 1883;
 
         /// <summary>
         /// The urls of the discovery servers on a node.
@@ -323,7 +338,6 @@ namespace Opc.Ua
 
                             writer.WriteLine(output);
                             writer.Flush();
-                            writer.Dispose();
                         }
                     }
                     catch (Exception e)
@@ -909,10 +923,6 @@ namespace Opc.Ua
         #endregion
 
         #region String, Object and Data Convienence Functions
-        private const int MAX_MESSAGE_LENGTH = 1024;
-        private const uint FORMAT_MESSAGE_IGNORE_INSERTS = 0x00000200;
-        private const uint FORMAT_MESSAGE_FROM_SYSTEM = 0x00001000;
-
         /// <summary>
         /// Supresses any exceptions while disposing the object.
         /// </summary>
@@ -922,24 +932,29 @@ namespace Opc.Ua
         public static void SilentDispose(object objectToDispose)
         {
             IDisposable disposable = objectToDispose as IDisposable;
+            SilentDispose(disposable);
+        }
 
-            if (disposable != null)
+        /// <summary>
+        /// Supresses any exceptions while disposing the object.
+        /// </summary>
+        /// <remarks>
+        /// Writes errors to trace output in DEBUG builds.
+        /// </remarks>
+        public static void SilentDispose(IDisposable disposable)
+        {
+            try
             {
-                try
-                {
-                    disposable.Dispose();
-                }
-#if DEBUG
-                catch (Exception e)
-                {
-                    Utils.Trace(e, "Error disposing object: {0}", disposable.GetType().Name);
-                }
-#else
-                catch (Exception)
-                {
-                }
-#endif
+                disposable?.Dispose();
             }
+#if DEBUG
+            catch (Exception e)
+            {
+                Utils.Trace(e, "Error disposing object: {0}", disposable.GetType().Name);
+            }
+#else
+            catch (Exception) {;}
+#endif
         }
 
         /// <summary>
@@ -2856,6 +2871,9 @@ namespace Opc.Ua
         /// <summary>
         /// Generates a Pseudo random sequence of bits using the P_SHA1 alhorithm.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Security", "CA5350:Do Not Use Weak Cryptographic Algorithms",
+            Justification = "SHA1 is needed for deprecated security profiles.")]
         public static byte[] PSHA1(byte[] secret, string label, byte[] data, int offset, int length)
         {
             if (secret == null) throw new ArgumentNullException(nameof(secret));

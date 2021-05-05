@@ -372,7 +372,7 @@ namespace Opc.Ua.Gds.Tests
                     }
                     retryStartServer = true;
                 }
-                await Task.Delay(m_random.Next(100, 1000));
+                await Task.Delay(m_random.Next(100, 1000)).ConfigureAwait(false);
             } while (retryStartServer);
 
             return server;
