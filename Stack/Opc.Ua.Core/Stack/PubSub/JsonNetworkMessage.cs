@@ -111,8 +111,6 @@ namespace Opc.Ua.PubSub
                         }
                     }
                 }
-
-                encoder.Close();
             }
         }
         /// <summary>
@@ -121,38 +119,27 @@ namespace Opc.Ua.PubSub
         /// <param name="encoder"></param>
         protected void Encode(JsonEncoder encoder)
         {
-            bool popStructure = false;
-
-            if ((MessageContentMask & JsonNetworkMessageContentMask.NetworkMessageHeader) != 0)
+            bool networkHeader = (MessageContentMask & JsonNetworkMessageContentMask.NetworkMessageHeader) != 0;
+            if (networkHeader)
             {
-                popStructure = true;
                 encoder.PushStructure(null);
 
                 encoder.WriteString("MessageId", MessageId);
                 encoder.WriteString("MessageType", MessageType);
 
-                if ((MessageContentMask & JsonNetworkMessageContentMask.PublisherId) != 0)
-                {
-                    encoder.WriteString("PublisherId", PublisherId);
-                }
-                else
-                {
-                    encoder.WriteString("PublisherId", null);
-                }
+                bool hasPublisherId = (MessageContentMask & JsonNetworkMessageContentMask.PublisherId) != 0;
+                var publisherId = hasPublisherId ? PublisherId : null;
 
-                if ((MessageContentMask & JsonNetworkMessageContentMask.DataSetClassId) != 0)
-                {
-                    encoder.WriteString("DataSetClassId", DataSetClassId);
-                }
-                else
-                {
-                    encoder.WriteString("DataSetClassId", null);
-                }
+                encoder.WriteString("PublisherId", publisherId);
+
+                bool hasDataSetClassId = (MessageContentMask & JsonNetworkMessageContentMask.DataSetClassId) != 0;
+                var dataSetClassId = hasDataSetClassId ? DataSetClassId : null;
+                    encoder.WriteString(nameof(DataSetClassId), dataSetClassId);
             }
 
             if (Messages != null && Messages.Count > 0)
             {
-                var fieldName = popStructure ? "Messages" : null;
+                var fieldName = networkHeader ? "Messages" : null;
                 bool singleDataSetMessage = (MessageContentMask & JsonNetworkMessageContentMask.SingleDataSetMessage) != 0;
                 if ((MessageContentMask & JsonNetworkMessageContentMask.DataSetMessageHeader) != 0)
                 {
@@ -185,7 +172,7 @@ namespace Opc.Ua.PubSub
                 }
             }
 
-            if (popStructure)
+            if (networkHeader)
             {
                 encoder.PopStructure();
             }

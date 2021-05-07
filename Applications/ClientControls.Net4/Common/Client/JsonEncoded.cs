@@ -182,7 +182,7 @@ namespace Opc.Ua.Client.Controls
             {
                 var dataSetMessage = new Opc.Ua.PubSub.JsonDataSetMessage() {
                     SequenceNumber = (uint)(123 + i),
-                    DataSetWriterId = "5555",
+                    DataSetWriterId = (ushort)(5555 + i),
                     MetaDataVersion = new ConfigurationVersionDataType() { MajorVersion = 1, MinorVersion = 0 },
                     Timestamp = DateTime.UtcNow + TimeSpan.FromMilliseconds(i * 100),
                     Status = new StatusCode(StatusCodes.Uncertain),
@@ -305,10 +305,7 @@ namespace Opc.Ua.Client.Controls
             {
                 networkMessage.Encode(Context, writer);
                 var encoded = Encoding.UTF8.GetString(stream.ToArray());
-
-                var prettyText = PrettifyAndValidateJson(encoded);
-
-                JsonOutput.Text = prettyText;
+                JsonOutput.Text = PrettifyAndValidateJson(encoded);
             }
         }
 

@@ -45,7 +45,7 @@ namespace Opc.Ua.PubSub
         /// <summary>
         /// 
         /// </summary>
-        public string DataSetWriterId { get; set; }
+        public UInt16 DataSetWriterId { get; set; }
         /// <summary>
         /// 
         /// </summary>
@@ -203,47 +203,27 @@ namespace Opc.Ua.PubSub
         {
             if ((MessageContentMask & JsonDataSetMessageContentMask.DataSetWriterId) != 0)
             {
-                encoder.WriteString(nameof(DataSetWriterId), DataSetWriterId);
-            }
-            else
-            {
-                encoder.WriteString(nameof(DataSetWriterId), null);
+                encoder.WriteUInt16(nameof(DataSetWriterId), DataSetWriterId);
             }
 
             if ((MessageContentMask & JsonDataSetMessageContentMask.SequenceNumber) != 0)
             {
                 encoder.WriteUInt32(nameof(SequenceNumber), SequenceNumber);
             }
-            else
-            {
-                encoder.WriteUInt32(nameof(SequenceNumber), 0);
-            }
 
             if ((MessageContentMask & JsonDataSetMessageContentMask.MetaDataVersion) != 0)
             {
-                encoder.WriteEncodeable("MetaDataVersion", MetaDataVersion, typeof(ConfigurationVersionDataType));
-            }
-            else
-            {
-                encoder.WriteEncodeable("MetaDataVersion", null, typeof(ConfigurationVersionDataType));
+                encoder.WriteEncodeable(nameof(MetaDataVersion), MetaDataVersion, typeof(ConfigurationVersionDataType));
             }
 
             if ((MessageContentMask & JsonDataSetMessageContentMask.Timestamp) != 0)
             {
-                encoder.WriteDateTime("Timestamp", Timestamp);
-            }
-            else
-            {
-                encoder.WriteDateTime("Timestamp", DateTime.MinValue);
+                encoder.WriteDateTime(nameof(Timestamp), Timestamp);
             }
 
             if ((MessageContentMask & JsonDataSetMessageContentMask.Status) != 0)
             {
-                encoder.WriteStatusCode("Status", Status);
-            }
-            else
-            {
-                encoder.WriteStatusCode("Status", StatusCodes.Good);
+                encoder.WriteStatusCode(nameof(Status), Status);
             }
 
             if (Payload != null)

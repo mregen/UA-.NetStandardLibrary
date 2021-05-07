@@ -10,8 +10,6 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
 
-
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -47,44 +45,27 @@ namespace Opc.Ua.PubSub
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="useReversibleEncoding"></param>
-        /// <param name="writer"></param>
-        public void Encode(ServiceMessageContext context, bool useReversibleEncoding, StreamWriter writer)
+        public void Encode(IEncoder encoder)
         {
-            using (JsonEncoder encoder = new JsonEncoder(context, useReversibleEncoding, writer, false))
-            {
-                encoder.WriteString("MessageId", MessageId);
-                encoder.WriteString("MessageType", "ua-metadata");
-                encoder.WriteString("PublisherId", PublisherId);
-                encoder.WriteString("DataSetClassId", DataSetClassId);
-                encoder.WriteEncodeable("MetaData", MetaData, typeof(DataSetMetaDataType));
-
-                encoder.Close();
-            }
+            encoder.WriteString("MessageId", MessageId);
+            encoder.WriteString("MessageType", "ua-metadata");
+            encoder.WriteString("PublisherId", PublisherId);
+            encoder.WriteString("DataSetClassId", DataSetClassId);
+            encoder.WriteEncodeable("MetaData", MetaData, typeof(DataSetMetaDataType));
         }
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="reader"></param>
-        /// <returns></returns>
-        public static JsonDataSetMetaData Decode(ServiceMessageContext context, StreamReader reader)
+        public static JsonDataSetMetaData Decode(IDecoder decoder)
         {
-            var json = reader.ReadToEnd();
+            JsonDataSetMetaData metaData = new JsonDataSetMetaData();
+            metaData.MessageId = decoder.ReadString(nameof(metaData.MessageId));
+            metaData.MessageType = decoder.ReadString("MessageType");
+            metaData.PublisherId = decoder.ReadString("PublisherId");
+            metaData.DataSetClassId = decoder.ReadString("DataSetClassId");
+            metaData.MetaData = (DataSetMetaDataType)decoder.ReadEncodeable("MetaData", typeof(DataSetMetaDataType));
 
-            JsonDataSetMetaData output = new JsonDataSetMetaData();
-
-            using (JsonDecoder decoder = new JsonDecoder(json, context))
-            {
-                output.MessageId = decoder.ReadString(nameof(output.MessageId));
-                output.MessageType = decoder.ReadString("MessageType");
-                output.PublisherId = decoder.ReadString("PublisherId");
-                output.DataSetClassId = decoder.ReadString("DataSetClassId");
-                output.MetaData = (DataSetMetaDataType)decoder.ReadEncodeable("MetaData", typeof(DataSetMetaDataType));
-            }
-
-            return output;
+            return metaData;
         }
     }
 }

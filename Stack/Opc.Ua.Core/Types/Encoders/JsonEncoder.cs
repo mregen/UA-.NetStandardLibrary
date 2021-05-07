@@ -1317,7 +1317,6 @@ namespace Opc.Ua
                     m_context.MaxEncodingNestingLevels);
             }
 
-
             if (value == null)
             {
                 WriteSimpleField(fieldName, null, false);
@@ -2399,7 +2398,6 @@ namespace Opc.Ua
                 }
             }
         }
-
         #endregion
 
         #region Private Methods
