@@ -140,7 +140,7 @@ namespace Opc.Ua.Core.Tests.Types.Encoders
 
                 var dataSetMessage = new JsonDataSetMessage() {
                     SequenceNumber = (uint)i,
-                    DataSetWriterId = "5555",
+                    DataSetWriterId = 5555,
                     MetaDataVersion = new ConfigurationVersionDataType(),
                     Timestamp = DateTime.UtcNow,
                     Status = new StatusCode(((i & 1) == 0) ? StatusCodes.Uncertain : StatusCodes.Good),
@@ -154,7 +154,7 @@ namespace Opc.Ua.Core.Tests.Types.Encoders
                 networkMessage.Messages.Add(dataSetMessage);
             }
 
-            using (MemoryStream stream = new MemoryStream(1024))
+            using (MemoryStream stream = new MemoryStream())
             using (var writer = new StreamWriter(stream, new UTF8Encoding(false), 65535, true))
             {
                 networkMessage.Encode(Context, writer);
