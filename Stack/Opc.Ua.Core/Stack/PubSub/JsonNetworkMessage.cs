@@ -12,10 +12,8 @@
 
 
 
-using System;
 using System.Collections.Generic;
 using System.IO;
-using Opc.Ua;
 
 namespace Opc.Ua.PubSub
 {
@@ -66,6 +64,19 @@ namespace Opc.Ua.PubSub
         /// 
         /// </summary>
         public List<JsonDataSetMessage> Messages { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public virtual IJsonEncoder CreateEncoder(
+            ServiceMessageContext context,
+            bool useReversibleEncoding,
+            StreamWriter writer,
+            bool topLevelIsArray)
+        {
+            return new JsonEncoder(context, true, writer, topLevelIsArray) { IncludeDefaultNumberValues = false };
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -81,7 +92,7 @@ namespace Opc.Ua.PubSub
                 topLevelIsArray = true;
             }
 
-            using (JsonEncoder encoder = new JsonEncoder(context, true, writer, topLevelIsArray) { IncludeDefaultNumberValues = false })
+            using (IJsonEncoder encoder = CreateEncoder(context, true, writer, topLevelIsArray))
             {
                 if ((MessageContentMask & JsonNetworkMessageContentMask.NetworkMessageHeader) != 0)
                 {
@@ -117,7 +128,7 @@ namespace Opc.Ua.PubSub
         /// 
         /// </summary>
         /// <param name="encoder"></param>
-        protected void Encode(JsonEncoder encoder)
+        protected void Encode(IJsonEncoder encoder)
         {
             bool networkHeader = (MessageContentMask & JsonNetworkMessageContentMask.NetworkMessageHeader) != 0;
             if (networkHeader)
@@ -134,7 +145,7 @@ namespace Opc.Ua.PubSub
 
                 bool hasDataSetClassId = (MessageContentMask & JsonNetworkMessageContentMask.DataSetClassId) != 0;
                 var dataSetClassId = hasDataSetClassId ? DataSetClassId : null;
-                    encoder.WriteString(nameof(DataSetClassId), dataSetClassId);
+                encoder.WriteString(nameof(DataSetClassId), dataSetClassId);
             }
 
             if (Messages != null && Messages.Count > 0)

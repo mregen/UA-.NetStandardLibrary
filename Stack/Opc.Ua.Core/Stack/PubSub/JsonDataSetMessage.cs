@@ -88,7 +88,7 @@ namespace Opc.Ua.PubSub
         /// <param name="encoder"></param>
         /// <param name="fieldName"></param>
         /// <param name="value"></param>
-        private void EncodeField(JsonEncoder encoder, string fieldName, DataValue value)
+        private void EncodeField(IJsonEncoder encoder, string fieldName, DataValue value)
         {
             if (FieldContentMask == 0)
             {
@@ -152,7 +152,7 @@ namespace Opc.Ua.PubSub
         /// </summary>
         /// <param name="encoder"></param>
         /// <param name="messageContentMask"></param>
-        public void Encode(JsonEncoder encoder, JsonNetworkMessageContentMask messageContentMask)
+        public void Encode(IJsonEncoder encoder, JsonNetworkMessageContentMask messageContentMask)
         {
             bool singleDataSetMessage = (messageContentMask & JsonNetworkMessageContentMask.SingleDataSetMessage) != 0;
             if ((messageContentMask & JsonNetworkMessageContentMask.DataSetMessageHeader) != 0)
@@ -193,13 +193,13 @@ namespace Opc.Ua.PubSub
 
         void IEncodeable.Encode(IEncoder encoder)
         {
-            Encode((JsonEncoder)encoder);
+            Encode(encoder as IJsonEncoder);
         }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="encoder"></param>
-        public void Encode(JsonEncoder encoder)
+        public void Encode(IJsonEncoder encoder)
         {
             if ((MessageContentMask & JsonDataSetMessageContentMask.DataSetWriterId) != 0)
             {
