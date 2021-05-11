@@ -34,7 +34,7 @@ namespace Opc.Ua.PubSub
                 JsonDataSetMessageContentMask.MetaDataVersion |
                 JsonDataSetMessageContentMask.SequenceNumber;
 
-            FieldContentMask = (DataSetFieldContentMask)0;
+            FieldContentMask = DataSetFieldContentMask.None;
 
             Payload = new Dictionary<string, DataValue>();
         }
@@ -228,14 +228,14 @@ namespace Opc.Ua.PubSub
 
             if (Payload != null)
             {
-                ((JsonEncoder)encoder).PushStructure("Payload");
+                ((IJsonEncoder)encoder).PushStructure("Payload");
 
                 foreach (var ii in Payload)
                 {
                     EncodeField(encoder, ii.Key, ii.Value);
                 }
 
-                ((JsonEncoder)encoder).PopStructure();
+                ((IJsonEncoder)encoder).PopStructure();
             }
         }
         /// <summary>
