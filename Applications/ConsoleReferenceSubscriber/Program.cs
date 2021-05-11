@@ -36,7 +36,6 @@ using Opc.Ua.PubSub;
 using Opc.Ua.PubSub.Encoding;
 using Opc.Ua.PubSub.PublishedData;
 using Opc.Ua.PubSub.Transport;
-using JsonNetworkMessage = Opc.Ua.PubSub.Encoding.JsonNetworkMessage;
 
 namespace Quickstarts.ConsoleReferenceSubscriber
 {

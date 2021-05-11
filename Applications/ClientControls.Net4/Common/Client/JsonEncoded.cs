@@ -4,9 +4,6 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using Newtonsoft.Json;
-using Opc.Ua.PubSub;
-using Opc.Ua.PubSub.Encoding;
-using Opc.Ua.PubSub.PublishedData;
 
 namespace Opc.Ua.Client.Controls
 {
@@ -51,97 +48,7 @@ namespace Opc.Ua.Client.Controls
         public ServiceMessageContext Context { get; set; }
         public NodeId NodeId { get; set; }
 
-        private void NetworkMessageHeader_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateJson();
-        }
-
-        private void DataSetMessageHeader_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateJson();
-        }
-
-        private void SingleDataMessage_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateJson();
-        }
-
-        private void PublisherId_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateJson();
-        }
-
-        private void DatasetClassId_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateJson();
-        }
-
-        private void ReplyTo_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateJson();
-        }
-
-        private void DatasetWriterId_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateJson();
-        }
-
-        private void MetadataVersion_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateJson();
-        }
-
-        private void SequenceNumber_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateJson();
-        }
-
-        private void Timestamp_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateJson();
-        }
-
-        private void Status_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateJson();
-        }
-
-        private void StatusCode_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateJson();
-        }
-
-        private void SourceTimestamp_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateJson();
-        }
-
-        private void ServerTimestamp_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateJson();
-        }
-
-        private void SourcePicoseconds_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateJson();
-        }
-
-        private void ServerPicoseconds_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateJson();
-        }
-
-        private void RawData_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateJson();
-        }
-
-        private void SimDataValue_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateJson();
-        }
-
-        private void Reversible_CheckedChanged(object sender, EventArgs e)
+        private void CheckedChanged(object sender, EventArgs e)
         {
             UpdateJson();
         }
@@ -149,25 +56,8 @@ namespace Opc.Ua.Client.Controls
         private JsonNetworkMessageContentMask jsonNetworkMessageContentMask;
         private JsonDataSetMessageContentMask jsonDataSetMessageContentMask;
         private DataSetFieldContentMask dataSetFieldContentMask;
-        private bool pingpong;
 
         private void UpdateJson()
-        {
-            if (pingpong)
-            {
-                UpdateJson1();
-                this.Text = "Microsoft";
-            }
-            else
-            {
-                UpdateJson2();
-                this.Text = "Softing";
-            }
-
-            pingpong = !pingpong;
-        }
-
-        private void UpdateJson1()
         {
             UpdateFlags();
 
@@ -183,7 +73,7 @@ namespace Opc.Ua.Client.Controls
                 var dataSetMessage = new Opc.Ua.PubSub.JsonDataSetMessage() {
                     SequenceNumber = (uint)(123 + i),
                     DataSetWriterId = (ushort)(5555 + i),
-                    MetaDataVersion = new ConfigurationVersionDataType() { MajorVersion = 1, MinorVersion = 0 },
+                    MetaDataVersion = new ConfigurationVersionDataType() { MajorVersion = UnixTimeSeconds(DateTime.Today), MinorVersion = UnixTimeSeconds(DateTime.UtcNow) },
                     Timestamp = DateTime.UtcNow + TimeSpan.FromMilliseconds(i * 100),
                     Status = new StatusCode(StatusCodes.Uncertain),
                     FieldContentMask = dataSetFieldContentMask,
@@ -231,83 +121,7 @@ namespace Opc.Ua.Client.Controls
             }
 
         }
-        private void UpdateJson2()
-        {
-            UpdateFlags();
 
-            // why UaDataSetMessage? Why different namespace?
-            var dataSetMessageList = new List<Opc.Ua.PubSub.UaDataSetMessage>();
-            for (int i = 0; i < 2; i++)
-            {
-                var dataSetList = new List<DataSet>();
-                foreach (var dataValue in DataValues)
-                {
-                    DataValue clonedDataValue = (DataValue)dataValue.MemberwiseClone();
-                    if (SimDataValue.Checked)
-                    {
-                        clonedDataValue.StatusCode = (i & 1) == 0 ? StatusCodes.Uncertain : StatusCodes.Good;
-                        clonedDataValue.SourceTimestamp = DateTime.UtcNow + TimeSpan.FromMilliseconds(i * 10);
-                        clonedDataValue.ServerTimestamp = DateTime.UtcNow - TimeSpan.FromSeconds(123 + i);
-                        clonedDataValue.SourcePicoseconds = (ushort)(123 + i);
-                        clonedDataValue.ServerPicoseconds = (ushort)(456 + i);
-                    }
-
-                    //dataSetMessage.Payload[$"#0"] =
-
-                    var fields = new List<Field>();
-                    fields.Add(new Field() {
-                        Value = (DataValue)clonedDataValue.MemberwiseClone(),
-                        FieldMetaData = new FieldMetaData() { Name = $"#0" }
-                    });
-
-                    if (SimDataValue.Checked)
-                    {
-                        clonedDataValue.StatusCode = (i & 1) == 0 ? StatusCodes.Good : StatusCodes.Bad;
-                        clonedDataValue.SourceTimestamp = DateTime.UtcNow + TimeSpan.FromMilliseconds(i * 10);
-                        clonedDataValue.ServerTimestamp = DateTime.UtcNow - TimeSpan.FromSeconds(123 + i);
-                        clonedDataValue.SourcePicoseconds = (ushort)(123 + i);
-                        clonedDataValue.ServerPicoseconds = (ushort)(456 + i);
-                    }
-
-                    fields.Add(new Field() {
-                        Value = (DataValue)clonedDataValue.MemberwiseClone(),
-                        FieldMetaData = new FieldMetaData() { Name = $"#1" }
-                    });
-
-                    //dataSetMessage.Payload[$"#1"] = clonedDataValue;
-
-                    var dataSet = new DataSet();
-                    dataSet.Fields = fields.ToArray();
-
-                    var dataSetMessage = new Opc.Ua.PubSub.Encoding.JsonDataSetMessage(dataSet) {
-                        SequenceNumber = (uint)(123 + i),
-                        DataSetWriterId = 5555,
-                        MetaDataVersion = new ConfigurationVersionDataType() { MajorVersion = 1, MinorVersion = 0 },
-                        Timestamp = DateTime.UtcNow + TimeSpan.FromMilliseconds(i * 100),
-                        Status = new StatusCode(StatusCodes.Uncertain)
-                    };
-                    dataSetMessage.SetMessageContentMask(jsonDataSetMessageContentMask);
-                    dataSetMessage.SetFieldContentMask(dataSetFieldContentMask);
-
-                    dataSetMessageList.Add(dataSetMessage);
-                }
-            }
-
-            var networkMessage = new Opc.Ua.PubSub.Encoding.JsonNetworkMessage(null, dataSetMessageList) {
-                MessageId = Guid.NewGuid().ToString(),
-                DataSetClassId = Guid.NewGuid().ToString(),
-                PublisherId = Guid.NewGuid().ToString()
-            };
-            networkMessage.SetNetworkMessageContentMask(jsonNetworkMessageContentMask);
-
-            using (MemoryStream stream = new MemoryStream(1024))
-            using (var writer = new StreamWriter(stream, new UTF8Encoding(false), 65535, true))
-            {
-                networkMessage.Encode(Context, writer);
-                var encoded = Encoding.UTF8.GetString(stream.ToArray());
-                JsonOutput.Text = PrettifyAndValidateJson(encoded);
-            }
-        }
 
         private void UpdateFlags()
         {
@@ -362,6 +176,11 @@ namespace Opc.Ua.Client.Controls
             {
             }
             return json;
+        }
+
+        public static uint UnixTimeSeconds(this DateTime value)
+        {
+            return (uint) (value.Ticks / 10000000L - 62135596800L);
         }
 
         private void OkBtn_Click(object sender, EventArgs e)

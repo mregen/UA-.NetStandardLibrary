@@ -1,4 +1,4 @@
-﻿
+
 namespace Opc.Ua.Client.Controls
 {
     partial class JsonEncoded
@@ -52,7 +52,7 @@ namespace Opc.Ua.Client.Controls
             this.JsonNetworkMessage = new System.Windows.Forms.GroupBox();
             this.DataSetMessage = new System.Windows.Forms.GroupBox();
             this.Reversible = new System.Windows.Forms.CheckBox();
-            this.DataValue = new System.Windows.Forms.GroupBox();
+            this.DataSetField = new System.Windows.Forms.GroupBox();
             this.SuspendLayout();
             // 
             // NetworkMessageHeader
@@ -64,7 +64,7 @@ namespace Opc.Ua.Client.Controls
             this.NetworkMessageHeader.TabIndex = 0;
             this.NetworkMessageHeader.Text = "NetworkMessageHeader";
             this.NetworkMessageHeader.UseVisualStyleBackColor = true;
-            this.NetworkMessageHeader.CheckedChanged += new System.EventHandler(this.NetworkMessageHeader_CheckedChanged);
+            this.NetworkMessageHeader.CheckedChanged += new System.EventHandler(this.CheckedChanged);
             // 
             // MetadataVersion
             // 
@@ -75,7 +75,7 @@ namespace Opc.Ua.Client.Controls
             this.MetadataVersion.TabIndex = 1;
             this.MetadataVersion.Text = "MetadataVersion";
             this.MetadataVersion.UseVisualStyleBackColor = true;
-            this.MetadataVersion.CheckedChanged += new System.EventHandler(this.MetadataVersion_CheckedChanged);
+            this.MetadataVersion.CheckedChanged += new System.EventHandler(this.CheckedChanged);
             // 
             // DatasetWriterId
             // 
@@ -86,7 +86,7 @@ namespace Opc.Ua.Client.Controls
             this.DatasetWriterId.TabIndex = 2;
             this.DatasetWriterId.Text = "DatasetWriterId";
             this.DatasetWriterId.UseVisualStyleBackColor = true;
-            this.DatasetWriterId.CheckedChanged += new System.EventHandler(this.DatasetWriterId_CheckedChanged);
+            this.DatasetWriterId.CheckedChanged += new System.EventHandler(this.CheckedChanged);
             // 
             // StatusCode
             // 
@@ -97,7 +97,7 @@ namespace Opc.Ua.Client.Controls
             this.StatusCode.TabIndex = 3;
             this.StatusCode.Text = "StatusCode";
             this.StatusCode.UseVisualStyleBackColor = true;
-            this.StatusCode.CheckedChanged += new System.EventHandler(this.StatusCode_CheckedChanged);
+            this.StatusCode.CheckedChanged += new System.EventHandler(this.CheckedChanged);
             // 
             // SequenceNumber
             // 
@@ -108,7 +108,7 @@ namespace Opc.Ua.Client.Controls
             this.SequenceNumber.TabIndex = 4;
             this.SequenceNumber.Text = "SequenceNumber";
             this.SequenceNumber.UseVisualStyleBackColor = true;
-            this.SequenceNumber.CheckedChanged += new System.EventHandler(this.SequenceNumber_CheckedChanged);
+            this.SequenceNumber.CheckedChanged += new System.EventHandler(this.CheckedChanged);
             // 
             // Timestamp
             // 
@@ -119,7 +119,7 @@ namespace Opc.Ua.Client.Controls
             this.Timestamp.TabIndex = 5;
             this.Timestamp.Text = "Timestamp";
             this.Timestamp.UseVisualStyleBackColor = true;
-            this.Timestamp.CheckedChanged += new System.EventHandler(this.Timestamp_CheckedChanged);
+            this.Timestamp.CheckedChanged += new System.EventHandler(this.CheckedChanged);
             // 
             // Status
             // 
@@ -130,7 +130,7 @@ namespace Opc.Ua.Client.Controls
             this.Status.TabIndex = 6;
             this.Status.Text = "Status";
             this.Status.UseVisualStyleBackColor = true;
-            this.Status.CheckedChanged += new System.EventHandler(this.Status_CheckedChanged);
+            this.Status.CheckedChanged += new System.EventHandler(this.CheckedChanged);
             // 
             // PublisherId
             // 
@@ -141,7 +141,7 @@ namespace Opc.Ua.Client.Controls
             this.PublisherId.TabIndex = 7;
             this.PublisherId.Text = "PublisherId";
             this.PublisherId.UseVisualStyleBackColor = true;
-            this.PublisherId.CheckedChanged += new System.EventHandler(this.PublisherId_CheckedChanged);
+            this.PublisherId.CheckedChanged += new System.EventHandler(this.CheckedChanged);
             // 
             // DataSetMessageHeader
             // 
@@ -152,7 +152,7 @@ namespace Opc.Ua.Client.Controls
             this.DataSetMessageHeader.TabIndex = 8;
             this.DataSetMessageHeader.Text = "DatasetMessageHeader";
             this.DataSetMessageHeader.UseVisualStyleBackColor = true;
-            this.DataSetMessageHeader.CheckedChanged += new System.EventHandler(this.DataSetMessageHeader_CheckedChanged);
+            this.DataSetMessageHeader.CheckedChanged += new System.EventHandler(this.CheckedChanged);
             // 
             // ReplyTo
             // 
@@ -163,7 +163,7 @@ namespace Opc.Ua.Client.Controls
             this.ReplyTo.TabIndex = 9;
             this.ReplyTo.Text = "ReplyTo";
             this.ReplyTo.UseVisualStyleBackColor = true;
-            this.ReplyTo.CheckedChanged += new System.EventHandler(this.ReplyTo_CheckedChanged);
+            this.ReplyTo.CheckedChanged += new System.EventHandler(this.CheckedChanged);
             // 
             // DatasetClassId
             // 
@@ -174,7 +174,7 @@ namespace Opc.Ua.Client.Controls
             this.DatasetClassId.TabIndex = 10;
             this.DatasetClassId.Text = "DatasetClassId";
             this.DatasetClassId.UseVisualStyleBackColor = true;
-            this.DatasetClassId.CheckedChanged += new System.EventHandler(this.DatasetClassId_CheckedChanged);
+            this.DatasetClassId.CheckedChanged += new System.EventHandler(this.CheckedChanged);
             // 
             // SingleDataMessage
             // 
@@ -185,7 +185,7 @@ namespace Opc.Ua.Client.Controls
             this.SingleDataMessage.TabIndex = 11;
             this.SingleDataMessage.Text = "SingleDataMessage";
             this.SingleDataMessage.UseVisualStyleBackColor = true;
-            this.SingleDataMessage.CheckedChanged += new System.EventHandler(this.SingleDataMessage_CheckedChanged);
+            this.SingleDataMessage.CheckedChanged += new System.EventHandler(this.CheckedChanged);
             // 
             // RawData
             // 
@@ -196,7 +196,7 @@ namespace Opc.Ua.Client.Controls
             this.RawData.TabIndex = 12;
             this.RawData.Text = "RawData";
             this.RawData.UseVisualStyleBackColor = true;
-            this.RawData.CheckedChanged += new System.EventHandler(this.RawData_CheckedChanged);
+            this.RawData.CheckedChanged += new System.EventHandler(this.CheckedChanged);
             // 
             // ServerPicoseconds
             // 
@@ -207,7 +207,7 @@ namespace Opc.Ua.Client.Controls
             this.ServerPicoseconds.TabIndex = 13;
             this.ServerPicoseconds.Text = "ServerPicoseconds";
             this.ServerPicoseconds.UseVisualStyleBackColor = true;
-            this.ServerPicoseconds.CheckedChanged += new System.EventHandler(this.ServerPicoseconds_CheckedChanged);
+            this.ServerPicoseconds.CheckedChanged += new System.EventHandler(this.CheckedChanged);
             // 
             // SourcePicoseconds
             // 
@@ -218,7 +218,7 @@ namespace Opc.Ua.Client.Controls
             this.SourcePicoseconds.TabIndex = 14;
             this.SourcePicoseconds.Text = "SourcePicoseconds";
             this.SourcePicoseconds.UseVisualStyleBackColor = true;
-            this.SourcePicoseconds.CheckedChanged += new System.EventHandler(this.SourcePicoseconds_CheckedChanged);
+            this.SourcePicoseconds.CheckedChanged += new System.EventHandler(this.CheckedChanged);
             // 
             // ServerTimestamp
             // 
@@ -229,7 +229,7 @@ namespace Opc.Ua.Client.Controls
             this.ServerTimestamp.TabIndex = 15;
             this.ServerTimestamp.Text = "ServerTimestamp";
             this.ServerTimestamp.UseVisualStyleBackColor = true;
-            this.ServerTimestamp.CheckedChanged += new System.EventHandler(this.ServerTimestamp_CheckedChanged);
+            this.ServerTimestamp.CheckedChanged += new System.EventHandler(this.CheckedChanged);
             // 
             // SourceTimestamp
             // 
@@ -240,7 +240,7 @@ namespace Opc.Ua.Client.Controls
             this.SourceTimestamp.TabIndex = 16;
             this.SourceTimestamp.Text = "SourceTimestamp";
             this.SourceTimestamp.UseVisualStyleBackColor = true;
-            this.SourceTimestamp.CheckedChanged += new System.EventHandler(this.SourceTimestamp_CheckedChanged);
+            this.SourceTimestamp.CheckedChanged += new System.EventHandler(this.CheckedChanged);
             // 
             // JsonOutput
             // 
@@ -270,7 +270,7 @@ namespace Opc.Ua.Client.Controls
             this.SimDataValue.TabIndex = 19;
             this.SimDataValue.Text = "Simulate Time/Status";
             this.SimDataValue.UseVisualStyleBackColor = true;
-            this.SimDataValue.CheckedChanged += new System.EventHandler(this.SimDataValue_CheckedChanged);
+            this.SimDataValue.CheckedChanged += new System.EventHandler(this.CheckedChanged);
             // 
             // JsonNetworkMessage
             // 
@@ -299,22 +299,22 @@ namespace Opc.Ua.Client.Controls
             this.Reversible.TabIndex = 22;
             this.Reversible.Text = "Reversible (not spec)";
             this.Reversible.UseVisualStyleBackColor = true;
-            this.Reversible.CheckedChanged += new System.EventHandler(this.Reversible_CheckedChanged);
+            this.Reversible.CheckedChanged += new System.EventHandler(this.CheckedChanged);
             // 
-            // DataValue
+            // DataSetField
             // 
-            this.DataValue.Location = new System.Drawing.Point(4, 279);
-            this.DataValue.Name = "DataValue";
-            this.DataValue.Size = new System.Drawing.Size(161, 188);
-            this.DataValue.TabIndex = 22;
-            this.DataValue.TabStop = false;
-            this.DataValue.Text = "DataValue";
+            this.DataSetField.Location = new System.Drawing.Point(4, 279);
+            this.DataSetField.Name = "DataSetField";
+            this.DataSetField.Size = new System.Drawing.Size(161, 188);
+            this.DataSetField.TabIndex = 22;
+            this.DataSetField.TabStop = false;
+            this.DataSetField.Text = "DataSetField";
             // 
             // JsonEncoded
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(869, 507);
+            this.ClientSize = new System.Drawing.Size(845, 503);
             this.Controls.Add(this.Reversible);
             this.Controls.Add(this.SimDataValue);
             this.Controls.Add(this.OkBtn);
@@ -338,7 +338,7 @@ namespace Opc.Ua.Client.Controls
             this.Controls.Add(this.NetworkMessageHeader);
             this.Controls.Add(this.JsonNetworkMessage);
             this.Controls.Add(this.DataSetMessage);
-            this.Controls.Add(this.DataValue);
+            this.Controls.Add(this.DataSetField);
             this.Name = "JsonEncoded";
             this.Text = "PubSub Json Encoding";
             this.ResumeLayout(false);
@@ -371,6 +371,6 @@ namespace Opc.Ua.Client.Controls
         private System.Windows.Forms.GroupBox JsonNetworkMessage;
         private System.Windows.Forms.GroupBox DataSetMessage;
         private System.Windows.Forms.CheckBox Reversible;
-        private System.Windows.Forms.GroupBox DataValue;
+        private System.Windows.Forms.GroupBox DataSetField;
     }
 }

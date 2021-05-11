@@ -1023,10 +1023,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Libraries\Opc.Ua.PubSub\Opc.Ua.PubSub.csproj">
-      <Project>{930480d0-63f0-4be5-86d5-7fd428984b2a}</Project>
-      <Name>Opc.Ua.PubSub</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Libraries\Opc.Ua.Security.Certificates\Opc.Ua.Security.Certificates.csproj">
       <Project>{4b72937f-5a57-4cea-b9fe-b4c45cf7b284}</Project>
       <Name>Opc.Ua.Security.Certificates</Name>
