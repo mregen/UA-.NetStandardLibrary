@@ -58,6 +58,8 @@ namespace Opc.Ua.Client.Controls
             // NetworkMessageHeader
             // 
             this.NetworkMessageHeader.AutoSize = true;
+            this.NetworkMessageHeader.Checked = true;
+            this.NetworkMessageHeader.CheckState = System.Windows.Forms.CheckState.Checked;
             this.NetworkMessageHeader.Location = new System.Drawing.Point(13, 19);
             this.NetworkMessageHeader.Name = "NetworkMessageHeader";
             this.NetworkMessageHeader.Size = new System.Drawing.Size(144, 17);
@@ -69,6 +71,8 @@ namespace Opc.Ua.Client.Controls
             // MetadataVersion
             // 
             this.MetadataVersion.AutoSize = true;
+            this.MetadataVersion.Checked = true;
+            this.MetadataVersion.CheckState = System.Windows.Forms.CheckState.Checked;
             this.MetadataVersion.Location = new System.Drawing.Point(12, 192);
             this.MetadataVersion.Name = "MetadataVersion";
             this.MetadataVersion.Size = new System.Drawing.Size(106, 17);
@@ -80,6 +84,8 @@ namespace Opc.Ua.Client.Controls
             // DatasetWriterId
             // 
             this.DatasetWriterId.AutoSize = true;
+            this.DatasetWriterId.Checked = true;
+            this.DatasetWriterId.CheckState = System.Windows.Forms.CheckState.Checked;
             this.DatasetWriterId.Location = new System.Drawing.Point(12, 169);
             this.DatasetWriterId.Name = "DatasetWriterId";
             this.DatasetWriterId.Size = new System.Drawing.Size(100, 17);
@@ -91,6 +97,8 @@ namespace Opc.Ua.Client.Controls
             // StatusCode
             // 
             this.StatusCode.AutoSize = true;
+            this.StatusCode.Checked = true;
+            this.StatusCode.CheckState = System.Windows.Forms.CheckState.Checked;
             this.StatusCode.Location = new System.Drawing.Point(12, 295);
             this.StatusCode.Name = "StatusCode";
             this.StatusCode.Size = new System.Drawing.Size(81, 17);
@@ -102,6 +110,8 @@ namespace Opc.Ua.Client.Controls
             // SequenceNumber
             // 
             this.SequenceNumber.AutoSize = true;
+            this.SequenceNumber.Checked = true;
+            this.SequenceNumber.CheckState = System.Windows.Forms.CheckState.Checked;
             this.SequenceNumber.Location = new System.Drawing.Point(12, 215);
             this.SequenceNumber.Name = "SequenceNumber";
             this.SequenceNumber.Size = new System.Drawing.Size(112, 17);
@@ -135,6 +145,8 @@ namespace Opc.Ua.Client.Controls
             // PublisherId
             // 
             this.PublisherId.AutoSize = true;
+            this.PublisherId.Checked = true;
+            this.PublisherId.CheckState = System.Windows.Forms.CheckState.Checked;
             this.PublisherId.Location = new System.Drawing.Point(13, 88);
             this.PublisherId.Name = "PublisherId";
             this.PublisherId.Size = new System.Drawing.Size(78, 17);
@@ -146,6 +158,8 @@ namespace Opc.Ua.Client.Controls
             // DataSetMessageHeader
             // 
             this.DataSetMessageHeader.AutoSize = true;
+            this.DataSetMessageHeader.Checked = true;
+            this.DataSetMessageHeader.CheckState = System.Windows.Forms.CheckState.Checked;
             this.DataSetMessageHeader.Location = new System.Drawing.Point(13, 42);
             this.DataSetMessageHeader.Name = "DataSetMessageHeader";
             this.DataSetMessageHeader.Size = new System.Drawing.Size(141, 17);
@@ -168,6 +182,8 @@ namespace Opc.Ua.Client.Controls
             // DatasetClassId
             // 
             this.DatasetClassId.AutoSize = true;
+            this.DatasetClassId.Checked = true;
+            this.DatasetClassId.CheckState = System.Windows.Forms.CheckState.Checked;
             this.DatasetClassId.Location = new System.Drawing.Point(13, 111);
             this.DatasetClassId.Name = "DatasetClassId";
             this.DatasetClassId.Size = new System.Drawing.Size(97, 17);
@@ -234,6 +250,8 @@ namespace Opc.Ua.Client.Controls
             // SourceTimestamp
             // 
             this.SourceTimestamp.AutoSize = true;
+            this.SourceTimestamp.Checked = true;
+            this.SourceTimestamp.CheckState = System.Windows.Forms.CheckState.Checked;
             this.SourceTimestamp.Location = new System.Drawing.Point(12, 317);
             this.SourceTimestamp.Name = "SourceTimestamp";
             this.SourceTimestamp.Size = new System.Drawing.Size(111, 17);
@@ -244,7 +262,10 @@ namespace Opc.Ua.Client.Controls
             // 
             // JsonOutput
             // 
-            this.JsonOutput.Location = new System.Drawing.Point(178, 12);
+            this.JsonOutput.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.JsonOutput.Location = new System.Drawing.Point(178, 11);
             this.JsonOutput.Multiline = true;
             this.JsonOutput.Name = "JsonOutput";
             this.JsonOutput.ScrollBars = System.Windows.Forms.ScrollBars.Both;
@@ -253,6 +274,7 @@ namespace Opc.Ua.Client.Controls
             // 
             // OkBtn
             // 
+            this.OkBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.OkBtn.Location = new System.Drawing.Point(761, 472);
             this.OkBtn.Name = "OkBtn";
             this.OkBtn.Size = new System.Drawing.Size(75, 23);
@@ -264,6 +286,8 @@ namespace Opc.Ua.Client.Controls
             // SimDataValue
             // 
             this.SimDataValue.AutoSize = true;
+            this.SimDataValue.Checked = true;
+            this.SimDataValue.CheckState = System.Windows.Forms.CheckState.Checked;
             this.SimDataValue.Location = new System.Drawing.Point(12, 449);
             this.SimDataValue.Name = "SimDataValue";
             this.SimDataValue.Size = new System.Drawing.Size(127, 17);
