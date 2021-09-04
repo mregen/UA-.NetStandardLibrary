@@ -95,11 +95,11 @@ namespace Opc.Ua
         /// <value>The message context that stores context information associated with a UA 
         /// server that is used during message processing.
         /// </value>
-        public ServiceMessageContext MessageContext
+        public IServiceMessageContext MessageContext
         {
             get
             {
-                return (ServiceMessageContext)m_messageContext;
+                return (IServiceMessageContext)m_messageContext;
             }
 
             set
@@ -954,7 +954,7 @@ namespace Opc.Ua
                     {
                         if (alternateUrl.DnsSafeHost == endpointUrl.DnsSafeHost)
                         {
-                            accessibleAddresses.Add(baseAddress);
+                            accessibleAddresses.Add(new BaseAddress() { Url = alternateUrl, ProfileUri = baseAddress.ProfileUri, DiscoveryUrl = alternateUrl });
                             break;
                         }
                     }
@@ -1258,7 +1258,9 @@ namespace Opc.Ua
             }
 
             // use the message context from the configuration to ensure the channels are using the same one.
-            MessageContext = configuration.CreateMessageContext();
+            ServiceMessageContext messageContext = configuration.CreateMessageContext();
+            messageContext.NamespaceUris = new NamespaceTable();
+            MessageContext = messageContext;
 
             // assign a unique identifier if none specified.
             if (String.IsNullOrEmpty(configuration.ApplicationUri))
@@ -1276,7 +1278,6 @@ namespace Opc.Ua
             }
 
             // initialize namespace table.
-            MessageContext.NamespaceUris = new NamespaceTable();
             MessageContext.NamespaceUris.Append(configuration.ApplicationUri);
 
             // assign an instance name.

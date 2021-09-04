@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 
 
@@ -154,23 +155,24 @@ namespace Opc.Ua.Bindings
             var configuration = settings.Configuration;
 
             // initialize the quotas.
-            m_quotas = new ChannelQuotas();
-            m_quotas.MaxBufferSize = configuration.MaxBufferSize;
-            m_quotas.MaxMessageSize = configuration.MaxMessageSize;
-            m_quotas.ChannelLifetime = configuration.ChannelLifetime;
-            m_quotas.SecurityTokenLifetime = configuration.SecurityTokenLifetime;
+            m_quotas = new ChannelQuotas {
+                MaxBufferSize = configuration.MaxBufferSize,
+                MaxMessageSize = configuration.MaxMessageSize,
+                ChannelLifetime = configuration.ChannelLifetime,
+                SecurityTokenLifetime = configuration.SecurityTokenLifetime,
 
-            m_quotas.MessageContext = new ServiceMessageContext();
+                MessageContext = new ServiceMessageContext {
+                    MaxArrayLength = configuration.MaxArrayLength,
+                    MaxByteStringLength = configuration.MaxByteStringLength,
+                    MaxMessageSize = configuration.MaxMessageSize,
+                    MaxStringLength = configuration.MaxStringLength,
+                    NamespaceUris = settings.NamespaceUris,
+                    ServerUris = new StringTable(),
+                    Factory = settings.Factory
+                },
 
-            m_quotas.MessageContext.MaxArrayLength = configuration.MaxArrayLength;
-            m_quotas.MessageContext.MaxByteStringLength = configuration.MaxByteStringLength;
-            m_quotas.MessageContext.MaxMessageSize = configuration.MaxMessageSize;
-            m_quotas.MessageContext.MaxStringLength = configuration.MaxStringLength;
-            m_quotas.MessageContext.NamespaceUris = settings.NamespaceUris;
-            m_quotas.MessageContext.ServerUris = new StringTable();
-            m_quotas.MessageContext.Factory = settings.Factory;
-
-            m_quotas.CertificateValidator = settings.CertificateValidator;
+                CertificateValidator = settings.CertificateValidator
+            };
 
             // save the callback to the server.
             m_callback = callback;
@@ -229,15 +231,20 @@ namespace Opc.Ua.Bindings
         {
             Startup.Listener = this;
             m_hostBuilder = new WebHostBuilder();
-
             HttpsConnectionAdapterOptions httpsOptions = new HttpsConnectionAdapterOptions();
             httpsOptions.CheckCertificateRevocation = false;
             httpsOptions.ClientCertificateMode = ClientCertificateMode.NoCertificate;
             httpsOptions.ServerCertificate = m_serverCert;
-            httpsOptions.SslProtocols = SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12;
+
+            // note: although security tools recommend 'None' here,
+            // it only works on .NET 4.6.2 if Tls12 is used
+#if NET462
+            httpsOptions.SslProtocols = SslProtocols.Tls12;
+#else
+            httpsOptions.SslProtocols = SslProtocols.None;
+#endif
             m_hostBuilder.UseKestrel(options => {
-                options.Listen(IPAddress.Any, m_uri.Port, listenOptions => {
-                    // listenOptions.NoDelay = true;
+                options.ListenAnyIP(m_uri.Port, listenOptions => {
                     listenOptions.UseHttps(httpsOptions);
                 });
             });
@@ -318,15 +325,38 @@ namespace Opc.Ua.Bindings
                     }
                 }
 
-                EndpointDescription endpoint = null;
+                if (!context.Request.Headers.TryGetValue("OPCUA-SecurityPolicy", out var header))
+                {
+                    header = SecurityPolicies.None;
+                }
 
+                EndpointDescription endpoint = null;
                 foreach (var ep in m_descriptions)
                 {
                     if (ep.EndpointUrl.StartsWith(Utils.UriSchemeHttps))
                     {
+                        if (!string.IsNullOrEmpty(header))
+                        {
+                            if (string.Compare(ep.SecurityPolicyUri, header) != 0)
+                            {
+                                continue;
+                            }
+                        }
+
                         endpoint = ep;
                         break;
                     }
+                }
+
+                if (endpoint == null &&
+                    input.TypeId != DataTypeIds.GetEndpointsRequest)
+                {
+                    var message = "Connection refused, invalid security policy.";
+                    Utils.Trace(Utils.TraceMasks.Error, message);
+                    context.Response.ContentLength = message.Length;
+                    context.Response.ContentType = "text/plain";
+                    context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    await context.Response.WriteAsync(message).ConfigureAwait(false);
                 }
 
                 result = m_callback.BeginProcessRequest(
@@ -342,7 +372,11 @@ namespace Opc.Ua.Bindings
                 context.Response.ContentLength = response.Length;
                 context.Response.ContentType = context.Request.ContentType;
                 context.Response.StatusCode = (int)HttpStatusCode.OK;
+#if NETSTANDARD2_1_OR_GREATER || NET5_0
+                await context.Response.Body.WriteAsync(response.AsMemory(0, response.Length)).ConfigureAwait(false);
+#else
                 await context.Response.Body.WriteAsync(response, 0, response.Length).ConfigureAwait(false);
+#endif
             }
             catch (Exception e)
             {
@@ -377,7 +411,7 @@ namespace Opc.Ua.Bindings
             Start();
         }
 
-        private async Task<byte[]> ReadBodyAsync(HttpRequest req)
+        private static async Task<byte[]> ReadBodyAsync(HttpRequest req)
         {
             using (var memory = new MemoryStream())
             using (var reader = new StreamReader(req.Body))

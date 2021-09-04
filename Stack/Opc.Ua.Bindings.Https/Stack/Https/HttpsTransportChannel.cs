@@ -15,7 +15,9 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Security;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -69,7 +71,7 @@ namespace Opc.Ua.Bindings
         public EndpointConfiguration EndpointConfiguration => m_settings.Configuration;
 
         /// <inheritdoc/>
-        public ServiceMessageContext MessageContext => m_quotas.MessageContext;
+        public IServiceMessageContext MessageContext => m_quotas.MessageContext;
 
         /// <inheritdoc/>
         public ChannelToken CurrentToken => null;
@@ -77,8 +79,8 @@ namespace Opc.Ua.Bindings
         /// <inheritdoc/>
         public int OperationTimeout
         {
-            get { return m_operationTimeout; }
-            set { m_operationTimeout = value; }
+            get => m_operationTimeout;
+            set => m_operationTimeout = value;
         }
 
         /// <inheritdoc/>
@@ -115,34 +117,47 @@ namespace Opc.Ua.Bindings
                 // send client certificate for servers that require TLS client authentication
                 if (m_settings.ClientCertificate != null)
                 {
-                    handler.ClientCertificates.Add(m_settings.ClientCertificate);
+                    var propertyInfo = handler.GetType().GetProperty("ClientCertificates");
+                    if (propertyInfo != null)
+                    {
+                        X509CertificateCollection clientCertificates = (X509CertificateCollection)propertyInfo.GetValue(handler);
+                        clientCertificates?.Add(m_settings.ClientCertificate);
+                    }
                 }
 
                 // OSX platform cannot auto validate certs and throws
                 // on PostAsync, do not set validation handler
                 if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
-                    try
+                    var propertyInfo = handler.GetType().GetProperty("ServerCertificateCustomValidationCallback");
+                    if (propertyInfo != null)
                     {
-                        handler.ServerCertificateCustomValidationCallback =
-                            (httpRequestMessage, cert, chain, policyErrors) => {
-                                try
-                                {
-                                    m_quotas.CertificateValidator?.Validate(cert);
-                                    return true;
-                                }
-                                catch (Exception ex)
-                                {
-                                    Utils.Trace("HTTPS: Failed to validate server cert: " + cert.Subject);
-                                    Utils.Trace("HTTPS: Exception:" + ex.Message);
-                                }
-                                return false;
-                            };
-                    }
-                    catch (PlatformNotSupportedException)
-                    {
-                        // client may throw if not supported (e.g. UWP)
-                        handler.ServerCertificateCustomValidationCallback = null;
+                        Func<HttpRequestMessage, X509Certificate2, X509Chain, SslPolicyErrors, bool>
+                            serverCertificateCustomValidationCallback;
+
+                        try
+                        {
+                            serverCertificateCustomValidationCallback =
+                                (httpRequestMessage, cert, chain, policyErrors) => {
+                                    try
+                                    {
+                                        m_quotas.CertificateValidator?.Validate(cert);
+                                        return true;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Utils.Trace("HTTPS: Failed to validate server cert: " + cert.Subject);
+                                        Utils.Trace("HTTPS: Exception:" + ex.Message);
+                                    }
+                                    return false;
+                                };
+                            propertyInfo.SetValue(handler, serverCertificateCustomValidationCallback);
+                        }
+                        catch (PlatformNotSupportedException)
+                        {
+                            // client may throw if not supported (e.g. UWP)
+                            serverCertificateCustomValidationCallback = null;
+                        }
                     }
                 }
 
@@ -158,10 +173,7 @@ namespace Opc.Ua.Bindings
         /// <inheritdoc/>
         public void Close()
         {
-            if (m_client != null)
-            {
-                m_client.Dispose();
-            }
+            m_client?.Dispose();
         }
 
         /// <summary>
@@ -195,6 +207,11 @@ namespace Opc.Ua.Bindings
             {
                 ByteArrayContent content = new ByteArrayContent(BinaryEncoder.EncodeMessage(request, m_quotas.MessageContext));
                 content.Headers.ContentType = m_mediaTypeHeaderValue;
+                if (EndpointDescription?.SecurityPolicyUri != null &&
+                    string.Compare(EndpointDescription.SecurityPolicyUri, SecurityPolicies.None) != 0)
+                {
+                    content.Headers.Add("OPCUA-SecurityPolicy", EndpointDescription.SecurityPolicyUri);
+                }
 
                 var result = new HttpsAsyncResult(callback, callbackData, m_operationTimeout, request, null);
                 Task.Run(async () => {
@@ -347,24 +364,24 @@ namespace Opc.Ua.Bindings
             m_operationTimeout = settings.Configuration.OperationTimeout;
 
             // initialize the quotas.
-            m_quotas = new ChannelQuotas();
+            m_quotas = new ChannelQuotas {
+                MaxBufferSize = m_settings.Configuration.MaxBufferSize,
+                MaxMessageSize = m_settings.Configuration.MaxMessageSize,
+                ChannelLifetime = m_settings.Configuration.ChannelLifetime,
+                SecurityTokenLifetime = m_settings.Configuration.SecurityTokenLifetime,
 
-            m_quotas.MaxBufferSize = m_settings.Configuration.MaxBufferSize;
-            m_quotas.MaxMessageSize = m_settings.Configuration.MaxMessageSize;
-            m_quotas.ChannelLifetime = m_settings.Configuration.ChannelLifetime;
-            m_quotas.SecurityTokenLifetime = m_settings.Configuration.SecurityTokenLifetime;
+                MessageContext = new ServiceMessageContext {
+                    MaxArrayLength = m_settings.Configuration.MaxArrayLength,
+                    MaxByteStringLength = m_settings.Configuration.MaxByteStringLength,
+                    MaxMessageSize = m_settings.Configuration.MaxMessageSize,
+                    MaxStringLength = m_settings.Configuration.MaxStringLength,
+                    NamespaceUris = m_settings.NamespaceUris,
+                    ServerUris = new StringTable(),
+                    Factory = m_settings.Factory
+                },
 
-            m_quotas.MessageContext = new ServiceMessageContext();
-
-            m_quotas.MessageContext.MaxArrayLength = m_settings.Configuration.MaxArrayLength;
-            m_quotas.MessageContext.MaxByteStringLength = m_settings.Configuration.MaxByteStringLength;
-            m_quotas.MessageContext.MaxMessageSize = m_settings.Configuration.MaxMessageSize;
-            m_quotas.MessageContext.MaxStringLength = m_settings.Configuration.MaxStringLength;
-            m_quotas.MessageContext.NamespaceUris = m_settings.NamespaceUris;
-            m_quotas.MessageContext.ServerUris = new StringTable();
-            m_quotas.MessageContext.Factory = m_settings.Factory;
-
-            m_quotas.CertificateValidator = settings.CertificateValidator;
+                CertificateValidator = settings.CertificateValidator
+            };
         }
 
         private Uri m_url;

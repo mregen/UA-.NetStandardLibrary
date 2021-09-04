@@ -28,16 +28,27 @@
  * ======================================================================*/
 
 using System;
+using System.Threading.Tasks;
 
-#if NETFRAMEWORK
-namespace Opc.Ua.PubSub.Tests
+namespace Opc.Ua.Configuration
 {
-    static class Program
+
+    /// <summary>
+    /// Interface to create application callbacks.
+    /// </summary>
+    public abstract class IApplicationMessageDlg
     {
-        // Main Method 
-        static public void Main(String[] args)
-        {
-        }
+        /// <summary>
+        /// The application message.
+        /// </summary>
+        /// <param name="text">The text of the message.</param>
+        /// <param name="ask">If the application should ask the user.</param>
+        public abstract void Message(string text, Boolean ask = false);
+
+        /// <summary>
+        /// Show the message and return result.
+        /// </summary>
+        public abstract Task<bool> ShowAsync();
     }
 }
-#endif
+

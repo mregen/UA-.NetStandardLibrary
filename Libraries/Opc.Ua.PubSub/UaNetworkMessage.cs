@@ -39,11 +39,18 @@ namespace Opc.Ua.PubSub
     /// </summary>
     public abstract class UaNetworkMessage
     {
+        private ushort m_dataSetWriterId;
+
         #region Protected Fields
         /// <summary>
-        /// list of DataSet messages
+        /// The DataSetMetaData
         /// </summary>
-        protected readonly List<UaDataSetMessage> m_uaDataSetMessages;
+        protected DataSetMetaDataType m_metadata;
+
+        /// <summary>
+        /// List of DataSet messages
+        /// </summary>
+        protected List<UaDataSetMessage> m_uaDataSetMessages;
         #endregion
 
         #region Constructor
@@ -56,6 +63,17 @@ namespace Opc.Ua.PubSub
         {
             WriterGroupConfiguration = writerGroupConfiguration;
             m_uaDataSetMessages = uaDataSetMessages;
+            m_metadata = null;
+        }
+
+        /// <summary>
+        /// Create instance of <see cref="UaNetworkMessage"/>.
+        /// </summary>
+        protected UaNetworkMessage(WriterGroupDataType writerGroupConfiguration, DataSetMetaDataType metadata)
+        {
+            WriterGroupConfiguration = writerGroupConfiguration;
+            m_uaDataSetMessages = new List<UaDataSetMessage>();
+            m_metadata = metadata;
         }
         #endregion
 
@@ -66,14 +84,59 @@ namespace Opc.Ua.PubSub
         public UInt16 WriterGroupId { get; set; }
 
         /// <summary>
-        /// DataSet messages
+        /// Get and Set DataSetWriterId if a single value exists for the message.
         /// </summary>
-        public ReadOnlyCollection<UaDataSetMessage> DataSetMessages
+        public UInt16? DataSetWriterId
         {
             get
             {
-                return new ReadOnlyCollection<UaDataSetMessage>(m_uaDataSetMessages);
+                if (m_dataSetWriterId == 0)
+                {
+                    if (m_uaDataSetMessages != null && m_uaDataSetMessages.Count == 1)
+                    {
+                        return m_uaDataSetMessages[0].DataSetWriterId;
+                    }
+
+                    return null;
+                }
+
+                return ((m_dataSetWriterId != 0) ? m_dataSetWriterId : (UInt16?)null);
             }
+
+            set
+            {
+                m_dataSetWriterId = (value != null) ? value.Value : (ushort)0;
+            }
+        }
+    
+        /// <summary>
+        /// DataSet messages
+        /// </summary>
+        public List<UaDataSetMessage> DataSetMessages
+        {
+            get
+            {
+                return m_uaDataSetMessages;
+            }
+        }
+
+        /// <summary>
+        /// DataSetMetaData messages
+        /// </summary>
+        public DataSetMetaDataType DataSetMetaData
+        {
+            get
+            {
+                return m_metadata;
+            }
+        }
+
+        /// <summary>
+        /// TRUE if it is a metadata message.
+        /// </summary>
+        public bool IsMetaDataMessage
+        {
+            get { return m_metadata != null; }
         }
 
         /// <summary>
@@ -86,38 +149,22 @@ namespace Opc.Ua.PubSub
         /// <summary>
         /// Encodes the object and returns the resulting byte array.
         /// </summary>
-        /// <returns></returns>
         public abstract byte[] Encode();
 
         /// <summary>
-        /// Encodes the object and returns the resulting byte array.
+        /// Encodes the object in the specified stream.
         /// </summary>
-        /// <returns></returns>
-        public abstract void Encode(ServiceMessageContext context, StreamWriter writer);
+        /// <param name="messageContext">The context.</param>
+        /// <param name="stream">The stream to use.</param>
+        public abstract void Encode(IServiceMessageContext messageContext, Stream stream);
 
         /// <summary>
-        /// Decodes the message 
+        /// Decodes the message
         /// </summary>
+        /// <param name="messageContext"></param>
         /// <param name="message"></param>
         /// <param name="dataSetReaders"></param>
-        public abstract void Decode(byte[] message, IList<DataSetReaderDataType> dataSetReaders);
-        #endregion
-
-        #region Protectd Methods
-        /// <summary>
-        /// Read the bytes from a Stream
-        /// </summary>
-        /// <param name="stream"></param>
-        /// <returns></returns>
-        protected byte[] ReadBytes(Stream stream)
-        {
-            stream.Position = 0;
-            using (MemoryStream ms = new MemoryStream())
-            {
-                stream.CopyTo(ms);
-                return ms.ToArray();
-            }
-        }
+        public abstract void Decode(IServiceMessageContext messageContext, byte[] message, IList<DataSetReaderDataType> dataSetReaders);
         #endregion
     }
 }

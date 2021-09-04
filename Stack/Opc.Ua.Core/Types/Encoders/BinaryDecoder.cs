@@ -26,7 +26,7 @@ namespace Opc.Ua
         /// <summary>
         /// Creates a decoder that reads from a memory buffer.
         /// </summary>
-        public BinaryDecoder(byte[] buffer, ServiceMessageContext context)
+        public BinaryDecoder(byte[] buffer, IServiceMessageContext context)
         :
             this(buffer, 0, buffer.Length, context)
         {
@@ -35,7 +35,7 @@ namespace Opc.Ua
         /// <summary>
         /// Creates a decoder that reads from a memory buffer.
         /// </summary>
-        public BinaryDecoder(byte[] buffer, int start, int count, ServiceMessageContext context)
+        public BinaryDecoder(byte[] buffer, int start, int count, IServiceMessageContext context)
         {
             m_istrm = new MemoryStream(buffer, start, count, false);
             m_reader = new BinaryReader(m_istrm);
@@ -46,7 +46,7 @@ namespace Opc.Ua
         /// <summary>
         /// Creates a decoder that reads from a stream.
         /// </summary>
-        public BinaryDecoder(Stream stream, ServiceMessageContext context)
+        public BinaryDecoder(Stream stream, IServiceMessageContext context)
         {
             if (stream == null) throw new ArgumentNullException(nameof(stream));
 
@@ -130,7 +130,7 @@ namespace Opc.Ua
         /// <summary>
         /// Decodes a message from a stream.
         /// </summary>
-        public static IEncodeable DecodeMessage(Stream stream, System.Type expectedType, ServiceMessageContext context)
+        public static IEncodeable DecodeMessage(Stream stream, System.Type expectedType, IServiceMessageContext context)
         {
             if (stream == null) throw new ArgumentNullException(nameof(stream));
             if (context == null) throw new ArgumentNullException(nameof(context));
@@ -150,7 +150,7 @@ namespace Opc.Ua
         /// <summary>
         /// Decodes a session-less message from a buffer.
         /// </summary>
-        public static IEncodeable DecodeSessionLessMessage(byte[] buffer, ServiceMessageContext context)
+        public static IEncodeable DecodeSessionLessMessage(byte[] buffer, IServiceMessageContext context)
         {
             if (buffer == null) throw new ArgumentNullException(nameof(buffer));
             if (context == null) throw new ArgumentNullException(nameof(context));
@@ -189,7 +189,7 @@ namespace Opc.Ua
         /// <summary>
         /// Decodes a message from a buffer.
         /// </summary>
-        public static IEncodeable DecodeMessage(byte[] buffer, System.Type expectedType, ServiceMessageContext context)
+        public static IEncodeable DecodeMessage(byte[] buffer, System.Type expectedType, IServiceMessageContext context)
         {
             if (buffer == null) throw new ArgumentNullException(nameof(buffer));
             if (context == null) throw new ArgumentNullException(nameof(context));
@@ -274,7 +274,7 @@ namespace Opc.Ua
         /// <summary>
         /// The message context associated with the decoder.
         /// </summary>
-        public ServiceMessageContext Context => m_context;
+        public IServiceMessageContext Context => m_context;
 
         /// <summary>
         /// Pushes a namespace onto the namespace stack.
@@ -1429,7 +1429,7 @@ namespace Opc.Ua
         /// <summary>
         /// Reads an array with the specified valueRank and the specified BuiltInType
         /// </summary>
-        public object ReadArray(string fieldName, int valueRank, BuiltInType builtInType)
+        public object ReadArray(string fieldName, int valueRank, BuiltInType builtInType, ExpandedNodeId encodeableTypeId = null)
         {
             if (valueRank == ValueRanks.OneDimension)
             {
@@ -1481,6 +1481,14 @@ namespace Opc.Ua
                     case BuiltInType.DataValue:
                         return ReadDataValueArray(fieldName).ToArray();
                     case BuiltInType.Variant:
+                        if (encodeableTypeId != null)
+                        {
+                            Type systemType = Context.Factory.GetSystemType(encodeableTypeId);
+                            if (systemType != null)
+                            {
+                                return ReadEncodeableArray(fieldName, systemType, encodeableTypeId);
+                            }
+                        }
                         return ReadVariantArray(fieldName).ToArray();
                     case BuiltInType.ExtensionObject:
                         return ReadExtensionObjectArray(fieldName).ToArray();
@@ -1516,14 +1524,33 @@ namespace Opc.Ua
                         length *= dimensions[ii];
                     }
                     // read the elements
-                    Array array = ReadArrayElements(length, builtInType);
-                    if (array == null)
+                    Array elements = null;
+                    if (encodeableTypeId != null)
+                    {
+                        Type systemType = Context.Factory.GetSystemType(encodeableTypeId);
+                        if (systemType != null)
+                        {
+                            elements = Array.CreateInstance(systemType, length);
+                            for (int i = 0; i < length; i++)
+                            {
+                                IEncodeable element = ReadEncodeable(null, systemType, encodeableTypeId);
+
+                                elements.SetValue(Convert.ChangeType(element, systemType), i);
+                            }
+                        }
+                    }
+                    if (elements == null)
+                    {
+                        elements = ReadArrayElements(length, builtInType);
+                    }
+
+                    if (elements == null)
                     {
                         throw new ServiceResultException(
                                StatusCodes.BadDecodingError,
                                Utils.Format("Unexpected null Array for multidimensional matrix with {0} elements.", length));
                     }
-                    return new Matrix(array, builtInType, dimensions.ToArray());
+                    return new Matrix(elements, builtInType, dimensions.ToArray());
                 }
                 throw new ServiceResultException(
                                StatusCodes.BadDecodingError,
@@ -1538,9 +1565,6 @@ namespace Opc.Ua
         /// <summary>
         /// Reads and returns an array of elements of the specified length and builtInType 
         /// </summary>
-        /// <param name="length"></param>
-        /// <param name="builtInType"></param>
-        /// <returns></returns>
         private Array ReadArrayElements(int length, BuiltInType builtInType)
         {
             Array array = null;
@@ -2360,7 +2384,7 @@ namespace Opc.Ua
         #region Private Fields
         private Stream m_istrm;
         private BinaryReader m_reader;
-        private ServiceMessageContext m_context;
+        private IServiceMessageContext m_context;
         private ushort[] m_namespaceMappings;
         private ushort[] m_serverMappings;
         private uint m_nestingLevel;

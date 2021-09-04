@@ -30,6 +30,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace Opc.Ua.PubSub.Encoding
 {
@@ -55,7 +56,7 @@ namespace Opc.Ua.PubSub.Encoding
         /// <summary>
         /// Create new instance of UadpNetworkMessage
         /// </summary>
-        internal UadpNetworkMessage() : this(null, new List<UaDataSetMessage>())
+        internal UadpNetworkMessage() : this(null, new List<UadpDataSetMessage>())
         {
 
         }
@@ -64,8 +65,9 @@ namespace Opc.Ua.PubSub.Encoding
         /// Create new instance of UadpNetworkMessage
         /// </summary>
         /// <param name="writerGroupConfiguration">The <see cref="WriterGroupDataType"/> confguration object that produced this message.</param> 
-        /// <param name="uadpDataSetMessages">UadpDataSetMessage list as input</param>
-        public UadpNetworkMessage(WriterGroupDataType writerGroupConfiguration, List<UaDataSetMessage> uadpDataSetMessages) : base(writerGroupConfiguration, uadpDataSetMessages)
+        /// <param name="uadpDataSetMessages"><see cref="UadpDataSetMessage"/> list as input</param>
+        public UadpNetworkMessage(WriterGroupDataType writerGroupConfiguration, List<UadpDataSetMessage> uadpDataSetMessages)
+            : base(writerGroupConfiguration, uadpDataSetMessages?.ConvertAll<UaDataSetMessage>(x => (UaDataSetMessage)x) ?? new List<UaDataSetMessage>())
         {
             UADPVersion = kUadpVersion;
             DataSetClassId = Guid.Empty;
@@ -259,14 +261,28 @@ namespace Opc.Ua.PubSub.Encoding
         /// <returns></returns>
         public override byte[] Encode()
         {
-            ServiceMessageContext messageContext = new ServiceMessageContext();
-            byte[] bytes = null;
-            using (BinaryEncoder encoder = new BinaryEncoder(messageContext))
+            IServiceMessageContext messageContext = new ServiceMessageContext {
+                NamespaceUris = ServiceMessageContext.GlobalContext.NamespaceUris,
+                ServerUris = ServiceMessageContext.GlobalContext.ServerUris
+            };
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                Encode(messageContext, stream);
+                return stream.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Encodes the object in the specified stream.
+        /// </summary>
+        /// <param name="messageContext">The system context.</param>
+        /// <param name="stream">The stream to use.</param>
+        public override void Encode(IServiceMessageContext messageContext, Stream stream)
+        {
+            using (BinaryEncoder encoder = new BinaryEncoder(stream, messageContext))
             {
                 Encode(encoder);
-                bytes = ReadBytes(encoder.BaseStream);
-
-                return bytes;
             }
         }
 
@@ -283,24 +299,22 @@ namespace Opc.Ua.PubSub.Encoding
         /// <summary>
         /// Decodes the message 
         /// </summary>
+        /// <param name="context"></param>
         /// <param name="message"></param>
         /// <param name="dataSetReaders"></param>
-        public override void Decode(byte[] message, IList<DataSetReaderDataType> dataSetReaders)
+        public override void Decode(IServiceMessageContext context, byte[] message, IList<DataSetReaderDataType> dataSetReaders)
         {
             if (dataSetReaders == null || dataSetReaders.Count == 0)
             {
                 return;
             }
 
-            ServiceMessageContext messageContext = new ServiceMessageContext();
-
-            using (BinaryDecoder decoder = new BinaryDecoder(message, messageContext))
+            using (BinaryDecoder decoder = new BinaryDecoder(message, context))
             {
                 //decode bytes using dataset reader information
                 DecodeSubscribedDataSets(decoder, dataSetReaders);
             }
         }
-
         #endregion
 
         #region Private Methods - Encoding
@@ -760,8 +774,7 @@ namespace Opc.Ua.PubSub.Encoding
                 uadpDataSetMessage.Encode(encoder);
             }
 
-            if (DataSetMessages.Count > 1
-                && (NetworkMessageContentMask & UadpNetworkMessageContentMask.PayloadHeader) != 0)
+            if (DataSetMessages.Count > 1 && (NetworkMessageContentMask & UadpNetworkMessageContentMask.PayloadHeader) != 0)
             {
                 int payloadEndPositionInStream = encoder.Position;
                 encoder.Position = payloadStartPositionInStream;

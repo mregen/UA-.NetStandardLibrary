@@ -27,17 +27,16 @@
  * http://opcfoundation.org/License/MIT/1.00/
  * ======================================================================*/
 
-using System;
-
-#if NETFRAMEWORK
-namespace Opc.Ua.Gds.Tests
+namespace Quickstarts.Servers
 {
-    static class Program
+    /// <summary>
+    /// Defines constants for namespaces used by the servers.
+    /// </summary>
+    public static partial class Namespaces
     {
-        // Main Method 
-        static public void Main(String[] args)
-        {
-        }
+        /// <summary>
+        /// The namespace for the nodes provided by the reference server.
+        /// </summary>
+        public const string ReferenceServer = "http://opcfoundation.org/Quickstarts/ReferenceServer";
     }
 }
-#endif
