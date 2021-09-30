@@ -182,19 +182,11 @@ namespace Opc.Ua.PubSub.Encoding
             };
 
             using (MemoryStream stream = new MemoryStream(1024))
-            using (var writer = new StreamWriter(stream, new UTF8Encoding(false), 65535, true))
             {
-                Encode(messageContext, writer);
+                Encode(messageContext, stream);
                 return stream.ToArray();
             }
         }
-
-        /// <summary>
-        /// Encodes the object and returns the resulting byte array.
-        /// </summary>
-        public override void Encode(ServiceMessageContext messageContext, StreamWriter writer)
-        {
-            bool topLevelIsArray = !HasNetworkMessageHeader && !HasSingleDataSetMessage;
 
         /// <summary>
         /// Encodes the object in the specified stream.

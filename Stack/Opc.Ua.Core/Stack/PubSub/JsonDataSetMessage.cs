@@ -17,7 +17,7 @@ using System.Collections.Generic;
 using System.IO;
 using Opc.Ua;
 
-namespace Opc.Ua.PubSub
+namespace Opc.Ua.PubSub.Prototyping
 {
     /// <summary>
     /// 
