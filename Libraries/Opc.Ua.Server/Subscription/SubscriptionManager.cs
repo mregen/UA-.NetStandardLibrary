@@ -316,7 +316,8 @@ namespace Opc.Ua.Server
                             }
 
                             m_abandonedSubscriptions.Add(subscription);
-                            Utils.Trace("Server: Subscription '{0}' Abandoned.", subscription.Id);
+                            Utils.Trace(Utils.TraceMasks.ServerSubscription,
+                                "Server: Subscription '{0}' Abandoned.", subscription.Id);
                         }
                     }
                 }
@@ -457,7 +458,8 @@ namespace Opc.Ua.Server
                         if (m_abandonedSubscriptions[ii].Id == subscriptionId)
                         {
                             m_abandonedSubscriptions.RemoveAt(ii);
-                            Utils.Trace("Server: Abandoned Subscription '{0}' Deleted.", subscriptionId);
+                            Utils.Trace(Utils.TraceMasks.ServerSubscription,
+                                "Server: Abandoned Subscription '{0}' Deleted.", subscriptionId);
                             break;
                         }
                     }
@@ -828,7 +830,8 @@ namespace Opc.Ua.Server
 
              NotificationMessage message = null;
 
-             Utils.Trace("Publish #{0} ReceivedFromClient", context.ClientHandle);
+             Utils.Trace(Utils.TraceMasks.ServerSubscription, "Publish #{0} ReceivedFromClient", context.ClientHandle);
+
              bool requeue = false;
 
              do
@@ -861,7 +864,7 @@ namespace Opc.Ua.Server
                          break;
                      }
 
-                     Utils.Trace("Publish False Alarm - Request #{0} Requeued.", context.ClientHandle);
+                     Utils.Trace(Utils.TraceMasks.ServerSubscription, "Publish False Alarm - Request #{0} Requeued.", context.ClientHandle);
                      requeue = true;
                  }
                  finally
@@ -912,7 +915,7 @@ namespace Opc.Ua.Server
 
             try
             {
-                Utils.Trace("Publish #{0} ReceivedFromClient", context.ClientHandle);
+                Utils.Trace(Utils.TraceMasks.ServerSubscription, "Publish #{0} ReceivedFromClient", context.ClientHandle);
 
                 // check for status messages.
                 lock (m_statusMessagesLock)
@@ -943,7 +946,7 @@ namespace Opc.Ua.Server
 
                     if (subscription == null)
                     {
-                        Utils.Trace("Publish #{0} Timeout", context.ClientHandle);
+                        Utils.Trace(Utils.TraceMasks.ServerSubscription, "Publish #{0} Timeout", context.ClientHandle);
                         return null;
                     }
 
@@ -967,7 +970,7 @@ namespace Opc.Ua.Server
                             break;
                         }
 
-                        Utils.Trace("Publish False Alarm - Request #{0} Requeued.", context.ClientHandle);
+                        Utils.Trace(Utils.TraceMasks.ServerSubscription, "Publish False Alarm - Request #{0} Requeued.", context.ClientHandle);
                         requeue = true;
                     }
                     finally
@@ -1545,7 +1548,7 @@ namespace Opc.Ua.Server
         {
             try
             {
-                Utils.Trace("Server: Publish Subscriptions Thread Started.");
+                Utils.Trace(Utils.TraceMasks.ServerSubscription, "Server: Publish Subscriptions Thread Started.");
 
                 int sleepCycle = Convert.ToInt32(data, CultureInfo.InvariantCulture);
                 int timeToWait = sleepCycle;
@@ -1602,7 +1605,7 @@ namespace Opc.Ua.Server
 
                             subscriptionsToDelete.Add(subscription);
                             SubscriptionExpired(subscription);
-                            Utils.Trace("Server: Abandoned Subscription '{0}' Delete Scheduled.", subscription.Id);
+                            Utils.Trace(Utils.TraceMasks.ServerSubscription, "Server: Abandoned Subscription '{0}' Delete Scheduled.", subscription.Id);
                         }
 
                         // schedule cleanup on a background thread.
@@ -1622,7 +1625,7 @@ namespace Opc.Ua.Server
 
                     if (m_shutdownEvent.WaitOne(timeToWait))
                     {
-                        Utils.Trace("Server: Publish Subscriptions Thread Exited Normally.");
+                        Utils.Trace(Utils.TraceMasks.ServerSubscription, "Server: Publish Subscriptions Thread Exited Normally.");
                         break;
                     }
 
@@ -1646,7 +1649,7 @@ namespace Opc.Ua.Server
         {
             if (subscriptionsToDelete != null && subscriptionsToDelete.Count > 0)
             {
-                Utils.Trace("Server: {0} Subscriptions scheduled for delete.", subscriptionsToDelete.Count);
+                Utils.Trace(Utils.TraceMasks.ServerSubscription, "Server: {0} Subscriptions scheduled for delete.", subscriptionsToDelete.Count);
 
                 Task.Run(() =>
                 {
@@ -1662,7 +1665,7 @@ namespace Opc.Ua.Server
         {
             try
             {
-                Utils.Trace("Server: CleanupSubscriptions Task Started");
+                Utils.Trace(Utils.TraceMasks.ServerSubscription, "Server: CleanupSubscriptions Task Started");
 
                 object[] args = (object[])data;
 
@@ -1674,7 +1677,7 @@ namespace Opc.Ua.Server
                     server.DeleteSubscription(subscription.Id);
                 }
 
-                Utils.Trace("Server: CleanupSubscriptions Task Completed");
+                Utils.Trace(Utils.TraceMasks.ServerSubscription, "Server: CleanupSubscriptions Task Completed");
             }
             catch (Exception e)
             {

@@ -568,7 +568,7 @@ namespace Opc.Ua.Server
         {
             try
             {
-                Utils.Trace("Server: Session Monitor Thread Started.");
+                Utils.Trace(Utils.TraceMasks.StartStop, "Server: Session Monitor Thread Started.");
 
                 int sleepCycle = Convert.ToInt32(data, CultureInfo.InvariantCulture);
 
@@ -598,7 +598,7 @@ namespace Opc.Ua.Server
 
                     if (m_shutdownEvent.WaitOne(sleepCycle))
                     {
-                        Utils.Trace("Server: Session Monitor Thread Exited Normally.");
+                        Utils.Trace(Utils.TraceMasks.StartStop, "Server: Session Monitor Thread Exited Normally.");
                         break;
                     }
                 }

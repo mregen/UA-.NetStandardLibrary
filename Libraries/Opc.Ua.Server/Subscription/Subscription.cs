@@ -157,7 +157,7 @@ namespace Opc.Ua.Server
                 m_diagnostics,
                 OnUpdateDiagnostics);
 
-            // TraceState("CREATED");
+            TraceState("CREATED");
         }
         #endregion
 
@@ -345,7 +345,7 @@ namespace Opc.Ua.Server
             {
                 try
                 {
-                    // TraceState("DELETED");
+                    TraceState("DELETED");
 
                     // the context may be null if the server is cleaning up expired subscriptions.
                     // in this case we create a context with a dummy request and use the current session.
@@ -505,7 +505,7 @@ namespace Opc.Ua.Server
                 {
                     if (!m_waitingForPublish)
                     {
-                        // TraceState("READY TO KEEPALIVE");
+                        TraceState("READY TO KEEPALIVE");
                     }
 
                     m_waitingForPublish = true;
@@ -861,6 +861,7 @@ namespace Opc.Ua.Server
             {
 
                 Utils.Trace(
+                    Utils.TraceMasks.Error,
                     "WARNING: QUEUE OVERFLOW. Dropping {2} Messages. Increase MaxMessageQueueSize. SubId={0}, MaxMessageQueueSize={1}",
                     m_id,
                     m_maxMessageCount,
@@ -1078,7 +1079,7 @@ namespace Opc.Ua.Server
                     m_diagnostics.MaxNotificationsPerPublish = m_maxNotificationsPerPublish;
                 }
 
-                // TraceState("MODIFIED");
+                TraceState("MODIFIED");
             }
         }
 
@@ -1118,7 +1119,7 @@ namespace Opc.Ua.Server
                     }
                 }
 
-                // TraceState((publishingEnabled)?"ENABLED":"DISABLED");
+                TraceState((publishingEnabled)?"ENABLED":"DISABLED");
             }
         }
 
@@ -1412,7 +1413,7 @@ namespace Opc.Ua.Server
                     diagnosticInfos.Clear();
                 }
 
-                // TraceState("ITEMS CREATED");
+                TraceState("ITEMS CREATED");
             }
         }
 
@@ -1635,7 +1636,7 @@ namespace Opc.Ua.Server
                     diagnosticInfos.Clear();
                 }
 
-                // TraceState("ITEMS MODIFIED");
+                TraceState("ITEMS MODIFIED");
             }
         }
 
@@ -1803,7 +1804,7 @@ namespace Opc.Ua.Server
                     diagnosticInfos.Clear();
                 }
 
-                // TraceState("ITEMS DELETED");
+                TraceState("ITEMS DELETED");
             }
         }
 
@@ -1931,15 +1932,15 @@ namespace Opc.Ua.Server
 
                 if (monitoringMode == MonitoringMode.Disabled)
                 {
-                    // TraceState("ITEMS DISABLED");
+                    TraceState("ITEMS DISABLED");
                 }
                 else if (monitoringMode == MonitoringMode.Reporting)
                 {
-                    // TraceState("ITEMS REPORTING ENABLED");
+                    TraceState("ITEMS REPORTING ENABLED");
                 }
                 else
                 {
-                    // TraceState("ITEMS SAMPLING ENABLED");
+                    TraceState("ITEMS SAMPLING ENABLED");
                 }
             }
         }
@@ -2147,7 +2148,7 @@ namespace Opc.Ua.Server
                     }
                 }
 
-                // TraceState("CONDITION REFRESH");
+                TraceState("CONDITION REFRESH");
             }
         }
 
@@ -2211,7 +2212,7 @@ namespace Opc.Ua.Server
         /// </summary>
         internal void TraceState(string context)
         {
-            if ((Utils.TraceMask & Utils.TraceMasks.Information) == 0)
+            if ((Utils.TraceMask & Utils.TraceMasks.ServerSubscription) == 0)
             {
                 return;
             }

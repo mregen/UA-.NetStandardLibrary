@@ -260,7 +260,7 @@
     </OperationLimits>
   </ServerConfiguration>
   <TraceConfiguration>
-    <OutputFilePath>%LocalApplicationData%/OPC Foundation/Logs/Quickstarts.ReferenceServer.log.txt</OutputFilePath>
+    <OutputFilePath>../../../Quickstarts.ReferenceServer.log.txt</OutputFilePath>
     <DeleteOnLoad>true</DeleteOnLoad>
     <!-- Show Only Errors -->
     <!-- <TraceMasks>1</TraceMasks> -->
@@ -273,7 +273,7 @@
     <!-- Show Only Security, Service Calls, Errors and Trace -->
     <!-- <TraceMasks>523</TraceMasks> -->
     <!-- Show Only Security, ServiceResultExceptions, Errors and Trace -->
-    <!-- <TraceMasks>519</TraceMasks> -->
+    <TraceMasks>1023</TraceMasks>
   </TraceConfiguration>
 
 </ApplicationConfiguration>

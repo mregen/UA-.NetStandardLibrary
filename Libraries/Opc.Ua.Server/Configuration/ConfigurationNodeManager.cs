@@ -308,7 +308,7 @@ namespace Opc.Ua.Server
                 NamespacesState serverNamespacesNode = FindPredefinedNode(ObjectIds.Server_Namespaces, typeof(NamespacesState)) as NamespacesState;
                 if (serverNamespacesNode == null)
                 {
-                    Utils.Trace("Cannot create NamespaceMetadataState for namespace '{0}'.", namespaceUri);
+                    Utils.Trace(Utils.TraceMasks.Error, "Cannot create NamespaceMetadataState for namespace '{0}'.", namespaceUri);
                     return null;
                 }
 
@@ -370,6 +370,8 @@ namespace Opc.Ua.Server
             ref bool applyChangesRequired)
         {
             HasApplicationSecureAdminAccess(context);
+
+            Utils.Trace(Utils.TraceMasks.Security, "GDS Push Update certificate {0}");
 
             if (certificate == null)
             {
@@ -500,7 +502,7 @@ namespace Opc.Ua.Server
                             try
                             {
                                 Utils.Trace(Utils.TraceMasks.Security, "Add new issuer certificate {0}", issuer);
-                                issuerStore.Add(issuer).Wait();
+                                issuerStore.Add(issuer).GetAwaiter().GetResult();
                             }
                             catch (ArgumentException)
                             {

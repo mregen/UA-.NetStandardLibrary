@@ -354,7 +354,8 @@ namespace Opc.Ua.Server
         {
             try
             {
-                //Utils.Trace("Server: {0} Thread Started.", Thread.CurrentThread.Name);
+                Utils.Trace(Utils.TraceMasks.StartStop,
+                    "Server: {0} Thread Started.", Thread.CurrentThread.Name);
 
                 int sleepCycle = Convert.ToInt32(data, CultureInfo.InvariantCulture);
                 int timeToWait = sleepCycle;
@@ -409,13 +410,14 @@ namespace Opc.Ua.Server
 
                         if (timeToWait < 0)
                         {
-                            Utils.Trace("WARNING: SamplingGroup cannot sample fast enough. TimeToSample={0}ms, SamplingInterval={1}ms", delay, sleepCycle);
+                            Utils.Trace(Utils.TraceMasks.Error,
+                                "WARNING: SamplingGroup cannot sample fast enough. TimeToSample={0}ms, SamplingInterval={1}ms", delay, sleepCycle);
                             timeToWait = sleepCycle;
                         }
                     }
                 }
                 
-                //Utils.Trace("Server: {0} Thread Exited Normally.", Thread.CurrentThread.Name);
+                Utils.Trace(Utils.TraceMasks.StartStop, "Server: {0} Thread Exited Normally.", Thread.CurrentThread.Name);
             }
             catch (Exception e)
             {

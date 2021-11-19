@@ -1488,7 +1488,9 @@ namespace Opc.Ua.Server
                     operation.Response.DiagnosticInfos = diagnosticInfos;
                     operation.Response.NotificationMessage = notificationMessage;
 
-                    Utils.Trace("PUBLISH: #{0} Completed Synchronously", input.RequestHeader.RequestHandle);
+                    Utils.Trace("PUBLISH: #{0} Completed Synchronously",
+                        input.RequestHeader.RequestHandle);
+
                     request.OperationCompleted(operation.Response, null);
                 }
             }
@@ -2183,7 +2185,8 @@ namespace Opc.Ua.Server
                             }
                             catch (Exception e)
                             {
-                                Utils.Trace("RegisterServer{0} failed for at: {1}. Exception={2}",
+                                Utils.Trace(Utils.TraceMasks.Error,
+                                    "RegisterServer{0} failed for at: {1}. Exception={2}",
                                     m_useRegisterServer2 ? "2" : "", endpoint.EndpointUrl, e.Message);
                                 m_useRegisterServer2 = !m_useRegisterServer2;
                             }
@@ -2198,7 +2201,7 @@ namespace Opc.Ua.Server
                                     }
                                     catch (Exception e)
                                     {
-                                        Utils.Trace("Could not cleanly close connection with LDS. Exception={0}", e.Message);
+                                        Utils.Trace(Utils.TraceMasks.Error, "Could not cleanly close connection with LDS. Exception={0}", e.Message);
                                     }
                                 }
                             }

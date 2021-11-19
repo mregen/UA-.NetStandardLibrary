@@ -280,13 +280,15 @@ namespace Opc.Ua.Server
                                 reverseConnection.LastState = ReverseConnectState.Connecting;
                                 base.CreateConnection(reverseConnection.ClientUrl,
                                     reverseConnection.Timeout > 0 ? reverseConnection.Timeout : m_connectTimeout);
-                                Utils.Trace($"Create Connection! [{reverseConnection.LastState}][{reverseConnection.ClientUrl}]");
+                                Utils.Trace("Create Connection! [{0}][{1}]",
+                                    reverseConnection.LastState, reverseConnection.ClientUrl);
                             }
                             catch (Exception e)
                             {
                                 reverseConnection.LastState = ReverseConnectState.Errored;
                                 reverseConnection.ServiceResult = new ServiceResult(e);
-                                Utils.Trace($"Create Connection failed! [{reverseConnection.LastState}][{reverseConnection.ClientUrl}]");
+                                Utils.Trace($"Create Connection failed! [{0}][{1}]",
+                                    reverseConnection.LastState, reverseConnection.ClientUrl);
                             }
                         }
                     }
@@ -320,22 +322,26 @@ namespace Opc.Ua.Server
                         {
                             reverseConnection.LastState = ReverseConnectState.Rejected;
                             reverseConnection.RejectTime = DateTime.UtcNow;
-                            Utils.Trace($"Client Rejected Connection! [{reverseConnection.LastState}][{e.EndpointUrl}]");
+                            Utils.Trace("Client Rejected Connection! [{0}][{1}]",
+                                reverseConnection.LastState, e.EndpointUrl);
                             return;
                         }
                         else
                         {
                             reverseConnection.LastState = ReverseConnectState.Closed;
-                            Utils.Trace($"Connection Error! [{reverseConnection.LastState}][{e.EndpointUrl}]");
+                            Utils.Trace("Connection Error! [{0}][{1}]",
+                                reverseConnection.LastState, e.EndpointUrl);
                             return;
                         }
                     }
                     reverseConnection.LastState = e.Closed ? ReverseConnectState.Closed : ReverseConnectState.Connected;
-                    Utils.Trace($"New Connection State! [{reverseConnection.LastState}][{e.EndpointUrl}]");
+                    Utils.Trace("New Connection State! [{0}][{1}]",
+                        reverseConnection.LastState, e.EndpointUrl);
                 }
                 else
                 {
-                    Utils.Trace($"Warning: Status changed for unknown reverse connection: [{e.ChannelStatus}][{e.EndpointUrl}]");
+                    Utils.Trace("Warning: Status changed for unknown reverse connection: [{e.ChannelStatus}][{e.EndpointUrl}]",
+                        e.ChannelStatus, e.EndpointUrl);
                 }
             }
 
