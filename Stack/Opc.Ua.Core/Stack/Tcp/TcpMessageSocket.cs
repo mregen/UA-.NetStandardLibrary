@@ -344,7 +344,8 @@ namespace Opc.Ua.Bindings
             }
             catch (SocketException e)
             {
-                Utils.Trace("Name resolution failed for: {0} Error: {1}", endpointUrl.DnsSafeHost, e.Message);
+                Utils.Trace(Utils.TraceMasks.Error, "Name resolution failed for: {0} Error: {1}",
+                    endpointUrl.DnsSafeHost, e.Message);
                 error = e.SocketErrorCode;
                 goto ErrorExit;
             }
@@ -390,6 +391,7 @@ namespace Opc.Ua.Bindings
 
                 if (addressesV6.Length > arrayV6Index && m_socket == null)
                 {
+                    Utils.Trace(Utils.TraceMasks.TCPMessageSocket, "Connecting to IPv6 {0}", addressesV6[arrayV6Index]);
                     if (BeginConnect(addressesV6[arrayV6Index], AddressFamily.InterNetworkV6, port, doCallback) == SocketError.Success)
                     {
                         return true;
@@ -399,13 +401,13 @@ namespace Opc.Ua.Bindings
 
                 if (addressesV4.Length > arrayV4Index && m_socket == null)
                 {
+                    Utils.Trace(Utils.TraceMasks.TCPMessageSocket, "Connecting to IPv4 {0}", addressesV6[arrayV6Index]);
                     if (BeginConnect(addressesV4[arrayV4Index], AddressFamily.InterNetwork, port, doCallback) == SocketError.Success)
                     {
                         return true;
                     }
                     arrayV4Index++;
                 }
-
 
                 moreAddresses = addressesV6.Length > arrayV6Index || addressesV4.Length > arrayV4Index;
                 if (moreAddresses && !m_tcs.Task.IsCompleted)
@@ -569,7 +571,7 @@ namespace Opc.Ua.Bindings
                 BufferManager.UnlockBuffer(m_receiveBuffer);
             }
 
-            Utils.TraceDebug("Bytes read: {0}", bytesRead);
+            Utils.Trace(Utils.TraceMasks.TCPMessageSocket, "Bytes read: {0}", bytesRead);
 
             if (bytesRead == 0)
             {
@@ -603,6 +605,7 @@ namespace Opc.Ua.Bindings
                 if (m_incomingMessageSize <= 0 || m_incomingMessageSize > m_receiveBufferSize)
                 {
                     Utils.Trace(
+                        Utils.TraceMasks.TCPMessageSocket,
                         "BadTcpMessageTooLarge: BufferSize={0}; MessageSize={1}",
                         m_receiveBufferSize,
                         m_incomingMessageSize);
@@ -784,6 +787,7 @@ namespace Opc.Ua.Bindings
                         m_socket = socket;
                         success = true;
                         m_tcs.SetResult(args.SocketError);
+                        Utils.Trace(Utils.TraceMasks.TCPMessageSocket, "Socket connected: {0}", socket.RemoteEndPoint.ToString());
                     }
                     else if (m_socketResponses == 0)
                     {

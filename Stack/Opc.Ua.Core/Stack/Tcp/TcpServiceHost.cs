@@ -54,6 +54,8 @@ namespace Opc.Ua.Bindings
                 hostName += Utils.Format("/{0}", hosts.Count);
             }
 
+            //Console.WriteLine("ActivityId: {0}", System.Diagnostics.Activity.Current);
+
             // build list of uris.
             List<Uri> uris = new List<Uri>();
             EndpointDescriptionCollection endpoints = new EndpointDescriptionCollection();

@@ -214,7 +214,7 @@ namespace Opc.Ua.Bindings
                 {
                     // replace the socket.
                     Socket = socket;
-                    Utils.Trace("{0} SOCKET RECONNECTED: {1:X8}, ChannelId={2}", ChannelName, Socket.Handle, ChannelId);
+                    Utils.Trace(Utils.TraceMasks.TCPMessageSocket, "{0} SOCKET RECONNECTED: {1:X8}, ChannelId={2}", ChannelName, Socket.Handle, ChannelId);
                     Socket.ChangeSink(this);
 
                     // need to assign a new token id.
@@ -623,7 +623,7 @@ namespace Opc.Ua.Bindings
                             token,
                             request);
 
-                        Utils.Trace(
+                        Utils.Trace(Utils.TraceMasks.TCPMessageSocket,
                             "{0} ReconnectToExistingChannel Socket={0:X8}, ChannelId={1}, TokenId={2}",
                             ChannelName,
                             (Socket != null) ? Socket.Handle : 0,
@@ -731,7 +731,7 @@ namespace Opc.Ua.Bindings
         /// </summary>
         private void SendOpenSecureChannelResponse(uint requestId, ChannelToken token, OpenSecureChannelRequest request)
         {
-            Utils.Trace("Channel {0}: SendOpenSecureChannelResponse()", ChannelId);
+            Utils.Trace(Utils.TraceMasks.TCPMessageSocket, "Channel {0}: SendOpenSecureChannelResponse()", ChannelId);
 
             OpenSecureChannelResponse response = new OpenSecureChannelResponse();
 
@@ -834,7 +834,7 @@ namespace Opc.Ua.Bindings
                     chunksToProcess.Release(BufferManager, "ProcessCloseSecureChannelRequest");
                 }
 
-                Utils.Trace(
+                Utils.Trace( Utils.TraceMasks.TCPMessageSocket,
                     "{0} ProcessCloseSecureChannelRequest Socket={0:X8}, ChannelId={1}, TokenId={2}",
                     ChannelName,
                     (Socket != null) ? Socket.Handle : 0,
@@ -881,13 +881,13 @@ namespace Opc.Ua.Bindings
 
                 if (token == CurrentToken && PreviousToken != null && !PreviousToken.Expired)
                 {
-                    Utils.Trace("Server Revoked Token. ChannelId={1}, TokenId={0}", PreviousToken.TokenId, PreviousToken.ChannelId, DateTime.UtcNow);
+                    Utils.Trace(Utils.TraceMasks.Security, "Server Revoked Token. ChannelId={1}, TokenId={0}", PreviousToken.TokenId, PreviousToken.ChannelId, DateTime.UtcNow);
                     PreviousToken.Lifetime = 0;
                 }
             }
             catch (Exception e)
             {
-                Utils.Trace("Could not verify security on incoming request.");
+                Utils.Trace(Utils.TraceMasks.Security, "Could not verify security on incoming request.");
                 ForceChannelFault(e, StatusCodes.BadSecurityChecksFailed, "Could not verify security on incoming request.");
                 return false;
             }
@@ -899,7 +899,7 @@ namespace Opc.Ua.Bindings
                 // check for an abort.
                 if (TcpMessageType.IsAbort(messageType))
                 {
-                    Utils.Trace("Request was aborted.");
+                    Utils.Trace(Utils.TraceMasks.TCPMessageSocket, "Request was aborted.");
                     chunksToProcess = GetSavedChunks(requestId, messageBody);
                     return true;
                 }
@@ -911,7 +911,7 @@ namespace Opc.Ua.Bindings
                     return true;
                 }
 
-                Utils.Trace("Channel {0}: ProcessRequestMessage {1}", ChannelId, requestId);
+                Utils.Trace(Utils.TraceMasks.TCPMessageSocket, "Channel {0}: ProcessRequestMessage {1}", ChannelId, requestId);
 
                 // get the chunks to process.
                 chunksToProcess = GetSavedChunks(requestId, messageBody);

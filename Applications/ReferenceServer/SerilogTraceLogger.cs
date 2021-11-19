@@ -82,7 +82,7 @@ namespace Quickstarts.ReferenceServer
             }
 
             ILogger logger = loggerConfiguration
-                .MinimumLevel.Information()
+                .MinimumLevel.Verbose()
                 .CreateLogger();
 
             SerilogTraceLogger traceLogger = new SerilogTraceLogger(logger, config.TraceConfiguration.TraceMasks);
@@ -122,11 +122,12 @@ namespace Quickstarts.ReferenceServer
                 }
                 switch (e.TraceMask)
                 {
-                    case Utils.TraceMasks.OperationDetail: 
-                    case Utils.TraceMasks.Information: m_logger.Verbose(e.Format, e.Arguments); break;
+                    case Utils.TraceMasks.ServiceDetail:
+                    case Utils.TraceMasks.OperationDetail: m_logger.Verbose(e.Format, e.Arguments); break;
                     case Utils.TraceMasks.Error: m_logger.Error(e.Format, e.Arguments); break;
                     case Utils.TraceMasks.StackTrace: 
                     case Utils.TraceMasks.Security: m_logger.Warning(e.Format, e.Arguments); break;
+                    case Utils.TraceMasks.Information:
                     default: m_logger.Information(e.Format, e.Arguments); break;
                 }
             }

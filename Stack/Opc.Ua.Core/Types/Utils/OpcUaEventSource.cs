@@ -88,7 +88,7 @@ namespace Opc.Ua
         private const string ServiceCompletedMessage = "{0} Completed. RequestHandle={1}, PendingRequestCount={2}";
         private const string ServiceCompletedBadMessage = "{0} Completed. RequestHandle={1}, PendingRequestCount={3}, StatusCode={2}";
         private const string ServiceFaultMessage = "Service Fault Occured. Reason={0}";
-        private const string ServerCallMessage = "Service Fault Occured. Reason={0}";
+        private const string ServerCallMessage = "Service Call={0}";
 
         /// <summary>
         /// 

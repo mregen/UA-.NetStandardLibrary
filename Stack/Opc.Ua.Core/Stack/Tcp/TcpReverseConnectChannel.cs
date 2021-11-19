@@ -60,7 +60,7 @@ namespace Opc.Ua.Bindings
                     // check for reverse hello.
                     if (messageType == TcpMessageType.ReverseHello)
                     {
-                        Utils.Trace("Channel {0}: ProcessReverseHelloMessage", ChannelId);
+                        Utils.Trace(Utils.TraceMasks.TCPMessageSocket, "Channel {0}: ProcessReverseHelloMessage", ChannelId);
                         return ProcessReverseHelloMessage(messageType, messageChunk);
                     }
 

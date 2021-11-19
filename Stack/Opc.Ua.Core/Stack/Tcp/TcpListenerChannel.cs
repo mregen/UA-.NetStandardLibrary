@@ -117,7 +117,9 @@ namespace Opc.Ua.Bindings
                 State = TcpChannelState.Connecting;
 
                 Socket = new TcpMessageSocket(this, socket, BufferManager, Quotas.MaxBufferSize);
-                Utils.Trace("{0} SOCKET ATTACHED: {1:X8}, ChannelId={2}", ChannelName, Socket.Handle, ChannelId);
+                Utils.Trace(Utils.TraceMasks.TCPMessageSocket,
+                    "{0} SOCKET ATTACHED: {1:X8}, ChannelId={2}",
+                    ChannelName, Socket.Handle, ChannelId);
                 Socket.ReadNextMessage();
 
                 // automatically clean up the channel if no hello received.
@@ -141,7 +143,7 @@ namespace Opc.Ua.Bindings
                     return;
                 }
 
-                Utils.Trace("Channel {0}: SendResponse {1}", ChannelId, requestId);
+                Utils.Trace(Utils.TraceMasks.TCPMessageSocket, "Channel {0}: SendResponse {1}", ChannelId, requestId);
 
                 BufferCollection buffers = null;
 
@@ -233,7 +235,7 @@ namespace Opc.Ua.Bindings
         {
             lock (DataLock)
             {
-                Utils.Trace(
+                Utils.Trace(Utils.TraceMasks.TCPMessageSocket,
                     "{0} ForceChannelFault Socket={1:X8}, ChannelId={2}, TokenId={3}, Reason={4}",
                     ChannelName,
                     (Socket != null) ? Socket.Handle : 0,
@@ -313,7 +315,7 @@ namespace Opc.Ua.Bindings
                     reason = new ServiceResult(StatusCodes.BadTimeout);
                 }
 
-                Utils.Trace(
+                Utils.Trace(Utils.TraceMasks.TCPMessageSocket,
                     "{0} Cleanup Socket={1:X8}, ChannelId={2}, TokenId={3}, Reason={4}",
                     ChannelName,
                     (Socket != null) ? Socket.Handle : 0,
@@ -380,7 +382,7 @@ namespace Opc.Ua.Bindings
         /// </summary>
         protected void SendErrorMessage(ServiceResult error)
         {
-            Utils.Trace("Channel {0}: SendErrorMessage()", ChannelId);
+            Utils.Trace(Utils.TraceMasks.TCPMessageSocket, "Channel {0}: SendErrorMessage()", ChannelId);
 
             byte[] buffer = BufferManager.TakeBuffer(SendBufferSize, "SendErrorMessage");
 
@@ -413,7 +415,7 @@ namespace Opc.Ua.Bindings
         /// </summary>
         protected void SendServiceFault(ChannelToken token, uint requestId, ServiceResult fault)
         {
-            Utils.Trace("Channel {0} Request {1}: SendServiceFault()", ChannelId, requestId);
+            Utils.Trace(Utils.TraceMasks.TCPMessageSocket, "Channel {0} Request {1}: SendServiceFault()", ChannelId, requestId);
 
             BufferCollection buffers = null;
 
@@ -488,7 +490,7 @@ namespace Opc.Ua.Bindings
         /// </summary>
         protected void SendServiceFault(uint requestId, ServiceResult fault)
         {
-            Utils.Trace("Channel {0} Request {1}: SendServiceFault()", ChannelId, requestId);
+            Utils.Trace(Utils.TraceMasks.TCPMessageSocket, "Channel {0} Request {1}: SendServiceFault()", ChannelId, requestId);
 
             BufferCollection chunksToSend = null;
 

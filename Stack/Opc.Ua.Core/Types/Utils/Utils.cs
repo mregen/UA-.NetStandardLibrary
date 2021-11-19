@@ -244,6 +244,36 @@ namespace Opc.Ua
             public const int Security = 0x200;
 
             /// <summary>
+            /// 
+            /// </summary>
+            public const int ServerMonitoredItem = 0x10000;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public const int ServerSubscription = 0x20000;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public const int ServerPublishQueue = 0x40000;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public const int TCPMessageSocket = 0x80000;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public const int TypeFactory = 0x100000;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public const int ServerAggregates = 0x200000;
+
+            /// <summary>
             /// Output all messages.
             /// </summary>
             public const int All = 0x7FFFFFFF;

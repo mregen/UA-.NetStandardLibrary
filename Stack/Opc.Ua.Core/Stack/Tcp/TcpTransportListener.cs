@@ -188,7 +188,7 @@ namespace Opc.Ua.Bindings
 
             channel.Reconnect(socket, requestId, sequenceNumber, clientCertificate, token, request);
 
-            Utils.Trace("Channel {0} reconnected", channelId);
+            Utils.Trace(Utils.TraceMasks.TCPMessageSocket, "Channel {0} reconnected", channelId);
             return true;
         }
 
@@ -205,7 +205,7 @@ namespace Opc.Ua.Bindings
                 }
             }
 
-            Utils.Trace("Channel {0} closed", channelId);
+            Utils.Trace(Utils.TraceMasks.TCPMessageSocket, "Channel {0} closed", channelId);
         }
 
         /// <summary>
@@ -447,7 +447,7 @@ namespace Opc.Ua.Bindings
 
                     if (listeningSocket == null)
                     {
-                        Utils.Trace("OnAccept: Listensocket was null.");
+                        Utils.Trace(Utils.TraceMasks.TCPMessageSocket, "OnAccept: Listensocket was null.");
                         e.Dispose();
                         return;
                     }
