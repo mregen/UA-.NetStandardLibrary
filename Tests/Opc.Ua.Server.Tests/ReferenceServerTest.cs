@@ -320,8 +320,36 @@ namespace Opc.Ua.Server.Tests
         {
             var serverTestServices = new ServerTestServices(m_server);
             CommonTestWorkers.SubscriptionTest(serverTestServices, m_requestHeader);
-
         }
+
+        /// <summary>
+        /// Create a subscription with a monitored item.
+        /// Read a few notifications with Publish.
+        /// Delete the monitored item and subscription.
+        /// </summary>
+        [Test]
+        public void AddNodes()
+        {
+            ushort nameSpaceIndex = 1;
+            var serverTestServices = new ServerTestServices(m_server);
+            var addNodesItems = new AddNodesItemCollection();
+            var parentId = ObjectIds.RootFolder;
+            for (int i = 0; i < 10; i++)
+            {
+                var name = $"AddedNode{i}";
+                var addItem = new AddNodesItem() {
+                    BrowseName = new QualifiedName(name),
+                    NodeAttributes = new ExtensionObject(),
+                    NodeClass = NodeClass.Variable,
+                    ParentNodeId = parentId,
+                    ReferenceTypeId = ReferenceTypeIds.HasProperty,
+                    RequestedNewNodeId = new NodeId(name, nameSpaceIndex),
+                    TypeDefinition = ExpandedNodeId.Null
+                };
+            }
+            var results = CommonTestWorkers.AddNodes(serverTestServices, addNodesItems, m_requestHeader);
+        }
+
         #endregion
     }
 }

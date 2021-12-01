@@ -247,6 +247,70 @@ namespace Opc.Ua.Server.Tests
         }
 
         /// <summary>
+        /// Worker method to Add Nodes.
+        /// </summary>
+        public static AddNodesResultCollection AddNodes(
+            IServerTestServices services,
+            AddNodesItemCollection addNodesItems,
+            RequestHeader requestHeader)
+        {
+            requestHeader.Timestamp = DateTime.UtcNow;
+            var response = services.AddNodes(requestHeader, addNodesItems,
+                out AddNodesResultCollection addNodesResults, out DiagnosticInfoCollection diagnosticInfos);
+            ServerFixtureUtils.ValidateResponse(response);
+            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, addNodesItems);
+            return addNodesResults;
+        }
+
+        /// <summary>
+        /// Worker method to delete Nodes.
+        /// </summary>
+        public static StatusCodeCollection DeleteNodes(
+            IServerTestServices services,
+            DeleteNodesItemCollection deleteNodesItems,
+            RequestHeader requestHeader)
+        {
+            requestHeader.Timestamp = DateTime.UtcNow;
+            var response = services.DeleteNodes(requestHeader, deleteNodesItems,
+                out StatusCodeCollection statusResults, out DiagnosticInfoCollection diagnosticInfos);
+            ServerFixtureUtils.ValidateResponse(response);
+            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, deleteNodesItems);
+            return statusResults;
+        }
+
+        /// <summary>
+        /// Worker method to Add References.
+        /// </summary>
+        public static StatusCodeCollection AddReferences(
+            IServerTestServices services,
+            AddReferencesItemCollection addReferencesItems,
+            RequestHeader requestHeader)
+        {
+            requestHeader.Timestamp = DateTime.UtcNow;
+            var response = services.AddReferences(requestHeader, addReferencesItems,
+                out StatusCodeCollection addNodesResults, out DiagnosticInfoCollection diagnosticInfos);
+            ServerFixtureUtils.ValidateResponse(response);
+            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, addReferencesItems);
+            return addNodesResults;
+        }
+
+        /// <summary>
+        /// Worker method to delete References.
+        /// </summary>
+        public static StatusCodeCollection DeleteReferences(
+            IServerTestServices services,
+            DeleteReferencesItemCollection deleteReferencesItems,
+            RequestHeader requestHeader)
+        {
+            requestHeader.Timestamp = DateTime.UtcNow;
+            var response = services.DeleteReferences(requestHeader, deleteReferencesItems,
+                out StatusCodeCollection statusResults, out DiagnosticInfoCollection diagnosticInfos);
+            ServerFixtureUtils.ValidateResponse(response);
+            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, deleteReferencesItems);
+            return statusResults;
+        }
+
+        /// <summary>
         /// Worker method to test subscriptions of a server.
         /// </summary>
         /// <param name="services"></param>

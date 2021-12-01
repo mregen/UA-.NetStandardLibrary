@@ -124,6 +124,30 @@ namespace Opc.Ua.Server.Tests
             UInt32Collection subscriptionIds,
             out StatusCodeCollection results,
             out DiagnosticInfoCollection diagnosticInfos);
+
+        ResponseHeader AddNodes(
+            RequestHeader requestHeader,
+            AddNodesItemCollection nodesToAdd,
+            out AddNodesResultCollection results,
+            out DiagnosticInfoCollection diagnosticInfos);
+
+        ResponseHeader AddReferences(
+            RequestHeader requestHeader,
+            AddReferencesItemCollection referencesToAdd,
+            out StatusCodeCollection results,
+            out DiagnosticInfoCollection diagnosticInfos);
+
+        ResponseHeader DeleteNodes(
+            RequestHeader requestHeader,
+            DeleteNodesItemCollection nodesToDelete,
+            out StatusCodeCollection results,
+            out DiagnosticInfoCollection diagnosticInfos);
+
+        ResponseHeader DeleteReferences(
+            RequestHeader requestHeader,
+            DeleteReferencesItemCollection referencesToDelete,
+            out StatusCodeCollection results,
+            out DiagnosticInfoCollection diagnosticInfos);
     }
 
     /// <summary>
@@ -272,6 +296,42 @@ namespace Opc.Ua.Server.Tests
             return m_server.TranslateBrowsePathsToNodeIds(
                 requestHeader, browsePaths,
                 out results, out diagnosticInfos);
+        }
+
+        public ResponseHeader AddNodes(
+            RequestHeader requestHeader,
+            AddNodesItemCollection nodesToAdd,
+            out AddNodesResultCollection results,
+            out DiagnosticInfoCollection diagnosticInfos)
+        {
+            return m_server.AddNodes(requestHeader, nodesToAdd, out results, out diagnosticInfos);
+        }
+
+        public ResponseHeader AddReferences(
+            RequestHeader requestHeader,
+            AddReferencesItemCollection referencesToAdd,
+            out StatusCodeCollection results,
+            out DiagnosticInfoCollection diagnosticInfos)
+        {
+            return m_server.AddReferences(requestHeader, referencesToAdd, out results, out diagnosticInfos);
+        }
+
+        public ResponseHeader DeleteNodes(
+            RequestHeader requestHeader,
+            DeleteNodesItemCollection nodesToDelete,
+            out StatusCodeCollection results,
+            out DiagnosticInfoCollection diagnosticInfos)
+        {
+            return m_server.DeleteNodes(requestHeader, nodesToDelete, out results, out diagnosticInfos);
+        }
+
+        public ResponseHeader DeleteReferences(
+            RequestHeader requestHeader,
+            DeleteReferencesItemCollection referencesToDelete,
+            out StatusCodeCollection results,
+            out DiagnosticInfoCollection diagnosticInfos)
+        {
+            return m_server.DeleteReferences(requestHeader, referencesToDelete, out results, out diagnosticInfos);
         }
     }
 }

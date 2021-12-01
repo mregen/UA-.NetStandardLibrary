@@ -178,5 +178,41 @@ namespace Opc.Ua.Client.Tests
                 browsePaths,
                 out results, out diagnosticInfos);
         }
+
+        public ResponseHeader AddNodes(
+            RequestHeader requestHeader,
+            AddNodesItemCollection nodesToAdd,
+            out AddNodesResultCollection results,
+            out DiagnosticInfoCollection diagnosticInfos)
+        {
+            return m_session.AddNodes(requestHeader, nodesToAdd, out results, out diagnosticInfos);
+        }
+
+        public ResponseHeader AddReferences(
+            RequestHeader requestHeader,
+            AddReferencesItemCollection referencesToAdd,
+            out StatusCodeCollection results,
+            out DiagnosticInfoCollection diagnosticInfos)
+        {
+            return m_session.AddReferences(requestHeader, referencesToAdd, out results, out diagnosticInfos);
+        }
+
+        public ResponseHeader DeleteNodes(
+            RequestHeader requestHeader,
+            DeleteNodesItemCollection nodesToDelete,
+            out StatusCodeCollection results,
+            out DiagnosticInfoCollection diagnosticInfos)
+        {
+            return m_session.DeleteNodes(requestHeader, nodesToDelete, out results, out diagnosticInfos);
+        }
+
+        public ResponseHeader DeleteReferences(
+            RequestHeader requestHeader,
+            DeleteReferencesItemCollection referencesToDelete,
+            out StatusCodeCollection results,
+            out DiagnosticInfoCollection diagnosticInfos)
+        {
+            return m_session.DeleteReferences(requestHeader, referencesToDelete, out results, out diagnosticInfos);
+        }
     }
 }
