@@ -254,10 +254,9 @@ namespace Quickstarts.ReferenceServer
         /// <summary>
         /// Validates the password for a username token.
         /// </summary>
-        private IUserIdentity VerifyPassword(UserNameIdentityToken userNameToken)
+        protected virtual IUserIdentity VerifyPassword(UserNameIdentityToken userNameToken)
         {
             var userName = userNameToken.UserName;
-            var password = userNameToken.DecryptedPassword;
             if (String.IsNullOrEmpty(userName))
             {
                 // an empty username is not accepted.
@@ -265,6 +264,7 @@ namespace Quickstarts.ReferenceServer
                     "Security token is not a valid username token. An empty username is not accepted.");
             }
 
+            var password = userNameToken.DecryptedPassword;
             if (String.IsNullOrEmpty(password))
             {
                 // an empty password is not accepted.
@@ -272,38 +272,25 @@ namespace Quickstarts.ReferenceServer
                     "Security token is not a valid username token. An empty password is not accepted.");
             }
 
-            // User with permission to configure server
-            if (userName == "sysadmin" && password == "demo")
-            {
-                return new SystemConfigurationIdentity(new UserIdentity(userNameToken));
-            }
+            // construct translation object with default text.
+            TranslationInfo info = new TranslationInfo(
+                "InvalidPassword",
+                "en-US",
+                "Invalid username or password.",
+                userName);
 
-            // standard users for CTT verification
-            if (!((userName == "user1" && password == "password") ||
-                (userName == "user2" && password == "password1")))
-            {
-                // construct translation object with default text.
-                TranslationInfo info = new TranslationInfo(
-                    "InvalidPassword",
-                    "en-US",
-                    "Invalid username or password.",
-                    userName);
-
-                // create an exception with a vendor defined sub-code.
-                throw new ServiceResultException(new ServiceResult(
-                    StatusCodes.BadUserAccessDenied,
-                    "InvalidPassword",
-                    LoadServerProperties().ProductUri,
-                    new LocalizedText(info)));
-            }
-
-            return new UserIdentity(userNameToken);
+            // create an exception with a vendor defined sub-code.
+            throw new ServiceResultException(new ServiceResult(
+                StatusCodes.BadUserAccessDenied,
+                "InvalidPassword",
+                LoadServerProperties().ProductUri,
+                new LocalizedText(info)));
         }
 
         /// <summary>
         /// Verifies that a certificate user token is trusted.
         /// </summary>
-        private void VerifyUserTokenCertificate(X509Certificate2 certificate)
+        protected void VerifyUserTokenCertificate(X509Certificate2 certificate)
         {
             try
             {
@@ -320,8 +307,8 @@ namespace Quickstarts.ReferenceServer
             {
                 TranslationInfo info;
                 StatusCode result = StatusCodes.BadIdentityTokenRejected;
-                ServiceResultException se = e as ServiceResultException;
-                if (se != null && se.StatusCode == StatusCodes.BadCertificateUseNotAllowed)
+                if (e is ServiceResultException se &&
+                    se.StatusCode == StatusCodes.BadCertificateUseNotAllowed)
                 {
                     info = new TranslationInfo(
                         "InvalidCertificate",

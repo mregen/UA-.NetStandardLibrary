@@ -27,6 +27,7 @@
  * http://opcfoundation.org/License/MIT/1.00/
  * ======================================================================*/
 
+using Microsoft.Extensions.Configuration;
 using Mono.Options;
 using Opc.Ua;
 using Opc.Ua.Configuration;
@@ -236,6 +237,9 @@ namespace Quickstarts.ReferenceServer
 
         private async Task StartConsoleReferenceServerAsync()
         {
+            //IConfigurationBuilder builder = new ConfigurationBuilder().AddUserSecrets<UserSecrets>();
+            //var userConfig = builder.Build();
+
             ApplicationInstance.MessageDlg = new ApplicationMessageDlg();
             CertificatePasswordProvider PasswordProvider = new CertificatePasswordProvider(Password);
             ApplicationInstance application = new ApplicationInstance {
