@@ -61,7 +61,7 @@ namespace Opc.Ua.Security.Certificates
         /// <summary>
         /// Initialize a Certificate builder.
         /// </summary>
-        public CertificateBuilderBase(X500DistinguishedName subjectName)
+        protected CertificateBuilderBase(X500DistinguishedName subjectName)
         {
             m_issuerName = m_subjectName = subjectName;
             Initialize();
@@ -70,7 +70,7 @@ namespace Opc.Ua.Security.Certificates
         /// <summary>
         /// Initialize a Certificate builder.
         /// </summary>
-        public CertificateBuilderBase(string subjectName)
+        protected CertificateBuilderBase(string subjectName)
         {
             m_issuerName = m_subjectName = new X500DistinguishedName(subjectName);
             Initialize();

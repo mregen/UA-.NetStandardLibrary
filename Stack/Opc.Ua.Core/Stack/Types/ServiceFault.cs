@@ -23,6 +23,8 @@ namespace Opc.Ua
 	/// </summary>
 	public partial class ServiceFault : IServiceResponse
 	{
-	}
-	#endregion
+        /// <inheritdoc/>
+        public void ResponseCompleted() { }
+    }
+    #endregion
 }

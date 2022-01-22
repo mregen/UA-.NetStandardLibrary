@@ -278,7 +278,7 @@ namespace Opc.Ua
         /// </summary>
         public uint NewRequestHandle()
         {
-            return (uint)Utils.IncrementIdentifier(ref m_nextRequestHandle);
+            return Utils.IncrementIdentifier(ref m_nextRequestHandle);
         }
         #endregion
 
@@ -380,7 +380,7 @@ namespace Opc.Ua
 
                 if (request.RequestHeader.RequestHandle == 0)
                 {
-                    request.RequestHeader.RequestHandle = (uint)Utils.IncrementIdentifier(ref m_nextRequestHandle);
+                    request.RequestHeader.RequestHandle = NewRequestHandle();
                 }
 
                 if (NodeId.IsNull(request.RequestHeader.AuthenticationToken))

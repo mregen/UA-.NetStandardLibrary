@@ -69,14 +69,11 @@ namespace Opc.Ua.Server
             params string[] namespaceUris)
         {
             // set defaults.
-            m_maxQueueSize = 1000;
+            m_maxNotificationQueueSize = 10;
 
-            if (configuration != null)
+            if (configuration?.ServerConfiguration != null)
             {
-                if (configuration.ServerConfiguration != null)
-                {
-                    m_maxQueueSize = (uint)configuration.ServerConfiguration.MaxNotificationQueueSize;
-                }
+                m_maxNotificationQueueSize = (uint)configuration.ServerConfiguration.MaxNotificationQueueSize;
             }
 
             // save a reference to the UA server instance that owns the node manager.
@@ -206,8 +203,8 @@ namespace Opc.Ua.Server
         /// <value>The maximum size of a monitored item queue.</value>
         public uint MaxQueueSize
         {
-            get { return m_maxQueueSize; }
-            set { m_maxQueueSize = value; }
+            get { return m_maxNotificationQueueSize; }
+            set { m_maxNotificationQueueSize = value; }
         }
 
         /// <summary>
@@ -3615,9 +3612,9 @@ namespace Opc.Ua.Server
             // put an upper limit on queue size.
             uint queueSize = itemToCreate.RequestedParameters.QueueSize;
 
-            if (queueSize > m_maxQueueSize)
+            if (queueSize > m_maxNotificationQueueSize)
             {
-                queueSize = m_maxQueueSize;
+                queueSize = m_maxNotificationQueueSize;
             }
 
             // validate the monitoring filter.
@@ -4037,9 +4034,9 @@ namespace Opc.Ua.Server
             // put an upper limit on queue size.
             uint queueSize = itemToModify.RequestedParameters.QueueSize;
 
-            if (queueSize > m_maxQueueSize)
+            if (queueSize > m_maxNotificationQueueSize)
             {
-                queueSize = m_maxQueueSize;
+                queueSize = m_maxNotificationQueueSize;
             }
 
             // validate the monitoring filter.
@@ -4587,7 +4584,7 @@ namespace Opc.Ua.Server
         private Dictionary<NodeId, CacheEntry> m_componentCache;
         private NodeIdDictionary<NodeState> m_predefinedNodes;
         private List<NodeState> m_rootNotifiers;
-        private uint m_maxQueueSize;
+        private uint m_maxNotificationQueueSize;
         private string m_aliasRoot;
         #endregion
     }

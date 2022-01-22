@@ -12,8 +12,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Opc.Ua
 {
@@ -24,11 +22,23 @@ namespace Opc.Ua
     {
         #region Public Interface
         /// <summary>
+        /// Contains an object which can be used to serialize
+        /// responses in multithreading environments,
+        /// e.g. to keep the order of Publish request responses
+        /// </summary>
+        public object MessageSerializer
+        {
+            get { return m_messageSerializer; }
+            set { m_messageSerializer = value; }
+        }
+
+
+        /// <summary>
         /// The string table that was received with the message.
         /// </summary>
         public List<string> StringTable
         {
-            get { return m_stringTable;  }
+            get { return m_stringTable; }
             set { m_stringTable = value; }
         }
 
@@ -70,15 +80,15 @@ namespace Opc.Ua
                 }
 
                 DataChangeNotification notification = extension.Body as DataChangeNotification;
-                                
+
                 if (notification == null)
                 {
                     continue;
                 }
-    
+
                 if (reverse)
                 {
-                    for (int ii = notification.MonitoredItems.Count-1; ii >= 0; ii--)
+                    for (int ii = notification.MonitoredItems.Count - 1; ii >= 0; ii--)
                     {
                         MonitoredItemNotification datachange = notification.MonitoredItems[ii];
 
@@ -106,7 +116,7 @@ namespace Opc.Ua
 
             return datachanges;
         }
-        
+
         /// <summary>
         /// Returns the events contained in the notification message.
         /// </summary>
@@ -122,15 +132,15 @@ namespace Opc.Ua
                 }
 
                 EventNotificationList notification = extension.Body as EventNotificationList;
-                                
+
                 if (notification == null)
                 {
                     continue;
-                }            
-    
+                }
+
                 if (reverse)
                 {
-                    for (int ii = notification.Events.Count-1; ii >= 0; ii--)
+                    for (int ii = notification.Events.Count - 1; ii >= 0; ii--)
                     {
                         EventFieldList eventFields = notification.Events[ii];
 
@@ -161,6 +171,7 @@ namespace Opc.Ua
         #endregion
 
         #region Private Fields
+        private object m_messageSerializer;
         private List<string> m_stringTable;
         #endregion
     }

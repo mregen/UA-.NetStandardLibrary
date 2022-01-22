@@ -1278,21 +1278,37 @@ namespace Opc.Ua
         }
 
         /// <summary>
-        /// Increments a identifier (wraps around if max exceeded).
+        /// Increments a identifier (wraps around if max UInt32.MaxValue exceeded).
         /// </summary>
         public static uint IncrementIdentifier(ref long identifier)
         {
-            System.Threading.Interlocked.CompareExchange(ref identifier, 0, UInt32.MaxValue);
-            return (uint)System.Threading.Interlocked.Increment(ref identifier);
+            long result;
+            do
+            {
+                result = System.Threading.Interlocked.Increment(ref identifier);
+                if (result == UInt32.MaxValue)
+                {
+                    System.Threading.Interlocked.Exchange(ref identifier, 0);
+                }
+            } while (result >= UInt32.MaxValue);
+            return (uint)result;
         }
 
         /// <summary>
-        /// Increments a identifier (wraps around if max exceeded).
+        /// Increments a identifier (wraps around if Int32.MaxValue exceeded).
         /// </summary>
-        public static int IncrementIdentifier(ref int identifier)
+        public static uint IncrementIdentifier(ref int identifier)
         {
-            System.Threading.Interlocked.CompareExchange(ref identifier, 0, Int32.MaxValue);
-            return System.Threading.Interlocked.Increment(ref identifier);
+            int result;
+            do
+            {
+                result = System.Threading.Interlocked.Increment(ref identifier);
+                if (result == Int32.MaxValue)
+                {
+                    System.Threading.Interlocked.Exchange(ref identifier, 0);
+                }
+            } while (result >= Int32.MaxValue);
+            return (uint)result;
         }
 
         /// <summary>

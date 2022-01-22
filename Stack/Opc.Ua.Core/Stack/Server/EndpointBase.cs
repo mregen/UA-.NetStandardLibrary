@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Opc.Ua
 {
@@ -820,6 +821,7 @@ namespace Opc.Ua
                 try
                 {
                     // set the context.
+                    // TODO: not thread safe!
                     SecureChannelContext.Current = m_context;
 
                     // call the service.
@@ -835,6 +837,8 @@ namespace Opc.Ua
 
                 // report completion.
                 OperationCompleted();
+
+                m_response.ResponseCompleted();
             }
             #endregion
 

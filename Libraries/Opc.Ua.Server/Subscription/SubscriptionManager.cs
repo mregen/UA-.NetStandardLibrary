@@ -217,13 +217,14 @@ namespace Opc.Ua.Server
             {
                 m_shutdownEvent.Reset();
 
-                Task.Run(() =>
+                Task.Factory.StartNew(() =>
                 {
                     PublishSubscriptions(m_publishingResolution);
-                });
+                }, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach);
             }            
         }
-        
+
+
 		/// <summary>
 		/// Closes all subscriptions and rejects any new requests.
 		/// </summary>
@@ -736,43 +737,62 @@ namespace Opc.Ua.Server
                 }
             }
 
-            // acknowlege previous messages.
-            queue.Acknowledge(
-                context,
-                subscriptionAcknowledgements, 
-                out acknowledgeResults,
-                out acknowledgeDiagnosticInfos);
-            
-            // update diagnostics.
-            if (context.Session != null)
+            NotificationMessage message = null;
+            //Monitor.Enter(m_publishLock);
+            try
             {
-                lock (context.Session.DiagnosticsLock)
+                Monitor.Enter(queue.Lock);
+                // acknowlege previous messages.
+                queue.Acknowledge(
+                    context,
+                    subscriptionAcknowledgements,
+                    out acknowledgeResults,
+                    out acknowledgeDiagnosticInfos);
+
+                // update diagnostics.
+                if (context.Session != null)
                 {
-                    SessionDiagnosticsDataType diagnostics = context.Session.SessionDiagnostics;
-                    diagnostics.CurrentPublishRequestsInQueue++;
+                    lock (context.Session.DiagnosticsLock)
+                    {
+                        SessionDiagnosticsDataType diagnostics = context.Session.SessionDiagnostics;
+                        diagnostics.CurrentPublishRequestsInQueue++;
+                    }
+                }
+
+                // save results for asynchrounous operation.
+                if (operation != null)
+                {
+                    operation.Response.Results = acknowledgeResults;
+                    operation.Response.DiagnosticInfos = acknowledgeDiagnosticInfos;
+                }
+
+                // gets the next message that is ready to publish.
+                message = GetNextMessage(
+                    context,
+                    queue,
+                    operation,
+                    out subscriptionId,
+                    out availableSequenceNumbers,
+                    out moreNotifications);
+
+                // if no message and no async operation then a timeout occurred.
+                if (message == null && operation == null)
+                {
+                    throw new ServiceResultException(StatusCodes.BadTimeout);
                 }
             }
-
-            // save results for asynchrounous operation.
-            if (operation != null)
+            finally
             {
-                operation.Response.Results = acknowledgeResults;
-                operation.Response.DiagnosticInfos = acknowledgeDiagnosticInfos;
-            }
-
-            // gets the next message that is ready to publish.
-            NotificationMessage message = GetNextMessage(
-                context,
-                queue,
-                operation,
-                out subscriptionId,
-                out availableSequenceNumbers,
-                out moreNotifications);
-
-            // if no message and no async operation then a timeout occurred.
-            if (message == null && operation == null)
-            {
-                throw new ServiceResultException(StatusCodes.BadTimeout);
+                if (message == null)
+                {
+                    //Monitor.Exit(m_publishLock);
+                    Monitor.Exit(queue.Lock);
+                }
+                else
+                {
+                    //message.MessageSerializer = m_publishLock;
+                    message.MessageSerializer = queue.Lock;
+                }
             }
             
             // return message.
@@ -1693,6 +1713,7 @@ namespace Opc.Ua.Server
 
         #region Private Fields
         private object m_lock = new object();
+        private object m_publishLock = new object();
         private long m_lastSubscriptionId;
         private IServerInternal m_server;
         private double m_minPublishingInterval;

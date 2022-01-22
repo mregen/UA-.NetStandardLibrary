@@ -260,6 +260,7 @@ dotnet_naming_symbols.all_members.applicable_kinds                            = 
 dotnet_naming_style.pascal_case_style.capitalization                          = pascal_case
 
 # Diagnostic settings (windows only)
+dotnet_analyzer_diagnostic.category-design.severity                           = silent
 dotnet_analyzer_diagnostic.category-reliability.severity                      = suggestion
 dotnet_analyzer_diagnostic.category-performance.severity                      = warning
 dotnet_analyzer_diagnostic.category-security.severity                         = warning
@@ -280,3 +281,5 @@ dotnet_diagnostic.CA3075.severity                                             = 
 # RCS1090: Add call to 'ConfigureAwait' (or vice versa)
 dotnet_diagnostic.RCS1090.severity                                            = silent
 
+# CA5380: Do Not Add Certificates To Root Store
+dotnet_diagnostic.CA5380.severity                                             = warning

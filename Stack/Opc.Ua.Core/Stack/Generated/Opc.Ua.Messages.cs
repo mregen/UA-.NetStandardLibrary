@@ -45,6 +45,9 @@ namespace Opc.Ua
 
     public partial class FindServersResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -160,6 +163,9 @@ namespace Opc.Ua
 
     public partial class FindServersOnNetworkResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -275,6 +281,9 @@ namespace Opc.Ua
 
     public partial class GetEndpointsResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -390,6 +399,9 @@ namespace Opc.Ua
 
     public partial class RegisterServerResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -505,6 +517,9 @@ namespace Opc.Ua
 
     public partial class RegisterServer2Response : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -620,6 +635,9 @@ namespace Opc.Ua
 
     public partial class OpenSecureChannelResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -735,6 +753,9 @@ namespace Opc.Ua
 
     public partial class CloseSecureChannelResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -850,6 +871,9 @@ namespace Opc.Ua
 
     public partial class CreateSessionResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -965,6 +989,9 @@ namespace Opc.Ua
 
     public partial class ActivateSessionResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -1080,6 +1107,9 @@ namespace Opc.Ua
 
     public partial class CloseSessionResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -1195,6 +1225,9 @@ namespace Opc.Ua
 
     public partial class CancelResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -1310,6 +1343,9 @@ namespace Opc.Ua
 
     public partial class AddNodesResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -1425,6 +1461,9 @@ namespace Opc.Ua
 
     public partial class AddReferencesResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -1540,6 +1579,9 @@ namespace Opc.Ua
 
     public partial class DeleteNodesResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -1655,6 +1697,9 @@ namespace Opc.Ua
 
     public partial class DeleteReferencesResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -1770,6 +1815,9 @@ namespace Opc.Ua
 
     public partial class BrowseResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -1885,6 +1933,9 @@ namespace Opc.Ua
 
     public partial class BrowseNextResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -2000,6 +2051,9 @@ namespace Opc.Ua
 
     public partial class TranslateBrowsePathsToNodeIdsResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -2115,6 +2169,9 @@ namespace Opc.Ua
 
     public partial class RegisterNodesResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -2230,6 +2287,9 @@ namespace Opc.Ua
 
     public partial class UnregisterNodesResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -2345,6 +2405,9 @@ namespace Opc.Ua
 
     public partial class QueryFirstResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -2460,6 +2523,9 @@ namespace Opc.Ua
 
     public partial class QueryNextResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -2575,6 +2641,9 @@ namespace Opc.Ua
 
     public partial class ReadResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -2690,6 +2759,9 @@ namespace Opc.Ua
 
     public partial class HistoryReadResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -2805,6 +2877,9 @@ namespace Opc.Ua
 
     public partial class WriteResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -2920,6 +2995,9 @@ namespace Opc.Ua
 
     public partial class HistoryUpdateResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -3035,6 +3113,9 @@ namespace Opc.Ua
 
     public partial class CallResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -3150,6 +3231,9 @@ namespace Opc.Ua
 
     public partial class CreateMonitoredItemsResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -3265,6 +3349,9 @@ namespace Opc.Ua
 
     public partial class ModifyMonitoredItemsResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -3380,6 +3467,9 @@ namespace Opc.Ua
 
     public partial class SetMonitoringModeResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -3495,6 +3585,9 @@ namespace Opc.Ua
 
     public partial class SetTriggeringResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -3610,6 +3703,9 @@ namespace Opc.Ua
 
     public partial class DeleteMonitoredItemsResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -3725,6 +3821,9 @@ namespace Opc.Ua
 
     public partial class CreateSubscriptionResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -3840,6 +3939,9 @@ namespace Opc.Ua
 
     public partial class ModifySubscriptionResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -3955,6 +4057,9 @@ namespace Opc.Ua
 
     public partial class SetPublishingModeResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -4185,6 +4290,9 @@ namespace Opc.Ua
 
     public partial class RepublishResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -4300,6 +4408,9 @@ namespace Opc.Ua
 
     public partial class TransferSubscriptionsResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
@@ -4415,6 +4526,9 @@ namespace Opc.Ua
 
     public partial class DeleteSubscriptionsResponse : IServiceResponse
     {
+        public void ResponseCompleted()
+        {
+        }
     }
 
     /// <summary>
