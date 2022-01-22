@@ -152,7 +152,7 @@
       </ServerSecurityPolicy>
     </SecurityPolicies>
 
-    <MinRequestThreadCount>5</MinRequestThreadCount>
+    <MinRequestThreadCount>10</MinRequestThreadCount>
     <MaxRequestThreadCount>100</MaxRequestThreadCount>
     <MaxQueuedRequestCount>2000</MaxQueuedRequestCount>
     
@@ -190,7 +190,7 @@
     <MaxPublishingInterval>3600000</MaxPublishingInterval>
     <PublishingResolution>50</PublishingResolution>
     <MaxSubscriptionLifetime>3600000</MaxSubscriptionLifetime>
-    <MaxMessageQueueSize>100</MaxMessageQueueSize>
+    <MaxMessageQueueSize>500</MaxMessageQueueSize>
     <MaxNotificationQueueSize>100</MaxNotificationQueueSize>
     <MaxNotificationsPerPublish>1000</MaxNotificationsPerPublish>
     <MinMetadataSamplingInterval>1000</MinMetadataSamplingInterval>
@@ -231,7 +231,7 @@
       <ua:UserIdentityTokens />
     </RegistrationEndpoint>
 
-    <MaxRegistrationInterval>30000</MaxRegistrationInterval>
+    <MaxRegistrationInterval>0</MaxRegistrationInterval>
     <NodeManagerSaveFile>Quickstarts.ReferenceServer.nodes.xml</NodeManagerSaveFile>
     <MinSubscriptionLifetime>10000</MinSubscriptionLifetime>
     <MaxPublishRequestCount>20</MaxPublishRequestCount>
@@ -281,5 +281,5 @@
     <!-- Show Only Security, ServiceResultExceptions, Errors and Trace -->
     <!-- <TraceMasks>519</TraceMasks> -->
   </TraceConfiguration>
-  
+  <DisableHiResClock>false</DisableHiResClock>
 </ApplicationConfiguration>
