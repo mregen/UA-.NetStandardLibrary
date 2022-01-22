@@ -130,7 +130,7 @@ namespace Opc.Ua
                 store.Open(OpenFlags.ReadWrite);
                 if (!store.Certificates.Contains(certificate))
                 {
-#if NETSTANDARD2_1 || NET5_0
+#if NETSTANDARD2_1 || NET5_0_OR_GREATER || NET472_OR_GREATER
                     if (certificate.HasPrivateKey &&
                         (Environment.OSVersion.Platform == PlatformID.Win32NT))
                     {
@@ -147,7 +147,8 @@ namespace Opc.Ua
                     {
                         store.Add(certificate);
                     }
-                    Utils.Trace(Utils.TraceMasks.Information, "Added cert {0} to X509Store {1}.", certificate.ToString(), store.Name);
+
+                    Utils.LogCertificate("Added certificate to X509Store {0}.", certificate, store.Name);
                 }
             }
 
@@ -207,14 +208,14 @@ namespace Opc.Ua
 
         /// <inheritdoc/>
         /// <remarks>CRLs are not supported here.</remarks>
-        public List<X509CRL> EnumerateCRLs()
+        public X509CRLCollection EnumerateCRLs()
         {
             throw new ServiceResultException(StatusCodes.BadNotSupported);
         }
 
         /// <inheritdoc/>
         /// <remarks>CRLs are not supported here.</remarks>
-        public List<X509CRL> EnumerateCRLs(X509Certificate2 issuer, bool validateUpdateTime = true)
+        public X509CRLCollection EnumerateCRLs(X509Certificate2 issuer, bool validateUpdateTime = true)
         {
             throw new ServiceResultException(StatusCodes.BadNotSupported);
         }

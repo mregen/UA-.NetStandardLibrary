@@ -2414,6 +2414,12 @@ namespace Opc.Ua
                     case BuiltInType.Enumeration:
                     {
                         Array enumArray = array as Array;
+                        if (enumArray == null)
+                        {
+                            throw ServiceResultException.Create(
+                                StatusCodes.BadEncodingError,
+                                "Unexpected non Array type encountered while encoding an array of enumeration.");
+                        }
                         WriteEnumeratedArray(fieldName, enumArray, enumArray.GetType().GetElementType());
                         return;
                     }
