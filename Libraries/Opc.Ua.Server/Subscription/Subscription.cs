@@ -34,6 +34,7 @@ using System.Xml;
 using System.Threading;
 using System.Runtime.Serialization;
 using System.Text;
+using Microsoft.Extensions.Logging;
 
 namespace Opc.Ua.Server
 {
@@ -157,7 +158,7 @@ namespace Opc.Ua.Server
                 m_diagnostics,
                 OnUpdateDiagnostics);
 
-            TraceState("CREATED");
+            TraceState(LogLevel.Information, TraceStateId.Config, "CREATED");
         }
         #endregion
 
@@ -345,7 +346,7 @@ namespace Opc.Ua.Server
             {
                 try
                 {
-                    TraceState("DELETED");
+                    TraceState(LogLevel.Information, TraceStateId.Deleted, "DELETED");
 
                     // the context may be null if the server is cleaning up expired subscriptions.
                     // in this case we create a context with a dummy request and use the current session.
@@ -368,7 +369,7 @@ namespace Opc.Ua.Server
                 }
                 catch (Exception e)
                 {
-                    Utils.Trace(e, "Delete items for subscription failed.");
+                    Utils.LogError(e, "Delete items for subscription failed.");
                 }
             }
         }
@@ -413,7 +414,7 @@ namespace Opc.Ua.Server
 
                     if (m_lifetimeCounter >= m_maxLifetimeCount)
                     {
-                        TraceState("EXPIRED");
+                        TraceState(LogLevel.Information, TraceStateId.Deleted, "EXPIRED");
                         return PublishingState.Expired;
                     }
                 }
@@ -492,7 +493,7 @@ namespace Opc.Ua.Server
                     {
                         if (!m_waitingForPublish)
                         {
-                            TraceState("READY TO PUBLISH");
+                            // TraceState("READY TO PUBLISH");
                         }
 
                         m_waitingForPublish = true;
@@ -505,7 +506,7 @@ namespace Opc.Ua.Server
                 {
                     if (!m_waitingForPublish)
                     {
-                        TraceState("READY TO KEEPALIVE");
+                        // TraceState("READY TO KEEPALIVE");
                     }
 
                     m_waitingForPublish = true;
@@ -603,7 +604,7 @@ namespace Opc.Ua.Server
                     return StatusCodes.BadSequenceNumberInvalid;
                 }
 
-                TraceState("ACK " + sequenceNumber.ToString());
+                // TraceState("ACK " + sequenceNumber.ToString());
 
                 // message not found.
                 return StatusCodes.BadSequenceNumberUnknown;
@@ -653,7 +654,7 @@ namespace Opc.Ua.Server
                     // clear counters on success.
                     if (message != null)
                     {
-                        TraceState(Utils.Format("PUBLISH #{0}", message.SequenceNumber));
+                        // TraceState(Utils.Format("PUBLISH #{0}", message.SequenceNumber));
                         ResetKeepaliveCount();
                         m_waitingForPublish = moreNotifications;
                         ResetLifetimeCount();
@@ -704,7 +705,7 @@ namespace Opc.Ua.Server
             // check session.
             VerifySession(context);
 
-            TraceState("PUBLISH");
+            // TraceState("PUBLISH");
 
             // check if a keep alive should be sent if there is no data.
             bool keepAliveIfNoData = (m_keepAliveCounter >= m_maxKeepAliveCount);
@@ -723,7 +724,7 @@ namespace Opc.Ua.Server
 
                 moreNotifications = m_waitingForPublish = m_lastSentMessage < m_sentMessages.Count - 1;
 
-                TraceState("PUBLISH QUEUED MESSAGE");
+                // TraceState("PUBLISH QUEUED MESSAGE");
                 return m_sentMessages[m_lastSentMessage++];
             }
 
@@ -815,9 +816,7 @@ namespace Opc.Ua.Server
                 // check for missing notifications.
                 if (!keepAliveIfNoData && messages.Count == 0)
                 {
-                    Utils.Trace(
-                        (int)Utils.TraceMasks.Error,
-                        "Oops! MonitoredItems queued but no notifications availabled.");
+                    Utils.LogError("Oops! MonitoredItems queued but no notifications available.");
 
                     m_waitingForPublish = false;
 
@@ -830,7 +829,7 @@ namespace Opc.Ua.Server
 
                 if (delta1 > 200)
                 {
-                    TraceState(Utils.Format("PUBLISHING DELAY ({0}ms)", delta1));
+                    TraceState(LogLevel.Trace, TraceStateId.Publish, Utils.Format("PUBLISHING DELAY ({0}ms)", delta1));
                 }
             }
 
@@ -849,7 +848,7 @@ namespace Opc.Ua.Server
                     availableSequenceNumbers.Add(m_sentMessages[ii].SequenceNumber);
                 }
 
-                TraceState("PUBLISH KEEPALIVE");
+                // TraceState("PUBLISH KEEPALIVE");
                 return message;
             }
 
@@ -858,11 +857,10 @@ namespace Opc.Ua.Server
             if (overflowCount > 0)
             {
 
-                Utils.Trace(Utils.TraceMasks.Error,
-                    "WARNING: QUEUE OVERFLOW. Dropping {2} Messages. Increase MaxMessageQueueSize. SubId={0}, MaxMessageQueueSize={1}",
-                    m_id,
-                    m_maxMessageCount,
-                    overflowCount);
+                Utils.LogWarning(
+                    "WARNING: QUEUE OVERFLOW. Dropping {0} Messages. Increase MaxMessageQueueSize. SubId={1}, MaxMessageQueueSize={2}",
+                    overflowCount, m_id, m_maxMessageCount
+                    );
 
                 messages.RemoveRange(0, overflowCount);
 
@@ -899,7 +897,7 @@ namespace Opc.Ua.Server
                 availableSequenceNumbers.Add(m_sentMessages[ii].SequenceNumber);
             }
 
-            TraceState("PUBLISH NEW MESSAGE");
+            // TraceState("PUBLISH NEW MESSAGE");
             return m_sentMessages[m_lastSentMessage++];
         }
 
@@ -1073,7 +1071,7 @@ namespace Opc.Ua.Server
                     m_diagnostics.MaxNotificationsPerPublish = m_maxNotificationsPerPublish;
                 }
 
-                TraceState("MODIFIED");
+                TraceState(LogLevel.Information, TraceStateId.Config, "MODIFIED");
             }
         }
 
@@ -1113,7 +1111,7 @@ namespace Opc.Ua.Server
                     }
                 }
 
-                TraceState((publishingEnabled)?"ENABLED":"DISABLED");
+                TraceState(LogLevel.Information, TraceStateId.Config, (publishingEnabled) ? "ENABLED" : "DISABLED");
             }
         }
 
@@ -1407,7 +1405,7 @@ namespace Opc.Ua.Server
                     diagnosticInfos.Clear();
                 }
 
-                TraceState("ITEMS CREATED");
+                TraceState(LogLevel.Information, TraceStateId.Items, "ITEMS CREATED");
             }
         }
 
@@ -1630,7 +1628,7 @@ namespace Opc.Ua.Server
                     diagnosticInfos.Clear();
                 }
 
-                TraceState("ITEMS MODIFIED");
+                TraceState(LogLevel.Information, TraceStateId.Items, "ITEMS MODIFIED");
             }
         }
 
@@ -1798,7 +1796,7 @@ namespace Opc.Ua.Server
                     diagnosticInfos.Clear();
                 }
 
-                TraceState("ITEMS DELETED");
+                TraceState(LogLevel.Information, TraceStateId.Items, "ITEMS DELETED");
             }
         }
 
@@ -1926,15 +1924,15 @@ namespace Opc.Ua.Server
 
                 if (monitoringMode == MonitoringMode.Disabled)
                 {
-                    TraceState("ITEMS DISABLED");
+                    TraceState(LogLevel.Information, TraceStateId.Monitor, "MONITORING DISABLED");
                 }
                 else if (monitoringMode == MonitoringMode.Reporting)
                 {
-                    TraceState("ITEMS REPORTING ENABLED");
+                    TraceState(LogLevel.Information, TraceStateId.Monitor, "REPORTING");
                 }
                 else
                 {
-                    TraceState("ITEMS SAMPLING ENABLED");
+                    TraceState(LogLevel.Information, TraceStateId.Monitor, "SAMPLING");
                 }
             }
         }
@@ -2142,7 +2140,7 @@ namespace Opc.Ua.Server
                     }
                 }
 
-                TraceState("CONDITION REFRESH");
+                // TraceState("CONDITION REFRESH");
             }
         }
 
@@ -2202,38 +2200,70 @@ namespace Opc.Ua.Server
         }
 
         /// <summary>
+        /// The states to log.
+        /// </summary>
+        private enum TraceStateId
+        {
+            Config,
+            Items,
+            Monitor,
+            Publish,
+            Deleted
+        };
+
+        /// <summary>
         /// Dumps the current state of the session queue.
         /// </summary>
-        [Conditional("DEBUG")]
-        internal void TraceState(string context)
+        private void TraceState(LogLevel logLevel, TraceStateId id, string context)
         {
-            if ((Utils.TraceMask & Utils.TraceMasks.Information) == 0)
+            const string DeletedMessage = "Subscription {0}, SessionId={1}, Id={2}, SeqNo={3}, MessageCount={4}";
+            const string ConfigMessage = "Subscription {0}, SessionId={1}, Id={2}, Priority={3}, Publishing={4}, KeepAlive={5}, LifeTime={6}, MaxNotifications={7}, Enabled={8}";
+            const string MonitorMessage = "Subscription {0}, Id={1}, KeepAliveCount={2}, LifeTimeCount={3}, WaitingForPublish={4}, SeqNo={5}, ItemCount={6}, ItemsToCheck={7}, ItemsToPublish={8}, MessageCount={9}";
+            const string ItemsMessage = "Subscription {0}, Id={1}, ItemCount={2}, ItemsToCheck={3}, ItemsToPublish={4}";
+
+            if (!Utils.Logger.IsEnabled(logLevel))
             {
                 return;
             }
 
-            StringBuilder buffer = new StringBuilder();
+            // save counters
+            Monitor.Enter(m_lock);
 
-            lock (m_lock)
+            long sequenceNumber = m_sequenceNumber;
+            int itemsToCheck = m_itemsToCheck.Count;
+            int monitoredItems = m_monitoredItems.Count;
+            int itemsToPublish = m_itemsToPublish.Count;
+            int sentMessages = m_sentMessages.Count;
+            bool publishingEnabled = m_publishingEnabled;
+            bool waitingForPublish = m_waitingForPublish;
+
+            Monitor.Exit(m_lock);
+
+            switch (id)
             {
-                buffer.AppendFormat("Subscription {0}", context);
+                case TraceStateId.Deleted:
+                    Utils.Log(logLevel, DeletedMessage, context, m_session?.Id, m_id,
+                        sequenceNumber, sentMessages);
+                    break;
 
-                buffer.AppendFormat(", Id={0}", m_id);
-                buffer.AppendFormat(", Publishing={0}", m_publishingInterval);
-                buffer.AppendFormat(", KeepAlive={0}", m_maxKeepAliveCount);
-                buffer.AppendFormat(", LifeTime={0}", m_maxLifetimeCount);
-                buffer.AppendFormat(", Enabled={0}", m_publishingEnabled);
-                buffer.AppendFormat(", KeepAliveCount={0}", m_keepAliveCounter);
-                buffer.AppendFormat(", LifeTimeCount={0}", m_lifetimeCounter);
-                buffer.AppendFormat(", WaitingForPublish={0}", m_waitingForPublish);
-                buffer.AppendFormat(", SeqNo={0}", m_sequenceNumber);
-                buffer.AppendFormat(", ItemCount={0}", m_monitoredItems.Count);
-                buffer.AppendFormat(", ItemsToCheck={0}", m_itemsToCheck.Count);
-                buffer.AppendFormat(", ItemsToPublish={0}", m_itemsToPublish.Count);
-                buffer.AppendFormat(", MessageCount={0}", m_sentMessages.Count);
+                case TraceStateId.Config:
+                    Utils.Log(logLevel, ConfigMessage, context, m_session?.Id, m_id,
+                        m_priority, m_publishingInterval, m_maxKeepAliveCount,
+                        m_maxLifetimeCount, m_maxNotificationsPerPublish, publishingEnabled);
+                    break;
+
+                case TraceStateId.Items:
+                    Utils.Log(logLevel, ItemsMessage, context, m_id,
+                        monitoredItems, itemsToCheck, itemsToPublish);
+                    break;
+
+                case TraceStateId.Publish:
+                case TraceStateId.Monitor:
+                    Utils.Log(logLevel, MonitorMessage, context, m_id, m_keepAliveCounter, m_lifetimeCounter,
+                        waitingForPublish, sequenceNumber, monitoredItems, itemsToCheck,
+                        itemsToPublish, sentMessages);
+                    break;
             }
-
-            Utils.Trace(Utils.TraceMasks.Error, buffer.ToString());
         }
         #endregion
 

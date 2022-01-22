@@ -11,6 +11,8 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Opc.Ua
 {
@@ -71,6 +73,25 @@ namespace Opc.Ua
 
         #region Public Properties
         /// <summary>
+        /// The path to the default PKI Root.
+        /// </summary>
+#if NETFRAMEWORK
+        public static readonly string DefaultPKIRoot = Path.Combine("%CommonApplicationData%", "OPC Foundation", "pki");
+#else
+        public static readonly string DefaultPKIRoot = Path.Combine("%LocalApplicationData%","OPC Foundation","pki");
+#endif
+
+        /// <summary>
+        /// The path to the current user X509Store.
+        /// </summary>
+        public static readonly string CurrentUser = "CurrentUser\\";
+
+        /// <summary>
+        /// The path to the local machine X509Store.
+        /// </summary>
+        public static readonly string LocalMachine = "LocalMachine\\";
+
+        /// <summary>
         /// Options that can be used to suppress certificate validation errors.
         /// </summary>
         public CertificateValidationOptions ValidationOptions
@@ -91,24 +112,23 @@ namespace Opc.Ua
                 return CertificateStoreType.Directory;
             }
 
-            if (storePath.StartsWith("LocalMachine\\", StringComparison.OrdinalIgnoreCase))
+            if (storePath.StartsWith(LocalMachine, StringComparison.OrdinalIgnoreCase))
             {
                 return CertificateStoreType.X509Store;
             }
 
-            if (storePath.StartsWith("CurrentUser\\", StringComparison.OrdinalIgnoreCase))
+            if (storePath.StartsWith(CurrentUser, StringComparison.OrdinalIgnoreCase))
             {
                 return CertificateStoreType.X509Store;
             }
 
-            if (storePath.StartsWith("User\\", StringComparison.OrdinalIgnoreCase))
+            foreach (string storeTypeName in CertificateStoreType.RegisteredStoreTypeNames)
             {
-                return CertificateStoreType.X509Store;
-            }
-
-            if (storePath.StartsWith("Service\\", StringComparison.OrdinalIgnoreCase))
-            {
-                return CertificateStoreType.X509Store;
+                ICertificateStoreType storeType = CertificateStoreType.GetCertificateStoreTypeByName(storeTypeName);
+                if (storeType.SupportsStorePath(storePath))
+                {
+                    return storeTypeName;
+                }
             }
 
             return CertificateStoreType.Directory;
@@ -117,27 +137,37 @@ namespace Opc.Ua
         /// <summary>
         /// Returns an object that can be used to access the store.
         /// </summary>
-        public static ICertificateStore CreateStore(string storeType)
+        public static ICertificateStore CreateStore(string storeTypeName)
         {
             ICertificateStore store = null;
 
-            if (String.IsNullOrEmpty(storeType))
+            if (String.IsNullOrEmpty(storeTypeName))
             {
                 return new CertificateIdentifierCollection();
             }
 
-            switch (storeType)
+            switch (storeTypeName)
             {
                 case CertificateStoreType.X509Store:
-                    {
-                        store = new X509CertificateStore();
-                        break;
-                    }
+                {
+                    store = new X509CertificateStore();
+                    break;
+                }
                 case CertificateStoreType.Directory:
+                {
+                    store = new DirectoryCertificateStore();
+                    break;
+                }
+                default:
+                {
+                    ICertificateStoreType storeType = CertificateStoreType.GetCertificateStoreTypeByName(storeTypeName);
+                    if (storeType != null)
                     {
-                        store = new DirectoryCertificateStore();
+                        store = storeType.CreateStore();
                         break;
                     }
+                    throw new ArgumentException($"Invalid store type name: {storeType}", nameof(storeType));
+                }
             }
             return store;
         }
@@ -172,6 +202,35 @@ namespace Opc.Ua
     /// </summary>
     public static class CertificateStoreType
     {
+        static CertificateStoreType()
+        {
+            s_registeredStoreTypes = new Dictionary<string, ICertificateStoreType>();
+        }
+
+        #region public methods
+        /// <summary>
+        /// Registers a new certificate store type that con be specified in config files.
+        /// </summary>
+        /// <param name="storeTypeName">The name of the store type.</param>
+        /// <param name="storeType"></param>
+        public static void RegisterCertificateStoreType(string storeTypeName, ICertificateStoreType storeType)
+        {
+            s_registeredStoreTypes.Add(storeTypeName, storeType);
+        }
+        #endregion public methods
+
+        #region internal methods
+        internal static ICertificateStoreType GetCertificateStoreTypeByName(string storeTypeName)
+        {
+            ICertificateStoreType result;
+            s_registeredStoreTypes.TryGetValue(storeTypeName, out result);
+            return result;
+        }
+
+        internal static IReadOnlyCollection<string> RegisteredStoreTypeNames => s_registeredStoreTypes.Keys;
+        #endregion internal methods
+
+        #region data members
         /// <summary>
         /// A windows certificate store.
         /// </summary>
@@ -181,6 +240,9 @@ namespace Opc.Ua
         /// A directory certificate store.
         /// </summary>
         public const string Directory = "Directory";
+
+        private static readonly Dictionary<string, ICertificateStoreType> s_registeredStoreTypes;
+        #endregion data members
     }
     #endregion
 }

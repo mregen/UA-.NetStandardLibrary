@@ -42,13 +42,11 @@ namespace Opc.Ua.PubSub
         /// <summary>
         /// Default value for Configured MetaDataVersion.MajorVersion
         /// </summary>
-        protected const UInt32 ConfigMajorVersion = 1;
+        protected const UInt32 kDefaultConfigMajorVersion = 0;
         /// <summary>
         /// Default value for Configured MetaDataVersion.MinorVersion
         /// </summary>
-        protected const UInt32 ConfigMinorVersion = 1;
-
-        private DataSet m_dataSet;
+        protected const UInt32 kDefaultConfigMinorVersion = 0;
         #endregion
 
         #region Constructor
@@ -57,10 +55,11 @@ namespace Opc.Ua.PubSub
         /// </summary>
         public UaDataSetMessage()
         {
+            DecodeErrorReason = DataSetDecodeErrorReason.NoError;
             Timestamp = DateTime.UtcNow;
             MetaDataVersion = new ConfigurationVersionDataType() {
-                MajorVersion = ConfigMajorVersion,
-                MinorVersion = ConfigMinorVersion
+                MajorVersion = kDefaultConfigMajorVersion,
+                MinorVersion = kDefaultConfigMinorVersion
             };
         }
         #endregion
@@ -69,17 +68,7 @@ namespace Opc.Ua.PubSub
         /// <summary>
         /// Get DataSet
         /// </summary>
-        public DataSet DataSet
-        {
-            get
-            {
-                return m_dataSet;
-            }
-            internal set
-            {
-                m_dataSet = value;
-            }
-        }
+        public DataSet DataSet { get; internal set; }
 
         /// <summary>
         /// Get and Set corresponding DataSetWriterId
@@ -114,6 +103,21 @@ namespace Opc.Ua.PubSub
         /// </summary>
         public StatusCode Status { get; set; }
 
+        /// <summary>
+        /// Get and Set the reason that an error encountered while decoding occurred
+        /// </summary>
+        public DataSetDecodeErrorReason DecodeErrorReason { get; set; }
+
+        /// <summary>
+        /// Checks if the MetadataMajorVersion has changed depending on the value of DataSetDecodeErrorReason
+        /// </summary>
+        public bool IsMetadataMajorVersionChange
+        {
+            get
+            {
+                return DecodeErrorReason == DataSetDecodeErrorReason.MetadataMajorVersion;
+            }
+        }
         #endregion
 
         #region Methods
@@ -123,5 +127,23 @@ namespace Opc.Ua.PubSub
         /// <param name="fieldContentMask">The new <see cref="DataSetFieldContentMask"/> for this dataset</param>
         public abstract void SetFieldContentMask(DataSetFieldContentMask fieldContentMask);
         #endregion
+
+        /// <summary>
+        /// Validates the MetadataVersion against a given ConfigurationVersionDataType
+        /// </summary>
+        /// <param name="configurationVersionDataType">The value to validate MetadataVersion against</param>
+        /// <returns>NoError if validation passes or the cause of the failure</returns>
+        protected DataSetDecodeErrorReason ValidateMetadataVersion(ConfigurationVersionDataType configurationVersionDataType)
+        {
+            if (MetaDataVersion.MajorVersion != kDefaultConfigMajorVersion)
+            {
+                if (MetaDataVersion.MajorVersion != configurationVersionDataType.MajorVersion)
+                {
+                    return DataSetDecodeErrorReason.MetadataMajorVersion;
+                }
+            }
+
+            return DataSetDecodeErrorReason.NoError;
+        }
     }
 }

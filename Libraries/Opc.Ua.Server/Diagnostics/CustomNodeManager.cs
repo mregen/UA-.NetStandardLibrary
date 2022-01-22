@@ -28,12 +28,9 @@
  * ======================================================================*/
 
 using System;
-using System.Text;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Threading;
-using Opc.Ua;
-using Opc.Ua.Server;
+
 
 namespace Opc.Ua.Server
 {
@@ -719,13 +716,6 @@ namespace Opc.Ua.Server
 
             foreach (NodeState source in m_predefinedNodes.Values)
             {
-                // assign a default value to any variable value.
-                BaseVariableState variable = source as BaseVariableState;
-
-                if (variable != null && variable.Value == null)
-                {
-                    variable.Value = TypeInfo.GetDefaultValue(variable.DataType, variable.ValueRank, Server.TypeTree);
-                }
 
                 IList<IReference> references = new List<IReference>();
                 source.GetReferences(SystemContext, references);
@@ -1136,47 +1126,7 @@ namespace Opc.Ua.Server
                     metadata.UserRolePermissions = new RolePermissionTypeCollection(ExtensionObject.ToList<RolePermissionType>(values[12]));
                 }
 
-                // check if NamespaceMetadata is defined for NamespaceUri
-                string namespaceUri = Server.NamespaceUris.GetString(target.NodeId.NamespaceIndex);
-                NamespaceMetadataState namespaceMetadataState = Server.NodeManager.ConfigurationNodeManager.GetNamespaceMetadataState(namespaceUri);
-
-                if (namespaceMetadataState != null)
-                {
-                    List<object> namespaceMetadataValues;
-
-                    if (namespaceMetadataState.DefaultAccessRestrictions != null)
-                    {
-                        // get DefaultAccessRestrictions for Namespace
-                        namespaceMetadataValues = namespaceMetadataState.DefaultAccessRestrictions.ReadAttributes(systemContext, Attributes.Value);
-
-                        if (namespaceMetadataValues[0] != null)
-                        {
-                            metadata.DefaultAccessRestrictions = (AccessRestrictionType)Enum.ToObject(typeof(AccessRestrictionType), namespaceMetadataValues[0]);
-                        }
-                    }
-
-                    if (namespaceMetadataState.DefaultRolePermissions != null)
-                    {
-                        // get DefaultRolePermissions for Namespace
-                        namespaceMetadataValues = namespaceMetadataState.DefaultRolePermissions.ReadAttributes(systemContext, Attributes.Value);
-
-                        if (namespaceMetadataValues[0] != null)
-                        {
-                            metadata.DefaultRolePermissions = new RolePermissionTypeCollection(ExtensionObject.ToList<RolePermissionType>(namespaceMetadataValues[0]));
-                        }
-                    }
-
-                    if (namespaceMetadataState.DefaultUserRolePermissions != null)
-                    {
-                        // get DefaultUserRolePermissions for Namespace
-                        namespaceMetadataValues = namespaceMetadataState.DefaultUserRolePermissions.ReadAttributes(systemContext, Attributes.Value);
-
-                        if (namespaceMetadataValues[0] != null)
-                        {
-                            metadata.DefaultUserRolePermissions = new RolePermissionTypeCollection(ExtensionObject.ToList<RolePermissionType>(namespaceMetadataValues[0]));
-                        }
-                    }
-                }
+                SetDefaultPermissions(systemContext, target, metadata);
 
                 // get instance references.
                 BaseInstanceState instance = target as BaseInstanceState;
@@ -1945,7 +1895,7 @@ namespace Opc.Ua.Server
                         }
                     }
 
-                    Utils.TraceDebug("WRITE: Value={0} Range={1}", nodeToWrite.Value.WrappedValue, nodeToWrite.IndexRange);
+                    ServerUtils.EventLog.WriteValueRange(nodeToWrite.Value.WrappedValue, nodeToWrite.IndexRange);
 
                     PropertyState propertyState = handle.Node as PropertyState;
                     object previousPropertyValue = null;
@@ -4421,8 +4371,62 @@ namespace Opc.Ua.Server
                     values = ReadValidationAttributes(systemContext, target);
                     SetAccessAndRolePermissions(values, metadata);
                 }
-               
+
+                SetDefaultPermissions(systemContext, target, metadata);
+
                 return metadata;
+            }
+        }
+
+
+        /// <summary>
+        /// Set the metadata default permission values for DefaultAccessRestrictions, DefaultRolePermissions and DefaultUserRolePermissions
+        /// </summary>
+        /// <param name="systemContext"></param>
+        /// <param name="target"></param>
+        /// <param name="metadata"></param>
+        private void SetDefaultPermissions(ServerSystemContext systemContext, NodeState target, NodeMetadata metadata)
+        {
+            // check if NamespaceMetadata is defined for NamespaceUri
+            string namespaceUri = Server.NamespaceUris.GetString(target.NodeId.NamespaceIndex);
+            NamespaceMetadataState namespaceMetadataState = Server.NodeManager.ConfigurationNodeManager.GetNamespaceMetadataState(namespaceUri);
+
+            if (namespaceMetadataState != null)
+            {
+                List<object> namespaceMetadataValues;
+
+                if (namespaceMetadataState.DefaultAccessRestrictions != null)
+                {
+                    // get DefaultAccessRestrictions for Namespace
+                    namespaceMetadataValues = namespaceMetadataState.DefaultAccessRestrictions.ReadAttributes(systemContext, Attributes.Value);
+
+                    if (namespaceMetadataValues[0] != null)
+                    {
+                        metadata.DefaultAccessRestrictions = (AccessRestrictionType)Enum.ToObject(typeof(AccessRestrictionType), namespaceMetadataValues[0]);
+                    }
+                }
+
+                if (namespaceMetadataState.DefaultRolePermissions != null)
+                {
+                    // get DefaultRolePermissions for Namespace
+                    namespaceMetadataValues = namespaceMetadataState.DefaultRolePermissions.ReadAttributes(systemContext, Attributes.Value);
+
+                    if (namespaceMetadataValues[0] != null)
+                    {
+                        metadata.DefaultRolePermissions = new RolePermissionTypeCollection(ExtensionObject.ToList<RolePermissionType>(namespaceMetadataValues[0]));
+                    }
+                }
+
+                if (namespaceMetadataState.DefaultUserRolePermissions != null)
+                {
+                    // get DefaultUserRolePermissions for Namespace
+                    namespaceMetadataValues = namespaceMetadataState.DefaultUserRolePermissions.ReadAttributes(systemContext, Attributes.Value);
+
+                    if (namespaceMetadataValues[0] != null)
+                    {
+                        metadata.DefaultUserRolePermissions = new RolePermissionTypeCollection(ExtensionObject.ToList<RolePermissionType>(namespaceMetadataValues[0]));
+                    }
+                }
             }
         }
         #endregion

@@ -480,7 +480,7 @@ namespace Opc.Ua.Server
             AsyncPublishOperation operation,
             object calldata)
         {
-            Utils.Trace("PUBLISH: #{0} Completing", operation.RequestHandle, requeue);
+            Utils.LogTrace("PUBLISH: #{0} Completing", operation.RequestHandle, requeue);
 
             QueuedRequest request = (QueuedRequest)calldata;
 
@@ -499,7 +499,7 @@ namespace Opc.Ua.Server
             // must reassign subscription on error.
             if (ServiceResult.IsBad(request.Error))
             {
-                Utils.Trace("PUBLISH: #{0} Reassigned ERROR({1})", operation.RequestHandle, request.Error);
+                Utils.LogTrace("PUBLISH: #{0} Reassigned ERROR({1})", operation.RequestHandle, request.Error);
 
                 if (request.Subscription != null)
                 {
@@ -640,7 +640,7 @@ namespace Opc.Ua.Server
                 else if (!m_session.IsSecureChannelValid(request.SecureChannelId))
                 {
                     error = StatusCodes.BadSecureChannelIdInvalid;
-                    Utils.Trace("Publish abandoned because the secure channel changed.");
+                    Utils.LogWarning("Publish abandoned because the secure channel changed.");
                 }
 
                 if (StatusCode.IsBad(error))
@@ -665,7 +665,7 @@ namespace Opc.Ua.Server
                 // remove request.
                 m_queuedRequests.Remove(node);
 
-                Utils.Trace("PUBLISH: #000 Assigned To Subscription({0}).", subscription.Subscription.Id);
+                Utils.LogTrace("PUBLISH: #000 Assigned To Subscription({0}).", subscription.Subscription.Id);
 
                 request.Error = StatusCodes.Good;
                 request.Subscription = subscription;
@@ -787,7 +787,7 @@ namespace Opc.Ua.Server
                 }
                 catch (Exception e)
                 {
-                    Utils.Trace(e, "Publish request no longer available.");
+                    Utils.LogError(e, "Publish request no longer available.");
                 }
             }
         }
@@ -813,7 +813,8 @@ namespace Opc.Ua.Server
         [Conditional("DEBUG")]
         internal void TraceState(string context, params object[] args)
         {
-            if ((Utils.TraceMask & Utils.TraceMasks.Information) == 0)
+            // TODO: implement as EventSource
+            if (!Utils.Logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Trace))
             {
                 return;
             }
@@ -864,7 +865,7 @@ namespace Opc.Ua.Server
                 buffer.AppendFormat(", ExpiredCount={0}", expiredRequests);
             }
 
-            Utils.Trace("{0}", buffer.ToString());
+            Utils.LogTrace("{0}", buffer.ToString());
         }
         /// <summary>
         /// 

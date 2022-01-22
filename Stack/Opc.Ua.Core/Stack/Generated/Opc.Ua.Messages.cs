@@ -35,6 +35,8 @@ using System.ServiceModel;
 using System.Runtime.Serialization;
 #endif
 
+#pragma warning disable CS1591
+
 namespace Opc.Ua
 {
     #region FindServers Service Messages
@@ -163,6 +165,9 @@ namespace Opc.Ua
 
     public partial class FindServersOnNetworkResponse : IServiceResponse
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public void ResponseCompleted()
         {
         }
@@ -281,6 +286,9 @@ namespace Opc.Ua
 
     public partial class GetEndpointsResponse : IServiceResponse
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public void ResponseCompleted()
         {
         }
@@ -4290,6 +4298,9 @@ namespace Opc.Ua
 
     public partial class RepublishResponse : IServiceResponse
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public void ResponseCompleted()
         {
         }
