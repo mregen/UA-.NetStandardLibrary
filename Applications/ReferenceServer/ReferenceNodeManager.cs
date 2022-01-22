@@ -192,14 +192,68 @@ namespace Quickstarts.ReferenceServer
 
                 try
                 {
-                    #region Scalar_Static
-                    FolderState scalarFolder = CreateFolder(root, "Scalar", "Scalar");
+                    #region Scalar_Perf_Variables
+                    FolderState scalarFolder = CreateFolder(root, "Perf", "Perf");
                     BaseDataVariableState scalarInstructions = CreateVariable(scalarFolder, "Scalar_Instructions", "Scalar_Instructions", DataTypeIds.String, ValueRanks.Scalar);
                     scalarInstructions.Value = "A library of Read/Write Variables of all supported data-types.";
                     variables.Add(scalarInstructions);
 
-                    FolderState staticFolder = CreateFolder(scalarFolder, "Scalar_Static", "Scalar_Static");
-                    const string scalarStatic = "Scalar_Static_";
+                    FolderState staticFolder = CreateFolder(scalarFolder, "Scalar_Perf", "Scalar_Perf");
+                    string scalarStatic = "Scalar_Perf_";
+                    for (int i = 0; i < 1000; i++)
+                    {
+#if mist
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "Boolean{i:03}", "Boolean{i:03}", DataTypeIds.Boolean, ValueRanks.Scalar));
+
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "Byte{i}", "Byte{i}", DataTypeIds.Byte, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "ByteString", "ByteString", DataTypeIds.ByteString, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "DateTime", "DateTime", DataTypeIds.DateTime, ValueRanks.Scalar));
+#endif
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + $"Double{i}", $"Double{i}", DataTypeIds.Double, ValueRanks.Scalar));
+#if mist
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "Duration", "Duration", DataTypeIds.Duration, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "Float", "Float", DataTypeIds.Float, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "Guid", "Guid", DataTypeIds.Guid, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "Int16", "Int16", DataTypeIds.Int16, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "Int32", "Int32", DataTypeIds.Int32, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "Int64", "Int64", DataTypeIds.Int64, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "Integer", "Integer", DataTypeIds.Integer, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "LocaleId", "LocaleId", DataTypeIds.LocaleId, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "LocalizedText", "LocalizedText", DataTypeIds.LocalizedText, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "NodeId", "NodeId", DataTypeIds.NodeId, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "Number", "Number", DataTypeIds.Number, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "QualifiedName", "QualifiedName", DataTypeIds.QualifiedName, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "SByte", "SByte", DataTypeIds.SByte, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "String", "String", DataTypeIds.String, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "UInt16", "UInt16", DataTypeIds.UInt16, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "UInt32", "UInt32", DataTypeIds.UInt32, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "UInt64", "UInt64", DataTypeIds.UInt64, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "UInteger", "UInteger", DataTypeIds.UInteger, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "UtcTime", "UtcTime", DataTypeIds.UtcTime, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "Variant", "Variant", BuiltInType.Variant, ValueRanks.Scalar));
+                        variables.Add(CreateVariable(staticFolder, scalarStatic + "XmlElement", "XmlElement", DataTypeIds.XmlElement, ValueRanks.Scalar));
+#endif
+                    }
+#if mist
+                        BaseDataVariableState decimalVariable = CreateVariable(staticFolder, scalarStatic + "Decimal", "Decimal", DataTypeIds.DecimalDataType, ValueRanks.Scalar);
+                        // Set an arbitrary precision decimal value.
+                        BigInteger largeInteger = BigInteger.Parse("1234567890123546789012345678901234567890123456789012345");
+                        DecimalDataType decimalValue = new DecimalDataType();
+                        decimalValue.Scale = 100;
+                        decimalValue.Value = largeInteger.ToByteArray();
+                        decimalVariable.Value = decimalValue;
+                        variables.Add(decimalVariable);
+#endif
+                    #endregion
+
+                    #region Scalar_Static
+                    scalarFolder = CreateFolder(root, "Scalar", "Scalar");
+                    scalarInstructions = CreateVariable(scalarFolder, "Scalar_Instructions", "Scalar_Instructions", DataTypeIds.String, ValueRanks.Scalar);
+                    scalarInstructions.Value = "A library of Read/Write Variables of all supported data-types.";
+                    variables.Add(scalarInstructions);
+
+                    staticFolder = CreateFolder(scalarFolder, "Scalar_Static", "Scalar_Static");
+                     scalarStatic = "Scalar_Static_";
                     variables.Add(CreateVariable(staticFolder, scalarStatic + "Boolean", "Boolean", DataTypeIds.Boolean, ValueRanks.Scalar));
                     variables.Add(CreateVariable(staticFolder, scalarStatic + "Byte", "Byte", DataTypeIds.Byte, ValueRanks.Scalar));
                     variables.Add(CreateVariable(staticFolder, scalarStatic + "ByteString", "ByteString", DataTypeIds.ByteString, ValueRanks.Scalar));
@@ -568,7 +622,7 @@ namespace Quickstarts.ReferenceServer
                     CreateAnalogItemVariable(analogArrayFolder, daAnalogArray + "LocalizedText", "LocalizedText", BuiltInType.LocalizedText, ValueRanks.OneDimension, new LocalizedText[] { new LocalizedText("en", "Hello World1"), new LocalizedText("en", "Hello World2"), new LocalizedText("en", "Hello World3"), new LocalizedText("en", "Hello World4"), new LocalizedText("en", "Hello World5"), new LocalizedText("en", "Hello World6"), new LocalizedText("en", "Hello World7"), new LocalizedText("en", "Hello World8"), new LocalizedText("en", "Hello World9"), new LocalizedText("en", "Hello World10") });
                     CreateAnalogItemVariable(analogArrayFolder, daAnalogArray + "NodeId", "NodeId", BuiltInType.NodeId, ValueRanks.OneDimension, new NodeId[] { new NodeId(Guid.NewGuid()), new NodeId(Guid.NewGuid()), new NodeId(Guid.NewGuid()), new NodeId(Guid.NewGuid()), new NodeId(Guid.NewGuid()), new NodeId(Guid.NewGuid()), new NodeId(Guid.NewGuid()), new NodeId(Guid.NewGuid()), new NodeId(Guid.NewGuid()), new NodeId(Guid.NewGuid()) });
                     CreateAnalogItemVariable(analogArrayFolder, daAnalogArray + "Number", "Number", BuiltInType.Number, ValueRanks.OneDimension, new Int16[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
-                    CreateAnalogItemVariable(analogArrayFolder, daAnalogArray + "QualifiedName", "QualifiedName", BuiltInType.QualifiedName, ValueRanks.OneDimension, new QualifiedName[] { "q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8", "q9"});
+                    CreateAnalogItemVariable(analogArrayFolder, daAnalogArray + "QualifiedName", "QualifiedName", BuiltInType.QualifiedName, ValueRanks.OneDimension, new QualifiedName[] { "q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8", "q9" });
                     CreateAnalogItemVariable(analogArrayFolder, daAnalogArray + "SByte", "SByte", BuiltInType.SByte, ValueRanks.OneDimension, new SByte[] { 10, 20, 30, 40, 50, 60, 70, 80, 90 });
                     CreateAnalogItemVariable(analogArrayFolder, daAnalogArray + "String", "String", BuiltInType.String, ValueRanks.OneDimension, new String[] { "a00", "b10", "c20", "d30", "e40", "f50", "g60", "h70", "i80", "j90" });
                     CreateAnalogItemVariable(analogArrayFolder, daAnalogArray + "UInt16", "UInt16", BuiltInType.UInt16, ValueRanks.OneDimension, new UInt16[] { 20, 21, 22, 23, 24, 25, 26, 27, 28, 29 });
@@ -1425,7 +1479,7 @@ namespace Quickstarts.ReferenceServer
                 }
 
                 AddPredefinedNode(SystemContext, root);
-                m_simulationTimer = new Timer(DoSimulation, null, 1000, 1000);
+                m_simulationTimer = new Timer(DoSimulation, null, m_simulationInterval, Timeout.Infinite);
             }
         }
 
@@ -1437,7 +1491,7 @@ namespace Quickstarts.ReferenceServer
 
                 if (m_simulationEnabled)
                 {
-                    m_simulationTimer.Change(100, (int)m_simulationInterval);
+                    m_simulationTimer.Change(100, Timeout.Infinite);
                 }
 
                 return ServiceResult.Good;
@@ -1455,14 +1509,7 @@ namespace Quickstarts.ReferenceServer
             {
                 m_simulationEnabled = (bool)value;
 
-                if (m_simulationEnabled)
-                {
-                    m_simulationTimer.Change(100, (int)m_simulationInterval);
-                }
-                else
-                {
-                    m_simulationTimer.Change(100, 0);
-                }
+                m_simulationTimer.Change(100, Timeout.Infinite);
 
                 return ServiceResult.Good;
             }
@@ -2638,13 +2685,16 @@ namespace Quickstarts.ReferenceServer
             {
                 lock (Lock)
                 {
+                    DateTime now = DateTime.UtcNow;
                     foreach (BaseDataVariableState variable in m_dynamicNodes)
                     {
                         variable.Value = GetNewValue(variable);
-                        variable.Timestamp = DateTime.UtcNow;
+                        variable.Timestamp = now;
                         variable.ClearChangeMasks(SystemContext, false);
                     }
+                    var elapsed = DateTime.UtcNow - now;
                 }
+                m_simulationTimer.Change(m_simulationEnabled ? m_simulationInterval : Timeout.Infinite, Timeout.Infinite);
             }
             catch (Exception e)
             {
