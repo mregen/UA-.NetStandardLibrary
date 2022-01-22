@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -1175,8 +1176,8 @@ namespace Opc.Ua
         /// <summary>
         /// The list of suppressible status codes.
         /// </summary>
-        private static readonly ReadOnlyList<StatusCode> m_suppressibleStatusCodes =
-            new ReadOnlyList<StatusCode>(
+        private static readonly IReadOnlyList<StatusCode> m_suppressibleStatusCodes =
+            new List<StatusCode>(
                 new List<StatusCode>
                 {
                     StatusCodes.BadCertificateHostNameInvalid,
@@ -1189,7 +1190,7 @@ namespace Opc.Ua
                     StatusCodes.BadCertificatePolicyCheckFailed,
                     StatusCodes.BadCertificateUseNotAllowed,
                     StatusCodes.BadCertificateUntrusted
-                });
+                }).AsReadOnly();
 
         /// <summary>
         /// Find the domain in a certificate in the
