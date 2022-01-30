@@ -8,6 +8,9 @@
     <Company>OPC Foundation</Company>
     <Description>.NET Core Reference Server</Description>
     <Copyright>Copyright © 2004-2021 OPC Foundation, Inc</Copyright>
+    <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
+    <DockerfileContext>..\..</DockerfileContext>
+    <DockerfileRunArguments>-h refserver -p 62541:62541 </DockerfileRunArguments>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.11.1" />
     <PackageReference Include="Mono.Options" Version="6.12.0.148" />
     <PackageReference Include="Serilog" Version="2.10.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />

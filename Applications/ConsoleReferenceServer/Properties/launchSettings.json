@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "ConsoleReferenceServer": {
+      "commandName": "Project",
+      "commandLineArgs": "-c"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
