@@ -38,6 +38,7 @@ namespace Quickstarts.ConsoleReferenceClient
     {
         public static async Task Main(string[] args)
         {
+            await Task.Delay(5000);
             IOutput console = new ConsoleOutput();
             console.WriteLine("OPC UA Console Reference Client");
             try

@@ -31,9 +31,13 @@ using Mono.Options;
 using Opc.Ua;
 using Opc.Ua.Configuration;
 using Opc.Ua.Server;
+using OpenTelemetry;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -251,7 +255,7 @@ namespace Quickstarts.ReferenceServer
             var loggerConfiguration = new Serilog.LoggerConfiguration();
             if (LogConsole)
             {
-                loggerConfiguration.WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Warning);
+                loggerConfiguration.WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Verbose);
             }
 #if DEBUG
             else
@@ -259,7 +263,18 @@ namespace Quickstarts.ReferenceServer
                 loggerConfiguration.WriteTo.Debug(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Warning);
             }
 #endif
-            SerilogTraceLogger.Create(loggerConfiguration, config);
+            SerilogTraceLogger.Create(loggerConfiguration, config, Serilog.Events.LogEventLevel.Verbose);
+
+
+            var activitySource = new ActivitySource("MySource");
+            var tracerProvider = Sdk.CreateTracerProviderBuilder()
+                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("MySample"))
+                            .AddSource("MySource")
+                            .AddConsoleExporter()
+                            .Build();
+
+            // redirects all trace/log output to event listener
+            // var listener = new OpcUaEventListener();
 
             // check the application certificate.
             bool haveAppCertificate = await application.CheckApplicationInstanceCertificate(
@@ -276,22 +291,53 @@ namespace Quickstarts.ReferenceServer
 
             // start the server.
             m_server = new ReferenceServer();
-            await application.Start(m_server).ConfigureAwait(false);
-
-            // print endpoint info
-            var endpoints = application.Server.GetEndpoints().Select(e => e.EndpointUrl).Distinct();
-            foreach (var endpoint in endpoints)
+            using (var activity = activitySource.StartActivity("ServerStart"))
             {
-                Console.WriteLine(endpoint);
+                activity?.Start();
+                activity?.SetTag("First", m_server);
+                await application.Start(m_server).ConfigureAwait(false);
+                activity?.Stop();
             }
 
-            // start the status thread
-            m_status = Task.Run(new Action(StatusThreadAsync));
+            var activityId = Activity.Current;
+
+            using (var activity = activitySource.StartActivity("GetEndpoints"))
+            {
+                activity?.Start();
+
+                // print endpoint info
+                var endpoints = application.Server.GetEndpoints().Select(e => e.EndpointUrl).Distinct();
+                activity?.SetTag("GetEndpoints", endpoints);
+
+                foreach (var endpoint in endpoints)
+                {
+                    Console.WriteLine(endpoint);
+                }
+                activity?.Stop();
+            }
+
+            using (var activity = activitySource.StartActivity("Status"))
+            {
+                // start the status thread
+                m_status = Task.Run(new Action(StatusThreadAsync));
+            }
 
             // print notification on session events
             m_server.CurrentInstance.SessionManager.SessionActivated += EventStatus;
             m_server.CurrentInstance.SessionManager.SessionClosing += EventStatus;
             m_server.CurrentInstance.SessionManager.SessionCreated += EventStatus;
+
+            // test the logging setup
+            Utils.Trace(Utils.TraceMasks.Error      , "This is an Error message: {0}", Utils.TraceMasks.Error);
+            Utils.Trace(Utils.TraceMasks.Information, "This is a Information message: {0}", Utils.TraceMasks.Information);
+            Utils.Trace(Utils.TraceMasks.StackTrace , "This is a StackTrace message: {0}", Utils.TraceMasks.StackTrace);
+            Utils.Trace(Utils.TraceMasks.Service, "This is a Service message: {0}", Utils.TraceMasks.Service);
+            Utils.Trace(Utils.TraceMasks.ServiceDetail, "This is a ServiceDetail message: {0}", Utils.TraceMasks.ServiceDetail);
+            Utils.Trace(Utils.TraceMasks.Operation, "This is a Operation message: {0}", Utils.TraceMasks.Operation);
+            Utils.Trace(Utils.TraceMasks.OperationDetail, "This is a OperationDetail message: {0}", Utils.TraceMasks.OperationDetail);
+            Utils.Trace(Utils.TraceMasks.StartStop, "This is a StartStop message: {0}", Utils.TraceMasks.StartStop);
+            Utils.Trace(Utils.TraceMasks.ExternalSystem, "This is a ExternalSystem message: {0}", Utils.TraceMasks.ExternalSystem);
+            Utils.Trace(Utils.TraceMasks.Security, "This is a Security message: {0}", Utils.TraceMasks.Security);
         }
 
         private void EventStatus(Session session, SessionEventReason reason)
@@ -335,8 +381,21 @@ namespace Quickstarts.ReferenceServer
                         PrintSessionStatus(session, "-Status-", true);
                     }
                     m_lastEventTime = DateTime.UtcNow;
+                    Utils.Trace("StatusThreadAsync: ActivityId: {0}", System.Diagnostics.Activity.Current.Id);
                 }
                 await Task.Delay(1000).ConfigureAwait(false);
+
+
+#if mist
+                try
+                {
+                    throw new ServiceResultException(StatusCodes.BadUserAccessDenied, "Unknown User");
+                }
+                catch(Exception e)
+                {
+                    OpcUaEventSource.Log.Exception(e, "Username: {0}", "testuser");
+                }
+#endif
             }
         }
     }
