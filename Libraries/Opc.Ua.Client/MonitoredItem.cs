@@ -388,6 +388,16 @@ namespace Opc.Ua.Client
                 m_discardOldest = value;
             }
         }
+
+        /// <summary>
+        /// Server-assigned id for the MonitoredItem.
+        /// </summary>
+        [DataMember(Order = 13)]
+        public uint ServerId
+        {
+            get { return m_status.Id; }
+            set { m_status.Id = value; }
+        }
         #endregion
 
         #region Dynamic Properties
@@ -732,7 +742,19 @@ namespace Opc.Ua.Client
         }
 
         /// <summary>
-        /// Updates the object with the results of a modify monitored item request.
+        /// Updates the object with the results of a transfer subscription request.
+        /// </summary>
+        public void SetTransferResult(uint clientHandle)
+        {
+            // ensure the global counter is not duplicating future handle ids
+            Utils.LowerLimitIdentifier(ref s_GlobalClientHandle, clientHandle);
+            m_clientHandle = clientHandle;  
+            m_status.SetTransferResult(this);
+            m_attributesModified = false;
+        }
+
+        /// <summary>
+        /// Updates the object with the results of a delete monitored item request.
         /// </summary>
         public void SetDeleteResult(
             StatusCode result,
@@ -1092,7 +1114,7 @@ namespace Opc.Ua.Client
         #endregion
 
         #region Private Fields
-        private IEncodeable m_notificationValue;
+        private readonly IEncodeable m_notificationValue;
         #endregion
     }
 
@@ -1187,7 +1209,7 @@ namespace Opc.Ua.Client
         #region Private Fields
         private int m_queueSize;
         private DataValue m_lastValue;
-        private Queue<DataValue> m_values;
+        private readonly Queue<DataValue> m_values;
         #endregion
     }
 
@@ -1274,7 +1296,7 @@ namespace Opc.Ua.Client
         #region Private Fields
         private int m_queueSize;
         private EventFieldList m_lastEvent;
-        private Queue<EventFieldList> m_events;
+        private readonly Queue<EventFieldList> m_events;
         #endregion
     }
 }

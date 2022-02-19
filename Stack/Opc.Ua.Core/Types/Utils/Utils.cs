@@ -114,13 +114,16 @@ namespace Opc.Ua
         /// <summary>
         /// The path to the default certificate store.
         /// </summary>
-        [Obsolete("Use CertificateStoreIdentifier.DefaultPKIRoot instead.")]
-        public const string DefaultStorePath = "%CommonApplicationData%/OPC Foundation/pki/own";
+#if NETFRAMEWORK
+        public static readonly string DefaultStorePath = Path.Combine("%CommonApplicationData%", "OPC Foundation", "pki", "own");
+#else
+        public static readonly string DefaultStorePath = Path.Combine("%LocalApplicationData%", "OPC Foundation", "pki", "own");
+#endif
 
         /// <summary>
         /// The default LocalFolder.
         /// </summary>
-        public static string DefaultLocalFolder = Directory.GetCurrentDirectory();
+        public static readonly string DefaultLocalFolder = Directory.GetCurrentDirectory();
 
         /// <summary>
         /// The full name of the Opc.Ua.Core assembly.
@@ -1368,6 +1371,26 @@ namespace Opc.Ua
         }
 
         /// <summary>
+        /// Sets the identifier to a lower limit if smaller. Thread safe.
+        /// </summary>
+        /// <returns>Returns the new value.</returns>
+        public static uint LowerLimitIdentifier(ref long identifier, uint lowerLimit)
+        {
+            long value;
+            long exchangedValue;
+            do
+            {
+                value = System.Threading.Interlocked.Read(ref identifier);
+                exchangedValue = value;
+                if (value < lowerLimit)
+                {
+                    exchangedValue = System.Threading.Interlocked.CompareExchange(ref identifier, lowerLimit, value);
+                }
+            } while (exchangedValue != value);
+            return (uint)System.Threading.Interlocked.Read(ref identifier);
+        }
+
+        /// <summary>
         /// Increments a identifier (wraps around if max exceeded).
         /// </summary>
         public static uint IncrementIdentifier(ref long identifier)
@@ -2088,6 +2111,49 @@ namespace Opc.Ua
 
             // don't know how to clone object.
             throw new NotSupportedException(Utils.Format("Don't know how to clone objects of type '{0}'", type.FullName));
+        }
+
+        /// <summary>
+        /// Checks if two identities are equal.
+        /// </summary>
+        public static bool IsEqualUserIdentity(UserIdentityToken identity1, UserIdentityToken identity2)
+        {
+            // check for reference equality.
+            if (Object.ReferenceEquals(identity1, identity2))
+            {
+                return true;
+            }
+
+            if (identity1 == null || identity2 == null)
+            {
+                return false;
+            }
+
+            if (identity1 is AnonymousIdentityToken &&
+                identity2 is AnonymousIdentityToken)
+            {
+                return true;
+            }
+
+            if (identity1 is UserNameIdentityToken userName1 &&
+                identity2 is UserNameIdentityToken userName2)
+            {
+                return string.Equals(userName1.UserName, userName2.UserName, StringComparison.Ordinal);
+            }
+
+            if (identity1 is X509IdentityToken x509Token1 &&
+                identity2 is X509IdentityToken x509Token2)
+            {
+                return Utils.IsEqual(x509Token1.CertificateData, x509Token2.CertificateData);
+            }
+
+            if (identity1 is IssuedIdentityToken issuedToken1 &&
+                identity2 is IssuedIdentityToken issuedToken2)
+            {
+                return Utils.IsEqual(issuedToken1.DecryptedTokenData, issuedToken2.DecryptedTokenData);
+            }
+
+            return false;
         }
 
         /// <summary>

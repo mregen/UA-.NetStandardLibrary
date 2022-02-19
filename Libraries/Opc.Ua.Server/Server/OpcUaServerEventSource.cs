@@ -72,7 +72,6 @@ namespace Opc.Ua.Server
         private readonly EventId SessionStateMessageEventId = new EventId(TraceMasks.Information, nameof(SessionState));
         private readonly EventId MonitoredItemReadyEventId = new EventId(TraceMasks.OperationDetail, nameof(MonitoredItemReady));
 
-
         /// <summary>
         /// The send response.
         /// </summary>
@@ -146,9 +145,9 @@ namespace Opc.Ua.Server
         /// Log a WriteValue.
         /// </summary>
         [NonEvent]
-        public void WriteValueRange(Variant wrappedValue, string range)
+        public void WriteValueRange(NodeId nodeId, Variant wrappedValue, string range)
         {
-            if ((TraceMask & TraceMasks.OperationDetail) != 0)
+            if ((TraceMask & TraceMasks.ServiceDetail) != 0)
             {
                 if (IsEnabled())
                 {
@@ -156,7 +155,26 @@ namespace Opc.Ua.Server
                 }
                 else if (Logger.IsEnabled(LogLevel.Trace))
                 {
-                    LogTrace("WRITE: Value={0} Range={1}", wrappedValue, range);
+                    LogTrace(TraceMasks.ServiceDetail, "WRITE: NodeId={0} Value={1} Range={2}", nodeId, wrappedValue, range);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Log a ReadValue.
+        /// </summary>
+        [NonEvent]
+        public void ReadValueRange(NodeId nodeId, Variant wrappedValue, string range)
+        {
+            if ((TraceMask & TraceMasks.ServiceDetail) != 0)
+            {
+                if (IsEnabled())
+                {
+                    //WriteEvent();
+                }
+                else if (Logger.IsEnabled(LogLevel.Trace))
+                {
+                    LogTrace(TraceMasks.ServiceDetail, "READ: NodeId={0} Value={1} Range={2}", nodeId, wrappedValue, range);
                 }
             }
         }
