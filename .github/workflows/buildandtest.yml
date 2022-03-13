@@ -1,4 +1,4 @@
-name: Test MacOS on .NET 6.0
+name: Build and Test
 
 on:
   push:
@@ -16,7 +16,7 @@ env:
 
 jobs:
   build-and-test:
-    name: build-an-test-${{matrix.os}}
+    name: build-an-test-${{matrix.os}}-${{env.FRAMEWORK}}-${{env.CONFIGURATION}}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false    
@@ -28,7 +28,7 @@ jobs:
       with:
         fetch-depth: 0
     
-    - name: Setup .NET
+    - name: Setup .NET ${{ env.DOTNET_VERSION }}
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
@@ -37,4 +37,4 @@ jobs:
       run: dotnet build --force --framework ${{ env.FRAMEWORK }} --configuration ${{ env.CONFIGURATION }} "UA Core Library.sln"
       
     - name: Test
-      run: dotnet test --no-build --framework ${{ env.FRAMEWORK }} --configuration ${{ env.CONFIGURATION }} --verbosity normal "UA Core Library.sln"
+      run: dotnet test --no-build --framework ${{ env.FRAMEWORK }} --configuration ${{ env.CONFIGURATION }} /p:CollectCoverage=true --collect:"XPlat Code Coverage" --settings ./Tests/coverlet.runsettings.xml "UA Core Library.sln"
