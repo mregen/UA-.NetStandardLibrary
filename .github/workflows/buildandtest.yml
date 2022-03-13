@@ -11,6 +11,7 @@ on:
 env:
   DOTNET_VERSION: '6.0.x' # The .NET SDK version to use
   CONFIGURATION: 'Release'
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 
 jobs:
   build-and-test:
