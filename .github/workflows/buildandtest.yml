@@ -37,4 +37,25 @@ jobs:
       run: dotnet build --force --framework ${{ env.FRAMEWORK }} --configuration ${{ env.CONFIGURATION }} "UA Core Library.sln"
       
     - name: Test
-      run: dotnet test --no-build --framework ${{ env.FRAMEWORK }} --configuration ${{ env.CONFIGURATION }} /p:CollectCoverage=true --collect:"XPlat Code Coverage" --settings ./Tests/coverlet.runsettings.xml "UA Core Library.sln"
+      # note: /p:CollectCoverage=true is only used to disable deterministc builds
+      run: dotnet test --no-build --framework ${{ env.FRAMEWORK }} --configuration ${{ env.CONFIGURATION }} /p:CollectCoverage=true --collect:"XPlat Code Coverage" --settings ./Tests/coverlet.runsettings.xml --results-directory ${{github.RUNNER_TEMP}} "UA Core Library.sln"
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: dotnet-results-${{matrix.os}}
+        path: ${{github.RUNNER_TEMP}}
+        # Use always() to always run this step to publish test results when there are test failures
+        if: ${{ always() }}
+
+    - name: Upload to Codecov
+      uses: codecov/codecov-action@v2
+      with:
+        name: codecov-umbrella
+        #token: ${{ secrets.CODECOV_TOKEN }}
+        directory: ${{github.RUNNER_TEMP}}
+        env_vars: OS,DOTNET_VERSION
+        fail_ci_if_error: false
+        path_to_write_report: ./coverage/codecov_report.txt
+        verbose: true      
+        if: ${{ always() }}
