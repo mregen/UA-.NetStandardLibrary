@@ -11,6 +11,7 @@ on:
 env:
   DOTNET_VERSION: '6.0.x' # The .NET SDK version to use
   CONFIGURATION: 'Release'
+  FRAMEWORK: 'net6.0'
   ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 
 jobs:
@@ -33,7 +34,7 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
         
     - name: Build
-      run: dotnet build --force --configuration ${{ env.CONFIGURATION }} "UA Core Library.sln"
+      run: dotnet build --force --framework ${{ env.FRAMEWORK }} --configuration ${{ env.CONFIGURATION }} "UA Core Library.sln"
       
     - name: Test
-      run: dotnet test --no-build --configuration ${{ env.CONFIGURATION }} --verbosity normal "UA Core Library.sln"
+      run: dotnet test --no-build --framework ${{ env.FRAMEWORK }} --configuration ${{ env.CONFIGURATION }} --verbosity normal "UA Core Library.sln"
