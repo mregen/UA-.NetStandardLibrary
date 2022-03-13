@@ -9,9 +9,9 @@ on:
     - '**.csproj'
 
 env:
-  DOTNET_VERSION: '6.0.x' # The .NET SDK version to use
+  # DOTNET_VERSION: '6.0.x' # The .NET SDK version to use
   CONFIGURATION: 'Release'
-  FRAMEWORK: 'net6.0'
+  # FRAMEWORK: 'net6.0'
   ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 
 jobs:
@@ -22,29 +22,36 @@ jobs:
       fail-fast: false    
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]    
-
+        include:
+          - framework: 'net6.0'
+            dotnet-version: '6.0.x'
+            configuration: 'Release'
+          - framework: 'netcoreapp3.1'
+            dotnet-version: '3.1.x'
+            configuration: 'Debug'
+            
     steps:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
     
-    - name: Setup .NET ${{ env.DOTNET_VERSION }}
+    - name: Setup .NET ${{ matrix.dotnet-version }}
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+        dotnet-version: ${{ matrix.dotnet-version }}
         
     - name: Build
-      run: dotnet build --force --framework ${{ env.FRAMEWORK }} --configuration ${{ env.CONFIGURATION }} "UA Core Library.sln"
+      run: dotnet build --force --framework ${{ matrix.framework }} --configuration ${{ env.CONFIGURATION }} "UA Core Library.sln"
       
     - name: Test
       # note: /p:CollectCoverage=true is only used to disable deterministc builds
-      run: dotnet test --no-build --framework ${{ env.FRAMEWORK }} --configuration ${{ env.CONFIGURATION }} /p:CollectCoverage=true --collect:"XPlat Code Coverage" --settings ./Tests/coverlet.runsettings.xml --results-directory ${{github.RUNNER_TEMP}} "UA Core Library.sln"
+      run: dotnet test --no-build --framework ${{ matrix.framework }} --configuration ${{ env.CONFIGURATION }} /p:CollectCoverage=true --collect:"XPlat Code Coverage" --settings ./Tests/coverlet.runsettings.xml --results-directory "TestResults-${{matrix.os}}-${{matrix.framework}}" "UA Core Library.sln"
 
     - name: Upload test results
       uses: actions/upload-artifact@v3
       with:
-        name: dotnet-results-${{matrix.os}}
-        path: ${{github.RUNNER_TEMP}}
+        name: dotnet-results-${{matrix.os}}-${{matrix.framework}}
+        path: "TestResults-${{matrix.os}}-${{matrix.framework}}"
         # Use always() to always run this step to publish test results when there are test failures
       if: ${{ always() }}
 
