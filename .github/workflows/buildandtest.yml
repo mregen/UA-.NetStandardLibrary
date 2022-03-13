@@ -17,6 +17,7 @@ jobs:
     name: build-an-test-${{matrix.os}}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false    
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]    
 
@@ -30,11 +31,8 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
         
-    - name: Restore dependencies
-      run: dotnet restore --configuration ${{ env.CONFIGURATION }} "UA Core Library.sln"
-      
     - name: Build
-      run: dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore "UA Core Library.sln"
+      run: dotnet build --force --configuration ${{ env.CONFIGURATION }} "UA Core Library.sln"
       
     - name: Test
       run: dotnet test --no-build --configuration ${{ env.CONFIGURATION }} --verbosity normal "UA Core Library.sln"
