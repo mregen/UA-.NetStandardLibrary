@@ -46,7 +46,7 @@ jobs:
         name: dotnet-results-${{matrix.os}}
         path: ${{github.RUNNER_TEMP}}
         # Use always() to always run this step to publish test results when there are test failures
-        if: ${{ always() }}
+      if: ${{ always() }}
 
     - name: Upload to Codecov
       uses: codecov/codecov-action@v2
