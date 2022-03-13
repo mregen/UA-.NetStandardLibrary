@@ -10,6 +10,7 @@ on:
 
 env:
   DOTNET_VERSION: '6.0.x' # The .NET SDK version to use
+  CONFIGURATION: 'Release'
 
 jobs:
   build-and-test:
@@ -21,16 +22,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
         
     - name: Restore dependencies
-      run: dotnet restore "UA Core Library.sln"
+      run: dotnet restore --configuration ${{ env.CONFIGURATION }} "UA Core Library.sln"
       
     - name: Build
-      run: dotnet build --configuration Release --no-restore "UA Core Library.sln"
+      run: dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore "UA Core Library.sln"
       
     - name: Test
-      run: dotnet test --no-build --verbosity normal "UA Core Library.sln"
+      run: dotnet test --no-build --configuration ${{ env.CONFIGURATION }} --verbosity normal "UA Core Library.sln"
