@@ -129,12 +129,7 @@ namespace Opc.Ua
 
             try
             {
-                if (applicationConfiguration != null &&
-                    applicationConfiguration.SecurityConfiguration != null &&
-                    applicationConfiguration.SecurityConfiguration.ApplicationCertificate != null)
-                {
-                    clientCertificate = applicationConfiguration.SecurityConfiguration.ApplicationCertificate.Find(true).Result;
-                }
+                clientCertificate = applicationConfiguration?.SecurityConfiguration?.ApplicationCertificate?.Find(true).Result;
             }
             catch
             {
@@ -298,7 +293,7 @@ namespace Opc.Ua
         public static ITransportChannel Create(
             Uri discoveryUrl,
             EndpointConfiguration endpointConfiguration,
-            ServiceMessageContext messageContext,
+            IServiceMessageContext messageContext,
             X509Certificate2 clientCertificate = null)
         {
             // create a dummy description.
@@ -327,7 +322,7 @@ namespace Opc.Ua
             ApplicationConfiguration configuration,
             ITransportWaitingConnection connection,
             EndpointConfiguration endpointConfiguration,
-            ServiceMessageContext messageContext,
+            IServiceMessageContext messageContext,
             X509Certificate2 clientCertificate = null)
         {
             // create a default description.
@@ -358,7 +353,7 @@ namespace Opc.Ua
             ApplicationConfiguration configuration,
             Uri discoveryUrl,
             EndpointConfiguration endpointConfiguration,
-            ServiceMessageContext messageContext,
+            IServiceMessageContext messageContext,
             X509Certificate2 clientCertificate = null)
         {
             // create a default description.

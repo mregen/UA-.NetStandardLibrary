@@ -35,6 +35,7 @@ using System.Threading;
 using NUnit.Framework;
 using Opc.Ua.PubSub.Transport;
 using Opc.Ua.PubSub.Tests.Encoding;
+using System.Collections.Generic;
 
 namespace Opc.Ua.PubSub.Encoding.Transport.Tests
 {
@@ -43,7 +44,9 @@ namespace Opc.Ua.PubSub.Encoding.Transport.Tests
     {
         private const UInt16 NamespaceIndexAllTypes = 3;
 
-        private ManualResetEvent m_shutdownEvent;
+        private ManualResetEvent m_uaDataShutdownEvent;
+        private ManualResetEvent m_uaMetaDataShutdownEvent;
+        private ManualResetEvent m_uaConfigurationUpdateEvent;
         private const int EstimatedPublishingTime = 60000;
 
         [OneTimeSetUp()]
@@ -105,11 +108,11 @@ namespace Opc.Ua.PubSub.Encoding.Transport.Tests
             Assert.IsNotNull(publisherConnection, "Publisher first connection should not be null");
 
             Assert.IsNotNull(publisherConfiguration.Connections.First(), "publisherConfiguration first connection should not be null");
-            Assert.IsNotNull(publisherConfiguration.Connections.First(), "publisherConfiguration  first writer group of first connection should not be null");
+            Assert.IsNotNull(publisherConfiguration.Connections.First().WriterGroups.First(), "publisherConfiguration  first writer group of first connection should not be null");
 
-            var networkMessages = publisherConnection.CreateNetworkMessages(publisherConfiguration.Connections.First().WriterGroups.First());
+            var networkMessages = publisherConnection.CreateNetworkMessages(publisherConfiguration.Connections.First().WriterGroups.First(), new WriterGroupPublishState());
             Assert.IsNotNull(networkMessages, "connection.CreateNetworkMessages shall not return null");
-            Assert.AreEqual(1, networkMessages.Count, "connection.CreateNetworkMessages shall return only one network message");
+            Assert.GreaterOrEqual(networkMessages.Count, 1, "connection.CreateNetworkMessages shall have at least one network message");
 
             UadpNetworkMessage uaNetworkMessage = networkMessages[0] as UadpNetworkMessage;
             Assert.IsNotNull(uaNetworkMessage, "networkMessageEncode should not be null");
@@ -143,19 +146,19 @@ namespace Opc.Ua.PubSub.Encoding.Transport.Tests
 
             //Act
             // it will signal if the uadp message was received from local ip
-            m_shutdownEvent = new ManualResetEvent(false);
-
+            m_uaDataShutdownEvent = new ManualResetEvent(false);
+            
             subscriberApplication.DataReceived += UaPubSubApplication_DataReceived;
             subscriberConnection.Start();
 
             publisherConnection.Start();
 
             //Assert
-            if (!m_shutdownEvent.WaitOne(EstimatedPublishingTime))
+            if (!m_uaDataShutdownEvent.WaitOne(EstimatedPublishingTime))
             {
                 Assert.Fail("The UADP message was not received");
             }
-
+            
             subscriberConnection.Stop();
             publisherConnection.Stop();
             
@@ -166,7 +169,8 @@ namespace Opc.Ua.PubSub.Encoding.Transport.Tests
         [Ignore("A mosquitto tool should be installed local in order to run correctly.")]
 #endif
         public void ValidateMqttLocalPubSubConnectionWithJson(
-            [Values((byte)1, (UInt16)1, (UInt32)1, (UInt64)1, "abc")] object publisherId)
+            [Values((byte)1, (UInt16)1, (UInt32)1, (UInt64)1, "abc")] object publisherId,
+            [Values(0, 10000)] double metaDataUpdateTime)
         {
             RestartMosquitto("mosquitto");
 
@@ -198,7 +202,8 @@ namespace Opc.Ua.PubSub.Encoding.Transport.Tests
                 jsonNetworkMessageContentMask: jsonNetworkMessageContentMask,
                 jsonDataSetMessageContentMask: jsonDataSetMessageContentMask,
                 dataSetFieldContentMask: dataSetFieldContentMask,
-                dataSetMetaDataArray: dataSetMetaDataArray, nameSpaceIndexForData: NamespaceIndexAllTypes);
+                dataSetMetaDataArray: dataSetMetaDataArray, nameSpaceIndexForData: NamespaceIndexAllTypes,
+                metaDataUpdateTime);
             Assert.IsNotNull(publisherConfiguration, "publisherConfiguration should not be null");
 
             // Configure the mqtt publisher configuration with the MQTTbroker
@@ -215,14 +220,17 @@ namespace Opc.Ua.PubSub.Encoding.Transport.Tests
             Assert.IsNotNull(publisherConnection, "Publisher first connection should not be null");
 
             Assert.IsNotNull(publisherConfiguration.Connections.First(), "publisherConfiguration first connection should not be null");
-            Assert.IsNotNull(publisherConfiguration.Connections.First(), "publisherConfiguration  first writer group of first connection should not be null");
+            Assert.IsNotNull(publisherConfiguration.Connections.First().WriterGroups.First(), "publisherConfiguration  first writer group of first connection should not be null");
 
-            var networkMessages = publisherConnection.CreateNetworkMessages(publisherConfiguration.Connections.First().WriterGroups.First());
+            var networkMessages = publisherConnection.CreateNetworkMessages(publisherConfiguration.Connections.First().WriterGroups.First(), new WriterGroupPublishState());
             Assert.IsNotNull(networkMessages, "connection.CreateNetworkMessages shall not return null");
-            Assert.AreEqual(1, networkMessages.Count, "connection.CreateNetworkMessages shall return only one network message");
+            Assert.GreaterOrEqual(networkMessages.Count, 1, "connection.CreateNetworkMessages shall have at least one network message");
 
-            JsonNetworkMessage uaNetworkMessage = networkMessages[0] as JsonNetworkMessage;
-            Assert.IsNotNull(uaNetworkMessage, "networkMessageEncode should not be null");
+            List<JsonNetworkMessage> uaNetworkMessages = MessagesHelper.GetJsonUaDataNetworkMessages(networkMessages.Cast<JsonNetworkMessage>().ToList());
+            Assert.IsNotNull(uaNetworkMessages, "Json ua-data entries are missing from configuration!");
+
+            List<JsonNetworkMessage> uaMetaDataNetworkMessages = MessagesHelper.GetJsonUaMetaDataNetworkMessages(networkMessages.Cast<JsonNetworkMessage>().ToList());
+            Assert.IsNotNull(uaMetaDataNetworkMessages, "Json ua-metadata entries are missing from configuration!");
 
             bool hasDataSetWriterId = (jsonNetworkMessageContentMask & JsonNetworkMessageContentMask.DataSetMessageHeader) != 0
                 && (jsonDataSetMessageContentMask & JsonDataSetMessageContentMask.DataSetWriterId) != 0;
@@ -253,18 +261,28 @@ namespace Opc.Ua.PubSub.Encoding.Transport.Tests
             Assert.IsNotNull(subscriberConnection, "Subscriber first connection should not be null");
 
             //Act
-            // it will signal if the uadp message was received from local ip
-            m_shutdownEvent = new ManualResetEvent(false);
+            // it will signal if the mqtt message was received from local ip
+            m_uaDataShutdownEvent = new ManualResetEvent(false);
+            // it will signal if the mqtt metadata message was received from local ip
+            m_uaMetaDataShutdownEvent = new ManualResetEvent(false);
+            // it will signal if the changed configuration message was received on local ip
+            m_uaConfigurationUpdateEvent = new ManualResetEvent(false);
 
             subscriberApplication.DataReceived += UaPubSubApplication_DataReceived;
+            subscriberApplication.MetaDataReceived += UaPubSubApplication_MetaDataReceived;
+            subscriberApplication.ConfigurationUpdating += UaPubSubApplication_ConfigurationUpdating;
             subscriberConnection.Start();
 
             publisherConnection.Start();
 
             //Assert
-            if (!m_shutdownEvent.WaitOne(EstimatedPublishingTime))
+            if (!m_uaDataShutdownEvent.WaitOne(EstimatedPublishingTime))
             {
                 Assert.Fail("The JSON message was not received");
+            }
+            if (!m_uaMetaDataShutdownEvent.WaitOne(EstimatedPublishingTime))
+            {
+                Assert.Fail("The JSON metadata message was not received");
             }
 
             subscriberConnection.Stop();
@@ -280,7 +298,27 @@ namespace Opc.Ua.PubSub.Encoding.Transport.Tests
         /// <param name="e"></param>
         private void UaPubSubApplication_DataReceived(object sender, SubscribedDataEventArgs e)
         {
-            m_shutdownEvent.Set();
+            m_uaDataShutdownEvent.Set();
+        }
+
+        /// <summary>
+        /// MetaData received handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void UaPubSubApplication_MetaDataReceived(object sender, SubscribedDataEventArgs e)
+        {
+            m_uaMetaDataShutdownEvent.Set();
+        }
+
+        /// <summary>
+        /// ConfigurationUpdating received handler 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void UaPubSubApplication_ConfigurationUpdating(object sender, ConfigurationUpdatingEventArgs e)
+        {
+            m_uaConfigurationUpdateEvent.Set();
         }
 
         /// <summary>

@@ -15,7 +15,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Opc.Ua.PubSub
+namespace Opc.Ua.PubSub.Prototyping
 {
     /// <summary>
     /// 
@@ -69,7 +69,7 @@ namespace Opc.Ua.PubSub
         /// 
         /// </summary>
         public virtual IJsonEncoder CreateEncoder(
-            ServiceMessageContext context,
+            IServiceMessageContext context,
             bool useReversibleEncoding,
             StreamWriter writer,
             bool topLevelIsArray)
@@ -82,7 +82,7 @@ namespace Opc.Ua.PubSub
         /// </summary>
         /// <param name="context"></param>
         /// <param name="writer"></param>
-        public void Encode(ServiceMessageContext context, StreamWriter writer)
+        public void Encode(IServiceMessageContext context, StreamWriter writer)
         {
             bool topLevelIsArray = false;
 

@@ -1,9 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using Newtonsoft.Json;
+using Opc.Ua.PubSub.Prototyping;
 
 namespace Opc.Ua.Client.Controls
 {
@@ -45,7 +45,7 @@ namespace Opc.Ua.Client.Controls
 
 
         public DataValue[] DataValues { get; set; }
-        public ServiceMessageContext Context { get; set; }
+        public IServiceMessageContext Context { get; set; }
         public NodeId NodeId { get; set; }
 
         private void CheckedChanged(object sender, EventArgs e)
@@ -61,7 +61,8 @@ namespace Opc.Ua.Client.Controls
         {
             UpdateFlags();
 
-            var networkMessage = new Opc.Ua.PubSub.JsonNetworkMessage() {
+            var networkMessage = new JsonNetworkMessage()
+            {
                 MessageId = Guid.NewGuid().ToString(),
                 DataSetClassId = Guid.NewGuid().ToString(),
                 PublisherId = Guid.NewGuid().ToString(),
@@ -70,7 +71,8 @@ namespace Opc.Ua.Client.Controls
 
             for (int i = 0; i < 2; i++)
             {
-                var dataSetMessage = new Opc.Ua.PubSub.JsonDataSetMessage() {
+                var dataSetMessage = new JsonDataSetMessage()
+                {
                     SequenceNumber = (uint)(123 + i),
                     DataSetWriterId = (ushort)(5555 + i),
                     MetaDataVersion = new ConfigurationVersionDataType() { MajorVersion = UnixTimeSeconds(DateTime.Today), MinorVersion = UnixTimeSeconds(DateTime.UtcNow) },
@@ -161,7 +163,8 @@ namespace Opc.Ua.Client.Controls
                 using (var stringReader = new StringReader(json))
                 {
                     var jsonReader = new JsonTextReader(stringReader);
-                    var jsonWriter = new JsonTextWriter(stringWriter) {
+                    var jsonWriter = new JsonTextWriter(stringWriter)
+                    {
                         Formatting = Newtonsoft.Json.Formatting.Indented,
                         Culture = System.Globalization.CultureInfo.InvariantCulture
                     };
@@ -180,7 +183,7 @@ namespace Opc.Ua.Client.Controls
 
         public static uint UnixTimeSeconds(DateTime value)
         {
-            return (uint) (value.Ticks / 10000000L - 62135596800L);
+            return (uint)(value.Ticks / 10000000L - 62135596800L);
         }
 
         private void OkBtn_Click(object sender, EventArgs e)
