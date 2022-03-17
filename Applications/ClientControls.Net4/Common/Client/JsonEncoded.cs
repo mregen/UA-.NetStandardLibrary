@@ -178,7 +178,7 @@ namespace Opc.Ua.Client.Controls
             return json;
         }
 
-        public static uint UnixTimeSeconds(this DateTime value)
+        public static uint UnixTimeSeconds(DateTime value)
         {
             return (uint) (value.Ticks / 10000000L - 62135596800L);
         }
