@@ -72,6 +72,7 @@ namespace Opc.Ua.Sample
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -845,7 +846,7 @@ namespace Opc.Ua.Sample
             NodeId referenceTypeId,
             bool isInverse,
             ExpandedNodeId targetId,
-            bool deleteBiDirectional)
+            bool deleteBidirectional)
         {
             lock (Lock)
             {
@@ -859,7 +860,7 @@ namespace Opc.Ua.Sample
 
                 source.RemoveReference(referenceTypeId, isInverse, targetId);
 
-                if (deleteBiDirectional)
+                if (deleteBidirectional)
                 {
                     // check if the target is also managed by the node manager.
                     if (!targetId.IsAbsolute)
@@ -983,8 +984,8 @@ namespace Opc.Ua.Sample
             ref ContinuationPoint continuationPoint,
             IList<ReferenceDescription> references)
         {
-            if (continuationPoint == null) throw new ArgumentNullException("continuationPoint");
-            if (references == null) throw new ArgumentNullException("references");
+            if (continuationPoint == null) throw new ArgumentNullException(nameof(continuationPoint));
+            if (references == null) throw new ArgumentNullException(nameof(references));
 
             // check for view.
             if (!ViewDescription.IsDefault(continuationPoint.View))
@@ -2942,6 +2943,7 @@ namespace Opc.Ua.Sample
             IList<ServiceResult> errors)
         {
             ServerSystemContext systemContext = m_systemContext.Copy(context);
+            IList<IMonitoredItem> transferredItems = new List<IMonitoredItem>();
             lock (Lock)
             {
                 for (int ii = 0; ii < monitoredItems.Count; ii++)
@@ -2964,6 +2966,7 @@ namespace Opc.Ua.Sample
                     // owned by this node manager.
                     processedItems[ii] = true;
                     var monitoredItem = monitoredItems[ii];
+                    transferredItems.Add(monitoredItem);
 
                     if (sendInitialValues && !monitoredItem.IsReadyToPublish)
                     {
@@ -2978,6 +2981,22 @@ namespace Opc.Ua.Sample
                     }
                 }
             }
+
+            // do any post processing.
+            OnMonitoredItemsTransferred(systemContext, transferredItems);
+        }
+
+        /// <summary>
+        /// Called after transfer of MonitoredItems.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="monitoredItems">The transferred monitored items.</param>
+        protected virtual void OnMonitoredItemsTransferred(
+            ServerSystemContext context,
+            IList<IMonitoredItem> monitoredItems
+            )
+        {
+            // does nothing.
         }
 
         /// <summary>
