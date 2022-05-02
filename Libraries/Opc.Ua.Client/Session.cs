@@ -155,26 +155,22 @@ namespace Opc.Ua.Client
 
             if (m_endpoint.Description.SecurityPolicyUri != SecurityPolicies.None)
             {
-                // update client certificate.
-                m_instanceCertificate = clientCertificate;
-
                 if (clientCertificate == null)
                 {
-                    // load the application instance certificate.
-                    if (m_configuration.SecurityConfiguration.ApplicationCertificate == null)
-                    {
-                        throw new ServiceResultException(
-                            StatusCodes.BadConfigurationError,
-                            "The client configuration does not specify an application instance certificate.");
-                    }
-
-                    m_instanceCertificate = m_configuration.SecurityConfiguration.ApplicationCertificate.Find(true).Result;
+                    m_instanceCertificate = LoadCertificate(configuration, m_endpoint.Description.SecurityPolicyUri).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    // update client certificate.
+                    m_instanceCertificate = clientCertificate;
                 }
 
                 // check for valid certificate.
                 if (m_instanceCertificate == null)
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     var cert = m_configuration.SecurityConfiguration.ApplicationCertificate;
+#pragma warning restore CS0618 // Type or member is obsolete
                     throw ServiceResultException.Create(
                         StatusCodes.BadConfigurationError,
                         "Cannot find the application instance certificate. Store={0}, SubjectName={1}, Thumbprint={2}.",
@@ -187,19 +183,11 @@ namespace Opc.Ua.Client
                     throw ServiceResultException.Create(
                         StatusCodes.BadConfigurationError,
                         "No private key for the application instance certificate. Subject={0}, Thumbprint={1}.",
-                        m_instanceCertificate.Subject,
-                        m_instanceCertificate.Thumbprint);
+                        m_instanceCertificate.Subject, m_instanceCertificate.Thumbprint);
                 }
 
                 // load certificate chain.
-                m_instanceCertificateChain = new X509Certificate2Collection(m_instanceCertificate);
-                List<CertificateIdentifier> issuers = new List<CertificateIdentifier>();
-                configuration.CertificateValidator.GetIssuers(m_instanceCertificate, issuers).Wait();
-
-                for (int i = 0; i < issuers.Count; i++)
-                {
-                    m_instanceCertificateChain.Add(issuers[i].Certificate);
-                }
+                m_instanceCertificateChain = LoadCertificateChain(configuration, m_instanceCertificate).GetAwaiter().GetResult();
             }
 
             // initialize the message context.
@@ -222,16 +210,16 @@ namespace Opc.Ua.Client
             m_preferredLocales = new string[] { CultureInfo.CurrentCulture.Name };
 
             // create a context to use.
-            m_systemContext = new SystemContext();
-
-            m_systemContext.SystemHandle = this;
-            m_systemContext.EncodeableFactory = m_factory;
-            m_systemContext.NamespaceUris = m_namespaceUris;
-            m_systemContext.ServerUris = m_serverUris;
-            m_systemContext.TypeTable = TypeTree;
-            m_systemContext.PreferredLocales = null;
-            m_systemContext.SessionId = null;
-            m_systemContext.UserIdentity = null;
+            m_systemContext = new SystemContext {
+                SystemHandle = this,
+                EncodeableFactory = m_factory,
+                NamespaceUris = m_namespaceUris,
+                ServerUris = m_serverUris,
+                TypeTable = TypeTree,
+                PreferredLocales = null,
+                SessionId = null,
+                UserIdentity = null
+            };
         }
 
         /// <summary>
@@ -799,28 +787,41 @@ namespace Opc.Ua.Client
         }
 
         /// <summary>
-        /// Creates a new communication session with a server using a reverse connection.
+        /// Creates a new session with a server using the specified channel by invoking the CreateSession service
         /// </summary>
         /// <param name="configuration">The configuration for the client application.</param>
-        /// <param name="connection">The client endpoint for the reverse connect.</param>
+        /// <param name="channel">The channel for the server.</param>
         /// <param name="endpoint">The endpoint for the server.</param>
-        /// <param name="updateBeforeConnect">If set to <c>true</c> the discovery endpoint is used to update the endpoint description before connecting.</param>
-        /// <param name="checkDomain">If set to <c>true</c> then the domain in the certificate must match the endpoint used.</param>
-        /// <param name="sessionName">The name to assign to the session.</param>
-        /// <param name="sessionTimeout">The timeout period for the session.</param>
-        /// <param name="identity">The user identity to associate with the session.</param>
-        /// <param name="preferredLocales">The preferred locales.</param>
-        /// <returns>The new session object.</returns>
-        public static async Task<Session> Create(
+        /// <param name="clientCertificate">The certificate to use for the client.</param>
+        /// <param name="availableEndpoints">The list of available endpoints returned by server in GetEndpoints() response.</param>
+        /// <param name="discoveryProfileUris">The value of profileUris used in GetEndpoints() request.</param>
+        /// <returns></returns>
+        public static Session Create(
+           ApplicationConfiguration configuration,
+           ITransportChannel channel,
+           ConfiguredEndpoint endpoint,
+           X509Certificate2 clientCertificate,
+           EndpointDescriptionCollection availableEndpoints = null,
+           StringCollection discoveryProfileUris = null)
+        {
+            return new Session(channel, configuration, endpoint, clientCertificate, availableEndpoints, discoveryProfileUris);
+        }
+
+        /// <summary>
+        /// Creates a secure channel to the specified endpoint.
+        /// </summary>
+        /// <param name="configuration">The application configuration.</param>
+        /// <param name="connection">The client endpoint for the reverse connect.</param>
+        /// <param name="endpoint">A configured endpoint to connect to.</param> 
+        /// <param name="updateBeforeConnect">Update configuration based on server prior connect.</param>
+        /// <param name="checkDomain">Check that the certificate specifies a valid domain (computer) name.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public static async Task<ITransportChannel> CreateChannelAsync(
             ApplicationConfiguration configuration,
             ITransportWaitingConnection connection,
             ConfiguredEndpoint endpoint,
             bool updateBeforeConnect,
-            bool checkDomain,
-            string sessionName,
-            uint sessionTimeout,
-            IUserIdentity identity,
-            IList<string> preferredLocales)
+            bool checkDomain)
         {
             endpoint.UpdateBeforeConnect = updateBeforeConnect;
 
@@ -860,7 +861,7 @@ namespace Opc.Ua.Client
             X509Certificate2Collection clientCertificateChain = null;
             if (endpointDescription.SecurityPolicyUri != SecurityPolicies.None)
             {
-                clientCertificate = await LoadCertificate(configuration).ConfigureAwait(false);
+                clientCertificate = await LoadCertificate(configuration, endpointDescription.SecurityPolicyUri).ConfigureAwait(false);
                 clientCertificateChain = await LoadCertificateChain(configuration, clientCertificate).ConfigureAwait(false);
             }
 
@@ -887,6 +888,36 @@ namespace Opc.Ua.Client
                      clientCertificateChain,
                      messageContext);
             }
+
+            return channel;
+        }
+
+        /// <summary>
+        /// Creates a new communication session with a server using a reverse connection.
+        /// </summary>
+        /// <param name="configuration">The configuration for the client application.</param>
+        /// <param name="connection">The client endpoint for the reverse connect.</param>
+        /// <param name="endpoint">The endpoint for the server.</param>
+        /// <param name="updateBeforeConnect">If set to <c>true</c> the discovery endpoint is used to update the endpoint description before connecting.</param>
+        /// <param name="checkDomain">If set to <c>true</c> then the domain in the certificate must match the endpoint used.</param>
+        /// <param name="sessionName">The name to assign to the session.</param>
+        /// <param name="sessionTimeout">The timeout period for the session.</param>
+        /// <param name="identity">The user identity to associate with the session.</param>
+        /// <param name="preferredLocales">The preferred locales.</param>
+        /// <returns>The new session object.</returns>
+        public static async Task<Session> Create(
+            ApplicationConfiguration configuration,
+            ITransportWaitingConnection connection,
+            ConfiguredEndpoint endpoint,
+            bool updateBeforeConnect,
+            bool checkDomain,
+            string sessionName,
+            uint sessionTimeout,
+            IUserIdentity identity,
+            IList<string> preferredLocales)
+        {
+            // initialize the channel which will be created with the server.
+            ITransportChannel channel = await Session.CreateChannelAsync(configuration, connection, endpoint, updateBeforeConnect, checkDomain).ConfigureAwait(false);
 
             // create the session object.
             Session session = new Session(channel, configuration, endpoint, null);
@@ -1074,6 +1105,45 @@ namespace Opc.Ua.Client
 
             return session;
         }
+
+        /// <summary>
+        /// Recreates a session based on a specified template using the provided channel.
+        /// </summary>
+        /// <param name="template">The Session object to use as template</param>
+        /// <param name="transportChannel">The waiting reverse connection.</param>
+        /// <returns>The new session object.</returns>
+        public static Session Recreate(Session template, ITransportChannel transportChannel)
+        {
+            var messageContext = template.m_configuration.CreateMessageContext();
+            messageContext.Factory = template.Factory;
+
+            // create the session object.
+            Session session = new Session(transportChannel, template, true);
+
+            try
+            {
+                // open the session.
+                session.Open(
+                    template.m_sessionName,
+                    (uint)template.m_sessionTimeout,
+                    template.m_identity,
+                    template.m_preferredLocales,
+                    template.m_checkDomain);
+
+                // create the subscriptions.
+                foreach (Subscription subscription in session.Subscriptions)
+                {
+                    subscription.Create();
+                }
+            }
+            catch (Exception e)
+            {
+                session.Dispose();
+                throw ServiceResultException.Create(StatusCodes.BadCommunicationError, e, "Could not recreate session. {0}", template.m_sessionName);
+            }
+
+            return session;
+        }
         #endregion
 
         #region Delegates and Events
@@ -1100,13 +1170,13 @@ namespace Opc.Ua.Client
         /// </summary>
         public void Reconnect()
         {
-            Reconnect(null);
+            Reconnect(null, null);
         }
 
         /// <summary>
         /// Reconnects to the server after a network failure using a waiting connection.
         /// </summary>
-        public void Reconnect(ITransportWaitingConnection connection)
+        public void Reconnect(ITransportWaitingConnection connection, ITransportChannel transportChannel = null)
         {
             try
             {
@@ -1203,6 +1273,10 @@ namespace Opc.Ua.Client
                         // disposes the existing channel.
                         TransportChannel = channel;
                     }
+                }
+                else if (transportChannel != null)
+                {
+                    TransportChannel = transportChannel;
                 }
                 else
                 {
@@ -3206,13 +3280,23 @@ namespace Opc.Ua.Client
         /// </summary>
         public override StatusCode Close()
         {
-            return Close(m_keepAliveInterval);
+            return Close(m_keepAliveInterval, true);
+        }
+
+        /// <summary>
+        /// Close the session with the server and optionally closes the channel.
+        /// </summary>
+        /// <param name="closeChannel"></param>
+        /// <returns></returns>
+        public StatusCode Close(bool closeChannel)
+        {
+            return Close(m_keepAliveInterval, closeChannel);
         }
 
         /// <summary>
         /// Disconnects from the server and frees any network resources with the specified timeout.
         /// </summary>
-        public virtual StatusCode Close(int timeout)
+        public virtual StatusCode Close(int timeout, bool closeChannel = true)
         {
             // check if already called.
             if (Disposed)
@@ -3255,7 +3339,10 @@ namespace Opc.Ua.Client
                     CloseSession(null, m_deleteSubscriptionsOnClose);
                     this.OperationTimeout = existingTimeout;
 
-                    CloseChannel();
+                    if (closeChannel)
+                    {
+                        CloseChannel();
+                    }
 
                     // raised notification indicating the session is closed.
                     SessionCreated(null, null);
@@ -3278,7 +3365,11 @@ namespace Opc.Ua.Client
             }
 
             // clean up.
-            Dispose();
+            if (closeChannel)
+            {
+                Dispose();
+            }
+
             return result;
         }
         #endregion
@@ -3469,7 +3560,6 @@ namespace Opc.Ua.Client
                     Utils.LogInfo("No subscriptions. Transfersubscription skipped.");
                 }
 
-                
             }
 
             return true;
@@ -4692,20 +4782,18 @@ namespace Opc.Ua.Client
         /// <summary>
         /// Load certificate for connection.
         /// </summary>
-        private static async Task<X509Certificate2> LoadCertificate(ApplicationConfiguration configuration)
+        private static async Task<X509Certificate2> LoadCertificate(ApplicationConfiguration configuration, string securityProfile)
         {
-            X509Certificate2 clientCertificate;
-            if (configuration.SecurityConfiguration.ApplicationCertificate == null)
-            {
-                throw ServiceResultException.Create(StatusCodes.BadConfigurationError, "ApplicationCertificate must be specified.");
-            }
-
-            clientCertificate = await configuration.SecurityConfiguration.ApplicationCertificate.Find(true).ConfigureAwait(false);
+            X509Certificate2 clientCertificate =
+                await configuration.SecurityConfiguration.FindApplicationCertificateAsync(securityProfile, true).ConfigureAwait(false);
 
             if (clientCertificate == null)
             {
-                throw ServiceResultException.Create(StatusCodes.BadConfigurationError, "ApplicationCertificate cannot be found.");
+                throw ServiceResultException.Create(StatusCodes.BadConfigurationError,
+                    "ApplicationCertificate for the security profile {0} cannot be found.",
+                    securityProfile);
             }
+
             return clientCertificate;
         }
 
@@ -4720,7 +4808,7 @@ namespace Opc.Ua.Client
             {
                 clientCertificateChain = new X509Certificate2Collection(clientCertificate);
                 List<CertificateIdentifier> issuers = new List<CertificateIdentifier>();
-                await configuration.CertificateValidator.GetIssuers(clientCertificate, issuers).ConfigureAwait(false);
+                await configuration.CertificateValidator.GetIssuers(clientCertificate, issuers, false).ConfigureAwait(false);
 
                 for (int i = 0; i < issuers.Count; i++)
                 {
@@ -4743,6 +4831,53 @@ namespace Opc.Ua.Client
         }
         #endregion
 
+        #region Protected Fields
+        /// <summary>
+        /// The period for which the server will maintain the session if there is no communication from the client.
+        /// </summary>
+        protected double m_sessionTimeout;
+
+        /// <summary>
+        /// The locales that the server should use when returning localized text.
+        /// </summary>
+        protected StringCollection m_preferredLocales;
+
+        /// <summary>
+        /// The Application Configuration.
+        /// </summary>
+        protected ApplicationConfiguration m_configuration;
+
+        /// <summary>
+        /// The endpoint used to connect to the server.
+        /// </summary>
+        protected ConfiguredEndpoint m_endpoint;
+
+        /// <summary>
+        /// The Instance Certificate.
+        /// </summary>
+        protected X509Certificate2 m_instanceCertificate;
+
+        /// <summary>
+        /// The Instance Certificate Chain.
+        /// </summary>
+        protected X509Certificate2Collection m_instanceCertificateChain;
+
+        /// <summary>
+        /// If set to<c>true</c> then the domain in the certificate must match the endpoint used.
+        /// </summary>
+        protected bool m_checkDomain;
+
+        /// <summary>
+        /// The name assigned to the session.
+        /// </summary>
+        protected string m_sessionName;
+
+        /// <summary>
+        /// The user identity currently used for the session.
+        /// </summary>
+        protected IUserIdentity m_identity;
+        #endregion
+
         #region Private Fields
         private SubscriptionAcknowledgementCollection m_acknowledgementsToSend;
         private Dictionary<uint, uint> m_latestAcknowledgementsSent;
@@ -4750,24 +4885,14 @@ namespace Opc.Ua.Client
         private Dictionary<NodeId, DataDictionary> m_dictionaries;
         private Subscription m_defaultSubscription;
         private bool m_deleteSubscriptionsOnClose;
-        private double m_sessionTimeout;
         private uint m_maxRequestMessageSize;
-        private StringCollection m_preferredLocales;
         private NamespaceTable m_namespaceUris;
         private StringTable m_serverUris;
         private IEncodeableFactory m_factory;
         private SystemContext m_systemContext;
         private NodeCache m_nodeCache;
-        private ApplicationConfiguration m_configuration;
-        private ConfiguredEndpoint m_endpoint;
-        private X509Certificate2 m_instanceCertificate;
-        private X509Certificate2Collection m_instanceCertificateChain;
-        private bool m_checkDomain;
         private List<IUserIdentity> m_identityHistory;
-
-        private string m_sessionName;
         private object m_handle;
-        private IUserIdentity m_identity;
         private byte[] m_serverNonce;
         private byte[] m_previousServerNonce;
         private X509Certificate2 m_serverCertificate;

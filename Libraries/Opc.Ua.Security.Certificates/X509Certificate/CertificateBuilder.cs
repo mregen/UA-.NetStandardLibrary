@@ -275,7 +275,21 @@ namespace Opc.Ua.Security.Certificates
             try
             {
                 m_ecdsaPublicKey = ECDsa.Create();
+#if NET472_OR_GREATER
+                var asymmetricKeyParameter = Org.BouncyCastle.Security.PublicKeyFactory.CreateKey(publicKey);
+                var ecKeyParameters = asymmetricKeyParameter as Org.BouncyCastle.Crypto.Parameters.ECKeyParameters;
+                var parameters = new ECParameters {
+                    Curve = default(ECCurve),
+                    Q = new ECPoint() {
+                        X = ecKeyParameters.Parameters.G.XCoord.ToBigInteger().ToByteArrayUnsigned(),
+                        Y = ecKeyParameters.Parameters.G.YCoord.ToBigInteger().ToByteArrayUnsigned(),
+                    }
+                };
+                m_ecdsaPublicKey.ImportParameters(parameters);
+                bytes = publicKey.Length;
+#else
                 m_ecdsaPublicKey.ImportSubjectPublicKeyInfo(publicKey, out bytes);
+#endif
             }
             catch (Exception e)
             {
@@ -295,14 +309,22 @@ namespace Opc.Ua.Security.Certificates
         public override ICertificateBuilderCreateForRSAAny SetRSAPublicKey(byte[] publicKey)
         {
             if (publicKey == null) throw new ArgumentNullException(nameof(publicKey));
-#if NET472_OR_GREATER
-            throw new NotSupportedException("Import a RSAPublicKey is not supported on this platform.");
-#else
             int bytes = 0;
             try
             {
                 m_rsaPublicKey = RSA.Create();
+#if NET472_OR_GREATER
+                var asymmetricKeyParameter = Org.BouncyCastle.Security.PublicKeyFactory.CreateKey(publicKey);
+                var rsaKeyParameters = asymmetricKeyParameter as Org.BouncyCastle.Crypto.Parameters.RsaKeyParameters;
+                var parameters = new RSAParameters {
+                    Exponent = rsaKeyParameters.Exponent.ToByteArrayUnsigned(),
+                    Modulus = rsaKeyParameters.Modulus.ToByteArrayUnsigned()
+                };
+                m_rsaPublicKey.ImportParameters(parameters);
+                bytes = publicKey.Length;
+#else
                 m_rsaPublicKey.ImportSubjectPublicKeyInfo(publicKey, out bytes);
+#endif
             }
             catch (Exception e)
             {
@@ -314,7 +336,6 @@ namespace Opc.Ua.Security.Certificates
                 throw new ArgumentException("Decoded the public key but extra bytes were found.");
             }
             return this;
-#endif
         }
         #endregion
 

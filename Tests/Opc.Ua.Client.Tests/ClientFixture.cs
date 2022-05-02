@@ -32,6 +32,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Opc.Ua.Configuration;
@@ -66,6 +67,12 @@ namespace Opc.Ua.Client.Tests
 
             pkiRoot = pkiRoot ?? Path.Combine("%LocalApplicationData%", "OPC", "pki");
 
+            string eccCertTypes = "RSA,nistP256,nistP384";
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                eccCertTypes += ",brainpoolP256r1,brainpoolP384r1";
+            }
+
             // build the application configuration.
             Config = await application
                 .Build(
@@ -75,6 +82,8 @@ namespace Opc.Ua.Client.Tests
                 .AddSecurityConfiguration(
                     "CN=" + clientName + ", O=OPC Foundation, DC=localhost",
                     pkiRoot)
+
+                .SetApplicationCertificateTypes(eccCertTypes)
                 .SetAutoAcceptUntrustedCertificates(true)
                 .SetRejectSHA1SignedCertificates(false)
                 .SetMinimumCertificateKeySize(1024)
@@ -208,6 +217,27 @@ namespace Opc.Ua.Client.Tests
         }
 
         /// <summary>
+        /// Create a channel using the specified endpoint.
+        /// </summary>
+        /// <param name="endpoint">The configured endpoint</param>
+        /// <returns></returns>
+        public async Task<ITransportChannel> CreateChannelAsync(ConfiguredEndpoint endpoint)
+        {
+            return await Session.CreateChannelAsync(Config, null, endpoint, true, false).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Create a session using the specified channel.
+        /// </summary>
+        /// <param name="channel">The channel to use</param>
+        /// <param name="endpoint">The configured endpoint</param>
+        /// <returns></returns>
+        public Session CreateSession(ITransportChannel channel, ConfiguredEndpoint endpoint)
+        {
+            return Session.Create(Config, channel, endpoint, null);
+        }
+
+        /// <summary>
         /// Get configured endpoint from url with security profile.
         /// </summary>
         /// <param name="url"></param>
@@ -250,7 +280,8 @@ namespace Opc.Ua.Client.Tests
                 if (endpoint.EndpointUrl.StartsWith(url.Scheme))
                 {
                     // skip unsupported security policies
-                    if (SecurityPolicies.GetDisplayName(endpoint.SecurityPolicyUri) == null)
+                    if (!configuration.SecurityConfiguration.SupportedSecurityPolicies.
+                            Contains(endpoint.SecurityPolicyUri))
                     {
                         continue;
                     }

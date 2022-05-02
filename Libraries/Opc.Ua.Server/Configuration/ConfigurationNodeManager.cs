@@ -121,8 +121,12 @@ namespace Opc.Ua.Server
             // TODO: configure cert groups in configuration
             ServerCertificateGroup defaultApplicationGroup = new ServerCertificateGroup {
                 BrowseName = Opc.Ua.BrowseNames.DefaultApplicationGroup,
+                // TODO
                 CertificateTypes = new NodeId[] { ObjectTypeIds.RsaSha256ApplicationCertificateType },
+                // TODO
+#pragma warning disable CS0618 // Type or member is obsolete
                 ApplicationCertificate = configuration.SecurityConfiguration.ApplicationCertificate,
+#pragma warning restore CS0618 // Type or member is obsolete
                 IssuerStorePath = configuration.SecurityConfiguration.TrustedIssuerCertificates.StorePath,
                 TrustedStorePath = configuration.SecurityConfiguration.TrustedPeerCertificates.StorePath
             };
@@ -481,6 +485,7 @@ namespace Opc.Ua.Server
             {
                 try
                 {
+                    // TODO
                     using (ICertificateStore appStore = certificateGroup.ApplicationCertificate.OpenStore())
                     {
                         Utils.LogCertificate(Utils.TraceMasks.Security, "Delete application certificate: ", certificateGroup.ApplicationCertificate.Certificate);
