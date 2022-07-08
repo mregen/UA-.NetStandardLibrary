@@ -33,6 +33,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
@@ -240,6 +241,100 @@ namespace Opc.Ua.Client.Tests
             var result = session.Close();
             Assert.NotNull(result);
             session.Dispose();
+        }
+
+        [Theory, Order(220)]
+        public async Task ConnectJWT(string securityPolicy)
+        {
+            var identityToken = "fakeTokenString";
+           
+            var issuedToken = new IssuedIdentityToken() {
+                IssuedTokenType = IssuedTokenType.JWT,
+                PolicyId = Profiles.JwtUserToken,
+                DecryptedTokenData = Encoding.UTF8.GetBytes(identityToken)
+            };
+
+            var userIdentity = new UserIdentity(issuedToken);
+
+            var session = await ClientFixture.ConnectAsync(ServerUrl, securityPolicy, Endpoints, userIdentity).ConfigureAwait(false);
+            Assert.NotNull(session);
+            Assert.NotNull(TokenValidator.LastIssuedToken);
+
+            var receivedToken = Encoding.UTF8.GetString(TokenValidator.LastIssuedToken.DecryptedTokenData);
+            Assert.AreEqual(identityToken, receivedToken);
+
+            var result = session.Close();
+            Assert.NotNull(result);
+
+            session.Dispose();
+        }
+
+        [Theory, Order(230)]
+        public async Task ReconnectJWT(string securityPolicy)
+        {
+            UserIdentity CreateUserIdentity(string tokenData)
+            {
+                var issuedToken = new IssuedIdentityToken() {
+                    IssuedTokenType = IssuedTokenType.JWT,
+                    PolicyId = Profiles.JwtUserToken,
+                    DecryptedTokenData = Encoding.UTF8.GetBytes(tokenData)
+                };
+
+                return new UserIdentity(issuedToken);
+            }
+
+            var identityToken = "fakeTokenString";
+            var userIdentity = CreateUserIdentity(identityToken);
+
+            var session = await ClientFixture.ConnectAsync(ServerUrl, securityPolicy, Endpoints, userIdentity).ConfigureAwait(false);
+            Assert.NotNull(session);
+            Assert.NotNull(TokenValidator.LastIssuedToken);
+
+            var receivedToken = Encoding.UTF8.GetString(TokenValidator.LastIssuedToken.DecryptedTokenData);
+            Assert.AreEqual(identityToken, receivedToken);
+
+            var newIdentityToken = "fakeTokenStringNew";
+            session.RenewUserIdentity += (s, i) =>
+            {
+                return CreateUserIdentity(newIdentityToken);
+            };
+
+            session.Reconnect();
+            receivedToken = Encoding.UTF8.GetString(TokenValidator.LastIssuedToken.DecryptedTokenData);
+            Assert.AreEqual(newIdentityToken, receivedToken);
+
+            var result = session.Close();
+            Assert.NotNull(result);
+
+            session.Dispose();
+        }
+
+        [Test, Order(240)]
+        public async Task ConnectMultipleSessionsAsync()
+        {
+            var endpoint = await ClientFixture.GetEndpointAsync(this.ServerUrl, SecurityPolicies.Basic256Sha256, this.Endpoints);
+            Assert.NotNull(endpoint);
+
+            var channel = await ClientFixture.CreateChannelAsync(endpoint).ConfigureAwait(false);
+            Assert.NotNull(channel);
+
+            var session1 = ClientFixture.CreateSession(channel, endpoint);
+            session1.Open("Session1", null);
+
+            var session2 = ClientFixture.CreateSession(channel, endpoint);
+            session2.Open("Session2", null);
+
+            session1.Close(closeChannel: false);
+            session1.DetachChannel();
+            session1.Dispose();
+
+            _ = session2.ReadValue(VariableIds.Server_ServerStatus, typeof(ServerStatusDataType));
+
+            session2.Close(closeChannel: false);
+            session2.DetachChannel();
+            session2.Dispose();
+
+            channel.Dispose();
         }
 
         [Test, Order(300)]
@@ -659,7 +754,7 @@ namespace Opc.Ua.Client.Tests
                 var namespaceUris = Session.NamespaceUris;
                 NodeId[] testSet = CommonTestWorkers.NodeIdTestSetStatic.Select(n => ExpandedNodeId.ToNodeId(n, namespaceUris)).ToArray();
                 var clientTestServices = new ClientTestServices(Session);
-                CommonTestWorkers.CreateSubscriptionForTransfer(clientTestServices, requestHeader, testSet, out var subscriptionIds);
+                var subscriptionIds = CommonTestWorkers.CreateSubscriptionForTransfer(clientTestServices, requestHeader, testSet, 0, -1);
 
                 TestContext.Out.WriteLine("Transfer SubscriptionIds: {0}", subscriptionIds[0]);
 
