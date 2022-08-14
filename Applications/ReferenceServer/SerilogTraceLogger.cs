@@ -63,7 +63,7 @@ namespace Quickstarts.ReferenceServer
         public static SerilogTraceLogger Create(
             LoggerConfiguration loggerConfiguration,
             ApplicationConfiguration config,
-            LogEventLevel fileMinimumLevel = LogEventLevel.Information)
+            LogEventLevel fileMinimumLevel = LogEventLevel.Verbose)
         {
             if (loggerConfiguration == null)
             {
@@ -74,7 +74,7 @@ namespace Quickstarts.ReferenceServer
             {
                 loggerConfiguration.WriteTo.File(
                     Utils.ReplaceSpecialFolderNames(config.TraceConfiguration.OutputFilePath),
-                    rollingInterval: RollingInterval.Day,
+                    rollingInterval: RollingInterval.Infinite,
                     rollOnFileSizeLimit: true,
                     restrictedToMinimumLevel: fileMinimumLevel,
                     retainedFileCountLimit: 10,
@@ -122,13 +122,12 @@ namespace Quickstarts.ReferenceServer
                 }
                 switch (e.TraceMask)
                 {
-                    case Utils.TraceMasks.ServiceDetail:
-                    case Utils.TraceMasks.OperationDetail: m_logger.Verbose(e.Format, e.Arguments); break;
+                    case Utils.TraceMasks.StartStop:
+                    case Utils.TraceMasks.Information: m_logger.Information(e.Format, e.Arguments); break;
                     case Utils.TraceMasks.Error: m_logger.Error(e.Format, e.Arguments); break;
                     case Utils.TraceMasks.StackTrace: 
                     case Utils.TraceMasks.Security: m_logger.Warning(e.Format, e.Arguments); break;
-                    case Utils.TraceMasks.Information:
-                    default: m_logger.Information(e.Format, e.Arguments); break;
+                    default: m_logger.Verbose(e.Format, e.Arguments); break;
                 }
             }
         }

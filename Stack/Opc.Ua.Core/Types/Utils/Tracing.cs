@@ -1,4 +1,4 @@
-/* Copyright (c) 1996-2020 The OPC Foundation. All rights reserved.
+/* Copyright (c) 1996-2021 The OPC Foundation. All rights reserved.
    The source code in this file is covered under a dual-license scenario:
      - RCL: for OPC Foundation members in good-standing
      - GPL V2: everybody else
@@ -20,7 +20,7 @@ namespace Opc.Ua
     public class Tracing
     {
         #region Private Members
-        private static object m_syncRoot = new Object();
+        private static object s_syncRoot = new object();
         private static Tracing s_instance;
         #endregion Private Members
 
@@ -32,6 +32,15 @@ namespace Opc.Ua
         { }
 
         /// <summary>
+        /// Whether the Trace Event Handler is active.
+        /// </summary>
+        public static bool IsEnabled()
+        {
+            return s_instance != null &&
+                s_instance.TraceEventHandler != null;
+        }
+
+        /// <summary>
         /// Public Singleton Instance getter.
         /// </summary>
         public static Tracing Instance
@@ -40,7 +49,7 @@ namespace Opc.Ua
             {
                 if (s_instance == null)
                 {
-                    lock (m_syncRoot)
+                    lock (s_syncRoot)
                     {
                         if (s_instance == null)
                         {

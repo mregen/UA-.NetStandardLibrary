@@ -22,7 +22,6 @@ namespace Opc.Ua.Bindings
     /// <summary>
     /// Creates a transport channel with UA-TCP transport, UA-SC security and UA Binary encoding
     /// </summary>
-
     public class TcpTransportChannel : UaSCUaBinaryTransportChannel
     {
         /// <summary>
@@ -212,7 +211,6 @@ namespace Opc.Ua.Bindings
         private SocketError m_socketError;
     }
 
-
     /// <summary>
     /// Creates a new TcpMessageSocket with IMessageSocket interface.
     /// </summary>
@@ -236,9 +234,7 @@ namespace Opc.Ua.Bindings
         /// </summary>
         /// <value>The implementation string.</value>
         public string Implementation => "UA-TCP";
-
     }
-
 
     /// <summary>
     /// Handles reading and writing of message chunks over a socket.
@@ -344,8 +340,7 @@ namespace Opc.Ua.Bindings
             }
             catch (SocketException e)
             {
-                Utils.Trace(Utils.TraceMasks.Error, "Name resolution failed for: {0} Error: {1}",
-                    endpointUrl.DnsSafeHost, e.Message);
+                Utils.LogWarning("Name resolution failed for: {0} Error: {1}", endpointUrl.DnsSafeHost, e.Message);
                 error = e.SocketErrorCode;
                 goto ErrorExit;
             }
@@ -391,7 +386,6 @@ namespace Opc.Ua.Bindings
 
                 if (addressesV6.Length > arrayV6Index && m_socket == null)
                 {
-                    Utils.Trace(Utils.TraceMasks.TCPMessageSocket, "Connecting to IPv6 {0}", addressesV6[arrayV6Index]);
                     if (BeginConnect(addressesV6[arrayV6Index], AddressFamily.InterNetworkV6, port, doCallback) == SocketError.Success)
                     {
                         return true;
@@ -401,7 +395,6 @@ namespace Opc.Ua.Bindings
 
                 if (addressesV4.Length > arrayV4Index && m_socket == null)
                 {
-                    Utils.Trace(Utils.TraceMasks.TCPMessageSocket, "Connecting to IPv4 {0}", addressesV6[arrayV6Index]);
                     if (BeginConnect(addressesV4[arrayV4Index], AddressFamily.InterNetwork, port, doCallback) == SocketError.Success)
                     {
                         return true;
@@ -462,7 +455,7 @@ namespace Opc.Ua.Bindings
                     }
                     catch (Exception e)
                     {
-                        Utils.Trace(e, "Unexpected error closing socket.");
+                        Utils.LogError(e, "Unexpected error closing socket.");
                     }
                     finally
                     {
@@ -536,7 +529,7 @@ namespace Opc.Ua.Bindings
                 }
                 catch (Exception ex)
                 {
-                    Utils.Trace(ex, "Unexpected error during OnReadComplete,");
+                    Utils.LogError(ex, "Unexpected error during OnReadComplete,");
                     error = ServiceResult.Create(ex, StatusCodes.BadTcpInternalError, ex.Message);
                 }
                 finally
@@ -571,8 +564,6 @@ namespace Opc.Ua.Bindings
                 BufferManager.UnlockBuffer(m_receiveBuffer);
             }
 
-            Utils.Trace(Utils.TraceMasks.TCPMessageSocket, "Bytes read: {0}", bytesRead);
-
             if (bytesRead == 0)
             {
                 // Remote end has closed the connection
@@ -604,8 +595,7 @@ namespace Opc.Ua.Bindings
 
                 if (m_incomingMessageSize <= 0 || m_incomingMessageSize > m_receiveBufferSize)
                 {
-                    Utils.Trace(
-                        Utils.TraceMasks.TCPMessageSocket,
+                    Utils.LogError(
                         "BadTcpMessageTooLarge: BufferSize={0}; MessageSize={1}",
                         m_receiveBufferSize,
                         m_incomingMessageSize);
@@ -642,7 +632,7 @@ namespace Opc.Ua.Bindings
                 }
                 catch (Exception ex)
                 {
-                    Utils.Trace(ex, "Unexpected error invoking OnMessageReceived callback.");
+                    Utils.LogError(ex, "Unexpected error invoking OnMessageReceived callback.");
                 }
             }
 
@@ -787,7 +777,6 @@ namespace Opc.Ua.Bindings
                         m_socket = socket;
                         success = true;
                         m_tcs.SetResult(args.SocketError);
-                        Utils.Trace(Utils.TraceMasks.TCPMessageSocket, "Socket connected: {0}", socket.RemoteEndPoint.ToString());
                     }
                     else if (m_socketResponses == 0)
                     {
