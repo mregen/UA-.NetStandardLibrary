@@ -95,13 +95,16 @@ namespace Opc.Ua.Server.Tests
             {
                 serverConfig.SetOperationLimits(new OperationLimits() {
                     MaxNodesPerBrowse = 2500,
-                    MaxNodesPerRead = 250,
-                    MaxNodesPerWrite = 250,
-                    MaxNodesPerMethodCall = 500,
+                    MaxNodesPerRead = 1000,
+                    MaxNodesPerWrite = 1000,
+                    MaxNodesPerMethodCall = 1000,
                     MaxMonitoredItemsPerCall = 1000,
                     MaxNodesPerTranslateBrowsePathsToNodeIds = 1000
                 });
             }
+
+            serverConfig.SetDiagnosticsEnabled(true);
+            serverConfig.SetAuditingEnabled(true);
 
             if (ReverseConnectTimeout != 0)
             {
@@ -132,7 +135,7 @@ namespace Opc.Ua.Server.Tests
         /// </summary>
         public async Task<T> StartAsync(TextWriter writer, string pkiRoot, int port = 0)
         {
-            Random m_random = new Random();
+            Random random = new Random();
             bool retryStartServer = false;
             int testPort = port;
             int serverStartRetries = 1;
@@ -162,10 +165,10 @@ namespace Opc.Ua.Server.Tests
                         throw;
                     }
                     serverStartRetries--;
-                    testPort = m_random.Next(ServerFixtureUtils.MinTestPort, ServerFixtureUtils.MaxTestPort);
+                    testPort = random.Next(ServerFixtureUtils.MinTestPort, ServerFixtureUtils.MaxTestPort);
                     retryStartServer = true;
                 }
-                await Task.Delay(m_random.Next(100, 1000)).ConfigureAwait(false);
+                await Task.Delay(random.Next(100, 1000)).ConfigureAwait(false);
             } while (retryStartServer);
 
             return Server;

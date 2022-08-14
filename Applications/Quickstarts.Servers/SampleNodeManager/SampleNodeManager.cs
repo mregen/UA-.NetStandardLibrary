@@ -33,7 +33,6 @@ using System.Threading;
 using System.Reflection;
 using Opc.Ua.Server;
 using System.Linq;
-using System.Diagnostics;
 
 namespace Opc.Ua.Sample
 {
@@ -72,6 +71,7 @@ namespace Opc.Ua.Sample
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -845,7 +845,7 @@ namespace Opc.Ua.Sample
             NodeId referenceTypeId,
             bool isInverse,
             ExpandedNodeId targetId,
-            bool deleteBiDirectional)
+            bool deleteBidirectional)
         {
             lock (Lock)
             {
@@ -859,7 +859,7 @@ namespace Opc.Ua.Sample
 
                 source.RemoveReference(referenceTypeId, isInverse, targetId);
 
-                if (deleteBiDirectional)
+                if (deleteBidirectional)
                 {
                     // check if the target is also managed by the node manager.
                     if (!targetId.IsAbsolute)
@@ -2964,20 +2964,13 @@ namespace Opc.Ua.Sample
 
                     // owned by this node manager.
                     processedItems[ii] = true;
-                    var monitoredItem = monitoredItems[ii];
-                    transferredItems.Add(monitoredItem);
+                    transferredItems.Add(monitoredItems[ii]);
 
-                    if (sendInitialValues && !monitoredItem.IsReadyToPublish)
+                    if (sendInitialValues)
                     {
-                        if (monitoredItem is DataChangeMonitoredItem dataChangeMonitoredItem)
-                        {
-                            errors[ii] = ReadInitialValue(systemContext, monitoredNode, dataChangeMonitoredItem, true);
-                        }
+                        monitoredItems[ii].SetupResendDataTrigger();
                     }
-                    else
-                    {
-                        errors[ii] = StatusCodes.Good;
-                    }
+                    errors[ii] = StatusCodes.Good;
                 }
             }
 
@@ -2995,7 +2988,7 @@ namespace Opc.Ua.Sample
             IList<IMonitoredItem> monitoredItems
             )
         {
-            // does nothing.
+            // overridden by the sub-class.
         }
 
         /// <summary>

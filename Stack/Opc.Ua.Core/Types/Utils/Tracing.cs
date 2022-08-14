@@ -1,4 +1,3 @@
-/* Copyright (c) 1996-2021 The OPC Foundation. All rights reserved.
    The source code in this file is covered under a dual-license scenario:
      - RCL: for OPC Foundation members in good-standing
      - GPL V2: everybody else
@@ -20,7 +19,6 @@ namespace Opc.Ua
     public class Tracing
     {
         #region Private Members
-        private static object s_syncRoot = new object();
         private static Tracing s_instance;
         #endregion Private Members
 
@@ -49,7 +47,6 @@ namespace Opc.Ua
             {
                 if (s_instance == null)
                 {
-                    lock (s_syncRoot)
                     {
                         if (s_instance == null)
                         {

@@ -1,6 +1,6 @@
-/* Copyright (c) 1996-2020 The OPC Foundation. All rights reserved.
+/* Copyright (c) 1996-2022 The OPC Foundation. All rights reserved.
    The source code in this file is covered under a dual-license scenario:
-     - RCL: for OPC Foundation members in good-standing
+     - RCL: for OPC Foundation Corporate Members in good-standing
      - GPL V2: everybody else
    RCL license terms accompanied with this source code. See http://opcfoundation.org/License/RCL/1.00/
    GNU General Public License as published by the Free Software Foundation;
@@ -2647,14 +2647,14 @@ namespace Opc.Ua
 
             if (dimensions != null && dimensions.Length > 0)
             {
-                int length = 1;
+                ulong length = 1;
 
                 for (int ii = 0; ii < dimensions.Length; ii++)
                 {
-                    length *= dimensions[ii];
+                    length *= (ulong)dimensions[ii];
                 }
 
-                if (length != elements.Length)
+                if ((length > int.MaxValue) || (length != (ulong)elements.Length))
                 {
                     throw new ArgumentException("The number of elements in the array does not match the dimensions.");
                 }
@@ -2786,7 +2786,7 @@ namespace Opc.Ua
         /// <param name="format">(Unused) Always pass a NULL value</param>
         /// <param name="formatProvider">The format-provider to use. If unsure, pass an empty string or null</param>
         /// <returns>
-        /// A <see cref="T:System.String"/> containing the value of the current instance in the specified format.
+        /// A <see cref="System.String"/> containing the value of the current instance in the specified format.
         /// </returns>
         /// <remarks>
         /// Returns the string representation of the object.

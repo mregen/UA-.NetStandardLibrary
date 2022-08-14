@@ -321,7 +321,7 @@ namespace Opc.Ua.Client
                     }
                     catch (Exception e)
                     {
-                        Utils.LogError(e, "Failed to Open {0}.", host.Key);
+                        Utils.Trace(e, $"Failed to Open {host.Key}.");
                         value.State = ReverseConnectHostState.Errored;
                     }
                 }
@@ -348,7 +348,7 @@ namespace Opc.Ua.Client
                     }
                     catch (Exception e)
                     {
-                        Utils.LogError(e, "Failed to Close {0}.", host.Key);
+                        Utils.Trace(e, $"Failed to Close {host.Key}.");
                         value.State = ReverseConnectHostState.Errored;
                     }
                 }
@@ -606,7 +606,7 @@ namespace Opc.Ua.Client
             }
             catch (ArgumentException ae)
             {
-                Utils.LogError(ae, "No listener was found for endpoint {0}.", endpointUrl);
+                Utils.Trace(ae, $"No listener was found for endpoint {endpointUrl}.");
                 info.State = ReverseConnectHostState.Errored;
             }
         }

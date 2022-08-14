@@ -388,11 +388,11 @@ namespace Opc.Ua
             if (sre != null)
             {
                 result = new ServiceResult(sre);
-                Utils.LogWarning("SERVER - Service Fault Occured. Reason={0}", result.StatusCode);
-                if (sre.StatusCode == StatusCodes.BadUnexpectedError)
-                {
-                    Utils.LogWarning(Utils.TraceMasks.StackTrace, sre, sre.ToString());
-                }
+
+                Utils.Trace(
+                    Utils.TraceMasks.Service,
+                    "Service Fault Occured. Reason={0}",
+                    result);
             }
             else
             {

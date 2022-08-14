@@ -13,19 +13,20 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
-using System.Xml;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Diagnostics.Tracing;
 using System.Globalization;
-using System.Security.Cryptography.X509Certificates;
-using System.Reflection;
-using System.Runtime.Serialization;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Diagnostics;
-using System.Security.Cryptography;
 using System.Net;
-using System.Collections.ObjectModel;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml;
 
 namespace Opc.Ua
 {
@@ -114,11 +115,7 @@ namespace Opc.Ua
         /// <summary>
         /// The path to the default certificate store.
         /// </summary>
-#if NETFRAMEWORK
-        public static readonly string DefaultStorePath = Path.Combine("%CommonApplicationData%", "OPC Foundation", "pki", "own");
-#else
-        public static readonly string DefaultStorePath = Path.Combine("%LocalApplicationData%", "OPC Foundation", "pki", "own");
-#endif
+        public const string DefaultStorePath = "%CommonApplicationData%/OPC Foundation/CertificateStores/MachineDefault";
 
         /// <summary>
         /// The default LocalFolder.
@@ -145,6 +142,11 @@ namespace Opc.Ua
         #endregion
 
         #region Trace Support
+        /// <summary>
+        /// The logger interface.
+        /// </summary>
+        public static OpcUaEventSource Log => OpcUaEventSource.Log;
+
 #if DEBUG
         private static int s_traceOutput = (int)TraceOutput.DebugAndFile;
         private static int s_traceMasks = (int)TraceMasks.All;
@@ -240,6 +242,36 @@ namespace Opc.Ua
             public const int Security = 0x200;
 
             /// <summary>
+            /// 
+            /// </summary>
+            public const int ServerMonitoredItem = 0x10000;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public const int ServerSubscription = 0x20000;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public const int ServerPublishQueue = 0x40000;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public const int TCPMessageSocket = 0x80000;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public const int TypeFactory = 0x100000;
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public const int ServerAggregates = 0x200000;
+
+            /// <summary>
             /// Output all messages.
             /// </summary>
             public const int All = 0x3FF;
@@ -259,26 +291,20 @@ namespace Opc.Ua
         /// <summary>
         /// Gets the current trace mask settings.
         /// </summary>
-        public static int TraceMask
-        {
-            get { return s_traceMasks; }
-        }
+        public static int TraceMask => s_traceMasks;
 
         /// <summary>
         /// Sets the mask for tracing (thread safe).
         /// </summary>
         public static void SetTraceMask(int masks)
         {
-            s_traceMasks = (int)masks;
+            s_traceMasks = masks;
         }
 
         /// <summary>
         /// Returns Tracing class instance for event attaching.
         /// </summary>
-        public static Tracing Tracing
-        {
-            get { return Tracing.Instance; }
-        }
+        public static Tracing Tracing => Tracing.Instance;
 
         /// <summary>
         /// Writes a trace statement.
@@ -408,34 +434,19 @@ namespace Opc.Ua
         /// <summary>
         /// Writes an informational message to the trace log.
         /// </summary>
-        public static void Trace(string message)
-        {
-            LogInfo(message);
-        }
-
-        /// <summary>
-        /// Writes an informational message to the trace log.
-        /// </summary>
         public static void Trace(string format, params object[] args)
         {
-            LogInfo(format, args);
+            Trace((int)TraceMasks.Information, format, false, args);
         }
 
         /// <summary>
         /// Writes an informational message to the trace log.
         /// </summary>
         [Conditional("DEBUG")]
+        //[Obsolete("Use TraceEvent message instead")]
         public static void TraceDebug(string format, params object[] args)
         {
-            LogDebug(format, args);
-        }
-
-        /// <summary>
-        /// Writes an exception/error message to the trace log.
-        /// </summary>
-        public static void Trace(Exception e, string message)
-        {
-            LogError(e, message);
+            Trace((int)TraceMasks.OperationDetail, format, false, args);
         }
 
         /// <summary>
@@ -443,7 +454,7 @@ namespace Opc.Ua
         /// </summary>
         public static void Trace(Exception e, string format, params object[] args)
         {
-            LogError(e, format, args);
+            Trace(e, format, false, args);
         }
 
         /// <summary>
@@ -487,7 +498,7 @@ namespace Opc.Ua
                 message.AppendLine();
 
                 // append stack trace.
-                if ((s_traceMasks & (int)TraceMasks.StackTrace) != 0)
+                if ((s_traceMasks & TraceMasks.StackTrace) != 0)
                 {
                     message.AppendLine();
                     message.AppendLine();
@@ -509,7 +520,7 @@ namespace Opc.Ua
             StringBuilder message = TraceExceptionMessage(e, format, args);
 
             // trace message.
-            Trace(e, (int)TraceMasks.Error, message.ToString(), handled, null);
+            Trace(e, TraceMasks.Error, message.ToString(), handled, null);
         }
 
         /// <summary>
@@ -517,20 +528,7 @@ namespace Opc.Ua
         /// </summary>
         public static void Trace(int traceMask, string format, params object[] args)
         {
-            const int InformationMask = (TraceMasks.Information | TraceMasks.StartStop | TraceMasks.Security);
-            const int ErrorMask = (TraceMasks.Error | TraceMasks.StackTrace);
-            if ((traceMask & ErrorMask) != 0)
-            {
-                LogError(traceMask, format, args);
-            }
-            else if ((traceMask & InformationMask) != 0)
-            {
-                LogInfo(traceMask, format, args);
-            }
-            else
-            {
-                LogTrace(traceMask, format, args);
-            }
+            Trace(traceMask, format, false, args);
         }
 
         /// <summary>
@@ -1045,10 +1043,7 @@ namespace Opc.Ua
         /// <summary>
         /// The earliest time that can be represented on with UA date/time values.
         /// </summary>
-        public static DateTime TimeBase
-        {
-            get { return s_TimeBase; }
-        }
+        public static DateTime TimeBase => s_TimeBase;
 
         private static readonly DateTime s_TimeBase = new DateTime(1601, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
@@ -1413,12 +1408,12 @@ namespace Opc.Ua
         /// </summary>
         public static int ToInt32(uint identifier)
         {
-            if (identifier <= (uint)Int32.MaxValue)
+            if (identifier <= int.MaxValue)
             {
                 return (int)identifier;
             }
 
-            return -(int)((long)UInt32.MaxValue - (long)identifier + 1);
+            return -(int)(uint.MaxValue - (long)identifier + 1);
         }
 
         /// <summary>
@@ -1431,7 +1426,7 @@ namespace Opc.Ua
                 return (uint)identifier;
             }
 
-            return (uint)((long)UInt32.MaxValue + 1 + (long)identifier);
+            return (uint)((long)UInt32.MaxValue + 1 + identifier);
         }
 
         /// <summary>
@@ -2614,7 +2609,7 @@ namespace Opc.Ua
                 }
                 catch (Exception ex)
                 {
-                    Utils.LogError("Exception parsing extension: " + ex.Message);
+                    Utils.Trace("Exception parsing extension: " + ex.Message);
                     throw;
                 }
                 finally
@@ -3162,6 +3157,70 @@ namespace Opc.Ua
         public static bool IsRunningOnMono()
         {
             return IsRunningOnMonoValue.Value;
+        }
+        #endregion
+    }
+
+    /// <summary>
+    /// Used as underlying tracing object for event processing.
+    /// </summary>
+    public class Tracing
+    {
+        #region Private Members
+        private static object m_syncRoot = new Object();
+        private static Tracing s_instance;
+        #endregion Private Members
+
+        #region Singleton Instance
+        /// <summary>
+        /// Private constructor.
+        /// </summary>
+        private Tracing()
+        { }
+
+        /// <summary>
+        /// Public Singleton Instance getter.
+        /// </summary>
+        public static Tracing Instance
+        {
+            get
+            {
+                if (s_instance == null)
+                {
+                    lock (m_syncRoot)
+                    {
+                        if (s_instance == null)
+                        {
+                            s_instance = new Tracing();
+                        }
+                    }
+                }
+                return s_instance;
+            }
+        }
+        #endregion Singleton Instance
+
+        #region Public Events
+        /// <summary>
+        /// Occurs when a trace call is made.
+        /// </summary>
+        public event EventHandler<TraceEventArgs> TraceEventHandler;
+        #endregion Public Events
+
+        #region Internal Members
+        internal void RaiseTraceEvent(TraceEventArgs eventArgs)
+        {
+            if (TraceEventHandler != null)
+            {
+                try
+                {
+                    TraceEventHandler(this, eventArgs);
+                }
+                catch (Exception ex)
+                {
+                    Utils.Trace(ex, "Exception invoking Trace Event Handler", true, null);
+                }
+            }
         }
         #endregion
     }

@@ -1471,7 +1471,7 @@ namespace Opc.Ua
                             Utils.LogTrace("Thread created: {0:X8}. Total: {1} Active: {2}",
                                 thread.ManagedThreadId, totalThreadCount, activeThreadCount);
 
-                            return;
+                            Utils.Trace(Utils.TraceMasks.Error, "Thread created: " + thread.ManagedThreadId + ". Current thread count: " + m_totalThreadCount + ". Active thread count: " + m_activeThreadCount);
                         }
                     }
                 }

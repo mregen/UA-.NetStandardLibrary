@@ -140,8 +140,8 @@ namespace Opc.Ua
                 store.Open(OpenFlags.ReadWrite);
                 if (!store.Certificates.Contains(certificate))
                 {
-#if NETSTANDARD2_1 || NET5_0_OR_GREATER || NET472_OR_GREATER
-                    if (certificate.HasPrivateKey && !m_noPrivateKeys &&
+#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+                    if (certificate.HasPrivateKey &&
                         (Environment.OSVersion.Platform == PlatformID.Win32NT))
                     {
                         // see https://github.com/dotnet/runtime/issues/29144

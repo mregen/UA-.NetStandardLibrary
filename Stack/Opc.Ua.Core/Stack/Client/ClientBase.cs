@@ -401,8 +401,13 @@ namespace Opc.Ua
         protected virtual void UpdateRequestHeader(IServiceRequest request, bool useDefaults, string serviceName)
         {
             UpdateRequestHeader(request, useDefaults);
-            int incrementedCount = Interlocked.Increment(ref m_pendingRequestCount);
-            Utils.EventLog.ServiceCallStart(serviceName, (int)request.RequestHeader.RequestHandle, incrementedCount);
+
+            Utils.Trace(
+                (int)Utils.TraceMasks.Service, 
+                "{0} Called. RequestHandle={1}, PendingRequestCount={2}",
+                serviceName,
+                request.RequestHeader.RequestHandle,
+                Interlocked.Increment(ref m_pendingRequestCount));
         }
 
         /// <summary>
@@ -435,11 +440,22 @@ namespace Opc.Ua
 
             if (statusCode != StatusCodes.Good)
             {
-                Utils.EventLog.ServiceCallBadStop(serviceName, (int)requestHandle, (int)statusCode.Code, pendingRequestCount);
+                Utils.Trace(
+                    (int)Utils.TraceMasks.Service,
+                    "{0} Completed. RequestHandle={1}, PendingRequestCount={3}, StatusCode={2}",
+                    serviceName,
+                    requestHandle,
+                    statusCode,
+                    pendingRequestCount);
             }
             else
             {
-                Utils.EventLog.ServiceCallStop(serviceName, (int)requestHandle, pendingRequestCount);
+                Utils.Trace(
+                    (int)Utils.TraceMasks.Service,
+                    "{0} Completed. RequestHandle={1}, PendingRequestCount={2}",
+                    serviceName,
+                    requestHandle,
+                    pendingRequestCount);
             }
         }
 

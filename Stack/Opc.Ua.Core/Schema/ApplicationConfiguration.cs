@@ -1,6 +1,6 @@
-/* Copyright (c) 1996-2020 The OPC Foundation. All rights reserved.
+/* Copyright (c) 1996-2022 The OPC Foundation. All rights reserved.
    The source code in this file is covered under a dual-license scenario:
-     - RCL: for OPC Foundation members in good-standing
+     - RCL: for OPC Foundation Corporate Members in good-standing
      - GPL V2: everybody else
    RCL license terms accompanied with this source code. See http://opcfoundation.org/License/RCL/1.00/
    GNU General Public License as published by the Free Software Foundation;
@@ -605,7 +605,7 @@ namespace Opc.Ua
         /// Initializes the collection from another collection.
         /// </summary>
         /// <param name="collection">A collection of values to add to this new collection</param>
-        /// <exception cref="T:System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// 	<paramref name="collection"/> is null.
         /// </exception>
         public TransportConfigurationCollection(IEnumerable<TransportConfiguration> collection) : base(collection) { }
@@ -730,7 +730,7 @@ namespace Opc.Ua
         /// Initializes the collection from another collection.
         /// </summary>
         /// <param name="collection">A collection of values to add to this new collection</param>
-        /// <exception cref="T:System.ArgumentNullException">
+        /// <exception cref="System.ArgumentNullException">
         /// 	<paramref name="collection"/> is null.
         /// </exception>
         public ServerSecurityPolicyCollection(IEnumerable<ServerSecurityPolicy> collection) : base(collection) { }
@@ -1186,7 +1186,7 @@ namespace Opc.Ua
         /// Initializes the collection from another collection.
         /// </summary>
         /// <param name="collection">A collection of values to add to this new collection</param>
-        /// <exception cref="T:System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// 	<paramref name="collection"/> is null.
         /// </exception>
         public SamplingRateGroupCollection(IEnumerable<SamplingRateGroup> collection) : base(collection) { }
@@ -1464,6 +1464,7 @@ namespace Opc.Ua
             m_supportedPrivateKeyFormats = new string[] { "PFX", "PEM" };
             m_maxTrustListSize = 0;
             m_multicastDnsEnabled = false;
+            m_auditingEnabled = false;
         }
 
         /// <summary>
@@ -1875,6 +1876,17 @@ namespace Opc.Ua
             get { return m_operationLimits; }
             set { m_operationLimits = value; }
         }
+
+        /// <summary>
+        /// Whether auditing is enabled.
+        /// </summary>
+        /// <value><c>true</c> if auditing is enabled; otherwise, <c>false</c>.</value>
+        [DataMember(IsRequired = false, Order = 36)]
+        public bool AuditingEnabled
+        {
+            get { return m_auditingEnabled; }
+            set { m_auditingEnabled = value; }
+        }
         #endregion
 
         #region Private Members
@@ -1911,6 +1923,7 @@ namespace Opc.Ua
         private bool m_multicastDnsEnabled;
         private ReverseConnectServerConfiguration m_reverseConnect;
         private OperationLimits m_operationLimits;
+        private bool m_auditingEnabled;
         #endregion
     }
     #endregion
@@ -2177,7 +2190,7 @@ namespace Opc.Ua
         /// Initializes the collection from another collection.
         /// </summary>
         /// <param name="collection">A collection of values to add to this new collection</param>
-        /// <exception cref="T:System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// 	<paramref name="collection"/> is null.
         /// </exception>
         public ReverseConnectClientCollection(IEnumerable<ReverseConnectClient> collection) : base(collection) { }
@@ -2216,6 +2229,7 @@ namespace Opc.Ua
             m_minSubscriptionLifetime = 10000;
             m_wellKnownDiscoveryUrls = new StringCollection();
             m_discoveryServers = new EndpointDescriptionCollection();
+            m_operationLimits = new OperationLimits();
         }
 
         /// <summary>
@@ -2315,6 +2329,20 @@ namespace Opc.Ua
             get { return m_reverseConnect; }
             set { m_reverseConnect = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the default operation limits of the OPC UA client.
+        /// </summary>
+        /// <remarks>
+        /// Values not equal to zero are overwritten with smaller values set by the server.
+        /// The values are used to limit client service calls.
+        /// </remarks>
+        [DataMember(IsRequired = false, Order = 6)]
+        public OperationLimits OperationLimits
+        {
+            get { return m_operationLimits; }
+            set { m_operationLimits = value; }
+        }
         #endregion
 
         #region Private Members
@@ -2324,6 +2352,7 @@ namespace Opc.Ua
         private string m_endpointCacheFilePath;
         private int m_minSubscriptionLifetime;
         private ReverseConnectClientConfiguration m_reverseConnect;
+        private OperationLimits m_operationLimits;
         #endregion
     }
     #endregion
@@ -2438,7 +2467,7 @@ namespace Opc.Ua
         /// Initializes the collection from another collection.
         /// </summary>
         /// <param name="collection">A collection of values to add to this new collection</param>
-        /// <exception cref="T:System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// 	<paramref name="collection"/> is null.
         /// </exception>
         public ReverseConnectClientEndpointCollection(IEnumerable<ReverseConnectClientEndpoint> collection) : base(collection) { }
@@ -2649,7 +2678,7 @@ namespace Opc.Ua
         /// Initializes the collection from another collection.
         /// </summary>
         /// <param name="collection">A collection of values to add to this new collection</param>
-        /// <exception cref="T:System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// 	<paramref name="collection"/> is null.
         /// </exception>
         public ServerRegistrationCollection(IEnumerable<ServerRegistration> collection) : base(collection) { }

@@ -36,16 +36,11 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Serilog;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
+using System.Globalization;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using System.IO;
-using System.Globalization;
+using Opc.Ua;
 
 namespace Quickstarts.ReferenceServer
 {
@@ -143,6 +138,13 @@ namespace Quickstarts.ReferenceServer
                 output.WriteLine("Start the server.");
                 await server.StartAsync().ConfigureAwait(false);
 
+                // Apply custom settings for CTT testing
+                if (cttMode)
+                {
+                    output.WriteLine("Apply settings for CTT.");
+                    // start Alarms and other settings for CTT test
+                    Quickstarts.Servers.Utils.ApplyCTTMode(output, server.Server);
+                }
 
                 output.WriteLine("Server started. Press Ctrl-C to exit...");
 

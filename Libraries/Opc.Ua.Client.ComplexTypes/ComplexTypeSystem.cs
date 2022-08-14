@@ -404,9 +404,9 @@ namespace Opc.Ua.Client.ComplexTypes
                                             xmlEncodingId
                                             );
                                     }
-                                    catch (DataTypeNotFoundException typeNotFoundException)
+                                    catch (DataTypeNotFoundException)
                                     {
-                                        Utils.LogInfo(typeNotFoundException,
+                                        Utils.Trace(typeNotFoundException,
                                             "Skipped the type definition of {0}. Retry in next round.", item.Name);
                                         retryStructureList.Add(item);
                                         continue;
@@ -424,8 +424,12 @@ namespace Opc.Ua.Client.ComplexTypes
                                         // match namespace and add new type to type factory
                                         foreach (var encodingId in encodingIds)
                                         {
+                                            Utils.Trace(Utils.TraceMasks.TypeFactory,
+                                                "Add encodingId {0} for type {1}", encodingId, complexType.Name);
                                             AddEncodeableType(encodingId, complexType);
                                         }
+                                        Utils.Trace(Utils.TraceMasks.TypeFactory,
+                                            "Add typeId {0} for type {1}", typeId, complexType.Name);
                                         AddEncodeableType(typeId, complexType);
                                         var qName = structuredObject.QName ?? new XmlQualifiedName(structuredObject.Name, targetDictionaryNamespace);
                                         typeDictionary[qName] = ExpandedNodeId.ToNodeId(typeId, m_session.NamespaceUris);
@@ -435,7 +439,7 @@ namespace Opc.Ua.Client.ComplexTypes
                                 if (complexType == null)
                                 {
                                     retryStructureList.Add(item);
-                                    Utils.LogInfo(TraceMasks.Error, "Skipped the type definition of {0}. Retry in next round.", item.Name);
+                                    Utils.Trace(TraceMasks.Error, "Skipped the type definition of {0}. Retry in next round.", item.Name);
                                 }
                             }
                         }
@@ -609,7 +613,7 @@ namespace Opc.Ua.Client.ComplexTypes
                                     }
                                     else
                                     {   // known missing type, retry on next round
-                                        Utils.LogInfo("Skipped the type definition of {0}. Retry in next round.", dataTypeNode.BrowseName.Name);
+                                        Utils.Trace(dtnfex, "Skipped the type definition of {0}. Retry in next round.", dataTypeNode.BrowseName.Name);
                                         retryAddStructType = true;
                                     }
                                 }
@@ -1003,7 +1007,7 @@ namespace Opc.Ua.Client.ComplexTypes
                 return;
             }
             var internalNodeId = NormalizeExpandedNodeId(nodeId);
-            Utils.LogDebug("Adding Type {0} as: {1}", type.FullName, internalNodeId);
+            Utils.TraceDebug($"Adding Type {type.FullName} as: {internalNodeId}");
             m_session.Factory.AddEncodeableType(internalNodeId, type);
         }
 

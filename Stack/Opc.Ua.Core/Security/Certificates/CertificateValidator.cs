@@ -375,16 +375,14 @@ namespace Opc.Ua
                 if (ContainsUnsuppressibleSC(se.Result))
                 {
                     SaveCertificate(certificate);
-                    Utils.LogCertificate(LogLevel.Error, "Certificate rejected. Reason={0}.",
-                        certificate, se.Result.StatusCode);
-                    LogInnerServiceResults(LogLevel.Error, se.Result.InnerResult);
+                    Utils.Trace(Utils.TraceMasks.Error, "Certificate '{0}' rejected. Reason={1}.", certificate.Subject, se.Result.ToString());
+                    TraceInnerServiceResults(se.Result);
                     throw new ServiceResultException(se, StatusCodes.BadCertificateInvalid);
                 }
                 else
                 {
-                    Utils.LogCertificate(LogLevel.Warning, "Certificate Validation failed. Reason={0}.",
-                        certificate, se.Result.StatusCode);
-                    LogInnerServiceResults(LogLevel.Warning, se.Result.InnerResult);
+                    Utils.Trace("Certificate Vaildation failed for '{0}'. Reason={1}", certificate.Subject, se.ToLongString());
+                    TraceInnerServiceResults(se.Result);
                 }
 
                 // invoke callback.
@@ -431,9 +429,8 @@ namespace Opc.Ua
                 if (!accept)
                 {
                     // write the invalid certificate to rejected store if specified.
-                    Utils.LogCertificate(LogLevel.Error, "Certificate rejected. Reason={0}.",
-                        certificate, serviceResult != null ? serviceResult.StatusCode.ToString() : "Unknown Error");
-
+                    Utils.Trace(Utils.TraceMasks.Error, "Certificate '{0}' rejected. Reason={1}",
+                        certificate.Subject, serviceResult != null ? serviceResult.ToString() : "Unknown Error");
                     SaveCertificate(certificate);
 
                     throw new ServiceResultException(se, StatusCodes.BadCertificateInvalid);

@@ -1449,7 +1449,7 @@ namespace Quickstarts.ReferenceServer
                 }
                 catch (Exception e)
                 {
-                    Utils.LogError(e, "Error creating the ReferenceNodeManager address space.");
+                    Utils.Trace(e, "Error creating the address space.");
                 }
 
                 AddPredefinedNode(SystemContext, root);

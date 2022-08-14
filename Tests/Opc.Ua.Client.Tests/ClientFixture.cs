@@ -44,6 +44,7 @@ namespace Opc.Ua.Client.Tests
     /// </summary>
     public class ClientFixture
     {
+        private const uint kDefaultOperationLimits = 5000;
         private NUnitTraceLogger m_traceLogger;
         public ApplicationConfiguration Config { get; private set; }
         public ConfiguredEndpoint Endpoint { get; private set; }
@@ -72,6 +73,12 @@ namespace Opc.Ua.Client.Tests
                     "urn:localhost:opcfoundation.org:" + clientName,
                     "http://opcfoundation.org/UA/" + clientName)
                 .AsClient()
+                .SetClientOperationLimits(new OperationLimits {
+                    MaxNodesPerBrowse = kDefaultOperationLimits,
+                    MaxNodesPerRead = kDefaultOperationLimits,
+                    MaxMonitoredItemsPerCall = kDefaultOperationLimits,
+                    MaxNodesPerWrite = kDefaultOperationLimits
+                })
                 .AddSecurityConfiguration(
                     "CN=" + clientName + ", O=OPC Foundation, DC=localhost",
                     pkiRoot)
@@ -97,7 +104,7 @@ namespace Opc.Ua.Client.Tests
         /// </summary>
         public async Task StartReverseConnectHost()
         {
-            Random m_random = new Random();
+            Random random = new Random();
             int testPort = ServerFixtureUtils.GetNextFreeIPPort();
             bool retryStartServer = false;
             int serverStartRetries = 25;
@@ -118,10 +125,10 @@ namespace Opc.Ua.Client.Tests
                     {
                         throw;
                     }
-                    testPort = m_random.Next(ServerFixtureUtils.MinTestPort, ServerFixtureUtils.MaxTestPort);
+                    testPort = random.Next(ServerFixtureUtils.MinTestPort, ServerFixtureUtils.MaxTestPort);
                     retryStartServer = true;
                 }
-                await Task.Delay(m_random.Next(100, 1000)).ConfigureAwait(false);
+                await Task.Delay(random.Next(100, 1000)).ConfigureAwait(false);
             } while (retryStartServer);
         }
 
@@ -173,16 +180,16 @@ namespace Opc.Ua.Client.Tests
         /// <summary>
         /// Connects the url endpoint with specified security profile.
         /// </summary>
-        public async Task<Session> ConnectAsync(Uri url, string securityProfile, EndpointDescriptionCollection endpoints = null)
+        public async Task<Session> ConnectAsync(Uri url, string securityProfile, EndpointDescriptionCollection endpoints = null, IUserIdentity userIdentity = null)
         {
-            return await ConnectAsync(await GetEndpointAsync(url, securityProfile, endpoints).ConfigureAwait(false)).ConfigureAwait(false);
+            return await ConnectAsync(await GetEndpointAsync(url, securityProfile, endpoints).ConfigureAwait(false), userIdentity).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Connects the specified endpoint.
         /// </summary>
         /// <param name="endpoint">The configured endpoint.</param>
-        public async Task<Session> ConnectAsync(ConfiguredEndpoint endpoint)
+        public async Task<Session> ConnectAsync(ConfiguredEndpoint endpoint, IUserIdentity userIdentity = null)
         {
             if (endpoint == null)
             {
@@ -195,7 +202,7 @@ namespace Opc.Ua.Client.Tests
 
             var session = await Session.Create(
                 Config, endpoint, false, false,
-                Config.ApplicationName, SessionTimeout, null, null).ConfigureAwait(false);
+                Config.ApplicationName, SessionTimeout, userIdentity, null).ConfigureAwait(false);
 
             Endpoint = session.ConfiguredEndpoint;
 
@@ -205,6 +212,27 @@ namespace Opc.Ua.Client.Tests
             EndpointUrl = session.ConfiguredEndpoint.EndpointUrl.ToString();
 
             return session;
+        }
+
+        /// <summary>
+        /// Create a channel using the specified endpoint.
+        /// </summary>
+        /// <param name="endpoint">The configured endpoint</param>
+        /// <returns></returns>
+        public async Task<ITransportChannel> CreateChannelAsync(ConfiguredEndpoint endpoint)
+        {
+            return await Session.CreateChannelAsync(Config, null, endpoint, true, false).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Create a session using the specified channel.
+        /// </summary>
+        /// <param name="channel">The channel to use</param>
+        /// <param name="endpoint">The configured endpoint</param>
+        /// <returns></returns>
+        public Session CreateSession(ITransportChannel channel, ConfiguredEndpoint endpoint)
+        {
+            return Session.Create(Config, channel, endpoint, null);
         }
 
         /// <summary>
@@ -257,14 +285,14 @@ namespace Opc.Ua.Client.Tests
 
                     // pick the first available endpoint by default.
                     if (selectedEndpoint == null &&
-                        securityPolicy.Equals(endpoint.SecurityPolicyUri))
+                        securityPolicy.Equals(endpoint.SecurityPolicyUri, StringComparison.Ordinal))
                     {
                         selectedEndpoint = endpoint;
                         continue;
                     }
 
                     if (selectedEndpoint?.SecurityMode < endpoint.SecurityMode &&
-                        securityPolicy.Equals(endpoint.SecurityPolicyUri))
+                        securityPolicy.Equals(endpoint.SecurityPolicyUri, StringComparison.Ordinal))
                     {
                         selectedEndpoint = endpoint;
                     }
