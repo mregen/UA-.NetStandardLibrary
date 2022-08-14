@@ -1,6 +1,6 @@
-/* Copyright (c) 1996-2021 The OPC Foundation. All rights reserved.
+/* Copyright (c) 1996-2022 The OPC Foundation. All rights reserved.
    The source code in this file is covered under a dual-license scenario:
-     - RCL: for OPC Foundation members in good-standing
+     - RCL: for OPC Foundation Corporate Members in good-standing
      - GPL V2: everybody else
    RCL license terms accompanied with this source code. See http://opcfoundation.org/License/RCL/1.00/
    GNU General Public License as published by the Free Software Foundation;
@@ -13,20 +13,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Diagnostics.Tracing;
+using System.Text;
+using System.Xml;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
-using System.Xml;
+using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Net;
+using System.Collections.ObjectModel;
 
 namespace Opc.Ua
 {
@@ -98,7 +97,6 @@ namespace Opc.Ua
         /// <summary>
         /// The urls of the discovery servers on a node.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2105:ArrayFieldsShouldNotBeReadOnly")]
         public static readonly string[] DiscoveryUrls = new string[]
         {
             "opc.tcp://{0}:4840",
@@ -115,7 +113,11 @@ namespace Opc.Ua
         /// <summary>
         /// The path to the default certificate store.
         /// </summary>
-        public const string DefaultStorePath = "%CommonApplicationData%/OPC Foundation/CertificateStores/MachineDefault";
+#if NETFRAMEWORK
+        public static readonly string DefaultStorePath = Path.Combine("%CommonApplicationData%", "OPC Foundation", "pki", "own");
+#else
+        public static readonly string DefaultStorePath = Path.Combine("%LocalApplicationData%", "OPC Foundation", "pki", "own");
+#endif
 
         /// <summary>
         /// The default LocalFolder.
@@ -135,18 +137,13 @@ namespace Opc.Ua
         /// <summary>
         /// List of known default bindings hosted in other assemblies.
         /// </summary>
-        public static ReadOnlyDictionary<string, string> DefaultBindings = new ReadOnlyDictionary<string, string>(
+        public static readonly ReadOnlyDictionary<string, string> DefaultBindings = new ReadOnlyDictionary<string, string>(
             new Dictionary<string, string>() {
                 { Utils.UriSchemeHttps, "Opc.Ua.Bindings.Https"}
             });
         #endregion
 
         #region Trace Support
-        /// <summary>
-        /// The logger interface.
-        /// </summary>
-        public static OpcUaEventSource Log => OpcUaEventSource.Log;
-
 #if DEBUG
         private static int s_traceOutput = (int)TraceOutput.DebugAndFile;
         private static int s_traceMasks = (int)TraceMasks.All;
@@ -161,7 +158,6 @@ namespace Opc.Ua
         /// <summary>
         /// The possible trace output mechanisms.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
         public enum TraceOutput
         {
             /// <summary>
@@ -183,7 +179,6 @@ namespace Opc.Ua
         /// <summary>
         /// The masks used to filter trace messages.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
         public static class TraceMasks
         {
             /// <summary>
@@ -242,36 +237,6 @@ namespace Opc.Ua
             public const int Security = 0x200;
 
             /// <summary>
-            /// 
-            /// </summary>
-            public const int ServerMonitoredItem = 0x10000;
-
-            /// <summary>
-            /// 
-            /// </summary>
-            public const int ServerSubscription = 0x20000;
-
-            /// <summary>
-            /// 
-            /// </summary>
-            public const int ServerPublishQueue = 0x40000;
-
-            /// <summary>
-            /// 
-            /// </summary>
-            public const int TCPMessageSocket = 0x80000;
-
-            /// <summary>
-            /// 
-            /// </summary>
-            public const int TypeFactory = 0x100000;
-
-            /// <summary>
-            /// 
-            /// </summary>
-            public const int ServerAggregates = 0x200000;
-
-            /// <summary>
             /// Output all messages.
             /// </summary>
             public const int All = 0x3FF;
@@ -291,20 +256,26 @@ namespace Opc.Ua
         /// <summary>
         /// Gets the current trace mask settings.
         /// </summary>
-        public static int TraceMask => s_traceMasks;
+        public static int TraceMask
+        {
+            get { return s_traceMasks; }
+        }
 
         /// <summary>
         /// Sets the mask for tracing (thread safe).
         /// </summary>
         public static void SetTraceMask(int masks)
         {
-            s_traceMasks = masks;
+            s_traceMasks = (int)masks;
         }
 
         /// <summary>
         /// Returns Tracing class instance for event attaching.
         /// </summary>
-        public static Tracing Tracing => Tracing.Instance;
+        public static Tracing Tracing
+        {
+            get { return Tracing.Instance; }
+        }
 
         /// <summary>
         /// Writes a trace statement.
@@ -434,19 +405,34 @@ namespace Opc.Ua
         /// <summary>
         /// Writes an informational message to the trace log.
         /// </summary>
+        public static void Trace(string message)
+        {
+            LogInfo(message);
+        }
+
+        /// <summary>
+        /// Writes an informational message to the trace log.
+        /// </summary>
         public static void Trace(string format, params object[] args)
         {
-            Trace((int)TraceMasks.Information, format, false, args);
+            LogInfo(format, args);
         }
 
         /// <summary>
         /// Writes an informational message to the trace log.
         /// </summary>
         [Conditional("DEBUG")]
-        //[Obsolete("Use TraceEvent message instead")]
         public static void TraceDebug(string format, params object[] args)
         {
-            Trace((int)TraceMasks.OperationDetail, format, false, args);
+            LogDebug(format, args);
+        }
+
+        /// <summary>
+        /// Writes an exception/error message to the trace log.
+        /// </summary>
+        public static void Trace(Exception e, string message)
+        {
+            LogError(e, message);
         }
 
         /// <summary>
@@ -454,7 +440,7 @@ namespace Opc.Ua
         /// </summary>
         public static void Trace(Exception e, string format, params object[] args)
         {
-            Trace(e, format, false, args);
+            LogError(e, format, args);
         }
 
         /// <summary>
@@ -498,7 +484,7 @@ namespace Opc.Ua
                 message.AppendLine();
 
                 // append stack trace.
-                if ((s_traceMasks & TraceMasks.StackTrace) != 0)
+                if ((s_traceMasks & (int)TraceMasks.StackTrace) != 0)
                 {
                     message.AppendLine();
                     message.AppendLine();
@@ -520,7 +506,7 @@ namespace Opc.Ua
             StringBuilder message = TraceExceptionMessage(e, format, args);
 
             // trace message.
-            Trace(e, TraceMasks.Error, message.ToString(), handled, null);
+            Trace(e, (int)TraceMasks.Error, message.ToString(), handled, null);
         }
 
         /// <summary>
@@ -528,7 +514,20 @@ namespace Opc.Ua
         /// </summary>
         public static void Trace(int traceMask, string format, params object[] args)
         {
-            Trace(traceMask, format, false, args);
+            const int InformationMask = (TraceMasks.Information | TraceMasks.StartStop | TraceMasks.Security);
+            const int ErrorMask = (TraceMasks.Error | TraceMasks.StackTrace);
+            if ((traceMask & ErrorMask) != 0)
+            {
+                LogError(traceMask, format, args);
+            }
+            else if ((traceMask & InformationMask) != 0)
+            {
+                LogInfo(traceMask, format, args);
+            }
+            else
+            {
+                LogTrace(traceMask, format, args);
+            }
         }
 
         /// <summary>
@@ -558,6 +557,10 @@ namespace Opc.Ua
                 // append process and timestamp.
                 message.AppendFormat(CultureInfo.InvariantCulture, "{0:d} {0:HH:mm:ss.fff} ", DateTime.UtcNow.ToLocalTime());
                 message.Append(formatter(state, exception));
+                if (exception != null)
+                {
+                    message.Append(TraceExceptionMessage(exception, String.Empty, null));
+                }
             }
             catch (Exception)
             {
@@ -624,7 +627,7 @@ namespace Opc.Ua
         public static bool IsPathRooted(string path)
         {
             // allow for local file locations
-            return Path.IsPathRooted(path) || path[0] == '.';
+            return Path.IsPathRooted(path) || (path.Length >= 2 && path[0] == '.' && path[1] != '.');
         }
 
         /// <summary>
@@ -1043,7 +1046,10 @@ namespace Opc.Ua
         /// <summary>
         /// The earliest time that can be represented on with UA date/time values.
         /// </summary>
-        public static DateTime TimeBase => s_TimeBase;
+        public static DateTime TimeBase
+        {
+            get { return s_TimeBase; }
+        }
 
         private static readonly DateTime s_TimeBase = new DateTime(1601, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
@@ -1158,7 +1164,6 @@ namespace Opc.Ua
         /// <summary>
         /// Replaces the localhost domain with the current host name.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "RCS1197:Optimize StringBuilder.Append/AppendLine call.")]
         public static string ReplaceLocalhost(string uri, string hostname = null)
         {
             // ignore nulls.
@@ -1199,7 +1204,6 @@ namespace Opc.Ua
         /// <summary>
         /// Replaces the cert subject name DC=localhost with the current host name.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "RCS1197:Optimize StringBuilder.Append/AppendLine call.")]
         public static string ReplaceDCLocalhost(string subjectName, string hostname = null)
         {
             // ignore nulls.
@@ -1227,11 +1231,11 @@ namespace Opc.Ua
             var buffer = new StringBuilder();
 #if NET5_0_OR_GREATER || NETSTANDARD2_1
             buffer.Append(subjectName.AsSpan(0, index + 3))
-                .Append(hostname == null ? GetHostName() : hostname)
+                .Append(hostname ?? GetHostName())
                 .Append(subjectName.AsSpan(index + dclocalhost.Length));
 #else
             buffer.Append(subjectName.Substring(0, index + 3))
-                .Append(hostname == null ? GetHostName() : hostname)
+                .Append(hostname ?? GetHostName())
                 .Append(subjectName.Substring(index + dclocalhost.Length));
 #endif
             return buffer.ToString();
@@ -1408,12 +1412,12 @@ namespace Opc.Ua
         /// </summary>
         public static int ToInt32(uint identifier)
         {
-            if (identifier <= int.MaxValue)
+            if (identifier <= (uint)Int32.MaxValue)
             {
                 return (int)identifier;
             }
 
-            return -(int)(uint.MaxValue - (long)identifier + 1);
+            return -(int)((long)UInt32.MaxValue - (long)identifier + 1);
         }
 
         /// <summary>
@@ -1426,7 +1430,7 @@ namespace Opc.Ua
                 return (uint)identifier;
             }
 
-            return (uint)((long)UInt32.MaxValue + 1 + identifier);
+            return (uint)((long)UInt32.MaxValue + 1 + (long)identifier);
         }
 
         /// <summary>
@@ -1578,7 +1582,6 @@ namespace Opc.Ua
         /// <summary>
         /// Checks if a string is a valid locale identifier.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "RCS1075:Avoid empty catch clause that catches System.Exception.")]
         public static bool IsValidLocaleId(string localeId)
         {
             if (String.IsNullOrEmpty(localeId))
@@ -2186,9 +2189,9 @@ namespace Opc.Ua
             }
 
             // check for DateTime objects
-            if (value1 is DateTime)
+            if (value1 is DateTime time)
             {
-                return (Utils.ToOpcUaUniversalTime((DateTime)value1).CompareTo(Utils.ToOpcUaUniversalTime((DateTime)value2))) == 0;
+                return (Utils.ToOpcUaUniversalTime(time).CompareTo(Utils.ToOpcUaUniversalTime((DateTime)value2))) == 0;
             }
 
             // check for compareable objects.
@@ -2204,9 +2207,7 @@ namespace Opc.Ua
 
             if (encodeable1 != null)
             {
-                IEncodeable encodeable2 = value2 as IEncodeable;
-
-                if (encodeable2 == null)
+                if (!(value2 is IEncodeable encodeable2))
                 {
                     return false;
                 }
@@ -2219,9 +2220,7 @@ namespace Opc.Ua
 
             if (element1 != null)
             {
-                XmlElement element2 = value2 as XmlElement;
-
-                if (element2 == null)
+                if (!(value2 is XmlElement element2))
                 {
                     return false;
                 }
@@ -2234,10 +2233,8 @@ namespace Opc.Ua
 
             if (array1 != null)
             {
-                Array array2 = value2 as Array;
-
                 // arrays are greater than non-arrays.
-                if (array2 == null)
+                if (!(value2 is Array array2))
                 {
                     return false;
                 }
@@ -2268,10 +2265,8 @@ namespace Opc.Ua
 
             if (enumerable1 != null)
             {
-                IEnumerable enumerable2 = value2 as IEnumerable;
-
                 // collections are greater than non-collections.
-                if (enumerable2 == null)
+                if (!(value2 is IEnumerable enumerable2))
                 {
                     return false;
                 }
@@ -2316,13 +2311,13 @@ namespace Opc.Ua
         public static bool Match(string target, string pattern, bool caseSensitive)
         {
             // an empty pattern always matches.
-            if (pattern == null || pattern.Length == 0)
+            if (string.IsNullOrEmpty(pattern))
             {
                 return true;
             }
 
             // an empty string never matches.
-            if (target == null || target.Length == 0)
+            if (string.IsNullOrEmpty(target))
             {
                 return false;
             }
@@ -2337,7 +2332,7 @@ namespace Opc.Ua
             }
             else
             {
-                if (String.Equals(target, pattern, StringComparison.InvariantCultureIgnoreCase))
+                if (String.Equals(target, pattern, StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }
@@ -2532,7 +2527,7 @@ namespace Opc.Ua
 
             if (tIndex >= target.Length)
             {
-                return (pIndex >= pattern.Length); // if end of pattern true
+                return pIndex >= pattern.Length; // if end of pattern true
             }
 
             return true;
@@ -2609,7 +2604,7 @@ namespace Opc.Ua
                 }
                 catch (Exception ex)
                 {
-                    Utils.Trace("Exception parsing extension: " + ex.Message);
+                    Utils.LogError("Exception parsing extension: " + ex.Message);
                     throw;
                 }
                 finally
@@ -2810,12 +2805,26 @@ namespace Opc.Ua
         /// DtdProcessing Prohibited, XmlResolver disabled and
         /// ConformanceLevel Document.
         /// </summary>
-        internal static XmlReaderSettings DefaultXmlReaderSettings()
+        public static XmlReaderSettings DefaultXmlReaderSettings()
         {
             return new XmlReaderSettings() {
                 DtdProcessing = DtdProcessing.Prohibit,
                 XmlResolver = null,
                 ConformanceLevel = ConformanceLevel.Document
+            };
+        }
+
+        /// <summary>
+        /// Returns a XmlWriterSetting with deterministic defaults across .NET versions.
+        /// </summary>
+        public static XmlWriterSettings DefaultXmlWriterSettings()
+        {
+            return new XmlWriterSettings() {
+                Encoding = Encoding.UTF8,
+                Indent = true,
+                ConformanceLevel = ConformanceLevel.Document,
+                IndentChars = "  ",
+                CloseOutput = false,
             };
         }
 
@@ -3083,7 +3092,7 @@ namespace Opc.Ua
             }
 
             byte[] keySeed = hmac.ComputeHash(seed);
-            byte[] prfSeed = new byte[hmac.HashSize / 8 + seed.Length];
+            byte[] prfSeed = new byte[(hmac.HashSize / 8) + seed.Length];
             Array.Copy(keySeed, prfSeed, keySeed.Length);
             Array.Copy(seed, 0, prfSeed, keySeed.Length, seed.Length);
 
@@ -3146,7 +3155,7 @@ namespace Opc.Ua
         /// <summary>
         /// Lazy helper to allow runtime check for Mono.
         /// </summary>
-        private static readonly Lazy<bool> IsRunningOnMonoValue = new Lazy<bool>(() => {
+        private static readonly Lazy<bool> s_isRunningOnMonoValue = new Lazy<bool>(() => {
             return Type.GetType("Mono.Runtime") != null;
         });
 
@@ -3156,72 +3165,8 @@ namespace Opc.Ua
         /// <returns>true if running on Mono runtime</returns>
         public static bool IsRunningOnMono()
         {
-            return IsRunningOnMonoValue.Value;
+            return s_isRunningOnMonoValue.Value;
         }
-        #endregion
-    }
-
-    /// <summary>
-    /// Used as underlying tracing object for event processing.
-    /// </summary>
-    public class Tracing
-    {
-        #region Private Members
-        private static object m_syncRoot = new Object();
-        private static Tracing s_instance;
-        #endregion Private Members
-
-        #region Singleton Instance
-        /// <summary>
-        /// Private constructor.
-        /// </summary>
-        private Tracing()
-        { }
-
-        /// <summary>
-        /// Public Singleton Instance getter.
-        /// </summary>
-        public static Tracing Instance
-        {
-            get
-            {
-                if (s_instance == null)
-                {
-                    lock (m_syncRoot)
-                    {
-                        if (s_instance == null)
-                        {
-                            s_instance = new Tracing();
-                        }
-                    }
-                }
-                return s_instance;
-            }
-        }
-        #endregion Singleton Instance
-
-        #region Public Events
-        /// <summary>
-        /// Occurs when a trace call is made.
-        /// </summary>
-        public event EventHandler<TraceEventArgs> TraceEventHandler;
-        #endregion Public Events
-
-        #region Internal Members
-        internal void RaiseTraceEvent(TraceEventArgs eventArgs)
-        {
-            if (TraceEventHandler != null)
-            {
-                try
-                {
-                    TraceEventHandler(this, eventArgs);
-                }
-                catch (Exception ex)
-                {
-                    Utils.Trace(ex, "Exception invoking Trace Event Handler", true, null);
-                }
-            }
-        }
-        #endregion
+        #endregion 
     }
 }

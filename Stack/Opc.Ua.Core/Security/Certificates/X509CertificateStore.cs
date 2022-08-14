@@ -1,7 +1,7 @@
-/* Copyright (c) 1996-2020 The OPC Foundation. All rights reserved.
+/* Copyright (c) 1996-2022 The OPC Foundation. All rights reserved.
 
    The source code in this file is covered under a dual-license scenario:
-     - RCL: for OPC Foundation members in good-standing
+     - RCL: for OPC Foundation Corporate Members in good-standing
      - GPL V2: everybody else
 
    RCL license terms accompanied with this source code. See http://opcfoundation.org/License/RCL/1.00/
@@ -140,12 +140,12 @@ namespace Opc.Ua
                 store.Open(OpenFlags.ReadWrite);
                 if (!store.Certificates.Contains(certificate))
                 {
-#if NETSTANDARD2_1 || NET5_0_OR_GREATER
-                    if (certificate.HasPrivateKey &&
+#if NETSTANDARD2_1 || NET5_0_OR_GREATER || NET472_OR_GREATER
+                    if (certificate.HasPrivateKey && !m_noPrivateKeys &&
                         (Environment.OSVersion.Platform == PlatformID.Win32NT))
                     {
                         // see https://github.com/dotnet/runtime/issues/29144
-                        var temp = Guid.NewGuid().ToString();
+                        var temp = X509Utils.GeneratePasscode();
                         using (var persistable = new X509Certificate2(certificate.Export(X509ContentType.Pfx, temp), temp,
                             X509KeyStorageFlags.PersistKeySet))
                         {

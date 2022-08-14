@@ -1,6 +1,6 @@
-/* Copyright (c) 1996-2020 The OPC Foundation. All rights reserved.
+/* Copyright (c) 1996-2022 The OPC Foundation. All rights reserved.
    The source code in this file is covered under a dual-license scenario:
-     - RCL: for OPC Foundation members in good-standing
+     - RCL: for OPC Foundation Corporate Members in good-standing
      - GPL V2: everybody else
    RCL license terms accompanied with this source code. See http://opcfoundation.org/License/RCL/1.00/
    GNU General Public License as published by the Free Software Foundation;
@@ -30,15 +30,7 @@ namespace Opc.Ua
         {
             if (channel == null) throw new ArgumentNullException(nameof(channel));
 
-            m_channel = channel;
-            m_useTransportChannel = true;
-
-            UaChannelBase uaChannel = channel as UaChannelBase;
-
-            if (uaChannel != null)
-            {
-                m_useTransportChannel = uaChannel.m_uaBypassChannel != null || uaChannel.UseBinaryEncoding;
-            }
+            InitializeChannel(channel);
         }
         #endregion
 
@@ -246,6 +238,23 @@ namespace Opc.Ua
 
         #region Public Methods
         /// <summary>
+        /// Attach the channel to an already created client.
+        /// </summary>
+        /// <param name="channel">Channel to be used by the client</param>
+        public void AttachChannel(ITransportChannel channel)
+        {
+            InitializeChannel(channel);
+        }
+
+        /// <summary>
+        /// Detach the channel.
+        /// </summary>
+        public void DetachChannel()
+        {
+            m_channel = null;
+        }
+
+        /// <summary>
         /// Closes the channel.
         /// </summary>
         public virtual StatusCode Close()
@@ -282,6 +291,23 @@ namespace Opc.Ua
         #endregion
 
         #region Protected Methods
+        /// <summary>
+        /// Initializes the channel.
+        /// </summary>
+        /// <param name="channel"></param>
+        protected void InitializeChannel(ITransportChannel channel)
+        {
+            m_channel = channel;
+            m_useTransportChannel = true;
+
+            UaChannelBase uaChannel = channel as UaChannelBase;
+
+            if (uaChannel != null)
+            {
+                m_useTransportChannel = uaChannel.m_uaBypassChannel != null || uaChannel.UseBinaryEncoding;
+            }
+        }
+
         /// <summary>
         /// Closes the channel.
         /// </summary>
@@ -401,13 +427,8 @@ namespace Opc.Ua
         protected virtual void UpdateRequestHeader(IServiceRequest request, bool useDefaults, string serviceName)
         {
             UpdateRequestHeader(request, useDefaults);
-
-            Utils.Trace(
-                (int)Utils.TraceMasks.Service, 
-                "{0} Called. RequestHandle={1}, PendingRequestCount={2}",
-                serviceName,
-                request.RequestHeader.RequestHandle,
-                Interlocked.Increment(ref m_pendingRequestCount));
+            int incrementedCount = Interlocked.Increment(ref m_pendingRequestCount);
+            Utils.EventLog.ServiceCallStart(serviceName, (int)request.RequestHeader.RequestHandle, incrementedCount);
         }
 
         /// <summary>
@@ -440,22 +461,11 @@ namespace Opc.Ua
 
             if (statusCode != StatusCodes.Good)
             {
-                Utils.Trace(
-                    (int)Utils.TraceMasks.Service,
-                    "{0} Completed. RequestHandle={1}, PendingRequestCount={3}, StatusCode={2}",
-                    serviceName,
-                    requestHandle,
-                    statusCode,
-                    pendingRequestCount);
+                Utils.EventLog.ServiceCallBadStop(serviceName, (int)requestHandle, (int)statusCode.Code, pendingRequestCount);
             }
             else
             {
-                Utils.Trace(
-                    (int)Utils.TraceMasks.Service,
-                    "{0} Completed. RequestHandle={1}, PendingRequestCount={2}",
-                    serviceName,
-                    requestHandle,
-                    pendingRequestCount);
+                Utils.EventLog.ServiceCallStop(serviceName, (int)requestHandle, pendingRequestCount);
             }
         }
 

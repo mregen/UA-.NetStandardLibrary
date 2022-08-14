@@ -50,6 +50,10 @@ namespace Quickstarts.ReferenceServer
     /// </remarks>
     public partial class ReferenceServer : ReverseConnectServer
     {
+        #region Properties
+        public ITokenValidator TokenValidator { get; set; }
+
+        #endregion
         #region Overridden Methods
         /// <summary>
         /// Creates the node managers for the server.
@@ -61,7 +65,7 @@ namespace Quickstarts.ReferenceServer
         /// </remarks>
         protected override MasterNodeManager CreateMasterNodeManager(IServerInternal server, ApplicationConfiguration configuration)
         {
-            Utils.Trace("Creating the Node Managers.");
+            Utils.LogInfo(Utils.TraceMasks.StartStop, "Creating the Reference Server Node Manager.");
 
             IList<INodeManager> nodeManagers = new List<INodeManager>();
 
@@ -128,7 +132,7 @@ namespace Quickstarts.ReferenceServer
         /// </remarks>
         protected override void OnServerStarting(ApplicationConfiguration configuration)
         {
-            Utils.Trace("The server is starting.");
+            Utils.LogInfo(Utils.TraceMasks.StartStop, "The server is starting.");
 
             base.OnServerStarting(configuration);
 
@@ -232,6 +236,8 @@ namespace Quickstarts.ReferenceServer
             {
                 args.Identity = VerifyPassword(userNameToken);
 
+                Utils.LogInfo(Utils.TraceMasks.Security, "Username Token Accepted: {0}", args.Identity?.DisplayName);
+
                 // set AuthenticatedUser role for accepted user/password authentication
                 args.Identity.GrantedRoleIds.Add(ObjectIds.WellKnownRole_AuthenticatedUser);
 
@@ -252,10 +258,18 @@ namespace Quickstarts.ReferenceServer
             {
                 VerifyUserTokenCertificate(x509Token.Certificate);
                 args.Identity = new UserIdentity(x509Token);
-                Utils.Trace("X509 Token Accepted: {0}", args.Identity.DisplayName);
+                Utils.LogInfo(Utils.TraceMasks.Security, "X509 Token Accepted: {0}", args.Identity?.DisplayName);
 
                 // set AuthenticatedUser role for accepted certificate authentication
                 args.Identity.GrantedRoleIds.Add(ObjectIds.WellKnownRole_AuthenticatedUser);
+
+                return;
+            }
+
+            // check for issued identity token.
+            if (args.NewIdentity is IssuedIdentityToken issuedToken)
+            {
+                args.Identity = this.VerifyIssuedToken(issuedToken);
 
                 return;
             }
@@ -373,6 +387,50 @@ namespace Quickstarts.ReferenceServer
                     new LocalizedText(info)));
             }
         }
+
+        private IUserIdentity VerifyIssuedToken(IssuedIdentityToken issuedToken)
+        {
+            if (this.TokenValidator == null)
+            {
+                Utils.LogWarning(Utils.TraceMasks.Security, "No TokenValidator is specified.");
+                return null;
+            }
+            try
+            {
+                if (issuedToken.IssuedTokenType == IssuedTokenType.JWT)
+                {
+                    Utils.LogDebug (Utils.TraceMasks.Security, "VerifyIssuedToken: ValidateToken");
+                    return this.TokenValidator.ValidateToken(issuedToken);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception e)
+            {
+                TranslationInfo info;
+                StatusCode result = StatusCodes.BadIdentityTokenRejected;
+                if (e is ServiceResultException se && se.StatusCode == StatusCodes.BadIdentityTokenInvalid)
+                {
+                    info = new TranslationInfo("IssuedTokenInvalid", "en-US", "token is an invalid issued token.");
+                    result = StatusCodes.BadIdentityTokenInvalid;
+                }
+                else // Rejected                
+                {
+                    // construct translation object with default text.
+                    info = new TranslationInfo("IssuedTokenRejected", "en-US", "token is rejected.");
+                }
+
+                Utils.LogWarning(Utils.TraceMasks.Security, "VerifyIssuedToken: Throw ServiceResultExeption 0x{result:x}");
+                throw new ServiceResultException(new ServiceResult(
+                    result,
+                    info.Key,
+                    this.LoadServerProperties().ProductUri,
+                    new LocalizedText(info)));
+            }
+        }
+
         #endregion
 
         #region Private Fields

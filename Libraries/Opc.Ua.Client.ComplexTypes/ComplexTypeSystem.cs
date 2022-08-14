@@ -367,7 +367,8 @@ namespace Opc.Ua.Client.ComplexTypes
                                         structureDefinition = structuredObject.ToStructureDefinition(
                                             binaryEncodingId,
                                             typeDictionary,
-                                            m_session.NamespaceUris);
+                                            m_session.NamespaceUris,
+                                            dataTypeNode.NodeId);
                                     }
                                     catch (DataTypeNotFoundException)
                                     {
@@ -404,9 +405,9 @@ namespace Opc.Ua.Client.ComplexTypes
                                             xmlEncodingId
                                             );
                                     }
-                                    catch (DataTypeNotFoundException)
+                                    catch (DataTypeNotFoundException typeNotFoundException)
                                     {
-                                        Utils.Trace(typeNotFoundException,
+                                        Utils.LogInfo(typeNotFoundException,
                                             "Skipped the type definition of {0}. Retry in next round.", item.Name);
                                         retryStructureList.Add(item);
                                         continue;
@@ -424,12 +425,8 @@ namespace Opc.Ua.Client.ComplexTypes
                                         // match namespace and add new type to type factory
                                         foreach (var encodingId in encodingIds)
                                         {
-                                            Utils.Trace(Utils.TraceMasks.TypeFactory,
-                                                "Add encodingId {0} for type {1}", encodingId, complexType.Name);
                                             AddEncodeableType(encodingId, complexType);
                                         }
-                                        Utils.Trace(Utils.TraceMasks.TypeFactory,
-                                            "Add typeId {0} for type {1}", typeId, complexType.Name);
                                         AddEncodeableType(typeId, complexType);
                                         var qName = structuredObject.QName ?? new XmlQualifiedName(structuredObject.Name, targetDictionaryNamespace);
                                         typeDictionary[qName] = ExpandedNodeId.ToNodeId(typeId, m_session.NamespaceUris);
@@ -439,7 +436,7 @@ namespace Opc.Ua.Client.ComplexTypes
                                 if (complexType == null)
                                 {
                                     retryStructureList.Add(item);
-                                    Utils.Trace(TraceMasks.Error, "Skipped the type definition of {0}. Retry in next round.", item.Name);
+                                    Utils.LogInfo(TraceMasks.Error, "Skipped the type definition of {0}. Retry in next round.", item.Name);
                                 }
                             }
                         }
@@ -484,7 +481,7 @@ namespace Opc.Ua.Client.ComplexTypes
                 catch (DataTypeNotFoundException dtnfex)
                 {
                     // add missing type to list
-                    var dataTypeNode = m_session.NodeCache.Find(dtnfex.nodeId);
+                    var dataTypeNode = m_session.NodeCache.Find(dtnfex.NodeId);
                     if (dataTypeNode != null)
                     {
                         AddEnumerationOrStructureType(dataTypeNode, serverEnumTypes, serverStructTypes);
@@ -606,14 +603,14 @@ namespace Opc.Ua.Client.ComplexTypes
                                 }
                                 catch (DataTypeNotFoundException dtnfex)
                                 {
-                                    var typeMatch = structTypesWorkList.FirstOrDefault(n => n.NodeId == dtnfex.nodeId);
+                                    var typeMatch = structTypesWorkList.FirstOrDefault(n => n.NodeId == dtnfex.NodeId);
                                     if (typeMatch == null)
                                     {
                                         throw;
                                     }
                                     else
                                     {   // known missing type, retry on next round
-                                        Utils.Trace(dtnfex, "Skipped the type definition of {0}. Retry in next round.", dataTypeNode.BrowseName.Name);
+                                        Utils.LogInfo("Skipped the type definition of {0}. Retry in next round.", dataTypeNode.BrowseName.Name);
                                         retryAddStructType = true;
                                     }
                                 }
@@ -1007,7 +1004,7 @@ namespace Opc.Ua.Client.ComplexTypes
                 return;
             }
             var internalNodeId = NormalizeExpandedNodeId(nodeId);
-            Utils.TraceDebug($"Adding Type {type.FullName} as: {internalNodeId}");
+            Utils.LogDebug("Adding Type {0} as: {1}", type.FullName, internalNodeId);
             m_session.Factory.AddEncodeableType(internalNodeId, type);
         }
 
@@ -1096,15 +1093,7 @@ namespace Opc.Ua.Client.ComplexTypes
                 var isRecursiveDataType = IsRecursiveDataType(ExpandedNodeId.ToNodeId(complexTypeId, m_session.NamespaceUris), field.DataType);
                 if (isRecursiveDataType)
                 {
-                    if (field.ValueRank < 0) // scalar
-                    {
-                        fieldBuilder.AddField(field, (fieldBuilder as ComplexTypeFieldBuilder).StructureTypeBuilder, order);
-                    }
-                    else // array
-                    {
-                        var arrayType = (fieldBuilder as ComplexTypeFieldBuilder).StructureTypeBuilder.MakeArrayType();
-                        fieldBuilder.AddField(field, arrayType, order);
-                    }
+                    fieldBuilder.AddField(field, fieldBuilder.GetStructureType(field.ValueRank), order);
                 }
                 else
                 {

@@ -40,7 +40,7 @@ using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Opc.Ua;
+using System.Diagnostics;
 
 namespace Quickstarts.ReferenceServer
 {
@@ -134,16 +134,29 @@ namespace Quickstarts.ReferenceServer
                 // Create and add the node managers
                 server.Create(Servers.Utils.NodeManagerFactories);
 
-                // start the server
-                output.WriteLine("Start the server.");
-                await server.StartAsync().ConfigureAwait(false);
+                // create activity source
+                var activitySource = new ActivitySource("MySource");
+                var tracerProvider = Sdk.CreateTracerProviderBuilder()
+                    .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("MySample"))
+                                .AddSource("MySource")
+                                .AddConsoleExporter()
+                                .Build();
+                using (var activity = activitySource.StartActivity("ServerStart"))
+                {
+                    activity?.Start();
+                    activity?.SetTag("First", server);
+
+                    // start the server
+                    output.WriteLine("Start the server.");
+                    await server.StartAsync(activitySource).ConfigureAwait(false);
+                }
 
                 // Apply custom settings for CTT testing
                 if (cttMode)
                 {
                     output.WriteLine("Apply settings for CTT.");
                     // start Alarms and other settings for CTT test
-                    Quickstarts.Servers.Utils.ApplyCTTMode(output, server.Server);
+                    Servers.Utils.ApplyCTTMode(output, server.Server);
                 }
 
                 output.WriteLine("Server started. Press Ctrl-C to exit...");
@@ -165,66 +178,6 @@ namespace Quickstarts.ReferenceServer
             }
         }
     }
-#if mist
-    void ActivitySource()
-{
-            var activitySource = new ActivitySource("MySource");
-            var tracerProvider = Sdk.CreateTracerProviderBuilder()
-                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("MySample"))
-                            .AddSource("MySource")
-                            .AddConsoleExporter()
-                            .Build();
-            using (var activity = activitySource.StartActivity("ServerStart"))
-            {
-                activity?.Start();
-                activity?.SetTag("First", m_server);
-                await application.Start(m_server).ConfigureAwait(false);
-                activity?.Stop();
-            }
-
-            var activityId = Activity.Current;
-
-            using (var activity = activitySource.StartActivity("GetEndpoints"))
-            {
-                activity?.Start();
-
-                // print endpoint info
-                var endpoints = application.Server.GetEndpoints().Select(e => e.EndpointUrl).Distinct();
-                activity?.SetTag("GetEndpoints", endpoints);
-
-                foreach (var endpoint in endpoints)
-                {
-                    Console.WriteLine(endpoint);
-                }
-                activity?.Stop();
-            }
-
-            using (var activity = activitySource.StartActivity("Status"))
-            {
-                // start the status thread
-                m_status = Task.Run(new Action(StatusThreadAsync));
-            }
-
-            // print notification on session events
-            m_server.CurrentInstance.SessionManager.SessionActivated += EventStatus;
-            m_server.CurrentInstance.SessionManager.SessionClosing += EventStatus;
-            m_server.CurrentInstance.SessionManager.SessionCreated += EventStatus;
-
-            // test the logging setup
-            Utils.Trace(Utils.TraceMasks.Error      , "This is an Error message: {0}", Utils.TraceMasks.Error);
-            Utils.Trace(Utils.TraceMasks.Information, "This is a Information message: {0}", Utils.TraceMasks.Information);
-            Utils.Trace(Utils.TraceMasks.StackTrace , "This is a StackTrace message: {0}", Utils.TraceMasks.StackTrace);
-            Utils.Trace(Utils.TraceMasks.Service, "This is a Service message: {0}", Utils.TraceMasks.Service);
-            Utils.Trace(Utils.TraceMasks.ServiceDetail, "This is a ServiceDetail message: {0}", Utils.TraceMasks.ServiceDetail);
-            Utils.Trace(Utils.TraceMasks.Operation, "This is a Operation message: {0}", Utils.TraceMasks.Operation);
-            Utils.Trace(Utils.TraceMasks.OperationDetail, "This is a OperationDetail message: {0}", Utils.TraceMasks.OperationDetail);
-            Utils.Trace(Utils.TraceMasks.StartStop, "This is a StartStop message: {0}", Utils.TraceMasks.StartStop);
-            Utils.Trace(Utils.TraceMasks.ExternalSystem, "This is a ExternalSystem message: {0}", Utils.TraceMasks.ExternalSystem);
-            Utils.Trace(Utils.TraceMasks.Security, "This is a Security message: {0}", Utils.TraceMasks.Security);
-
-}
-
-#endif
 }
 
 

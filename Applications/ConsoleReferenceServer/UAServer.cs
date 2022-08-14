@@ -29,6 +29,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -144,7 +145,7 @@ namespace Quickstarts
         /// <summary>
         /// Start the server.
         /// </summary>
-        public async Task StartAsync()
+        public async Task StartAsync(ActivitySource activitySource)
         {
             try
             {
@@ -157,15 +158,29 @@ namespace Quickstarts
                 // save state
                 ExitCode = ExitCode.ErrorRunning;
 
-                // print endpoint info
-                var endpoints = m_application.Server.GetEndpoints().Select(e => e.EndpointUrl).Distinct();
-                foreach (var endpoint in endpoints)
+                var activityId = Activity.Current;
+                using (var activity = activitySource.StartActivity("GetEndpoints"))
                 {
-                    m_output.WriteLine(endpoint);
+                    activity?.Start();
+
+                    // print endpoint info
+                    var endpoints = m_application.Server.GetEndpoints().Select(e => e.EndpointUrl).Distinct();
+
+                    activity?.SetTag("GetEndpoints", endpoints);
+
+                    foreach (var endpoint in endpoints)
+                    {
+                        m_output.WriteLine(endpoint);
+                    }
+
+                    activity?.Stop();
                 }
 
-                // start the status thread
-                m_status = Task.Run(StatusThreadAsync);
+                using (var activity = activitySource.StartActivity("Status"))
+                {
+                    // start the status thread
+                    m_status = Task.Run(StatusThreadAsync);
+                }
 
                 // print notification on session events
                 m_server.CurrentInstance.SessionManager.SessionActivated += EventStatus;
