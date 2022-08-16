@@ -295,8 +295,9 @@ namespace Opc.Ua.PubSub.Configuration
             // validate input argument 
             if (configFilePath == null)
             {
-                throw new ArgumentException(nameof(configFilePath));
+                throw new ArgumentNullException(nameof(configFilePath));
             }
+
             if (!File.Exists(configFilePath))
             {
                 throw new ArgumentException("The specified file {0} does not exist", configFilePath);

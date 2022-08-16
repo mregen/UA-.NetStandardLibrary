@@ -1591,7 +1591,6 @@ namespace Opc.Ua.Core.Tests.Security.Certificates
         private X509Certificate2Collection m_notYetValidAppCerts;
         #endregion
     }
-
     /// <summary>
     /// Helper to approve suppressable errors in test cases.
     /// To catch cases where unsuppressable errors should not
@@ -1617,5 +1616,80 @@ namespace Opc.Ua.Core.Tests.Security.Certificates
                 AcceptedCount++;
             }
         }
+    }
+
+    /// <summary>
+    /// Tests for the CertificateValidator class.
+    /// </summary>
+    [TestFixture, Category("CertificateValidator")]
+    [Parallelizable]
+    [SetCulture("en-us")]
+    public class CertificateValidatorTest2
+    {
+        #region Looping Certificate Chain
+        [Test, Timeout(10000)]
+        public async Task VerifyLoopCAChain()
+        {
+            const string loop1 = "CN=Loop1";
+            const string loop2 = "CN=Loop2";
+            const string leaf = "CN=leaf";
+            RSA rsa = RSA.Create();
+            var generator = X509SignatureGenerator.CreateForRSA(rsa, RSASignaturePadding.Pkcs1);
+
+            var loop1Cert = CertificateFactory.CreateCertificate(loop1)
+                .SetCAConstraint()
+                .SetRSAPublicKey(rsa)
+                .CreateForRSA(generator);
+
+            var loop2Cert = CertificateFactory.CreateCertificate(loop2)
+                .SetCAConstraint()
+                .SetIssuer(loop1Cert)
+                .CreateForRSA(generator);
+
+            var loop1ReverseCert = CertificateFactory.CreateCertificate(loop1)
+                .SetCAConstraint()
+                .SetSerialNumber(loop1Cert.GetSerialNumber())
+                .SetIssuer(loop2Cert)
+                .SetRSAPublicKey(rsa)
+                .CreateForRSA();
+
+            var leafCert = CertificateFactory.CreateCertificate(leaf)
+                .SetIssuer(loop2Cert)
+                .CreateForRSA();
+
+            // validate using proper cert chain
+            using (var validator = TemporaryCertValidator.Create())
+            {
+                await validator.IssuerStore.Add(loop1Cert).ConfigureAwait(false);
+                await validator.TrustedStore.Add(loop2Cert).ConfigureAwait(false);
+                var certValidator = validator.Update();
+                certValidator.Validate(leafCert);
+            }
+
+            // REVERSE CHAIN (leaf->loop1->loop2->loop1->loop2 etc.)
+            // validate using server/client chain sent over the wire
+            // leaf cert in trusted store just to pass the test
+            var collection = new X509Certificate2Collection();
+            collection.Add(leafCert);
+            collection.Add(loop2Cert);
+            collection.Add(loop1ReverseCert);
+            using (var validator = TemporaryCertValidator.Create())
+            {
+                var certValidator = validator.Update();
+                certValidator.Validate(collection);
+            }
+
+            // REVERSE CHAIN (leaf->loop1->loop2->loop1->loop2 etc.)
+            // validate using cert chain in issuer and trusted store
+            // leaf cert not trusted --> TIMEOUT
+            using (var validator = TemporaryCertValidator.Create())
+            {
+                await validator.IssuerStore.Add(loop1ReverseCert).ConfigureAwait(false);
+                await validator.TrustedStore.Add(loop2Cert).ConfigureAwait(false);
+                var certValidator = validator.Update();
+                certValidator.Validate(leafCert);
+            }
+        }
+        #endregion
     }
 }

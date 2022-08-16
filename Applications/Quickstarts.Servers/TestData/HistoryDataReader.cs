@@ -63,8 +63,9 @@ namespace TestData
         /// Frees any unmanaged resources.
         /// </summary>
         public void Dispose()
-        {   
+        {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
