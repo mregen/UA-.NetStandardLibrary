@@ -31,6 +31,9 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Opc.Ua;
 
@@ -43,6 +46,21 @@ namespace Quickstarts.ReferenceServer
     {
         public static async Task<int> Main(string[] args)
         {
+            IHost host = Host.CreateDefaultBuilder(args)
+                .ConfigureServices((_, services) =>
+                    services.AddTransient<ITransientOperation, DefaultOperation>()
+                        .AddScoped<IScopedOperation, DefaultOperation>()
+                        .AddSingleton<ISingletonOperation, DefaultOperation>()
+                        .AddSingleton<IUserStore<IdentityUser>, UserStore>()
+                        .AddSingleton<UserService>()
+                        .AddIdentityCore<IdentityUser>())
+                //.AddTransient<OperationLogger>())
+                .Build();
+            host.Start();
+
+            var userService = host.Services.GetRequiredService<UserService>();
+            await userService.ValidateCredentialsAsync("sysadmin", "test");
+
             TextWriter output = Console.Out;
             output.WriteLine("{0} OPC UA Reference Server", Utils.IsRunningOnMono() ? "Mono" : ".NET Core");
 
