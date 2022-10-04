@@ -6,6 +6,7 @@ parameters:
   framework: netcoreapp2.1
   agents: '@{}'
   jobnamesuffix: ''
+  testprojects: '**/*.Tests.csproj'
 jobs:
 - job: testprep${{ parameters.jobnamesuffix }}
   displayName: Prepare Test Jobs ${{ parameters.configuration }} (${{ parameters.framework }})
@@ -52,12 +53,12 @@ jobs:
     displayName: Restore ${{ parameters.configuration }}
     inputs:
       command: restore
-      projects: '**/*.Tests.csproj'
+      projects: '${{ parameters.testprojects }}'
       arguments: '--framework ${{ parameters.framework }} --configuration ${{ parameters.configuration }}'
   - task: DotNetCoreCLI@2
     displayName: Test ${{ parameters.configuration }}
     timeoutInMinutes: 30
     inputs:
       command: test
-      projects: '**/*.Tests.csproj'
+      projects: '${{ parameters.testprojects }}'
       arguments: '--no-restore --framework ${{ parameters.framework }} --configuration ${{ parameters.configuration }}'
