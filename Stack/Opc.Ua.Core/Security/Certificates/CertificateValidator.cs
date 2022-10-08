@@ -39,6 +39,7 @@ namespace Opc.Ua
             m_rejectSHA1SignedCertificates = CertificateFactory.DefaultHashSize >= 256;
             m_rejectUnknownRevocationStatus = false;
             m_minimumCertificateKeySize = CertificateFactory.DefaultKeySize;
+            m_useValidatedCertificates = false;
         }
         #endregion
 
@@ -191,6 +192,10 @@ namespace Opc.Ua
                 {
                     m_minimumCertificateKeySize = configuration.MinimumCertificateKeySize;
                 }
+                if ((m_protectFlags & ProtectFlags.UseValidatedCertificates) == 0)
+                {
+                    m_useValidatedCertificates = configuration.UseValidatedCertificates;
+                }
             }
 
             if (configuration.ApplicationCertificate != null)
@@ -313,6 +318,26 @@ namespace Opc.Ua
                     if (m_minimumCertificateKeySize != value)
                     {
                         m_minimumCertificateKeySize = value;
+                        ResetValidatedCertificates();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Opt-In to use the already validated certificates for validation.
+        /// </summary>
+        public bool UseValidatedCertificates
+        {
+            get => m_useValidatedCertificates;
+            set
+            {
+                lock (m_lock)
+                {
+                    m_protectFlags |= ProtectFlags.UseValidatedCertificates;
+                    if (m_useValidatedCertificates != value)
+                    {
+                        m_useValidatedCertificates = value;
                         ResetValidatedCertificates();
                     }
                 }
@@ -835,9 +860,6 @@ namespace Opc.Ua
                             {
                                 CertificateValidationOptions options = certificateStore.ValidationOptions;
 
-                                // already checked revocation for file based stores. windows based stores always suppress.
-                                options |= CertificateValidationOptions.SuppressRevocationStatusUnknown;
-
                                 if (checkRecovationStatus)
                                 {
                                     StatusCode status = await store.IsRevoked(issuer, certificate).ConfigureAwait(false);
@@ -924,7 +946,8 @@ namespace Opc.Ua
             // check for previously validated certificate.
             X509Certificate2 certificate2 = null;
 
-            if (m_validatedCertificates.TryGetValue(certificate.Thumbprint, out certificate2))
+            if (m_useValidatedCertificates &&
+                m_validatedCertificates.TryGetValue(certificate.Thumbprint, out certificate2))
             {
                 if (Utils.IsEqual(certificate2.RawData, certificate.RawData))
                 {
@@ -1266,7 +1289,8 @@ namespace Opc.Ua
         {
             if (!serverValidation)
             {
-                if (m_validatedCertificates.TryGetValue(serverCertificate.Thumbprint, out X509Certificate2 certificate2))
+                if (m_useValidatedCertificates &&
+                    m_validatedCertificates.TryGetValue(serverCertificate.Thumbprint, out X509Certificate2 certificate2))
                 {
                     if (Utils.IsEqual(certificate2.RawData, serverCertificate.RawData))
                     {
@@ -1568,7 +1592,8 @@ namespace Opc.Ua
             AutoAcceptUntrustedCertificates = 1,
             RejectSHA1SignedCertificates = 2,
             RejectUnknownRevocationStatus = 4,
-            MinimumCertificateKeySize = 8
+            MinimumCertificateKeySize = 8,
+            UseValidatedCertificates = 16
         };
         #endregion
 
@@ -1589,6 +1614,7 @@ namespace Opc.Ua
         private bool m_rejectSHA1SignedCertificates;
         private bool m_rejectUnknownRevocationStatus;
         private ushort m_minimumCertificateKeySize;
+        private bool m_useValidatedCertificates;
         #endregion
     }
 
