@@ -546,6 +546,12 @@
     <Compile Include="Configuration\CertificateStoreTreeDlg.Designer.cs">
       <DependentUpon>CertificateStoreTreeDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="Configuration\ManageTrustList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Configuration\ManageTrustList.Designer.cs">
+      <DependentUpon>ManageTrustList.cs</DependentUpon>
+    </Compile>
     <Compile Include="Configuration\SelectUrlsCtrl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -575,6 +581,12 @@
     </Compile>
     <Compile Include="Configuration\SelectFileCtrl.Designer.cs">
       <DependentUpon>SelectFileCtrl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Configuration\TrustListControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Configuration\TrustListControl.designer.cs">
+      <DependentUpon>TrustListControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Configuration\ViewCertificateDlg.cs">
       <SubType>Form</SubType>
@@ -933,6 +945,9 @@
       <DependentUpon>CertificateStoreTreeDlg.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="Configuration\ManageTrustList.resx">
+      <DependentUpon>ManageTrustList.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Configuration\SelectUrlsCtrl.resx">
       <DependentUpon>SelectUrlsCtrl.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -952,6 +967,9 @@
     <EmbeddedResource Include="Configuration\SelectFileCtrl.resx">
       <DependentUpon>SelectFileCtrl.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Configuration\TrustListControl.resx">
+      <DependentUpon>TrustListControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Configuration\ViewCertificateDlg.resx">
       <DependentUpon>ViewCertificateDlg.cs</DependentUpon>

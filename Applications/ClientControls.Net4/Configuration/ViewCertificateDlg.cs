@@ -88,85 +88,7 @@ namespace Opc.Ua.Client.Controls
 
                 X509Certificate2 data = await certificate.Find();
 
-                if (data != null)
-                {
-                    // fill in subject name.
-                    StringBuilder buffer = new StringBuilder();
-
-                    foreach (string element in X509Utils.ParseDistinguishedName(data.Subject))
-                    {
-                        if (element.StartsWith("CN="))
-                        {
-                            ApplicationNameTB.Text = element.Substring(3);
-                        }
-
-                        if (element.StartsWith("O="))
-                        {
-
-                            OrganizationTB.Text = element.Substring(2);
-                        }
-
-                        if (buffer.Length > 0)
-                        {
-                            buffer.Append('/');
-                        }
-
-                        buffer.Append(element);
-                    }
-
-                    if (buffer.Length > 0)
-                    {
-                        SubjectNameTB.Text = buffer.ToString();
-                    }
-
-                    // fill in issuer name.
-                    buffer = new StringBuilder();
-
-                    foreach (string element in X509Utils.ParseDistinguishedName(data.Issuer))
-                    {
-                        if (buffer.Length > 0)
-                        {
-                            buffer.Append('/');
-                        }
-
-                        buffer.Append(element);
-                    }
-
-                    if (buffer.Length > 0)
-                    {
-                        IssuerNameTB.Text = buffer.ToString();
-                    }
-
-                    // fill in application uri.
-                    string applicationUri = X509Utils.GetApplicationUriFromCertificate(data);
-
-                    if (!String.IsNullOrEmpty(applicationUri))
-                    {
-                        ApplicationUriTB.Text = applicationUri;
-                    }
-
-                    // fill in domains.
-                    buffer = new StringBuilder();
-
-                    foreach (string domain in X509Utils.GetDomainsFromCertficate(data))
-                    {
-                        if (buffer.Length > 0)
-                        {
-                            buffer.Append(", ");
-                        }
-
-                        buffer.Append(domain);
-                    }
-
-                    if (buffer.Length > 0)
-                    {
-                        DomainsTB.Text = buffer.ToString();
-                    }
-
-                    ValidFromTB.Text = data.NotBefore.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss");
-                    ValidToTB.Text = data.NotAfter.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss");
-                    ThumbprintTB.Text = data.Thumbprint;
-                }
+                PopulateText(data);
             }
 
             if (ShowDialog() != DialogResult.OK)
@@ -175,6 +97,124 @@ namespace Opc.Ua.Client.Controls
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Displays the dialog.
+        /// </summary>
+        public bool ShowDialog(X509Certificate2 certificate)
+        {
+            m_certificate = new CertificateIdentifier(certificate);
+
+            CertificateStoreCTRL.StoreType = null;
+            CertificateStoreCTRL.StorePath = null;
+            CertificateStoreCTRL.ReadOnly = true;
+            ApplicationNameTB.Text = null;
+            ApplicationUriTB.Text = null;
+            OrganizationTB.Text = null;
+            DomainsTB.Text = System.Net.Dns.GetHostName();
+            SubjectNameTB.Text = null;
+            IssuerNameTB.Text = null;
+            ValidFromTB.Text = null;
+            ValidToTB.Text = null;
+            ThumbprintTB.Text = null;
+
+            if (certificate != null)
+            {
+                SubjectNameTB.Text = certificate.Subject;
+                ThumbprintTB.Text = certificate.Thumbprint;
+
+                PopulateText(certificate);
+            }
+            if (ShowDialog() != DialogResult.OK)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private void PopulateText(X509Certificate2 data)
+        {
+            if (data != null)
+            {
+                // fill in subject name.
+                StringBuilder buffer = new StringBuilder();
+
+                foreach (string element in X509Utils.ParseDistinguishedName(data.Subject))
+                {
+                    if (element.StartsWith("CN="))
+                    {
+                        ApplicationNameTB.Text = element.Substring(3);
+                    }
+
+                    if (element.StartsWith("O="))
+                    {
+
+                        OrganizationTB.Text = element.Substring(2);
+                    }
+
+                    if (buffer.Length > 0)
+                    {
+                        buffer.Append('/');
+                    }
+
+                    buffer.Append(element);
+                }
+
+                if (buffer.Length > 0)
+                {
+                    SubjectNameTB.Text = buffer.ToString();
+                }
+
+                // fill in issuer name.
+                buffer = new StringBuilder();
+
+                foreach (string element in X509Utils.ParseDistinguishedName(data.Issuer))
+                {
+                    if (buffer.Length > 0)
+                    {
+                        buffer.Append('/');
+                    }
+
+                    buffer.Append(element);
+                }
+
+                if (buffer.Length > 0)
+                {
+                    IssuerNameTB.Text = buffer.ToString();
+                }
+
+                // fill in application uri.
+                string applicationUri = X509Utils.GetApplicationUriFromCertificate(data);
+
+                if (!String.IsNullOrEmpty(applicationUri))
+                {
+                    ApplicationUriTB.Text = applicationUri;
+                }
+
+                // fill in domains.
+                buffer = new StringBuilder();
+
+                foreach (string domain in X509Utils.GetDomainsFromCertficate(data))
+                {
+                    if (buffer.Length > 0)
+                    {
+                        buffer.Append(", ");
+                    }
+
+                    buffer.Append(domain);
+                }
+
+                if (buffer.Length > 0)
+                {
+                    DomainsTB.Text = buffer.ToString();
+                }
+
+                ValidFromTB.Text = data.NotBefore.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss");
+                ValidToTB.Text = data.NotAfter.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss");
+                ThumbprintTB.Text = data.Thumbprint;
+            }
         }
         #endregion
 

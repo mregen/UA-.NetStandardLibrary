@@ -307,7 +307,7 @@ namespace Opc.Ua.Client.Controls
             EndpointConfiguration endpointConfiguration = EndpointConfiguration.Create(m_configuration);
             ConfiguredEndpoint endpoint = new ConfiguredEndpoint(null, endpointDescription, endpointConfiguration);
 
-            m_session = await Session.Create(
+            m_session = await Client.Session.Create(
                 m_configuration,
                 connection,
                 endpoint,
@@ -373,7 +373,7 @@ namespace Opc.Ua.Client.Controls
             var endpointConfiguration = EndpointConfiguration.Create(m_configuration);
             var endpoint = new ConfiguredEndpoint(null, endpointDescription, endpointConfiguration);
 
-            m_session = await Session.Create(
+            m_session = await Client.Session.Create(
                 m_configuration,
                 endpoint,
                 false,
