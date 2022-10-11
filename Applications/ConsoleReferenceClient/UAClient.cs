@@ -74,7 +74,7 @@ namespace Quickstarts
         /// <summary>
         /// Gets the client session.
         /// </summary>
-        public Session Session => m_session;
+        public ISession Session => m_session;
 
         /// <summary>
         /// The session keepalive interval to be used in ms.
@@ -315,7 +315,7 @@ namespace Quickstarts
         private object m_lock = new object();
         private ApplicationConfiguration m_configuration;        
         private SessionReconnectHandler m_reconnectHandler;
-        private Session m_session;
+        private ISession m_session;
         private readonly TextWriter m_output;
         private readonly Action<IList, IList> m_validateResponse;
         #endregion

@@ -329,7 +329,7 @@ namespace Opc.Ua.Client.Controls
             buffer.Append("to a server or to allow an untrusted client to connect to your server.");
             buffer.Append("\r\n\r\nAccept anyway?");
 
-            if (MessageBox.Show(buffer.ToString(), caption, MessageBoxButtons.YesNo) == DialogResult.Yes)
+            if (MessageBox.Show(buffer.ToString(), caption, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 e.AcceptAll = true;
             }

@@ -67,7 +67,7 @@ namespace Opc.Ua.Client.Controls
             ReadTypeCB.Items.Add(HistoryReadType.DeleteModified);
             ReadTypeCB.Items.Add(HistoryReadType.DeleteAtTime);
             ReadTypeCB.SelectedIndex = 0;
-            
+
             m_dataset = new DataSet();
             m_dataset.Tables.Add("Results");
 
@@ -241,11 +241,11 @@ namespace Opc.Ua.Client.Controls
         [EditorBrowsable(EditorBrowsableState.Never)]
         public NodeId NodeId
         {
-            get 
-            { 
-                return m_nodeId; 
+            get
+            {
+                return m_nodeId;
             }
-            
+
             set
             {
                 m_nodeId = value;
@@ -507,7 +507,7 @@ namespace Opc.Ua.Client.Controls
                 SubscriptionStateChanged();
             }
         }
-        
+
         /// <summary>
         /// Updates the control after the session has reconnected.
         /// </summary>
@@ -593,7 +593,7 @@ namespace Opc.Ua.Client.Controls
                     }
                 }
             }
-            
+
             if (m_subscription != null)
             {
                 MonitoredItem monitoredItem = new MonitoredItem(m_monitoredItem);
@@ -703,7 +703,7 @@ namespace Opc.Ua.Client.Controls
                     browsePaths.Add(browsePath);
                 }
 
-                GetBrowsePathFromNodeState(context, rootId, child, browsePath.RelativePath, browsePaths); 
+                GetBrowsePathFromNodeState(context, rootId, child, browsePath.RelativePath, browsePaths);
             }
         }
 
@@ -793,7 +793,7 @@ namespace Opc.Ua.Client.Controls
                 Opc.Ua.BrowseNames.HAConfiguration,
                 null,
                 false);
-            
+
             // get the browse paths to query.
             RelativePathElement element = new RelativePathElement();
             element.ReferenceTypeId = Opc.Ua.ReferenceTypeIds.HasHistoricalConfiguration;
@@ -851,7 +851,7 @@ namespace Opc.Ua.Client.Controls
                     valuesToRead.Add(valueToRead);
                 }
             }
-            
+
             // read the values.
             if (valuesToRead.Count > 0)
             {
@@ -957,7 +957,7 @@ namespace Opc.Ua.Client.Controls
                 Session.ValidateResponse(results, nodesToRead);
                 Session.ValidateDiagnosticInfos(diagnosticInfos, nodesToRead);
             }
-            
+
             startTime = new DateTime(startTime.Year, startTime.Month, startTime.Day, startTime.Hour, startTime.Minute, startTime.Second, 0, DateTimeKind.Utc);
             startTime = startTime.ToLocalTime();
 
@@ -1146,7 +1146,7 @@ namespace Opc.Ua.Client.Controls
         /// Adds a value to the grid.
         /// </summary>
         private void AddValue(DataValue value, ModificationInfo modificationInfo)
-        {            
+        {
             DataRow row = m_dataset.Tables[0].NewRow();
 
             m_nextId += 10000;
@@ -1278,11 +1278,11 @@ namespace Opc.Ua.Client.Controls
             m_dataset.Clear();
 
             ReadRawModifiedDetails details = new ReadRawModifiedDetails();
-            details.StartTime =(StartTimeCK.Checked)?StartTimeDP.Value.ToUniversalTime():DateTime.MinValue;
-            details.EndTime = (EndTimeCK.Checked)?EndTimeDP.Value.ToUniversalTime():DateTime.MinValue;
-            details.NumValuesPerNode = (MaxReturnValuesCK.Checked)?(uint)MaxReturnValuesNP.Value:0;
+            details.StartTime = (StartTimeCK.Checked) ? StartTimeDP.Value.ToUniversalTime() : DateTime.MinValue;
+            details.EndTime = (EndTimeCK.Checked) ? EndTimeDP.Value.ToUniversalTime() : DateTime.MinValue;
+            details.NumValuesPerNode = (MaxReturnValuesCK.Checked) ? (uint)MaxReturnValuesNP.Value : 0;
             details.IsReadModified = isReadModified;
-            details.ReturnBounds = (isReadModified)?false:ReturnBoundsCK.Checked;
+            details.ReturnBounds = (isReadModified) ? false : ReturnBoundsCK.Checked;
 
             HistoryReadValueIdCollection nodesToRead = new HistoryReadValueIdCollection();
             HistoryReadValueId nodeToRead = new HistoryReadValueId();
@@ -1331,7 +1331,7 @@ namespace Opc.Ua.Client.Controls
 
             for (int ii = 0; ii < MaxReturnValuesNP.Value; ii++)
             {
-                details.ReqTimes.Add(startTime.AddMilliseconds((double)(ii*TimeStepNP.Value)));
+                details.ReqTimes.Add(startTime.AddMilliseconds((double)(ii * TimeStepNP.Value)));
             }
 
             HistoryReadValueIdCollection nodesToRead = new HistoryReadValueIdCollection();
@@ -1429,7 +1429,7 @@ namespace Opc.Ua.Client.Controls
             {
                 HistoryReadValueIdCollection nodesToRead = new HistoryReadValueIdCollection();
                 nodesToRead.Add(m_nodeToContinue);
-                                
+
                 HistoryReadResultCollection results = null;
                 DiagnosticInfoCollection diagnosticInfos = null;
 
@@ -1486,7 +1486,7 @@ namespace Opc.Ua.Client.Controls
                 DataValue value = (DataValue)row.Row[9];
                 values.Add(value);
             }
-            
+
             bool isStructured = false;
 
             PropertyWithHistory property = PropertyCB.SelectedItem as PropertyWithHistory;
@@ -1624,7 +1624,7 @@ namespace Opc.Ua.Client.Controls
                 throw new ServiceResultException(results[0].StatusCode);
             }
 
-            ResultsDV.Columns[ResultsDV.Columns.Count-1].Visible = true;
+            ResultsDV.Columns[ResultsDV.Columns.Count - 1].Visible = true;
 
             for (int ii = 0; ii < m_dataset.Tables[0].DefaultView.Count; ii++)
             {
@@ -2291,7 +2291,7 @@ namespace Opc.Ua.Client.Controls
 
                     }
 
-                    HistoryUpdateResultCollection results = InsertReplace(propertyId, PerformUpdateType.Insert, true, valuesToUpdate); 
+                    HistoryUpdateResultCollection results = InsertReplace(propertyId, PerformUpdateType.Insert, true, valuesToUpdate);
 
                     ResultsDV.Columns[ResultsDV.Columns.Count - 1].Visible = true;
 
@@ -2319,7 +2319,7 @@ namespace Opc.Ua.Client.Controls
                 {
                     return;
                 }
-                
+
                 foreach (DataGridViewRow row in ResultsDV.SelectedRows)
                 {
                     DataRowView source = row.DataBoundItem as DataRowView;
