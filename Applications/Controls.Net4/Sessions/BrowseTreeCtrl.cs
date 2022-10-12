@@ -41,7 +41,7 @@ using Opc.Ua.Client.Controls;
 
 namespace Opc.Ua.Sample.Controls
 {
-    public partial class BrowseTreeCtrl : Opc.Ua.Client.Controls.BaseTreeCtrl
+    public partial class BrowseTreeCtrl : Opc.Ua.Common.Controls.BaseTreeCtrl
     {
         #region Contructors
         public BrowseTreeCtrl()

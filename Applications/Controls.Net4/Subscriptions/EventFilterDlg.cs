@@ -103,7 +103,7 @@ namespace Opc.Ua.Sample.Controls
             }
         }
 
-        private void ContentFilterCTRL_ItemsSelected(object sender, ListItemActionEventArgs e)
+        private void ContentFilterCTRL_ItemsSelected(object sender, Common.Controls.ListItemActionEventArgs e)
         {
             try
             {

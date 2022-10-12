@@ -126,7 +126,7 @@ namespace Opc.Ua.Sample.Controls
             OkBTN.Enabled = false;
         }
 
-        private void BrowseCTRL_NodeSelected(object sender, TreeNodeActionEventArgs e)
+        private void BrowseCTRL_NodeSelected(object sender, Opc.Ua.Common.Controls.TreeNodeActionEventArgs e)
         {
             try
             {

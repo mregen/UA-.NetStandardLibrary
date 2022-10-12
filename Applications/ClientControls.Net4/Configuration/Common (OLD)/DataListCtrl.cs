@@ -48,7 +48,7 @@ namespace Opc.Ua.Client.Controls
     /// <summary>
     /// Displays a hierarchical view of a complex value.
     /// </summary>
-    public partial class DataListCtrl : Opc.Ua.Client.Controls.BaseListCtrl
+    public partial class DataListCtrl : Opc.Ua.Common.Controls.BaseListCtrl
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DataListCtrl"/> class.

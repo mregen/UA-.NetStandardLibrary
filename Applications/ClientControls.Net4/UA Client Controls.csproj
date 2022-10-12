@@ -374,12 +374,6 @@
     <Compile Include="Common\FilterDeclaration.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Configuration\Common %28OLD%29\GuiUtils.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Configuration\Common %28OLD%29\GuiUtils.Designer.cs">
-      <DependentUpon>GuiUtils.cs</DependentUpon>
-    </Compile>
     <Compile Include="Common\EditArrayDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -428,21 +422,6 @@
     <Compile Include="Common\ViewNodeStateDlg.Designer.cs">
       <DependentUpon>ViewNodeStateDlg.cs</DependentUpon>
     </Compile>
-    <Compile Include="Configuration\Common %28OLD%29\BaseListCtrl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Configuration\Common %28OLD%29\BaseListCtrl.Designer.cs">
-      <DependentUpon>BaseListCtrl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Configuration\Common %28OLD%29\BaseTreeCtrl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Configuration\Common %28OLD%29\BaseTreeCtrl.Designer.cs">
-      <DependentUpon>BaseTreeCtrl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Configuration\Common %28OLD%29\ClipboardHack.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Configuration\Common %28OLD%29\ComplexValueEditDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -460,6 +439,12 @@
     </Compile>
     <Compile Include="Configuration\Common %28OLD%29\DateTimeValueEditDlg.Designer.cs">
       <DependentUpon>DateTimeValueEditDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Configuration\Common %28OLD%29\GuiUtils.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Configuration\Common %28OLD%29\GuiUtils.Designer.cs">
+      <DependentUpon>GuiUtils.cs</DependentUpon>
     </Compile>
     <Compile Include="Configuration\Common %28OLD%29\NodeIdCtrl.cs">
       <SubType>UserControl</SubType>
@@ -497,60 +482,17 @@
     <Compile Include="Configuration\Common %28OLD%29\StringValueEditDlg.Designer.cs">
       <DependentUpon>StringValueEditDlg.cs</DependentUpon>
     </Compile>
-    <Compile Include="Configuration\CertificateDlg.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Configuration\CertificateDlg.Designer.cs">
-      <DependentUpon>CertificateDlg.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Configuration\CertificateListCtrl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Configuration\CertificateListCtrl.Designer.cs">
-      <DependentUpon>CertificateListCtrl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Configuration\CertificateListDlg.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Configuration\CertificateListDlg.Designer.cs">
       <DependentUpon>CertificateListDlg.cs</DependentUpon>
     </Compile>
-    <Compile Include="Configuration\CertificateListFilter.cs" />
-    <Compile Include="Configuration\CertificatePropertiesListCtrl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Configuration\CertificatePropertiesListCtrl.Designer.cs">
-      <DependentUpon>CertificatePropertiesListCtrl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Configuration\CertificateStoreCtrl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Configuration\CertificateStoreCtrl.Designer.cs">
-      <DependentUpon>CertificateStoreCtrl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Configuration\CertificateStoreDlg.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Configuration\CertificateStoreDlg.Designer.cs">
       <DependentUpon>CertificateStoreDlg.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Configuration\CertificateStoreTreeCtrl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Configuration\CertificateStoreTreeCtrl.Designer.cs">
-      <DependentUpon>CertificateStoreTreeCtrl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Configuration\CertificateStoreTreeDlg.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Configuration\CertificateStoreTreeDlg.Designer.cs">
-      <DependentUpon>CertificateStoreTreeDlg.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Configuration\ManageTrustList.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Configuration\ManageTrustList.Designer.cs">
-      <DependentUpon>ManageTrustList.cs</DependentUpon>
     </Compile>
     <Compile Include="Configuration\SelectUrlsCtrl.cs">
       <SubType>UserControl</SubType>
@@ -582,24 +524,6 @@
     <Compile Include="Configuration\SelectFileCtrl.Designer.cs">
       <DependentUpon>SelectFileCtrl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Configuration\TrustListControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Configuration\TrustListControl.designer.cs">
-      <DependentUpon>TrustListControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Configuration\ViewCertificateDlg.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Configuration\ViewCertificateDlg.Designer.cs">
-      <DependentUpon>ViewCertificateDlg.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Configuration\YesNoDlg.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Configuration\YesNoDlg.Designer.cs">
-      <DependentUpon>YesNoDlg.cs</DependentUpon>
-    </Compile>
     <Compile Include="Endpoints\ConfiguredServerDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -629,12 +553,6 @@
     </Compile>
     <Compile Include="Endpoints\UsernameTokenDlg.Designer.cs">
       <DependentUpon>UsernameTokenDlg.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ExceptionDlg.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ExceptionDlg.designer.cs">
-      <DependentUpon>ExceptionDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="HeaderBranding.cs">
       <SubType>UserControl</SubType>
@@ -838,10 +756,6 @@
       <DependentUpon>HostListDlg.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Configuration\Common %28OLD%29\GuiUtils.resx">
-      <DependentUpon>GuiUtils.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="Common\EditArrayDlg.resx">
       <DependentUpon>EditArrayDlg.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -874,14 +788,6 @@
       <DependentUpon>ViewNodeStateDlg.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Configuration\Common %28OLD%29\BaseListCtrl.resx">
-      <DependentUpon>BaseListCtrl.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Configuration\Common %28OLD%29\BaseTreeCtrl.resx">
-      <DependentUpon>BaseTreeCtrl.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="Configuration\Common %28OLD%29\ComplexValueEditDlg.resx">
       <DependentUpon>ComplexValueEditDlg.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -892,6 +798,10 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Configuration\Common %28OLD%29\DateTimeValueEditDlg.resx">
       <DependentUpon>DateTimeValueEditDlg.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Configuration\Common %28OLD%29\GuiUtils.resx">
+      <DependentUpon>GuiUtils.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Configuration\Common %28OLD%29\NodeIdCtrl.resx">
@@ -917,36 +827,13 @@
       <DependentUpon>StringValueEditDlg.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Configuration\CertificateDlg.resx">
-      <DependentUpon>CertificateDlg.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Configuration\CertificateListCtrl.resx">
-      <DependentUpon>CertificateListCtrl.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="Configuration\CertificateListDlg.resx">
       <DependentUpon>CertificateListDlg.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Configuration\CertificateStoreCtrl.resx">
-      <DependentUpon>CertificateStoreCtrl.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Configuration\CertificateStoreDlg.resx">
       <DependentUpon>CertificateStoreDlg.cs</DependentUpon>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Configuration\CertificateStoreTreeCtrl.resx">
-      <DependentUpon>CertificateStoreTreeCtrl.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Configuration\CertificateStoreTreeDlg.resx">
-      <DependentUpon>CertificateStoreTreeDlg.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Configuration\ManageTrustList.resx">
-      <DependentUpon>ManageTrustList.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Configuration\SelectUrlsCtrl.resx">
       <DependentUpon>SelectUrlsCtrl.cs</DependentUpon>
@@ -968,17 +855,6 @@
       <DependentUpon>SelectFileCtrl.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Configuration\TrustListControl.resx">
-      <DependentUpon>TrustListControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Configuration\ViewCertificateDlg.resx">
-      <DependentUpon>ViewCertificateDlg.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Configuration\YesNoDlg.resx">
-      <DependentUpon>YesNoDlg.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="Endpoints\ConfiguredServerDlg.resx">
       <DependentUpon>ConfiguredServerDlg.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -998,9 +874,6 @@
     <EmbeddedResource Include="Endpoints\UsernameTokenDlg.resx">
       <DependentUpon>UsernameTokenDlg.cs</DependentUpon>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ExceptionDlg.resx">
-      <DependentUpon>ExceptionDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="HeaderBranding.resx">
       <DependentUpon>HeaderBranding.cs</DependentUpon>
@@ -1051,6 +924,10 @@
     <ProjectReference Include="..\..\Libraries\Opc.Ua.Configuration\Opc.Ua.Configuration.csproj">
       <Project>{a39614ca-8ebe-4408-a9d2-38c7e5ae2a1d}</Project>
       <Name>Opc.Ua.Configuration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CommonControls.Net4\UA Common Controls.csproj">
+      <Project>{3fb626c9-c9c5-4b4a-8652-0c58d405960c}</Project>
+      <Name>UA Common Controls</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

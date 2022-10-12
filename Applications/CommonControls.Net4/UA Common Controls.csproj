@@ -1,0 +1,197 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{3FB626C9-C9C5-4B4A-8652-0C58D405960C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Opc.Ua.Common.Controls</RootNamespace>
+    <AssemblyName>Opc.Ua.CommonControls</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Configuration\CertificateDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Configuration\CertificateDlg.Designer.cs">
+      <DependentUpon>CertificateDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Configuration\CertificateListCtrl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Configuration\CertificateListCtrl.Designer.cs">
+      <DependentUpon>CertificateListCtrl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Configuration\CertificateListFilter.cs" />
+    <Compile Include="Configuration\CertificatePropertiesListCtrl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Configuration\CertificatePropertiesListCtrl.Designer.cs">
+      <DependentUpon>CertificatePropertiesListCtrl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Configuration\CertificateStoreCtrl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Configuration\CertificateStoreCtrl.Designer.cs">
+      <DependentUpon>CertificateStoreCtrl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Configuration\CertificateStoreTreeCtrl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Configuration\CertificateStoreTreeCtrl.Designer.cs">
+      <DependentUpon>CertificateStoreTreeCtrl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Configuration\CertificateStoreTreeDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Configuration\CertificateStoreTreeDlg.Designer.cs">
+      <DependentUpon>CertificateStoreTreeDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Configuration\Common\BaseListCtrl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Configuration\Common\BaseListCtrl.Designer.cs">
+      <DependentUpon>BaseListCtrl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Configuration\Common\BaseTreeCtrl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Configuration\Common\BaseTreeCtrl.Designer.cs">
+      <DependentUpon>BaseTreeCtrl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Configuration\Common\ClipboardHack.cs" />
+    <Compile Include="Configuration\Common\GuiUtils.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Configuration\Common\GuiUtils.Designer.cs">
+      <DependentUpon>GuiUtils.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Configuration\ManageTrustList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Configuration\ManageTrustList.Designer.cs">
+      <DependentUpon>ManageTrustList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Configuration\TrustListControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Configuration\TrustListControl.designer.cs">
+      <DependentUpon>TrustListControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Configuration\ViewCertificateDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Configuration\ViewCertificateDlg.Designer.cs">
+      <DependentUpon>ViewCertificateDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Configuration\YesNoDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Configuration\YesNoDlg.Designer.cs">
+      <DependentUpon>YesNoDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ExceptionDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ExceptionDlg.designer.cs">
+      <DependentUpon>ExceptionDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Service Include="{94E38DFF-614B-4cbd-B67C-F211BB35CE8B}" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Configuration\CertificateDlg.resx">
+      <DependentUpon>CertificateDlg.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Configuration\CertificateListCtrl.resx">
+      <DependentUpon>CertificateListCtrl.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Configuration\CertificateStoreCtrl.resx">
+      <DependentUpon>CertificateStoreCtrl.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Configuration\CertificateStoreTreeCtrl.resx">
+      <DependentUpon>CertificateStoreTreeCtrl.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Configuration\CertificateStoreTreeDlg.resx">
+      <DependentUpon>CertificateStoreTreeDlg.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Configuration\Common\BaseListCtrl.resx">
+      <DependentUpon>BaseListCtrl.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Configuration\Common\BaseTreeCtrl.resx">
+      <DependentUpon>BaseTreeCtrl.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Configuration\Common\GuiUtils.resx">
+      <DependentUpon>GuiUtils.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Configuration\ManageTrustList.resx">
+      <DependentUpon>ManageTrustList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Configuration\TrustListControl.resx">
+      <DependentUpon>TrustListControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Configuration\ViewCertificateDlg.resx">
+      <DependentUpon>ViewCertificateDlg.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Configuration\YesNoDlg.resx">
+      <DependentUpon>YesNoDlg.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ExceptionDlg.resx">
+      <DependentUpon>ExceptionDlg.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Libraries\Opc.Ua.Security.Certificates\Opc.Ua.Security.Certificates.csproj">
+      <Project>{4b72937f-5a57-4cea-b9fe-b4c45cf7b284}</Project>
+      <Name>Opc.Ua.Security.Certificates</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Stack\Opc.Ua.Core\Opc.Ua.Core.csproj">
+      <Project>{d918c0f6-39bd-4ed0-8323-e5a2eb9a85da}</Project>
+      <Name>Opc.Ua.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

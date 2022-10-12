@@ -117,7 +117,7 @@ namespace Opc.Ua.Client.Controls
             this.ServersCTRL.Name = "ServersCTRL";
             this.ServersCTRL.Size = new System.Drawing.Size(673, 348);
             this.ServersCTRL.TabIndex = 0;
-            this.ServersCTRL.ItemsSelected += new Opc.Ua.Client.Controls.ListItemActionEventHandler(this.ServersCTRL_ItemsSelected);
+            this.ServersCTRL.ItemsSelected += new Opc.Ua.Common.Controls.ListItemActionEventHandler(this.ServersCTRL_ItemsSelected);
             // 
             // ConfiguredServerListDlg
             // 

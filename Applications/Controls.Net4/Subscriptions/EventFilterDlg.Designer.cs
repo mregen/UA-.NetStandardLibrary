@@ -158,7 +158,7 @@ namespace Opc.Ua.Sample.Controls
             this.ContentFilterCTRL.Padding = new System.Windows.Forms.Padding(3, 3, 0, 3);
             this.ContentFilterCTRL.Size = new System.Drawing.Size(340, 395);
             this.ContentFilterCTRL.TabIndex = 2;
-            this.ContentFilterCTRL.ItemsSelected += new Opc.Ua.Client.Controls.ListItemActionEventHandler(this.ContentFilterCTRL_ItemsSelected);
+            this.ContentFilterCTRL.ItemsSelected += new Opc.Ua.Common.Controls.ListItemActionEventHandler(this.ContentFilterCTRL_ItemsSelected);
             // 
             // BrowseCTRL
             // 

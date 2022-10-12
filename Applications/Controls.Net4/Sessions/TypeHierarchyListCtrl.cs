@@ -41,7 +41,7 @@ using Opc.Ua.Client.Controls;
 
 namespace Opc.Ua.Sample
 {
-    public partial class TypeHierarchyListCtrl : Opc.Ua.Client.Controls.BaseListCtrl
+    public partial class TypeHierarchyListCtrl : Opc.Ua.Common.Controls.BaseListCtrl
     {
         #region Constructors
         public TypeHierarchyListCtrl()
@@ -134,7 +134,7 @@ namespace Opc.Ua.Sample
         #endregion
         
         #region Overridden Methods
-        /// <see cref="Opc.Ua.Client.Controls.BaseListCtrl.UpdateItem(ListViewItem,object)" />
+        /// <see cref="Opc.Ua.Common.Controls.BaseListCtrl.UpdateItem(ListViewItem,object)" />
         protected override void UpdateItem(ListViewItem listItem, object item)
         {
             InstanceDeclaration instance = item as InstanceDeclaration;

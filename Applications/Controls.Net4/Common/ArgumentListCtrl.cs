@@ -41,7 +41,7 @@ using Opc.Ua.Client.Controls;
 
 namespace Opc.Ua.Sample.Controls
 {
-    public partial class ArgumentListCtrl : Opc.Ua.Client.Controls.BaseListCtrl
+    public partial class ArgumentListCtrl : Opc.Ua.Common.Controls.BaseListCtrl
     {
         public ArgumentListCtrl()
         {

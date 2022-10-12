@@ -694,6 +694,10 @@
       <Project>{A247D2EE-14FC-463D-A9BA-6CFF1EF22B7A}</Project>
       <Name>UA Client Controls</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CommonControls.Net4\UA Common Controls.csproj">
+      <Project>{3fb626c9-c9c5-4b4a-8652-0c58d405960c}</Project>
+      <Name>UA Common Controls</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

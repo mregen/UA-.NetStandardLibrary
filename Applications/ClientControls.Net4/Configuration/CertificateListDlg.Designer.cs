@@ -63,7 +63,7 @@ namespace Opc.Ua.Client.Controls
             this.FilterBTN = new System.Windows.Forms.Button();
             this.MainPN = new System.Windows.Forms.Panel();
             this.StoreGB = new System.Windows.Forms.GroupBox();
-            this.CertificateStoreCTRL = new Opc.Ua.Client.Controls.CertificateStoreCtrl();
+            this.CertificateStoreCTRL = new Opc.Ua.Common.Controls.CertificateStoreCtrl();
             this.FiltersGB = new System.Windows.Forms.GroupBox();
             this.PrivateKeyCK = new System.Windows.Forms.CheckBox();
             this.PrivateKeyLB = new System.Windows.Forms.Label();
@@ -78,7 +78,7 @@ namespace Opc.Ua.Client.Controls
             this.IssuerNameLB = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.SubjectNameLB = new System.Windows.Forms.Label();
-            this.CertificatesCTRL = new Opc.Ua.Client.Controls.CertificateListCtrl();
+            this.CertificatesCTRL = new Opc.Ua.Common.Controls.CertificateListCtrl();
             this.ButtonsPN.SuspendLayout();
             this.MainPN.SuspendLayout();
             this.StoreGB.SuspendLayout();
@@ -320,7 +320,7 @@ namespace Opc.Ua.Client.Controls
             this.CertificatesCTRL.Name = "CertificatesCTRL";
             this.CertificatesCTRL.Size = new System.Drawing.Size(915, 398);
             this.CertificatesCTRL.TabIndex = 2;
-            this.CertificatesCTRL.ItemsSelected += new Opc.Ua.Client.Controls.ListItemActionEventHandler(this.CertificatesCTRL_ItemsSelected);
+            this.CertificatesCTRL.ItemsSelected += new Opc.Ua.Common.Controls.ListItemActionEventHandler(this.CertificatesCTRL_ItemsSelected);
             // 
             // CertificateListDlg
             // 
@@ -349,7 +349,7 @@ namespace Opc.Ua.Client.Controls
         private System.Windows.Forms.Button OkBTN;
         private System.Windows.Forms.Button CancelBTN;
         private System.Windows.Forms.Panel MainPN;
-        private CertificateListCtrl CertificatesCTRL;
+        private Opc.Ua.Common.Controls.CertificateListCtrl CertificatesCTRL;
         private System.Windows.Forms.Label SubjectNameLB;
         private System.Windows.Forms.GroupBox FiltersGB;
         private System.Windows.Forms.Label label2;
@@ -366,6 +366,6 @@ namespace Opc.Ua.Client.Controls
         private System.Windows.Forms.CheckBox PrivateKeyCK;
         private System.Windows.Forms.Label PrivateKeyLB;
         private System.Windows.Forms.GroupBox StoreGB;
-        private CertificateStoreCtrl CertificateStoreCTRL;
+        private Opc.Ua.Common.Controls.CertificateStoreCtrl CertificateStoreCTRL;
     }
 }

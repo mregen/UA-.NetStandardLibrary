@@ -44,7 +44,7 @@ namespace Opc.Ua.Client.Controls
     /// <summary>
     /// A list of hosts.
     /// </summary>
-    public partial class HostListCtrl : Opc.Ua.Client.Controls.BaseListCtrl
+    public partial class HostListCtrl : Opc.Ua.Common.Controls.BaseListCtrl
     {
         #region Constructors
         /// <summary>

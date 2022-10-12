@@ -206,7 +206,7 @@ namespace Opc.Ua.Sample.Controls
             this.BrowseCTRL.SessionTreeCtrl = null;
             this.BrowseCTRL.Size = new System.Drawing.Size(418, 291);
             this.BrowseCTRL.TabIndex = 29;
-            this.BrowseCTRL.NodeSelected += new Opc.Ua.Client.Controls.TreeNodeActionEventHandler(this.BrowseCTRL_NodeSelected);
+            this.BrowseCTRL.NodeSelected += new Opc.Ua.Common.Controls.TreeNodeActionEventHandler(this.BrowseCTRL_NodeSelected);
             // 
             // NamespaceUriCB
             // 

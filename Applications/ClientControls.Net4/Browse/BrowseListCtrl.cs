@@ -40,7 +40,7 @@ namespace Opc.Ua.Client.Controls
     /// <summary>
     /// Displays a list of references for a node.
     /// </summary>
-    public partial class BrowseListCtrl : Opc.Ua.Client.Controls.BaseListCtrl
+    public partial class BrowseListCtrl : Opc.Ua.Common.Controls.BaseListCtrl
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="BrowseListCtrl"/> class.
@@ -102,7 +102,7 @@ namespace Opc.Ua.Client.Controls
         }
 
         #region Overridden Methods
-        /// <see cref="Opc.Ua.Client.Controls.BaseListCtrl.UpdateItem(ListViewItem,object)" />
+        /// <see cref="Opc.Ua.Common.Controls.BaseListCtrl.UpdateItem(ListViewItem,object)" />
         protected override void UpdateItem(ListViewItem listItem, object item)
         {
             IReference reference = item as IReference;

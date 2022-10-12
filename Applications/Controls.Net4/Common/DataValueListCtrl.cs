@@ -41,7 +41,7 @@ using Opc.Ua.Client.Controls;
 
 namespace Opc.Ua.Sample.Controls
 {
-    public partial class DataValueListCtrl : Opc.Ua.Client.Controls.BaseListCtrl
+    public partial class DataValueListCtrl : Opc.Ua.Common.Controls.BaseListCtrl
     {
         #region Constructors
         public DataValueListCtrl()

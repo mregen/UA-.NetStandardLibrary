@@ -121,8 +121,8 @@ namespace Opc.Ua.Client.Controls
             this.HostsCTRL.Name = "HostsCTRL";
             this.HostsCTRL.Size = new System.Drawing.Size(455, 228);
             this.HostsCTRL.TabIndex = 0;
-            this.HostsCTRL.ItemsPicked += new Opc.Ua.Client.Controls.ListItemActionEventHandler(this.HostsCTRL_ItemsPicked);
-            this.HostsCTRL.ItemsSelected += new Opc.Ua.Client.Controls.ListItemActionEventHandler(this.HostsCTRL_ItemsSelected);
+            this.HostsCTRL.ItemsPicked += new Opc.Ua.Common.Controls.ListItemActionEventHandler(this.HostsCTRL_ItemsPicked);
+            this.HostsCTRL.ItemsSelected += new Opc.Ua.Common.Controls.ListItemActionEventHandler(this.HostsCTRL_ItemsSelected);
             // 
             // TopPN
             // 

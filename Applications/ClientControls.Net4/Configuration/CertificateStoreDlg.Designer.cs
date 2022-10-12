@@ -27,6 +27,8 @@
  * http://opcfoundation.org/License/MIT/1.00/
  * ======================================================================*/
 
+using Opc.Ua.Common.Controls;
+
 namespace Opc.Ua.Client.Controls
 {
     partial class CertificateStoreDlg
@@ -62,7 +64,7 @@ namespace Opc.Ua.Client.Controls
             this.OkBTN = new System.Windows.Forms.Button();
             this.CancelBTN = new System.Windows.Forms.Button();
             this.MainPN = new System.Windows.Forms.Panel();
-            this.CertificateStoreCTRL = new Opc.Ua.Client.Controls.CertificateStoreCtrl();
+            this.CertificateStoreCTRL = new Opc.Ua.Common.Controls.CertificateStoreCtrl();
             this.ButtonsPN.SuspendLayout();
             this.MainPN.SuspendLayout();
             this.SuspendLayout();

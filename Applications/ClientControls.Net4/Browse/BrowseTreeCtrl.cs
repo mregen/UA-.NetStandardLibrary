@@ -42,7 +42,7 @@ namespace Opc.Ua.Client.Controls
     /// <summary>
     /// Displays a hierarchy of nodes.
     /// </summary>
-    public partial class BrowseTreeCtrl : Opc.Ua.Client.Controls.BaseTreeCtrl
+    public partial class BrowseTreeCtrl : Opc.Ua.Common.Controls.BaseTreeCtrl
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="BrowseTreeCtrl"/> class.

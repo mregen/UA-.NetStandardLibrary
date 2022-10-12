@@ -40,7 +40,7 @@ using System.Threading.Tasks;
 
 namespace Opc.Ua.Sample.Controls
 {
-    public partial class SessionTreeCtrl : Opc.Ua.Client.Controls.BaseTreeCtrl
+    public partial class SessionTreeCtrl : Opc.Ua.Common.Controls.BaseTreeCtrl
     {
         #region Contructors
         public SessionTreeCtrl()

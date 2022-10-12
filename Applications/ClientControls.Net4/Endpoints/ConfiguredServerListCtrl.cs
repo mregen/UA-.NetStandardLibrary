@@ -44,7 +44,7 @@ namespace Opc.Ua.Client.Controls
     /// <summary>
     /// A list of servers.
     /// </summary>
-    public partial class ConfiguredServerListCtrl : Opc.Ua.Client.Controls.BaseListCtrl
+    public partial class ConfiguredServerListCtrl : Opc.Ua.Common.Controls.BaseListCtrl
     {
         #region Constructors
         /// <summary>

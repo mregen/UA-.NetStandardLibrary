@@ -43,7 +43,7 @@ namespace Opc.Ua.Client.Controls
     /// <summary>
     /// Displays a list of servers.
     /// </summary>
-    public partial class DiscoveredServerListCtrl : Opc.Ua.Client.Controls.BaseListCtrl
+    public partial class DiscoveredServerListCtrl : Opc.Ua.Common.Controls.BaseListCtrl
     {
         #region Constructors
         /// <summary>

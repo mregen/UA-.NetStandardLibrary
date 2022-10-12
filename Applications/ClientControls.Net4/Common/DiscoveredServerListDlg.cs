@@ -35,6 +35,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.Reflection;
+using Opc.Ua.Common.Controls;
 
 namespace Opc.Ua.Client.Controls
 {

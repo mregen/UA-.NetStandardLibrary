@@ -37,6 +37,7 @@ using System.Windows.Forms;
 using System.Reflection;
 
 using Opc.Ua.Configuration;
+using Opc.Ua.Common.Controls;
 
 namespace Opc.Ua.Client.Controls
 {

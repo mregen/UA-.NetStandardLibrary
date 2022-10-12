@@ -41,7 +41,7 @@ using Opc.Ua.Client.Controls;
 
 namespace Opc.Ua.Sample.Controls
 {
-    public partial class EventNotificationListListCtrl : Opc.Ua.Client.Controls.BaseListCtrl
+    public partial class EventNotificationListListCtrl : Opc.Ua.Common.Controls.BaseListCtrl
     {
         public EventNotificationListListCtrl()
         {

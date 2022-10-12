@@ -40,7 +40,7 @@ using Opc.Ua.Client.Controls;
 
 namespace Opc.Ua.Sample.Controls
 {
-    public partial class PerformanceResultsListCtrl : Opc.Ua.Client.Controls.BaseListCtrl
+    public partial class PerformanceResultsListCtrl : Opc.Ua.Common.Controls.BaseListCtrl
     {
         public PerformanceResultsListCtrl()
         {

@@ -41,7 +41,7 @@ namespace Opc.Ua.Client.Controls
     /// <summary>
     /// Displays a list of nodes.
     /// </summary>
-    public partial class NodeListCtrl : Opc.Ua.Client.Controls.BaseListCtrl
+    public partial class NodeListCtrl : Opc.Ua.Common.Controls.BaseListCtrl
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="NodeListCtrl"/> class.
@@ -167,13 +167,13 @@ namespace Opc.Ua.Client.Controls
             }
         }
 
-        /// <see cref="Opc.Ua.Client.Controls.BaseListCtrl.EnableMenuItems" />
+        /// <see cref="Opc.Ua.Common.Controls.BaseListCtrl.EnableMenuItems" />
 		protected override void EnableMenuItems(ListViewItem clickedItem)
 		{
             DeleteMI.Enabled = ItemsLV.SelectedItems.Count > 0;
 		}
 
-        /// <see cref="Opc.Ua.Client.Controls.BaseListCtrl.UpdateItem(ListViewItem,object)" />
+        /// <see cref="Opc.Ua.Common.Controls.BaseListCtrl.UpdateItem(ListViewItem,object)" />
         protected override void UpdateItem(ListViewItem listItem, object item)
         {
             ILocalNode node = item as ILocalNode;
