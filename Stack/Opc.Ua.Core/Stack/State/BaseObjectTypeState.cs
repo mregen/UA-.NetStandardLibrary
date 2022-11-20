@@ -53,7 +53,13 @@ namespace Opc.Ua
         }
         #endregion
 
-        #region Public Members
+        #region ICloneable Members
+        /// <inheritdoc/>
+        public override object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
         /// <summary>
         /// Makes a copy of the node and all children.
         /// </summary>
@@ -62,8 +68,8 @@ namespace Opc.Ua
         /// </returns>
         public new object MemberwiseClone()
         {
-            BaseObjectTypeState clone = new BaseObjectTypeState();
-            return MemberwiseClone(clone);
+            BaseObjectTypeState clone = (BaseObjectTypeState)Activator.CreateInstance(this.GetType());
+            return CloneChildren(clone);
         }
         #endregion
     }
@@ -96,20 +102,6 @@ namespace Opc.Ua
             WriteMask = AttributeWriteMask.None;
             UserWriteMask = AttributeWriteMask.None;
             IsAbstract = false;
-        }
-        #endregion
-
-        #region Public Members
-        /// <summary>
-        /// Makes a copy of the node and all children.
-        /// </summary>
-        /// <returns>
-        /// A new object that is a copy of this instance.
-        /// </returns>
-        public new object MemberwiseClone()
-        {
-            FolderTypeState clone = new FolderTypeState();
-            return MemberwiseClone(clone);
         }
         #endregion
     }
