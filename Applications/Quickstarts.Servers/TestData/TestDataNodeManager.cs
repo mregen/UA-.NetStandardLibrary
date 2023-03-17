@@ -64,6 +64,9 @@ namespace TestData
                 return nameSpaces;
             }
         }
+
+        /// <inheritdoc/>
+        public uint Order => (uint)NodeManagerOrderDefaults.Default;
     }
 
     /// <summary>
@@ -183,13 +186,22 @@ namespace TestData
 
                 // enable history for all numeric scalar values.
                 ScalarValueObjectState scalarValues = (ScalarValueObjectState)FindPredefinedNode(
-                new NodeId(Objects.Data_Dynamic_Scalar, m_typeNamespaceIndex),
-                typeof(ScalarValueObjectState));
+                    new NodeId(Objects.Data_Dynamic_Scalar, m_typeNamespaceIndex),
+                    typeof(ScalarValueObjectState));
 
                 scalarValues.Int32Value.Historizing = true;
                 scalarValues.Int32Value.AccessLevel = (byte)(scalarValues.Int32Value.AccessLevel | AccessLevels.HistoryRead);
 
                 m_system.EnableHistoryArchiving(scalarValues.Int32Value);
+
+                ConfigurationNodeManager configurationNodeManager = Server.NodeManager.ConfigurationNodeManager;
+                if (configurationNodeManager != null)
+                {
+                    var typeNamespaceMetaDataState = configurationNodeManager.CreateNamespaceMetadataState(Server.NamespaceUris.GetString(m_typeNamespaceIndex));
+                    //typeNamespaceMetaDataState.NamespacePublicationDate.Value = this.GetType().GetTypeInfo().Assembly.
+                    //typeNamespaceMetaDataState.NamespaceVersion.Value =
+                    var nameSpaceMetaDataState = configurationNodeManager.CreateNamespaceMetadataState(Server.NamespaceUris.GetString(m_namespaceIndex));
+                }
             }
         }
 
