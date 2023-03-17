@@ -470,7 +470,7 @@
   <opc:DataType SymbolicName="LocalizedTextDataType" BaseType="ua:LocalizedText" />
   <opc:DataType SymbolicName="StatusCodeDataType" BaseType="ua:StatusCode" />
   <opc:DataType SymbolicName="VariantDataType" BaseType="ua:BaseDataType" />
-
+  
   <opc:DataType SymbolicName="UserScalarValueDataType" BaseType="ua:Structure">
     <opc:Fields>
       <opc:Field Name="BooleanDataType" DataType="BooleanDataType" />
@@ -669,7 +669,7 @@
       <opc:Field Name="Z" DataType="ua:Double" IsOptional="true" />
     </opc:Fields>
   </opc:DataType>
-
+  
   <opc:DataType SymbolicName="SampleUnion" BaseType="ua:Union" IsUnion="true">
     <opc:Fields>
       <opc:Field Name="FieldA" DataType="ua:UInt32" />
@@ -687,19 +687,7 @@
       <opc:Field Name="FieldD" DataType="WorkOrderType" IsOptional="true" />
     </opc:Fields>
   </opc:DataType>
-
-  <opc:DataType SymbolicName="SampleStructureNestedOptionalFields" BaseType="ua:Structure">
-    <opc:Fields>
-      <opc:Field Name="FieldA" DataType="ua:UInt32" />
-      <opc:Field Name="FieldB" DataType="ua:String" ValueRank="Array" IsOptional="true" />
-      <opc:Field Name="FieldC" DataType="ua:ByteString" />
-      <opc:Field Name="FieldD" DataType="WorkOrderTypeWithDescription" IsOptional="true" />
-      <opc:Field Name="FieldE" DataType="Vector" IsOptional="true" />
-      <opc:Field Name="FieldF" DataType="VectorUnion" />
-      <opc:Field Name="FieldG" DataType="VectorWithOptionalFields" />
-    </opc:Fields>
-  </opc:DataType>
--->
+  
   <opc:DataType SymbolicName="WorkOrderTypeWithDescription" BaseType="ua:Structure">
     <opc:Fields>
       <opc:Field Name="ID" DataType="ua:Guid" />
@@ -709,6 +697,7 @@
       <opc:Field Name="StatusComments" DataType="WorkOrderStatusType" ValueRank="Array" />
     </opc:Fields>
   </opc:DataType>
+-->
 
   <opc:DataType SymbolicName="WorkOrderStatusType" BaseType="ua:Structure">
     <opc:Fields>
@@ -726,19 +715,6 @@
       <opc:Field Name="StatusComments" DataType="WorkOrderStatusType" ValueRank="Array" />
     </opc:Fields>
   </opc:DataType>
-
-  <opc:ObjectType SymbolicName="StructureValueObjectType" BaseType="TestDataObjectType">
-    <opc:Children>
-      <opc:Variable SymbolicName="Vector" DataType="Vector" ModellingRule="Mandatory" />
-      <opc:Variable SymbolicName="VectorUnion" DataType="VectorUnion" ModellingRule="Mandatory" />
-      <opc:Variable SymbolicName="VectorWithOptionalFields" DataType="VectorWithOptionalFields" ModellingRule="Mandatory" />
-      <opc:Variable SymbolicName="SampleUnion" DataType="SampleUnion" ModellingRule="Mandatory" />
-      <opc:Variable SymbolicName="SampleStructureWithOptionalFields" DataType="SampleStructureWithOptionalFields" ModellingRule="Mandatory" />
-      <opc:Variable SymbolicName="SampleStructureNestedOptionalFields" DataType="SampleStructureNestedOptionalFields" ModellingRule="Mandatory" />
-      <opc:Variable SymbolicName="WorkOrderType" DataType="WorkOrderType" ModellingRule="Mandatory" />
-      <opc:Variable SymbolicName="WorkOrderTypeWithDescription" DataType="WorkOrderTypeWithDescription" ModellingRule="Mandatory" />
-    </opc:Children>
-  </opc:ObjectType>
 
   <opc:Method SymbolicName="UserArrayValue1MethodType" ModellingRule="Mandatory">
     <opc:InputArguments>
@@ -831,7 +807,6 @@
           <opc:Object SymbolicName="AnalogScalar" TypeDefinition="AnalogScalarValueObjectType" ModellingRule="Mandatory"/>
           <opc:Object SymbolicName="AnalogArray" TypeDefinition="AnalogArrayValueObjectType" ModellingRule="Mandatory"/>
           <opc:Object SymbolicName="MethodTest" TypeDefinition="MethodTestType" ModellingRule="Mandatory"/>
-          <opc:Object SymbolicName="Structures" TypeDefinition="StructureValueObjectType" ModellingRule="Mandatory"/>
         </opc:Children>
         <opc:References>
           <opc:Reference>
@@ -909,15 +884,6 @@
               </opc:Property>
             </opc:Children>
           </opc:Object>
-          <opc:Object SymbolicName="Structures" TypeDefinition="StructureValueObjectType" ModellingRule="Mandatory">
-            <opc:Children>
-              <opc:Property SymbolicName="SimulationActive">
-                <opc:DefaultValue>
-                  <uax:Boolean>true</uax:Boolean>
-                </opc:DefaultValue>
-              </opc:Property>
-            </opc:Children>
-          </opc:Object>
         </opc:Children>
         <opc:References>
           <opc:Reference>
@@ -975,6 +941,7 @@
         <opc:ReferenceType>ua:HasNotifier</opc:ReferenceType>
         <opc:TargetId>Data_Dynamic</opc:TargetId>
       </opc:Reference>
+
       <!--
       <opc:Reference>
         <opc:ReferenceType>ua:HasNotifier</opc:ReferenceType>
