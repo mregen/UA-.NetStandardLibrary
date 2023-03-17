@@ -596,7 +596,6 @@ namespace Opc.Ua.Server
                 {
                     metadata.DefaultAccessRestrictions = (AccessRestrictionType)Enum.ToObject(typeof(AccessRestrictionType),
                         namespaceMetadataState.DefaultAccessRestrictions.Value);
-                  
                     metadata.DefaultRolePermissions = namespaceMetadataState.DefaultRolePermissions.Value;
                     metadata.DefaultUserRolePermissions = namespaceMetadataState.DefaultUserRolePermissions.Value;
                 }
