@@ -777,10 +777,30 @@ namespace Opc.Ua
         protected virtual void OnCertificateUpdate(object sender, CertificateUpdateEventArgs e)
         {
             // disconnect all sessions
+            InstanceCertificateChain = null;
             InstanceCertificate = e.SecurityConfiguration.ApplicationCertificate.Certificate;
+            if (Configuration.SecurityConfiguration.SendCertificateChain)
+            {
+                InstanceCertificateChain = new X509Certificate2Collection(InstanceCertificate);
+                var issuers = new List<CertificateIdentifier>();
+                var validationErrors = new Dictionary<X509Certificate2, ServiceResultException>();
+                Configuration.CertificateValidator.GetIssuersNoExceptionsOnGetIssuer(InstanceCertificateChain, issuers, validationErrors).GetAwaiter().GetResult();
+                foreach (var error in validationErrors)
+                {
+                    if (error.Value != null)
+                    {
+                        Utils.LogCertificate("OnCertificateUpdate: GetIssuers Validation Error: {0}", error.Key, error.Value.Result);
+                    }
+                }
+                for (int i = 0; i < issuers.Count; i++)
+                {
+                    InstanceCertificateChain.Add(issuers[i].Certificate);
+                }
+            }
+
             foreach (var listener in TransportListeners)
             {
-                listener.CertificateUpdate(e.CertificateValidator, InstanceCertificate, null);
+                listener.CertificateUpdate(e.CertificateValidator, InstanceCertificate, InstanceCertificateChain);
             }
         }
 
@@ -1412,7 +1432,7 @@ namespace Opc.Ua
                 m_activeThreadCount = 0;
 
 #if THREAD_SCHEDULER
-                m_queue = new Queue<IEndpointIncomingRequest>();
+                m_queue = new Queue<IEndpointIncomingRequest>(maxRequestCount);
                 m_totalThreadCount = 0;
 #endif
 
@@ -1575,7 +1595,7 @@ namespace Opc.Ua
                             m_activeThreadCount--;
 
                             // wait for a request. end the thread if no activity.
-                            if (m_stopped || (!Monitor.Wait(m_lock, 30000) && m_totalThreadCount > m_minThreadCount))
+                            if (m_stopped || (!Monitor.Wait(m_lock, 15_000) && m_totalThreadCount > m_minThreadCount))
                             {
                                 m_totalThreadCount--;
                                 Utils.LogTrace("Thread ended: {0:X8}. Total: {1} Active: {2}",

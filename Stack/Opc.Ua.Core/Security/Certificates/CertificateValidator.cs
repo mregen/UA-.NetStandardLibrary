@@ -39,6 +39,7 @@ namespace Opc.Ua
             m_rejectSHA1SignedCertificates = CertificateFactory.DefaultHashSize >= 256;
             m_rejectUnknownRevocationStatus = false;
             m_minimumCertificateKeySize = CertificateFactory.DefaultKeySize;
+            m_useValidatedCertificates = false;
         }
         #endregion
 
@@ -191,6 +192,10 @@ namespace Opc.Ua
                 {
                     m_minimumCertificateKeySize = configuration.MinimumCertificateKeySize;
                 }
+                if ((m_protectFlags & ProtectFlags.UseValidatedCertificates) == 0)
+                {
+                    m_useValidatedCertificates = configuration.UseValidatedCertificates;
+                }
             }
 
             if (configuration.ApplicationCertificate != null)
@@ -320,6 +325,26 @@ namespace Opc.Ua
         }
 
         /// <summary>
+        /// Opt-In to use the already validated certificates for validation.
+        /// </summary>
+        public bool UseValidatedCertificates
+        {
+            get => m_useValidatedCertificates;
+            set
+            {
+                lock (m_lock)
+                {
+                    m_protectFlags |= ProtectFlags.UseValidatedCertificates;
+                    if (m_useValidatedCertificates != value)
+                    {
+                        m_useValidatedCertificates = value;
+                        ResetValidatedCertificates();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Validates the specified certificate against the trust list.
         /// </summary>
         /// <param name="certificate">The certificate.</param>
@@ -336,16 +361,6 @@ namespace Opc.Ua
         /// all other UA applications that may be running on the same machine. As a result, the
         /// certificate validator cannot rely completely on the Windows certificate store and
         /// user or machine specific CTLs (certificate trust lists).
-        ///
-        /// The validator constructs the trust chain for the certificate and follows the chain
-        /// until it finds a certification that is in the application trust list. Non-fatal trust
-        /// chain errors (i.e. certificate expired) are ignored if the certificate is in the 
-        /// application trust list.
-        ///
-        /// If no certificate in the chain is trusted then the validator will still accept the
-        /// certification if there are no trust chain errors.
-        /// 
-        /// The validator may be configured to ignore the application trust list and/or trust chain.
         /// </remarks>
         public virtual void Validate(X509Certificate2Collection chain)
         {
@@ -375,9 +390,12 @@ namespace Opc.Ua
                 // check for errors that may be suppressed.
                 if (ContainsUnsuppressibleSC(se.Result))
                 {
-                    SaveCertificate(certificate);
                     Utils.LogCertificate(LogLevel.Error, "Certificate rejected. Reason={0}.",
                         certificate, se.Result.StatusCode);
+
+                    // save the chain in rejected store to allow to add certs to a trusted or issuer store
+                    SaveCertificates(chain);
+
                     LogInnerServiceResults(LogLevel.Error, se.Result.InnerResult);
                     throw new ServiceResultException(se, StatusCodes.BadCertificateInvalid);
                 }
@@ -440,11 +458,12 @@ namespace Opc.Ua
                 // throw if rejected.
                 if (!accept)
                 {
-                    // write the invalid certificate to rejected store if specified.
+                    // write the invalid certificate chain to rejected store if specified.
                     Utils.LogCertificate(LogLevel.Error, "Certificate rejected. Reason={0}.",
                         certificate, serviceResult != null ? serviceResult.StatusCode.ToString() : "Unknown Error");
 
-                    SaveCertificate(certificate);
+                    // save the chain in rejected store to allow to add cert to a trusted or issuer store
+                    SaveCertificates(chain);
 
                     throw new ServiceResultException(se, StatusCodes.BadCertificateInvalid);
                 }
@@ -497,28 +516,41 @@ namespace Opc.Ua
         /// </summary>
         private void SaveCertificate(X509Certificate2 certificate)
         {
+            SaveCertificates(new X509Certificate2Collection { certificate });
+        }
+
+        /// <summary>
+        /// Saves the certificate chain in the rejected certificate store.
+        /// </summary>
+        private void SaveCertificates(X509Certificate2Collection certificateChain)
+        {
             lock (m_lock)
             {
                 if (m_rejectedCertificateStore != null)
                 {
-                    Utils.LogTrace("Writing rejected certificate to: {0}", m_rejectedCertificateStore);
+                    Utils.LogTrace("Writing rejected certificate chain to: {0}", m_rejectedCertificateStore);
                     try
                     {
                         ICertificateStore store = m_rejectedCertificateStore.OpenStore();
                         try
                         {
-                            store.Delete(certificate.Thumbprint);
-                            // save only public key
-                            if (certificate.HasPrivateKey)
+                            bool leafCertificate = true;
+                            foreach (var certificate in certificateChain)
                             {
-                                using (var cert = new X509Certificate2(certificate.RawData))
+                                try
                                 {
-                                    store.Add(cert);
+                                    store.Add(certificate).GetAwaiter().GetResult();
+                                    if (!leafCertificate)
+                                    {
+                                        Utils.LogCertificate("Saved issuer certificate: ", certificate);
+                                    }
+                                    leafCertificate = false;
                                 }
-                            }
-                            else
-                            {
-                                store.Add(certificate);
+                                catch (ArgumentException aex)
+                                {
+                                    // just notify why the certificate cannot be added
+                                    Utils.LogCertificate(aex.Message, certificate);
+                                }
                             }
                         }
                         finally
@@ -759,8 +791,7 @@ namespace Opc.Ua
             string serialNumber = null;
 
             // find the authority key identifier.
-            X509AuthorityKeyIdentifierExtension authority = X509Extensions.FindExtension<X509AuthorityKeyIdentifierExtension>(certificate);
-
+            var authority = X509Extensions.FindExtension<Security.Certificates.X509AuthorityKeyIdentifierExtension>(certificate);
             if (authority != null)
             {
                 keyId = authority.KeyIdentifier;
@@ -814,9 +845,6 @@ namespace Opc.Ua
                             {
                                 CertificateValidationOptions options = certificateStore.ValidationOptions;
 
-                                // already checked revocation for file based stores. windows based stores always suppress.
-                                options |= CertificateValidationOptions.SuppressRevocationStatusUnknown;
-
                                 if (checkRecovationStatus)
                                 {
                                     StatusCode status = await store.IsRevoked(issuer, certificate).ConfigureAwait(false);
@@ -830,7 +858,8 @@ namespace Opc.Ua
                                                 status.Code = StatusCodes.BadCertificateIssuerRevocationUnknown;
                                             }
 
-                                            if (m_rejectUnknownRevocationStatus)
+                                            if (m_rejectUnknownRevocationStatus &&
+                                                (options & CertificateValidationOptions.SuppressRevocationStatusUnknown) == 0)
                                             {
                                                 serviceResult = new ServiceResultException(status);
                                             }
@@ -845,6 +874,9 @@ namespace Opc.Ua
                                         }
                                     }
                                 }
+
+                                // already checked revocation for file based stores. windows based stores always suppress.
+                                options |= CertificateValidationOptions.SuppressRevocationStatusUnknown;
 
                                 return (new CertificateIdentifier(issuer, options), serviceResult);
                             }
@@ -899,7 +931,8 @@ namespace Opc.Ua
             // check for previously validated certificate.
             X509Certificate2 certificate2 = null;
 
-            if (m_validatedCertificates.TryGetValue(certificate.Thumbprint, out certificate2))
+            if (m_useValidatedCertificates &&
+                m_validatedCertificates.TryGetValue(certificate.Thumbprint, out certificate2))
             {
                 if (Utils.IsEqual(certificate2.RawData, certificate.RawData))
                 {
@@ -922,10 +955,11 @@ namespace Opc.Ua
                 RevocationFlag = X509RevocationFlag.EntireChain,
                 RevocationMode = X509RevocationMode.NoCheck,
                 VerificationFlags = X509VerificationFlags.NoFlag,
+                UrlRetrievalTimeout = TimeSpan.FromMilliseconds(1),
 #if NET5_0_OR_GREATER
                 DisableCertificateDownloads = true,
 #endif
-            };
+        };
 
             foreach (CertificateIdentifier issuer in issuers)
             {
@@ -939,7 +973,6 @@ namespace Opc.Ua
 
                 // we did the revocation check in the GetIssuers call. No need here.
                 policy.RevocationMode = X509RevocationMode.NoCheck;
-                policy.UrlRetrievalTimeout = TimeSpan.FromMilliseconds(1);
                 policy.ExtraStore.Add(issuer.Certificate);
             }
 
@@ -1241,7 +1274,8 @@ namespace Opc.Ua
         {
             if (!serverValidation)
             {
-                if (m_validatedCertificates.TryGetValue(serverCertificate.Thumbprint, out X509Certificate2 certificate2))
+                if (m_useValidatedCertificates &&
+                    m_validatedCertificates.TryGetValue(serverCertificate.Thumbprint, out X509Certificate2 certificate2))
                 {
                     if (Utils.IsEqual(certificate2.RawData, serverCertificate.RawData))
                     {
@@ -1543,7 +1577,8 @@ namespace Opc.Ua
             AutoAcceptUntrustedCertificates = 1,
             RejectSHA1SignedCertificates = 2,
             RejectUnknownRevocationStatus = 4,
-            MinimumCertificateKeySize = 8
+            MinimumCertificateKeySize = 8,
+            UseValidatedCertificates = 16
         };
         #endregion
 
@@ -1564,6 +1599,7 @@ namespace Opc.Ua
         private bool m_rejectSHA1SignedCertificates;
         private bool m_rejectUnknownRevocationStatus;
         private ushort m_minimumCertificateKeySize;
+        private bool m_useValidatedCertificates;
         #endregion
     }
 
