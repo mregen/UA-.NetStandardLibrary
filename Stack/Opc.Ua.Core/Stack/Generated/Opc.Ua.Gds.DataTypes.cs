@@ -1,5 +1,5 @@
 /* ========================================================================
- * Copyright (c) 2005-2020 The OPC Foundation, Inc. All rights reserved.
+ * Copyright (c) 2005-2022 The OPC Foundation, Inc. All rights reserved.
  *
  * OPC Foundation MIT License 1.00
  * 
@@ -27,6 +27,9 @@
  * http://opcfoundation.org/License/MIT/1.00/
  * ======================================================================*/
 
+// To support ICloneable, manually undef NET_STANDARD until Modelcompiler is fixed
+#undef NET_STANDARD
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -38,35 +41,25 @@ namespace Opc.Ua.Gds
 {
     #region ApplicationRecordDataType Class
     #if (!OPCUA_EXCLUDE_ApplicationRecordDataType)
-    /// <summary>
-    /// 
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     [DataContract(Namespace = Opc.Ua.Gds.Namespaces.OpcUaGdsXsd)]
-    public partial class ApplicationRecordDataType : IEncodeable
+    public partial class ApplicationRecordDataType : IEncodeable, IJsonEncodeable
     {
         #region Constructors
-        /// <summary>
-        /// The default constructor.
-        /// </summary>
+        /// <remarks />
         public ApplicationRecordDataType()
         {
             Initialize();
         }
-
-        /// <summary>
-        /// Called by the .NET framework during deserialization.
-        /// </summary>
+            
         [OnDeserializing]
         private void Initialize(StreamingContext context)
         {
             Initialize();
         }
-
-        /// <summary>
-        /// Sets private members to default values.
-        /// </summary>
+            
         private void Initialize()
         {
             m_applicationId = null;
@@ -104,9 +97,7 @@ namespace Opc.Ua.Gds
             set { m_applicationType = value; }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+        /// <remarks />
         [DataMember(Name = "ApplicationNames", IsRequired = false, Order = 4)]
         public LocalizedTextCollection ApplicationNames
         {
@@ -134,9 +125,7 @@ namespace Opc.Ua.Gds
             set { m_productUri = value; }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+        /// <remarks />
         [DataMember(Name = "DiscoveryUrls", IsRequired = false, Order = 6)]
         public StringCollection DiscoveryUrls
         {
@@ -156,9 +145,7 @@ namespace Opc.Ua.Gds
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+        /// <remarks />
         [DataMember(Name = "ServerCapabilities", IsRequired = false, Order = 7)]
         public StringCollection ServerCapabilities
         {
@@ -181,22 +168,16 @@ namespace Opc.Ua.Gds
 
         #region IEncodeable Members
         /// <summary cref="IEncodeable.TypeId" />
-        public virtual ExpandedNodeId TypeId
-        {
-            get { return DataTypeIds.ApplicationRecordDataType; }
-        }
+        public virtual ExpandedNodeId TypeId => DataTypeIds.ApplicationRecordDataType; 
 
         /// <summary cref="IEncodeable.BinaryEncodingId" />
-        public virtual ExpandedNodeId BinaryEncodingId
-        {
-            get { return ObjectIds.ApplicationRecordDataType_Encoding_DefaultBinary; }
-        }
+        public virtual ExpandedNodeId BinaryEncodingId => ObjectIds.ApplicationRecordDataType_Encoding_DefaultBinary;
 
         /// <summary cref="IEncodeable.XmlEncodingId" />
-        public virtual ExpandedNodeId XmlEncodingId
-        {
-            get { return ObjectIds.ApplicationRecordDataType_Encoding_DefaultXml; }
-        }
+        public virtual ExpandedNodeId XmlEncodingId => ObjectIds.ApplicationRecordDataType_Encoding_DefaultXml;
+                    
+        /// <summary cref="IJsonEncodeable.JsonEncodingId" />
+        public virtual ExpandedNodeId JsonEncodingId => ObjectIds.ApplicationRecordDataType_Encoding_DefaultJson; 
 
         /// <summary cref="IEncodeable.Encode(IEncoder)" />
         public virtual void Encode(IEncoder encoder)
@@ -293,9 +274,7 @@ namespace Opc.Ua.Gds
     }
 
     #region ApplicationRecordDataTypeCollection Class
-    /// <summary>
-    /// A collection of ApplicationRecordDataType objects.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     [CollectionDataContract(Name = "ListOfApplicationRecordDataType", Namespace = Opc.Ua.Gds.Namespaces.OpcUaGdsXsd, ItemName = "ApplicationRecordDataType")]
@@ -306,26 +285,18 @@ namespace Opc.Ua.Gds
     #endif
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the collection with default values.
-        /// </summary>
+        /// <remarks />
         public ApplicationRecordDataTypeCollection() {}
 
-        /// <summary>
-        /// Initializes the collection with an initial capacity.
-        /// </summary>
+        /// <remarks />
         public ApplicationRecordDataTypeCollection(int capacity) : base(capacity) {}
 
-        /// <summary>
-        /// Initializes the collection with another collection.
-        /// </summary>
+        /// <remarks />
         public ApplicationRecordDataTypeCollection(IEnumerable<ApplicationRecordDataType> collection) : base(collection) {}
         #endregion
 
         #region Static Operators
-        /// <summary>
-        /// Converts an array to a collection.
-        /// </summary>
+        /// <remarks />
         public static implicit operator ApplicationRecordDataTypeCollection(ApplicationRecordDataType[] values)
         {
             if (values != null)
@@ -336,9 +307,7 @@ namespace Opc.Ua.Gds
             return new ApplicationRecordDataTypeCollection();
         }
 
-        /// <summary>
-        /// Converts a collection to an array.
-        /// </summary>
+        /// <remarks />
         public static explicit operator ApplicationRecordDataType[](ApplicationRecordDataTypeCollection values)
         {
             if (values != null)
@@ -352,9 +321,7 @@ namespace Opc.Ua.Gds
 
         #if !NET_STANDARD
         #region ICloneable Methods
-        /// <summary>
-        /// Creates a deep copy of the collection.
-        /// </summary>
+        /// <remarks />
         public object Clone()
         {
             return (ApplicationRecordDataTypeCollection)this.MemberwiseClone();

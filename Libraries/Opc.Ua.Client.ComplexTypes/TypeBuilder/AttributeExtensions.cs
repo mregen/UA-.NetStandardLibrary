@@ -28,6 +28,7 @@
  * ======================================================================*/
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.Serialization;
@@ -142,21 +143,34 @@ namespace Opc.Ua.Client.ComplexTypes
         {
             var attributeType = typeof(StructureFieldAttribute);
             ConstructorInfo ctorInfo = attributeType.GetConstructor(Type.EmptyTypes);
-            CustomAttributeBuilder builder = new CustomAttributeBuilder(
-                ctorInfo,
-                Array.Empty<object>(),  // constructor arguments
-                new[]           // properties to assign
-                {
+            var pi = new List<PropertyInfo>()
+            {
                     attributeType.GetProperty("ValueRank"),
                     attributeType.GetProperty("MaxStringLength"),
                     attributeType.GetProperty("IsOptional")
-                },
-                new object[]    // values to assign
-                {
+            };
+
+            var pv = new List<object>() {
                     structureField.ValueRank,
                     structureField.MaxStringLength,
-                    structureField.IsOptional
-                });
+                    structureField.IsOptional,
+            };
+
+            // only unambigious built in types get the info,
+            // IEncodeable types are handled by type property as BuiltInType.Null 
+            Int32 builtInType = (Int32)GetBuiltInType(structureField.DataType);
+            if (builtInType > (Int32)BuiltInType.Null)
+            {
+                pi.Add(attributeType.GetProperty("BuiltInType"));
+                pv.Add(builtInType);
+            }
+
+            CustomAttributeBuilder builder = new CustomAttributeBuilder(
+                ctorInfo,
+                Array.Empty<object>(),  // constructor arguments
+                pi.ToArray(),           // properties to assign
+                pv.ToArray()            // values to assign
+            );
             typeBuilder.SetCustomAttribute(builder);
         }
 
@@ -228,6 +242,50 @@ namespace Opc.Ua.Client.ComplexTypes
                     Namespace
                 });
             return builder;
+        }
+
+        /// <summary>
+        /// Convert a DataTypeId to a BuiltInType that can be used
+        /// for the switch table in <see cref="BaseComplexType"/>.
+        /// </summary>
+        /// <remarks>
+        /// As a prerequisite the complex type resolver found a
+        /// valid .NET supertype that can be mapped to a BuiltInType.
+        /// IEncodeable types are mapped to BuiltInType.Null. 
+        /// </remarks>
+        /// <param name="datatypeId">The data type identifier.</param>
+        /// <returns>An <see cref="BuiltInType"/> for  <paramref name="datatypeId"/></returns>
+        private static BuiltInType GetBuiltInType(NodeId datatypeId)
+        {
+            if (datatypeId.IsNullNodeId || datatypeId.NamespaceIndex != 0 ||
+                datatypeId.IdType != Opc.Ua.IdType.Numeric)
+            {
+                return BuiltInType.Null;
+            }
+
+            BuiltInType builtInType = (BuiltInType)Enum.ToObject(typeof(BuiltInType), datatypeId.Identifier);
+
+            if (builtInType <= BuiltInType.DiagnosticInfo || builtInType == BuiltInType.Enumeration)
+            {
+                return builtInType;
+            }
+
+            // The special case is the internal treatment of Number, Integer and
+            // UInteger types which are mapped to Variant, but they have an internal
+            // representation in the BuiltInType enum, hence it needs the special handling
+            // here to return the BuiltInType.Variant.
+            // Other DataTypes which map directly to .NET types in
+            // <see cref="TypeInfo.GetSystemType(BuiltInType, int)"/>
+            // are handled in <see cref="TypeInfo.GetBuiltInType()"/>
+            switch ((uint)builtInType)
+            {
+                // supertypes of numbers
+                case DataTypes.Integer:
+                case DataTypes.UInteger:
+                case DataTypes.Number: return BuiltInType.Variant;
+            }
+
+            return TypeInfo.GetBuiltInType(datatypeId);
         }
         #endregion Private Static Members
 

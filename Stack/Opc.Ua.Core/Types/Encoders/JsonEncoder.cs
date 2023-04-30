@@ -351,6 +351,12 @@ namespace Opc.Ua
         public bool ForceNamespaceUri { get; set; }
 
         /// <summary>
+        /// The Json encoder to encode namespace URI for all
+        /// namespaces
+        /// </summary>
+        public bool ForceNamespaceUriForIndex1 { get; set; }
+
+        /// <summary>
         /// The Json encoder default value option.
         /// </summary>
         public bool IncludeDefaultValues { get; set; }
@@ -854,7 +860,8 @@ namespace Opc.Ua
                 return;
             }
 
-            if (!UseReversibleEncoding && namespaceIndex > 1)
+            if ((!UseReversibleEncoding || ForceNamespaceUri) && namespaceIndex > (ForceNamespaceUriForIndex1 ? 0 : 1))
+                
             {
                 var uri = m_context.NamespaceUris.GetString(namespaceIndex);
                 if (!String.IsNullOrEmpty(uri))
@@ -935,7 +942,7 @@ namespace Opc.Ua
             PushStructure(fieldName);
 
             ushort namespaceIndex = value.NamespaceIndex;
-            if (ForceNamespaceUri && namespaceIndex > 1)
+            if (ForceNamespaceUri && namespaceIndex > (ForceNamespaceUriForIndex1 ? 0 : 1))
             {
                 string namespaceUri = Context.NamespaceUris.GetString(namespaceIndex);
                 WriteNodeIdContents(value, namespaceUri);
@@ -963,7 +970,7 @@ namespace Opc.Ua
 
             string namespaceUri = value.NamespaceUri;
             ushort namespaceIndex = value.InnerNodeId.NamespaceIndex;
-            if (ForceNamespaceUri && namespaceUri == null && namespaceIndex > 1)
+            if (ForceNamespaceUri && namespaceUri == null && namespaceIndex > (ForceNamespaceUriForIndex1 ? 0 : 1))
             {
                 namespaceUri = Context.NamespaceUris.GetString(namespaceIndex);
             }
@@ -1301,6 +1308,7 @@ namespace Opc.Ua
             }
 
             var encodeable = value.Body as IEncodeable;
+
             if (!UseReversibleEncoding && encodeable != null)
             {
                 // non reversible encoding, only the content of the Body field is encoded
@@ -1320,14 +1328,27 @@ namespace Opc.Ua
 
             PushStructure(fieldName);
 
+            var typeId = value.TypeId;
+
+            if (encodeable != null)
+            {
+                switch (value.Encoding)
+                {
+                    case ExtensionObjectEncoding.Binary: { typeId = encodeable.BinaryEncodingId; break; }
+                    case ExtensionObjectEncoding.Xml: { typeId = encodeable.XmlEncodingId; break; }
+                    default: { typeId = encodeable.TypeId; break; }
+                }
+            }
+
+            var localTypeId = ExpandedNodeId.ToNodeId(typeId, Context.NamespaceUris);
+
             if (UseReversibleEncoding)
             {
-                var nodeId = ExpandedNodeId.ToNodeId(value.TypeId, Context.NamespaceUris);
-                WriteNodeId("TypeId", nodeId);
+                WriteNodeId("TypeId", localTypeId);
             }
             else
             {
-                WriteExpandedNodeId("TypeId", value.TypeId);
+                WriteExpandedNodeId("TypeId", typeId);
             }
 
             if (encodeable != null)
@@ -2329,15 +2350,11 @@ namespace Opc.Ua
                 else if (typeInfo.ValueRank >= ValueRanks.OneDimension)
                 {
                     int valueRank = typeInfo.ValueRank;
-                    Matrix matrix = value as Matrix;
-                    if (matrix != null)
+                    if (UseReversibleEncoding && value is Matrix matrix)
                     {
-                        if (UseReversibleEncoding)
-                        {
-                            // linearize the matrix
-                            value = matrix.Elements;
-                            valueRank = ValueRanks.OneDimension;
-                        }
+                        // linearize the matrix
+                        value = matrix.Elements;
+                        valueRank = ValueRanks.OneDimension;
                     }
                     WriteArray(null, value, valueRank, typeInfo.BuiltInType);
                 }
@@ -2423,7 +2440,6 @@ namespace Opc.Ua
                         WriteEnumeratedArray(fieldName, enumArray, enumArray.GetType().GetElementType());
                         return;
                     }
-
                     case BuiltInType.Variant:
                     {
                         Variant[] variants = array as Variant[];
@@ -2455,18 +2471,55 @@ namespace Opc.Ua
                             "Unexpected type encountered while encoding an array of Variants: {0}",
                             array.GetType());
                     }
+                    default:
+                    {
+                        // try to write IEncodeable Array
+                        IEncodeable[] encodeableArray = array as IEncodeable[];
+                        if (encodeableArray != null)
+                        {
+                            WriteEncodeableArray(fieldName, encodeableArray, array.GetType().GetElementType());
+                            return;
+                        }
+                        if (array == null)
+                        {
+                            WriteSimpleField(fieldName, null, false);
+                            return;
+                        }
+                        throw ServiceResultException.Create(
+                            StatusCodes.BadEncodingError,
+                            "Unexpected BuiltInType encountered while encoding an array: {0}",
+                            builtInType);
+                    }
                 }
             }
             // write matrix.
             else if (valueRank > ValueRanks.OneDimension)
             {
                 Matrix matrix = array as Matrix;
+                if (matrix == null)
+                {
+                    var multiArray = array as Array;
+                    if (multiArray != null && multiArray.Rank == valueRank)
+                    {
+                        matrix = new Matrix(multiArray, builtInType);
+                    }
+                    else
+                    {
+                        throw ServiceResultException.Create(
+                            StatusCodes.BadEncodingError,
+                            "Unexpected array type encountered while encoding array: {0}",
+                            array.GetType().Name);
+                    }
+                }
+
                 if (matrix != null)
                 {
                     int index = 0;
                     WriteStructureMatrix(fieldName, matrix, 0, ref index, matrix.TypeInfo);
                     return;
                 }
+
+                // field is omitted
             }
         }
         #endregion
@@ -2482,21 +2535,10 @@ namespace Opc.Ua
             ref int index,
             TypeInfo typeInfo)
         {
-            ulong sizeFromDimensions = 1;
             // check if matrix is well formed
-            for (int ii = 0; ii < matrix.Dimensions.Length; ii++)
-            {
-                if (matrix.Dimensions[ii] > m_context.MaxArrayLength)
-                {
-                    throw ServiceResultException.Create(
-                            StatusCodes.BadEncodingLimitsExceeded,
-                            "Maximum MaxArrayLength of {0} was exceeded while in matrix dimensions",
-                            m_context.MaxArrayLength);
-                }
+            (bool valid, int sizeFromDimensions) = Matrix.ValidateDimensions(true, matrix.Dimensions, Context.MaxArrayLength);
 
-                sizeFromDimensions *= (ulong)matrix.Dimensions[ii];
-            }
-            if (sizeFromDimensions != (ulong)matrix.Elements.Length)
+            if (!valid || (sizeFromDimensions != matrix.Elements.Length))
             {
                 throw new ArgumentException("The number of elements in the matrix does not match the dimensions.");
             }
@@ -2544,18 +2586,6 @@ namespace Opc.Ua
                 m_nestingLevel--;
             }
         }
-
-        /// <summary>
-        /// Write multi dimensional array in Variant.
-        /// </summary>
-        private void WriteVariantMatrix(string fieldName, Matrix value)
-        {
-            PushStructure(fieldName);
-            WriteVariant("Matrix", new Variant(value.Elements, new TypeInfo(value.TypeInfo.BuiltInType, ValueRanks.OneDimension)));
-            WriteInt32Array("Dimensions", value.Dimensions);
-            PopStructure();
-        }
-
         #endregion
     }
 }

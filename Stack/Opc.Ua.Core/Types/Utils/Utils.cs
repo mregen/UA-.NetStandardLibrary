@@ -26,6 +26,8 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Net;
 using System.Collections.ObjectModel;
+using Opc.Ua.Security.Certificates;
+using System.Runtime.InteropServices;
 
 namespace Opc.Ua
 {
@@ -1491,14 +1493,14 @@ namespace Opc.Ua
             {
                 for (int ii = buffer.Length - 1; ii >= 0; ii--)
                 {
-                    builder.AppendFormat("{0:X2}", buffer[ii]);
+                    builder.AppendFormat(CultureInfo.InvariantCulture, "{0:X2}", buffer[ii]);
                 }
             }
             else
             {
                 for (int ii = 0; ii < buffer.Length; ii++)
                 {
-                    builder.AppendFormat("{0:X2}", buffer[ii]);
+                    builder.AppendFormat(CultureInfo.InvariantCulture, "{0:X2}", buffer[ii]);
                 }
             }
 
@@ -1758,331 +1760,11 @@ namespace Opc.Ua
                 return node.CloneNode(true);
             }
 
-            // copy ExtensionObject.
+            // use ICloneable if supported
+            ICloneable cloneable = value as ICloneable;
+            if (cloneable != null)
             {
-                ExtensionObject castedObject = value as ExtensionObject;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy ExtensionObjectCollection.
-            {
-                ExtensionObjectCollection castedObject = value as ExtensionObjectCollection;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy EnumValueType.
-            {
-                EnumValueType castedObject = value as EnumValueType;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy LocalizedText.
-            {
-                LocalizedText castedObject = value as LocalizedText;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy Argument.
-            {
-                Argument castedObject = value as Argument;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy NodeId.
-            {
-                NodeId castedObject = value as NodeId;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy UInt32Collection.
-            {
-                UInt32Collection castedObject = value as UInt32Collection;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy QualifiedName.
-            {
-                QualifiedName castedObject = value as QualifiedName;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy ServerDiagnosticsSummaryDataType.
-            {
-                ServerDiagnosticsSummaryDataType castedObject = value as ServerDiagnosticsSummaryDataType;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy ApplicationDescription.
-            {
-                ApplicationDescription castedObject = value as ApplicationDescription;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy StringCollection.
-            {
-                StringCollection castedObject = value as StringCollection;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy UserTokenPolicyCollection.
-            {
-                UserTokenPolicyCollection castedObject = value as UserTokenPolicyCollection;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy UserTokenPolicy
-            {
-                UserTokenPolicy castedObject = value as UserTokenPolicy;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy SessionDiagnosticsDataType
-            {
-                SessionDiagnosticsDataType castedObject = value as SessionDiagnosticsDataType;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy ServiceCounterDataType
-            {
-                ServiceCounterDataType castedObject = value as ServiceCounterDataType;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy SessionSecurityDiagnosticsDataType
-            {
-                SessionSecurityDiagnosticsDataType castedObject = value as SessionSecurityDiagnosticsDataType;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy AnonymousIdentityToken
-            {
-                AnonymousIdentityToken castedObject = value as AnonymousIdentityToken;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy EventFilter.
-            {
-                EventFilter castedObject = value as EventFilter;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy DataChangeFilter.
-            {
-                DataChangeFilter castedObject = value as DataChangeFilter;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy SimpleAttributeOperandCollection.
-            {
-                SimpleAttributeOperandCollection castedObject = value as SimpleAttributeOperandCollection;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy SimpleAttributeOperand.
-            {
-                SimpleAttributeOperand castedObject = value as SimpleAttributeOperand;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy QualifiedNameCollection.
-            {
-                QualifiedNameCollection castedObject = value as QualifiedNameCollection;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy ContentFilter.
-            {
-                ContentFilter castedObject = value as ContentFilter;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy ContentFilterElement.
-            {
-                ContentFilterElement castedObject = value as ContentFilterElement;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy ContentFilterElementCollection.
-            {
-                ContentFilterElementCollection castedObject = value as ContentFilterElementCollection;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy SubscriptionDiagnosticsDataType.
-            {
-                SubscriptionDiagnosticsDataType castedObject = value as SubscriptionDiagnosticsDataType;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy UserNameIdentityToken.
-            {
-                UserNameIdentityToken castedObject = value as UserNameIdentityToken;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy ServerStatusDataType.
-            {
-                ServerStatusDataType castedObject = value as ServerStatusDataType;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy BuildInfo.
-            {
-                BuildInfo castedObject = value as BuildInfo;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy X509IdentityToken.
-            {
-                X509IdentityToken castedObject = value as X509IdentityToken;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy Opc.Ua.Range.
-            {
-                Opc.Ua.Range castedObject = value as Opc.Ua.Range;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy Opc.Ua.EUInformation
-            {
-                Opc.Ua.EUInformation castedObject = value as Opc.Ua.EUInformation;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy Opc.Ua.WriteValueCollection
-            {
-                Opc.Ua.WriteValueCollection castedObject = value as Opc.Ua.WriteValueCollection;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy Opc.Ua.WriteValue
-            {
-                Opc.Ua.WriteValue castedObject = value as Opc.Ua.WriteValue;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy Opc.Ua.DataValue
-            {
-                Opc.Ua.DataValue castedObject = value as Opc.Ua.DataValue;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy Opc.Ua.ExpandedNodeId
-            {
-                ExpandedNodeId castedObject = value as ExpandedNodeId;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy Opc.Ua.TimeZoneDataType
-            {
-                TimeZoneDataType castedObject = value as TimeZoneDataType;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy Opc.Ua.LiteralOperand
-            {
-                LiteralOperand castedObject = value as LiteralOperand;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
+                return cloneable.Clone();
             }
 
             //try to find the MemberwiseClone method by reflection.
@@ -2092,6 +1774,7 @@ namespace Opc.Ua
                 object clone = memberwiseCloneMethod.Invoke(value, null);
                 if (clone != null)
                 {
+                    Utils.LogTrace("MemberwiseClone without ICloneable in class '{0}'", type.FullName);
                     return clone;
                 }
             }
@@ -2103,6 +1786,7 @@ namespace Opc.Ua
                 object clone = cloneMethod.Invoke(value, null);
                 if (clone != null)
                 {
+                    Utils.LogTrace("Clone without ICloneable in class '{0}'", type.FullName);
                     return clone;
                 }
             }
@@ -2155,6 +1839,28 @@ namespace Opc.Ua
         }
 
         /// <summary>
+        /// Checks if two DateTime values are equal.
+        /// </summary>
+        public static bool IsEqual(DateTime time1, DateTime time2)
+        {
+            var utcTime1 = Utils.ToOpcUaUniversalTime(time1);
+            var utcTime2 = Utils.ToOpcUaUniversalTime(time2);
+
+            // values smaller than Timebase can not be binary encoded and are considered equal
+            if (utcTime1 <= TimeBase && utcTime2 <= TimeBase)
+            {
+                return true;
+            }
+
+            if (utcTime1 >= DateTime.MaxValue && utcTime2 >= DateTime.MaxValue)
+            {
+                return true;
+            }
+
+            return utcTime1.CompareTo(utcTime2) == 0;
+        }
+
+        /// <summary>
         /// Checks if two values are equal.
         /// </summary>
         public static bool IsEqual(object value1, object value2)
@@ -2189,9 +1895,9 @@ namespace Opc.Ua
             }
 
             // check for DateTime objects
-            if (value1 is DateTime time)
+            if (value1 is DateTime time1)
             {
-                return (Utils.ToOpcUaUniversalTime(time).CompareTo(Utils.ToOpcUaUniversalTime((DateTime)value2))) == 0;
+                return Utils.IsEqual(time1, (DateTime)value2);
             }
 
             // check for compareable objects.
@@ -2245,10 +1951,32 @@ namespace Opc.Ua
                     return false;
                 }
 
-                // compare each element.
-                for (int ii = 0; ii < array1.Length; ii++)
+                // compare the array dimension
+                if (array1.Rank != array2.Rank)
                 {
-                    bool result = Utils.IsEqual(array1.GetValue(ii), array2.GetValue(ii));
+                    return false;
+                }
+
+                // compare each rank.
+                for (int ii = 0; ii < array1.Rank; ii++)
+                {
+                    if (array1.GetLowerBound(ii) != array2.GetLowerBound(ii) ||
+                        array1.GetUpperBound(ii) != array2.GetUpperBound(ii))
+                    {
+                        return false;
+                    }
+                }
+
+                IEnumerator enumerator1 = array1.GetEnumerator();
+                IEnumerator enumerator2 = array2.GetEnumerator();
+
+                // compare each element.
+                while (enumerator1.MoveNext())
+                {
+                    // length is already checked
+                    enumerator2.MoveNext();
+
+                    bool result = Utils.IsEqual(enumerator1.Current, enumerator2.Current);
 
                     if (!result)
                     {
@@ -2884,9 +2612,20 @@ namespace Opc.Ua
         /// </summary>
         public static X509Certificate2 ParseCertificateBlob(byte[] certificateData)
         {
+            // macOS X509Certificate2 constructor throws exception if a certchain is encoded
+            // use AsnParser on macOS to parse for byteblobs,
+            bool useAsnParser = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
             try
             {
-                return CertificateFactory.Create(certificateData, true);
+                if (useAsnParser)
+                {
+                    var certBlob = AsnUtils.ParseX509Blob(certificateData);
+                    return CertificateFactory.Create(certBlob, true);
+                }
+                else
+                {
+                    return CertificateFactory.Create(certificateData, true);
+                }
             }
             catch (Exception e)
             {
@@ -2906,20 +2645,30 @@ namespace Opc.Ua
         {
             X509Certificate2Collection certificateChain = new X509Certificate2Collection();
             List<byte> certificatesBytes = new List<byte>(certificateData);
-            X509Certificate2 certificate = null;
-
+            // macOS X509Certificate2 constructor throws exception if a certchain is encoded
+            // use AsnParser on macOS to parse for byteblobs,
+            bool useAsnParser = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
             while (certificatesBytes.Count > 0)
             {
+                X509Certificate2 certificate;
                 try
                 {
-                    certificate = CertificateFactory.Create(certificatesBytes.ToArray(), true);
+                    if (useAsnParser)
+                    {
+                        var certBlob = AsnUtils.ParseX509Blob(certificatesBytes.ToArray());
+                        certificate = CertificateFactory.Create(certBlob, true);
+                    }
+                    else
+                    {
+                        certificate = CertificateFactory.Create(certificatesBytes.ToArray(), true);
+                    }
                 }
                 catch (Exception e)
                 {
                     throw new ServiceResultException(
-                    StatusCodes.BadCertificateInvalid,
-                    "Could not parse DER encoded form of an X509 certificate.",
-                    e);
+                        StatusCodes.BadCertificateInvalid,
+                        "Could not parse DER encoded form of a X509 certificate.",
+                        e);
                 }
 
                 certificateChain.Add(certificate);
@@ -3167,6 +2916,6 @@ namespace Opc.Ua
         {
             return s_isRunningOnMonoValue.Value;
         }
-        #endregion 
+        #endregion
     }
 }

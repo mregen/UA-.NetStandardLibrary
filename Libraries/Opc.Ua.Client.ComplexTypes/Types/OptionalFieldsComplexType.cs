@@ -1,5 +1,5 @@
 /* ========================================================================
- * Copyright (c) 2005-2020 The OPC Foundation, Inc. All rights reserved.
+ * Copyright (c) 2005-2022 The OPC Foundation, Inc. All rights reserved.
  *
  * OPC Foundation MIT License 1.00
  * 
@@ -58,15 +58,12 @@ namespace Opc.Ua.Client.ComplexTypes
         }
         #endregion Constructors
 
-        #region Public Properties
-
-        /// <summary cref="IStructureTypeInfo.StructureType" />
-        public override StructureType StructureType => StructureType.StructureWithOptionalFields;
-
-        /// <summary>
-        /// The encoding mask for the optional fields.
-        /// </summary>
-        public UInt32 EncodingMask => m_encodingMask;
+        #region ICloneable
+        /// <inheritdoc/>
+        public override object Clone()
+        {
+            return this.MemberwiseClone();
+        }
 
         /// <summary>
         /// Makes a deep copy of the object.
@@ -74,14 +71,24 @@ namespace Opc.Ua.Client.ComplexTypes
         /// <returns>
         /// A new object that is a copy of this instance.
         /// </returns>
-        public override object MemberwiseClone()
+        public new object MemberwiseClone()
         {
             OptionalFieldsComplexType clone = (OptionalFieldsComplexType)base.MemberwiseClone();
             clone.m_encodingMask = m_encodingMask;
             return clone;
         }
+        #endregion
 
-        /// <summary cref="IEncodeable.Encode(IEncoder)" />
+        #region Public Properties
+        /// <inheritdoc/>
+        public override StructureType StructureType => StructureType.StructureWithOptionalFields;
+
+        /// <summary>
+        /// The encoding mask for the optional fields.
+        /// </summary>
+        public UInt32 EncodingMask => m_encodingMask;
+
+        /// <inheritdoc/>
         public override void Encode(IEncoder encoder)
         {
             encoder.PushNamespace(XmlNamespace);
@@ -101,12 +108,12 @@ namespace Opc.Ua.Client.ComplexTypes
                     }
                 }
 
-                EncodeProperty(encoder, property.PropertyInfo, property.ValueRank);
+                EncodeProperty(encoder, property);
             }
             encoder.PopNamespace();
         }
 
-        /// <summary cref="IEncodeable.Decode(IDecoder)" />
+        /// <inheritdoc/>
         public override void Decode(IDecoder decoder)
         {
             decoder.PushNamespace(XmlNamespace);
@@ -123,12 +130,12 @@ namespace Opc.Ua.Client.ComplexTypes
                     }
                 }
 
-                DecodeProperty(decoder, property.PropertyInfo, property.ValueRank);
+                DecodeProperty(decoder, property);
             }
             decoder.PopNamespace();
         }
 
-        /// <summary cref="IEncodeable.IsEqual(IEncodeable)" />
+        /// <inheritdoc/>
         public override bool IsEqual(IEncodeable encodeable)
         {
             if (Object.ReferenceEquals(this, encodeable))
@@ -173,15 +180,7 @@ namespace Opc.Ua.Client.ComplexTypes
         #endregion Public Properties
 
         #region IFormattable Members
-        /// <summary>
-        /// Returns the string representation of the complex type.
-        /// </summary>
-        /// <param name="format">(Unused). Leave this as null</param>
-        /// <param name="formatProvider">The provider of a mechanism for retrieving an object to control formatting.</param>
-        /// <returns>
-        /// A <see cref="System.String"/> containing the value of the current embedded instance in the specified format.
-        /// </returns>
-        /// <exception cref="FormatException">Thrown if the <i>format</i> parameter is not null</exception>
+        /// <inheritdoc/>
         public override string ToString(string format, IFormatProvider formatProvider)
         {
             if (format == null)
@@ -219,9 +218,7 @@ namespace Opc.Ua.Client.ComplexTypes
         #endregion IFormattable Members
 
         #region IComplexTypeProperties Members
-        /// <summary>
-        /// Access property values by index.
-        /// </summary>
+        /// <inheritdoc/>
         public override object this[int index]
         {
             get
@@ -252,14 +249,12 @@ namespace Opc.Ua.Client.ComplexTypes
             }
         }
 
-        /// <summary>
-        /// Access property values by name.
-        /// </summary>
+        /// <inheritdoc/>
         public override object this[string name]
         {
             get
             {
-                ComplexTypePropertyAttribute property;
+                ComplexTypePropertyInfo property;
                 if (m_propertyDict.TryGetValue(name, out property))
                 {
                     if (property.IsOptional &&
@@ -273,7 +268,7 @@ namespace Opc.Ua.Client.ComplexTypes
             }
             set
             {
-                ComplexTypePropertyAttribute property;
+                ComplexTypePropertyInfo property;
                 if (m_propertyDict.TryGetValue(name, out property))
                 {
                     property.SetValue(this, value);

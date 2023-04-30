@@ -440,12 +440,20 @@ namespace Opc.Ua.Server
 
                 if (endpointUrl != null)
                 {
-                    // check the endpointurl
-                    ConfiguredEndpoint configuredEndpoint = new ConfiguredEndpoint() {
-                        EndpointUrl = new Uri(endpointUrl)
-                    };
+                    try
+                    {
+                        // check the endpointurl
+                        ConfiguredEndpoint configuredEndpoint = new ConfiguredEndpoint() {
+                            EndpointUrl = new Uri(endpointUrl)
+                        };
 
-                    CertificateValidator.ValidateDomains(InstanceCertificate, configuredEndpoint);
+                        CertificateValidator.ValidateDomains(InstanceCertificate, configuredEndpoint, true);
+                    }
+                    catch (ServiceResultException sre) when (sre.StatusCode == StatusCodes.BadCertificateHostNameInvalid)
+                    {
+                        Utils.LogWarning("Server - Client connects with an endpointUrl [{0}] which does not match Server hostnames.", endpointUrl);
+                        ServerInternal.ReportAuditUrlMismatchEvent(context?.AuditEntryId, session, revisedSessionTimeout, endpointUrl);
+                    }
                 }
 
                 lock (m_lock)
@@ -456,7 +464,7 @@ namespace Opc.Ua.Server
                         // check if complete chain should be sent.
                         if (Configuration.SecurityConfiguration.SendCertificateChain &&
                             InstanceCertificateChain != null &&
-                            InstanceCertificateChain.Count > 0)
+                            InstanceCertificateChain.Count > 1)
                         {
                             List<byte> serverCertificateChain = new List<byte>();
 
@@ -506,16 +514,8 @@ namespace Opc.Ua.Server
             {
                 Utils.LogError("Server - SESSION CREATE failed. {0}", e.Message);
 
-                if (e.StatusCode == StatusCodes.BadCertificateHostNameInvalid)
-                {
-                    // report the AuditUrlMismatchEvent
-                    ServerInternal.ReportAuditUrlMismatchEvent(context?.AuditEntryId, session, revisedSessionTimeout, endpointUrl);
-                }
-                else
-                {
-                    // report the failed AuditCreateSessionEvent
-                    ServerInternal.ReportAuditCreateSessionEvent(context?.AuditEntryId, session, revisedSessionTimeout, e);
-                }
+                // report the failed AuditCreateSessionEvent
+                ServerInternal.ReportAuditCreateSessionEvent(context?.AuditEntryId, session, revisedSessionTimeout, e);
 
                 if (session != null)
                 {
@@ -2827,18 +2827,21 @@ namespace Opc.Ua.Server
             }
 
             // set server description.
-            serverDescription = new ApplicationDescription();
-
-            serverDescription.ApplicationUri = configuration.ApplicationUri;
-            serverDescription.ApplicationName = new LocalizedText("en-US", configuration.ApplicationName);
-            serverDescription.ApplicationType = configuration.ApplicationType;
-            serverDescription.ProductUri = configuration.ProductUri;
-            serverDescription.DiscoveryUrls = GetDiscoveryUrls();
+            serverDescription = new ApplicationDescription {
+                ApplicationUri = configuration.ApplicationUri,
+                ApplicationName = new LocalizedText("en-US", configuration.ApplicationName),
+                ApplicationType = configuration.ApplicationType,
+                ProductUri = configuration.ProductUri,
+                DiscoveryUrls = GetDiscoveryUrls()
+            };
 
             endpoints = new EndpointDescriptionCollection();
             IList<EndpointDescription> endpointsForHost = null;
 
-            foreach (var scheme in Utils.DefaultUriSchemes)
+            var baseAddresses = configuration.ServerConfiguration.BaseAddresses;
+            var requiredSchemes = Utils.DefaultUriSchemes.Where(scheme => baseAddresses.Any(a => a.StartsWith(scheme, StringComparison.Ordinal)));
+
+            foreach (var scheme in requiredSchemes)
             {
                 var binding = bindingFactory.GetBinding(scheme);
                 if (binding != null)

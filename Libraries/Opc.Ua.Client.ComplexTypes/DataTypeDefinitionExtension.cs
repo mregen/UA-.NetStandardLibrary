@@ -2,7 +2,7 @@
  * Copyright (c) 2005-2020 The OPC Foundation, Inc. All rights reserved.
  *
  * OPC Foundation MIT License 1.00
- * 
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without
@@ -11,7 +11,7 @@
  * copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following
  * conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
@@ -30,6 +30,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
+using System.Runtime.InteropServices;
 using System.Xml;
 
 namespace Opc.Ua.Client.ComplexTypes
@@ -214,17 +216,14 @@ namespace Opc.Ua.Client.ComplexTypes
                         }
                         dataTypeFieldPosition++;
                     }
-                    else
+                    else if (field.SwitchField != null)
                     {
-                        if (field.SwitchField != null)
+                        dataTypeField.IsOptional = true;
+                        byte value;
+                        if (!switchFieldBits.TryGetValue(field.SwitchField, out value))
                         {
-                            dataTypeField.IsOptional = true;
-                            byte value;
-                            if (!switchFieldBits.TryGetValue(field.SwitchField, out value))
-                            {
-                                throw new DataTypeNotSupportedException(
-                                    $"The switch field for {field.SwitchField} does not exist.");
-                            }
+                            throw new DataTypeNotSupportedException(
+                                $"The switch field for {field.SwitchField} does not exist.");
                         }
                     }
                     structureDefinition.Fields.Add(dataTypeField);
@@ -234,6 +233,80 @@ namespace Opc.Ua.Client.ComplexTypes
             return structureDefinition;
         }
 
+        /// <summary>
+        /// Convert a binary schema enumerated type to an enum data type definition
+        /// Available before OPC UA V1.04.
+        /// </summary>
+        public static EnumDefinition ToEnumDefinition(this Schema.Binary.EnumeratedType enumeratedType)
+        {
+            var enumDefinition = new EnumDefinition();
+
+            foreach (var enumValue in enumeratedType.EnumeratedValue)
+            {
+                var enumTypeField = new EnumField
+                {
+                    Name = enumValue.Name,
+                    Value = enumValue.Value,
+                    Description = enumValue.Documentation?.Text?.FirstOrDefault(),
+                    DisplayName = enumValue.Name
+                };
+                enumDefinition.Fields.Add(enumTypeField);
+            }
+
+            return enumDefinition;
+        }
+
+        /// <summary>
+        /// Convert a list of EnumValues to an enum data type definition
+        /// Available before OPC UA V1.04.
+        /// </summary>
+        public static EnumDefinition ToEnumDefinition(this ExtensionObject[] enumValueTypes)
+        {
+            var enumDefinition = new EnumDefinition();
+
+            foreach (var extensionObject in enumValueTypes)
+            {
+                var enumValue = extensionObject.Body as EnumValueType;
+                var name = enumValue.DisplayName.Text;
+
+                var enumTypeField = new EnumField {
+                    Name = name,
+                    Value = enumValue.Value,
+                    DisplayName = name
+                };
+                enumDefinition.Fields.Add(enumTypeField);
+            }
+
+            return enumDefinition;
+        }
+
+        /// <summary>
+        /// Convert a list of EnumValues to an enum data type definition
+        /// Available before OPC UA V1.04.
+        /// </summary>
+        public static EnumDefinition ToEnumDefinition(this LocalizedText[] enumFieldNames)
+        {
+            var enumDefinition = new EnumDefinition();
+
+            for (int ii = 0; ii < enumFieldNames.Length; ii++)
+            {
+                LocalizedText enumFieldName = enumFieldNames[ii];
+                var name = enumFieldName.Text;
+
+                var enumTypeField = new EnumField {
+                    Name = name,
+                    Value = ii,
+                    DisplayName = name
+                };
+
+                enumDefinition.Fields.Add(enumTypeField);
+            }
+
+            return enumDefinition;
+        }
+        #endregion Public Extensions
+
+        #region Private Methods
         /// <summary>
         /// Test for special Bit type used in the binary schema structure definition.
         /// </summary>
@@ -270,8 +343,8 @@ namespace Opc.Ua.Client.ComplexTypes
                 var internalField = typeof(DataTypeIds).GetField(typeName.Name);
                 if (internalField == null)
                 {
-                    throw new DataTypeNotFoundException(
-                        $"The type {typeName.Name} was not found in the internal type factory.");
+                    // The type was not found in the internal type factory.
+                    return NodeId.Null;
                 }
                 return (NodeId)internalField.GetValue(typeName.Name);
             }
@@ -279,13 +352,12 @@ namespace Opc.Ua.Client.ComplexTypes
             {
                 if (!typeCollection.TryGetValue(typeName, out NodeId referenceId))
                 {
-                    throw new DataTypeNotFoundException(
-                        typeName.Name,
-                        $"The type {typeName.Name} in namespace {typeName.Namespace} was not found.");
+                    // The type was not found in the namespace
+                    return NodeId.Null;
                 }
                 return referenceId;
             }
         }
-        #endregion Public Extensions
+        #endregion Private Methods
     }
 }//namespace

@@ -77,7 +77,7 @@ namespace Opc.Ua.Core.Tests.Types.BuiltIn
         /// </summary>
         protected void SetRepeatedRandomSeed()
         {
-            int randomSeed = TestContext.CurrentContext.Random.Next() + kRandomStart;
+            int randomSeed = TestContext.CurrentContext.CurrentRepeatCount + kRandomStart;
             RandomSource = new RandomSource(randomSeed);
             DataGenerator = new DataGenerator(RandomSource);
         }
@@ -234,9 +234,25 @@ namespace Opc.Ua.Core.Tests.Types.BuiltIn
             Assert.NotNull(collection);
             collection = new ExtensionObjectCollection(collection);
             Assert.NotNull(collection);
-            collection = (ExtensionObjectCollection)collection.MemberwiseClone();
+            collection = (ExtensionObjectCollection)Utils.Clone(collection);
             // default value is null
             Assert.Null(TypeInfo.GetDefaultValue(BuiltInType.ExtensionObject));
+        }
+
+        /// <summary>
+        /// Ensure the matrix dimension and order is identical
+        /// after constructor and ToArray is called.
+        /// </summary>
+        [Test]
+        public void MatrixFlatToArray()
+        {
+            var testArray = new int[,,] {
+                { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } },
+                { { 11, 12, 13 }, { 14, 15, 16 }, { 17, 18, 19 } } };
+            var matrix = new Matrix(testArray, TypeInfo.GetBuiltInType(new NodeId((int)BuiltInType.Int32)));
+            var toArray = matrix.ToArray();
+            Assert.AreEqual(testArray, toArray);
+            Assert.True(Utils.IsEqual(testArray, toArray));
         }
         #endregion
 
