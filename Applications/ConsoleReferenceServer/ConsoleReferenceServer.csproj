@@ -6,7 +6,7 @@
     <OutputType>Exe</OutputType>
     <PackageId>ConsoleReferenceServer</PackageId>
     <Company>OPC Foundation</Company>
-    <Description>.NET Console Reference Server</Description>
+    <Description>.NET Console Reference ECC Server</Description>
     <Copyright>Copyright © 2004-2023 OPC Foundation, Inc</Copyright>
     <RootNamespace>Quickstarts</RootNamespace>
     <UserSecretsId>46345736-a30f-4466-b3bb-42548ecfaacc</UserSecretsId>
@@ -42,7 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Quickstarts.ReferenceServer.Config.xml">
+    <None Update="Quickstarts.ReferenceServerECC.Config.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -53,7 +53,7 @@ namespace Quickstarts.ReferenceServer
 
             // The application name and config file names
             var applicationName = Utils.IsRunningOnMono() ? "MonoReferenceServer" : "ConsoleReferenceServer";
-            var configSectionName = Utils.IsRunningOnMono() ? "Quickstarts.MonoReferenceServer" : "Quickstarts.ReferenceServer";
+            var configSectionName = Utils.IsRunningOnMono() ? "Quickstarts.MonoReferenceServerECC" : "Quickstarts.ReferenceServerECC";
 
             // command line options
             bool showHelp = false;
