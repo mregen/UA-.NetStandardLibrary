@@ -116,6 +116,24 @@ namespace MemoryBuffer
             }
         }
 
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            if (obj is MemoryBufferMonitoredItem item)
+            {
+                return item.m_offset == m_offset && base.Equals(obj);
+            }
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(m_offset, base.GetHashCode());
+        }
+
         private uint m_offset;
     }
 }
