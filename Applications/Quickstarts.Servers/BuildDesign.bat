@@ -8,6 +8,8 @@ REM
 REM set MODELCOMPILERIMAGE=ghcr.io/opcf-members/ua-modelcompiler:latest
 
 set MODELCOMPILERIMAGE=ghcr.io/opcfoundation/ua-modelcompiler:2.3.0
+REM private build until the official image is updated
+set MODELCOMPILERIMAGE=ghcr.io/mregen/ua-modelcompiler:latest-docker-nodeset2
 set MODELROOT=.
 
 echo pull latest modelcompiler from github container registry

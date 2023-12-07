@@ -74,8 +74,8 @@
   </TransportQuotas>
   <ServerConfiguration>
     <BaseAddresses>
-      <ua:String>https://mregen10.northamerican.iop.virtual.opcfoundation.org:62540/Quickstarts/ReferenceServer</ua:String>
-      <ua:String>opc.tcp://mregen10.northamerican.iop.virtual.opcfoundation.org:62541/Quickstarts/ReferenceServer</ua:String>
+      <ua:String>opc.https://localhost:62540/Quickstarts/ReferenceServer</ua:String>
+      <ua:String>opc.tcp://localhost:62541/Quickstarts/ReferenceServer</ua:String>
     </BaseAddresses>
     <!-- 
     These list the alternate addresses (via firewalls, multiple NICs etc.) that can be
@@ -88,14 +88,13 @@
     are left out the client make refuse to connect because it has no way to know if the 
     alternate domain was authorized by the server administrator.
     -->
+    <!--
     <AlternateBaseAddresses>
-        <ua:String>http://mregen10/Quickstarts/ReferenceServer</ua:String>
-        <ua:String>http://10.102.15.53/Quickstarts/ReferenceServer</ua:String>
-      <!--
+      <ua:String>http://AlternateHostName/Quickstarts/ReferenceServer</ua:String>
+      <ua:String>http://10.10.103.150/Quickstarts/ReferenceServer</ua:String>
       <ua:String>http://[2a01::626d]/Quickstarts/ReferenceServer</ua:String>
-      -->
     </AlternateBaseAddresses>
-      
+    -->
     <SecurityPolicies>
       <ServerSecurityPolicy>
         <SecurityMode>SignAndEncrypt_3</SecurityMode>
@@ -245,7 +244,7 @@
     <ReverseConnect>
       <Clients>
         <ReverseConnectClient>
-          <EndpointUrl>opc.tcp://ak-thinkpad.northamerican.iop.virtual.opcfoundation.org:55111</EndpointUrl>
+          <EndpointUrl>opc.tcp://localhost:65300</EndpointUrl>
           <MaxSessionCount>0</MaxSessionCount>
           <Enabled>true</Enabled>
         </ReverseConnectClient>
