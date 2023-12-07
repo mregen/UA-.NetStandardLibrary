@@ -14,26 +14,26 @@
     <!-- Where the application instance certificate is stored (MachineDefault) -->
     <ApplicationCertificate>
       <StoreType>Directory</StoreType>
-      <StorePath>%LocalApplicationData%/OPC Foundation/pki/own</StorePath>
+      <StorePath>%DesktopDirectory%/OPC Foundation/pki/own</StorePath>
       <SubjectName>CN=Quickstart Reference Server, C=US, S=Arizona, O=OPC Foundation, DC=localhost</SubjectName>
     </ApplicationCertificate>
 
     <!-- Where the issuer certificate are stored (certificate authorities) -->
     <TrustedIssuerCertificates>
       <StoreType>Directory</StoreType>
-      <StorePath>%LocalApplicationData%/OPC Foundation/pki/issuer</StorePath>
+      <StorePath>%DesktopDirectory%/OPC Foundation/pki/issuer</StorePath>
     </TrustedIssuerCertificates>
 
     <!-- Where the trust list is stored -->
     <TrustedPeerCertificates>
       <StoreType>Directory</StoreType>
-      <StorePath>%LocalApplicationData%/OPC Foundation/pki/trusted</StorePath>
+      <StorePath>%DesktopDirectory%/OPC Foundation/pki/trusted</StorePath>
     </TrustedPeerCertificates>
 
     <!-- The directory used to store invalid certficates for later review by the administrator. -->
     <RejectedCertificateStore>
       <StoreType>Directory</StoreType>
-      <StorePath>%LocalApplicationData%/OPC Foundation/pki/rejected</StorePath>
+      <StorePath>%DesktopDirectory%/OPC Foundation/pki/rejected</StorePath>
     </RejectedCertificateStore>
 
     <!-- WARNING: The following setting (to automatically accept untrusted certificates) should be used
@@ -42,22 +42,22 @@
 
     <!-- WARNING: SHA1 signed certficates are by default rejected and should be phased out. 
        only nano and embedded profiles are allowed to use sha1 signed certificates. -->
-    <RejectSHA1SignedCertificates>true</RejectSHA1SignedCertificates>
-    <RejectUnknownRevocationStatus>true</RejectUnknownRevocationStatus>
-    <MinimumCertificateKeySize>2048</MinimumCertificateKeySize>
+    <RejectSHA1SignedCertificates>false</RejectSHA1SignedCertificates>
+    <RejectUnknownRevocationStatus>false</RejectUnknownRevocationStatus>
+    <MinimumCertificateKeySize>1024</MinimumCertificateKeySize>
     <AddAppCertToTrustedStore>false</AddAppCertToTrustedStore>
     <SendCertificateChain>true</SendCertificateChain>
 
     <!-- Where the User issuer certificates are stored -->
     <UserIssuerCertificates>
       <StoreType>Directory</StoreType>
-      <StorePath>%LocalApplicationData%/OPC Foundation/pki/issuerUser</StorePath>
+      <StorePath>%DesktopDirectory%/OPC Foundation/pki/issuerUser</StorePath>
     </UserIssuerCertificates>
 
     <!-- Where the User trust list is stored-->
     <TrustedUserCertificates>
       <StoreType>Directory</StoreType>
-      <StorePath>%LocalApplicationData%/OPC Foundation/pki/trustedUser</StorePath>
+      <StorePath>%DesktopDirectory%/OPC Foundation/pki/trustedUser</StorePath>
     </TrustedUserCertificates>
   </SecurityConfiguration>
 
@@ -74,8 +74,8 @@
   </TransportQuotas>
   <ServerConfiguration>
     <BaseAddresses>
-      <ua:String>https://localhost:62540/Quickstarts/ReferenceServer</ua:String>
-      <ua:String>opc.tcp://localhost:62541/Quickstarts/ReferenceServer</ua:String>
+      <ua:String>https://mregen10.northamerican.iop.virtual.opcfoundation.org:62540/Quickstarts/ReferenceServer</ua:String>
+      <ua:String>opc.tcp://mregen10.northamerican.iop.virtual.opcfoundation.org:62541/Quickstarts/ReferenceServer</ua:String>
     </BaseAddresses>
     <!-- 
     These list the alternate addresses (via firewalls, multiple NICs etc.) that can be
@@ -88,13 +88,14 @@
     are left out the client make refuse to connect because it has no way to know if the 
     alternate domain was authorized by the server administrator.
     -->
-    <!--
     <AlternateBaseAddresses>
-      <ua:String>http://AlternateHostName/Quickstarts/ReferenceServer</ua:String>
-      <ua:String>http://10.10.103.150/Quickstarts/ReferenceServer</ua:String>
+        <ua:String>http://mregen10/Quickstarts/ReferenceServer</ua:String>
+        <ua:String>http://10.102.15.53/Quickstarts/ReferenceServer</ua:String>
+      <!--
       <ua:String>http://[2a01::626d]/Quickstarts/ReferenceServer</ua:String>
+      -->
     </AlternateBaseAddresses>
-    -->
+      
     <SecurityPolicies>
       <ServerSecurityPolicy>
         <SecurityMode>SignAndEncrypt_3</SecurityMode>
@@ -112,7 +113,7 @@
         <SecurityMode>SignAndEncrypt_3</SecurityMode>
         <SecurityPolicyUri></SecurityPolicyUri>
       </ServerSecurityPolicy>
-      <!-- deprecated security policies for reference only 
+      <!-- deprecated security policies for reference only -->
       <ServerSecurityPolicy>
         <SecurityMode>Sign_2</SecurityMode>
         <SecurityPolicyUri>http://opcfoundation.org/UA/SecurityPolicy#Basic256</SecurityPolicyUri>
@@ -129,7 +130,6 @@
         <SecurityMode>SignAndEncrypt_3</SecurityMode>
         <SecurityPolicyUri>http://opcfoundation.org/UA/SecurityPolicy#Basic128Rsa15</SecurityPolicyUri>
       </ServerSecurityPolicy>
-      -->
     </SecurityPolicies>
 
     <MinRequestThreadCount>5</MinRequestThreadCount>
@@ -245,7 +245,7 @@
     <ReverseConnect>
       <Clients>
         <ReverseConnectClient>
-          <EndpointUrl>opc.tcp://localhost:65300</EndpointUrl>
+          <EndpointUrl>opc.tcp://ak-thinkpad.northamerican.iop.virtual.opcfoundation.org:55111</EndpointUrl>
           <MaxSessionCount>0</MaxSessionCount>
           <Enabled>true</Enabled>
         </ReverseConnectClient>
@@ -255,7 +255,7 @@
       <RejectTimeout>60000</RejectTimeout>
     </ReverseConnect>
     -->
-
+    
     <OperationLimits>
       <MaxNodesPerRead>2500</MaxNodesPerRead>
       <MaxNodesPerHistoryReadData>1000</MaxNodesPerHistoryReadData>
@@ -293,7 +293,7 @@
   </Extensions>
 
   <TraceConfiguration>
-    <OutputFilePath>%LocalApplicationData%/OPC Foundation/Logs/Quickstarts.ReferenceServer.log.txt</OutputFilePath>
+    <OutputFilePath>%DesktopDirectory%/OPC Foundation/Logs/Quickstarts.ReferenceServer.log.txt</OutputFilePath>
     <DeleteOnLoad>true</DeleteOnLoad>
     <!-- Show Only Errors -->
     <!-- <TraceMasks>1</TraceMasks> -->
