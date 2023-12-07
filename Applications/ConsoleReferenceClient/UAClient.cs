@@ -99,7 +99,7 @@ namespace Quickstarts
         /// <summary>
         /// The reconnect period to be used in ms.
         /// </summary>
-        public int ReconnectPeriod { get; set; } = 5000;
+        public int ReconnectPeriod { get; set; } = 1000;
 
         /// <summary>
         /// The reconnect period exponential backoff to be used in ms.
@@ -178,8 +178,10 @@ namespace Quickstarts
                     EndpointConfiguration endpointConfiguration = EndpointConfiguration.Create(m_configuration);
                     ConfiguredEndpoint endpoint = new ConfiguredEndpoint(null, endpointDescription, endpointConfiguration);
 
+                    var sessionFactory = TraceableSessionFactory.Instance;
+
                     // Create the session
-                    var session = await Opc.Ua.Client.Session.Create(
+                    var session = await sessionFactory.CreateAsync(
                         m_configuration,
                         connection,
                         endpoint,
@@ -268,7 +270,7 @@ namespace Quickstarts
             try
             {
                 // check for events from discarded sessions.
-                if (!Object.ReferenceEquals(session, m_session))
+                if (!m_session.Equals(session))
                 {
                     return;
                 }
@@ -291,6 +293,9 @@ namespace Quickstarts
                     {
                         Utils.LogInfo("KeepAlive status {0}, reconnect status {1}.", e.Status, state);
                     }
+
+                    // cancel sending a new keep alive request, because reconnect is triggered.
+                    e.CancelKeepAlive = true;
 
                     return;
                 }
@@ -374,7 +379,7 @@ namespace Quickstarts
         #endregion
 
         #region Private Fields
-        private object m_lock = new object();
+        private readonly object m_lock = new object();
         private ReverseConnectManager m_reverseConnectManager;
         private ApplicationConfiguration m_configuration;
         private SessionReconnectHandler m_reconnectHandler;
