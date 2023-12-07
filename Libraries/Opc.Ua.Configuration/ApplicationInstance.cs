@@ -695,44 +695,45 @@ namespace Opc.Ua.Configuration
                         keySize,
                         minimumKeySize);
 
-                if (!await ApplicationInstance.ApproveMessageAsync(message, silent).ConfigureAwait(false))
-                {
-                    return false;
+                    if (!await ApplicationInstance.ApproveMessageAsync(message, silent).ConfigureAwait(false))
+                    {
+                        return false;
+                    }
                 }
-            }
 
-            // check domains.
-            if (configuration.ApplicationType != ApplicationType.Client)
-            {
-                if (!await ApplicationInstance.CheckDomainsInCertificateAsync(configuration, certificate, silent, ct).ConfigureAwait(false))
+                // check domains.
+                if (configuration.ApplicationType != ApplicationType.Client)
                 {
-                    return false;
+                    if (!await ApplicationInstance.CheckDomainsInCertificateAsync(configuration, certificate, silent, ct).ConfigureAwait(false))
+                    {
+                        return false;
+                    }
                 }
-            }
 
-            // check uri.
-            string applicationUri = X509Utils.GetApplicationUriFromCertificate(certificate);
+                // check uri.
+                string applicationUri = X509Utils.GetApplicationUriFromCertificate(certificate);
 
-            if (String.IsNullOrEmpty(applicationUri))
-            {
-                string message = "The Application URI could not be read from the certificate. Use certificate anyway?";
-                if (!await ApplicationInstance.ApproveMessageAsync(message, silent).ConfigureAwait(false))
+                if (String.IsNullOrEmpty(applicationUri))
                 {
-                    return false;
+                    string message = "The Application URI could not be read from the certificate. Use certificate anyway?";
+                    if (!await ApplicationInstance.ApproveMessageAsync(message, silent).ConfigureAwait(false))
+                    {
+                        return false;
+                    }
                 }
+                else if (!configuration.ApplicationUri.Equals(applicationUri, StringComparison.Ordinal))
+                {
+                    Utils.LogInfo("Updated the ApplicationUri: {0} --> {1}", configuration.ApplicationUri, applicationUri);
+                    configuration.ApplicationUri = applicationUri;
+                }
+
+                Utils.LogInfo("Using the ApplicationUri: {0}", applicationUri);
+
+                // update configuration.
+                id.Certificate = certificate;
+
+                return true;
             }
-            else if (!configuration.ApplicationUri.Equals(applicationUri, StringComparison.Ordinal))
-            {
-                Utils.LogInfo("Updated the ApplicationUri: {0} --> {1}", configuration.ApplicationUri, applicationUri);
-                configuration.ApplicationUri = applicationUri;
-            }
-
-            Utils.LogInfo("Using the ApplicationUri: {0}", applicationUri);
-
-            // update configuration.
-            id.Certificate = certificate;
-
-            return true;
         }
 
         /// <summary>
@@ -875,6 +876,7 @@ namespace Opc.Ua.Configuration
                 id.Certificate = builder
                     .SetRSAKeySize(keySize)
                     .CreateForRSA();
+            }
 
             // need id for password provider
             id.Certificate = certificate;

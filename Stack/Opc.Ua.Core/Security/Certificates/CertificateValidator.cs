@@ -180,7 +180,7 @@ namespace Opc.Ua
         /// <summary>
         /// Updates the validator with the current state of the configuration.
         /// </summary>
-        public virtual Task Update(SecurityConfiguration configuration)
+        public virtual async Task Update(SecurityConfiguration configuration)
         {
             if (configuration == null)
             {
@@ -230,11 +230,6 @@ namespace Opc.Ua
                 // TODO
             }
             */
-
-            if (configuration.ApplicationCertificate != null)
-            {
-                m_applicationCertificate = await configuration.ApplicationCertificate.Find(true).ConfigureAwait(false);
-            }
         }
 
         /// <summary>
@@ -887,7 +882,7 @@ namespace Opc.Ua
 
                 if (validationErrors != null)
                 {
-                    (issuer, revocationStatus) = await GetIssuerNoException(certificate, m_trustedCertificateList, m_trustedCertificateStore, true).ConfigureAwait(false);
+                    (issuer, revocationStatus) = await GetIssuerNoExceptionAsync(certificate, m_trustedCertificateList, m_trustedCertificateStore, true).ConfigureAwait(false);
                 }
                 else
                 {
@@ -898,7 +893,7 @@ namespace Opc.Ua
                 {
                     if (validationErrors != null)
                     {
-                        (issuer, revocationStatus) = await GetIssuerNoException(certificate, m_issuerCertificateList, m_issuerCertificateStore, true).ConfigureAwait(false);
+                        (issuer, revocationStatus) = await GetIssuerNoExceptionAsync(certificate, m_issuerCertificateList, m_issuerCertificateStore, true).ConfigureAwait(false);
                     }
                     else
                     {
