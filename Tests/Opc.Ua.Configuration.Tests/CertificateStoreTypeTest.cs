@@ -238,7 +238,12 @@ namespace Opc.Ua.Configuration.Tests
 
         /// <inheritdoc/>
         public Task<X509Certificate2> LoadPrivateKey(string thumbprint, string subjectName, string password)
+#pragma warning disable CS0618 // Type or member is obsolete
             => m_innerStore.LoadPrivateKey(thumbprint, subjectName, password);
+#pragma warning restore CS0618 // Type or member is obsolete
+
+        public Task<X509Certificate2> LoadPrivateKey(string thumbprint, string subjectName, NodeId certificateType, string password)
+            => m_innerStore.LoadPrivateKey(thumbprint, subjectName, certificateType, password);
 
         public static int InstancesCreated => s_instancesCreated;
 
