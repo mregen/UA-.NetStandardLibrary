@@ -79,9 +79,7 @@ namespace Opc.Ua
                     continue;
                 }
 
-                DataChangeNotification notification = extension.Body as DataChangeNotification;
-
-                if (notification == null)
+                if (!(extension.Body is DataChangeNotification notification))
                 {
                     continue;
                 }
@@ -131,9 +129,7 @@ namespace Opc.Ua
                     continue;
                 }
 
-                EventNotificationList notification = extension.Body as EventNotificationList;
-
-                if (notification == null)
+                if (!(extension.Body is EventNotificationList notification))
                 {
                     continue;
                 }
