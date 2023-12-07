@@ -2,7 +2,7 @@
  * Copyright (c) 2005-2023 The OPC Foundation, Inc. All rights reserved.
  *
  * OPC Foundation MIT License 1.00
- * 
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without
@@ -11,7 +11,7 @@
  * copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following
  * conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
@@ -31,6 +31,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -273,6 +274,22 @@ namespace Opc.Ua.Client
         public bool CheckDomain => m_session.CheckDomain;
 
         /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj)) return true;
+            // Presume that the wrapper is being compared to the
+            // wrapped object, e.g. in a keep alive callback.
+            if (ReferenceEquals(m_session, obj)) return true;
+            return m_session?.Equals(obj) ?? false;
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode()
+        {
+            return m_session?.GetHashCode() ?? base.GetHashCode();
+        }
+
+        /// <inheritdoc/>
         public void Reconnect()
         {
             using (Activity activity = ActivitySource.StartActivity(nameof(Reconnect)))
@@ -300,47 +317,74 @@ namespace Opc.Ua.Client
         }
 
         /// <inheritdoc/>
-        public void Save(string filePath)
+        public async Task ReconnectAsync(CancellationToken ct = default)
         {
-            using (Activity activity = ActivitySource.StartActivity(nameof(Save)))
+            using (Activity activity = ActivitySource.StartActivity(nameof(ReconnectAsync)))
             {
-                m_session.Save(filePath);
+                await m_session.ReconnectAsync(ct).ConfigureAwait(false);
             }
         }
 
         /// <inheritdoc/>
-        public void Save(Stream stream, IEnumerable<Subscription> subscriptions)
+        public async Task ReconnectAsync(ITransportWaitingConnection connection, CancellationToken ct = default)
         {
-            using (Activity activity = ActivitySource.StartActivity(nameof(Save)))
+            using (Activity activity = ActivitySource.StartActivity(nameof(ReconnectAsync)))
             {
-                m_session.Save(stream, subscriptions);
+                await m_session.ReconnectAsync(connection, ct).ConfigureAwait(false);
             }
         }
 
         /// <inheritdoc/>
-        public void Save(string filePath, IEnumerable<Subscription> subscriptions)
+        public async Task ReconnectAsync(ITransportChannel channel, CancellationToken ct = default)
         {
-            using (Activity activity = ActivitySource.StartActivity(nameof(Save)))
+            using (Activity activity = ActivitySource.StartActivity(nameof(ReconnectAsync)))
             {
-                m_session.Save(filePath, subscriptions);
+                await m_session.ReconnectAsync(channel, ct).ConfigureAwait(false);
             }
         }
 
         /// <inheritdoc/>
-        public IEnumerable<Subscription> Load(Stream stream, bool transferSubscriptions = false)
+        public void Save(string filePath, IEnumerable<Type> knownTypes = null)
+        {
+            using (Activity activity = ActivitySource.StartActivity(nameof(Save)))
+            {
+                m_session.Save(filePath, knownTypes);
+            }
+        }
+
+        /// <inheritdoc/>
+        public void Save(Stream stream, IEnumerable<Subscription> subscriptions, IEnumerable<Type> knownTypes = null)
+        {
+            using (Activity activity = ActivitySource.StartActivity(nameof(Save)))
+            {
+                m_session.Save(stream, subscriptions, knownTypes);
+            }
+        }
+
+        /// <inheritdoc/>
+        public void Save(string filePath, IEnumerable<Subscription> subscriptions, IEnumerable<Type> knownTypes = null)
+        {
+            using (Activity activity = ActivitySource.StartActivity(nameof(Save)))
+            {
+                m_session.Save(filePath, subscriptions, knownTypes);
+            }
+        }
+
+        /// <inheritdoc/>
+        public IEnumerable<Subscription> Load(Stream stream, bool transferSubscriptions = false, IEnumerable<Type> knownTypes = null)
         {
             using (Activity activity = ActivitySource.StartActivity(nameof(Load)))
             {
-                return m_session.Load(stream, transferSubscriptions);
+                return m_session.Load(stream, transferSubscriptions, knownTypes);
             }
         }
 
         /// <inheritdoc/>
-        public IEnumerable<Subscription> Load(string filePath, bool transferSubscriptions = false)
+        public IEnumerable<Subscription> Load(string filePath, bool transferSubscriptions = false, IEnumerable<Type> knownTypes = null)
         {
             using (Activity activity = ActivitySource.StartActivity(nameof(Load)))
             {
-                return m_session.Load(filePath, transferSubscriptions);
+                return m_session.Load(filePath, transferSubscriptions, knownTypes);
             }
         }
 
@@ -372,6 +416,24 @@ namespace Opc.Ua.Client
         }
 
         /// <inheritdoc/>
+        public async Task FetchTypeTreeAsync(ExpandedNodeId typeId, CancellationToken ct = default)
+        {
+            using (Activity activity = ActivitySource.StartActivity(nameof(FetchTypeTree)))
+            {
+                await m_session.FetchTypeTreeAsync(typeId, ct).ConfigureAwait(false);
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task FetchTypeTreeAsync(ExpandedNodeIdCollection typeIds, CancellationToken ct = default)
+        {
+            using (Activity activity = ActivitySource.StartActivity(nameof(FetchTypeTree)))
+            {
+                await m_session.FetchTypeTreeAsync(typeIds, ct).ConfigureAwait(false);
+            }
+        }
+
+        /// <inheritdoc/>
         public ReferenceDescriptionCollection ReadAvailableEncodings(NodeId variableId)
         {
             using (Activity activity = ActivitySource.StartActivity(nameof(ReadAvailableEncodings)))
@@ -390,29 +452,29 @@ namespace Opc.Ua.Client
         }
 
         /// <inheritdoc/>
-        public async Task<DataDictionary> FindDataDictionary(NodeId descriptionId)
+        public async Task<DataDictionary> FindDataDictionary(NodeId descriptionId, CancellationToken ct = default)
         {
             using (Activity activity = ActivitySource.StartActivity(nameof(FindDataDictionary)))
             {
-                return await m_session.FindDataDictionary(descriptionId).ConfigureAwait(false);
+                return await m_session.FindDataDictionary(descriptionId, ct).ConfigureAwait(false);
             }
         }
 
         /// <inheritdoc/>
-        public async Task<DataDictionary> LoadDataDictionary(ReferenceDescription dictionaryNode, bool forceReload = false)
+        public DataDictionary LoadDataDictionary(ReferenceDescription dictionaryNode, bool forceReload = false)
         {
             using (Activity activity = ActivitySource.StartActivity(nameof(LoadDataDictionary)))
             {
-                return await m_session.LoadDataDictionary(dictionaryNode, forceReload).ConfigureAwait(false);
+                return m_session.LoadDataDictionary(dictionaryNode, forceReload);
             }
         }
 
         /// <inheritdoc/>
-        public async Task<Dictionary<NodeId, DataDictionary>> LoadDataTypeSystem(NodeId dataTypeSystem = null)
+        public async Task<Dictionary<NodeId, DataDictionary>> LoadDataTypeSystem(NodeId dataTypeSystem = null, CancellationToken ct = default)
         {
             using (Activity activity = ActivitySource.StartActivity(nameof(LoadDataTypeSystem)))
             {
-                return await m_session.LoadDataTypeSystem(dataTypeSystem).ConfigureAwait(false);
+                return await m_session.LoadDataTypeSystem(dataTypeSystem, ct).ConfigureAwait(false);
             }
         }
 
@@ -498,6 +560,24 @@ namespace Opc.Ua.Client
         }
 
         /// <inheritdoc/>
+        public async Task<ReferenceDescriptionCollection> FetchReferencesAsync(NodeId nodeId, CancellationToken ct)
+        {
+            using (Activity activity = ActivitySource.StartActivity(nameof(FetchReferencesAsync)))
+            {
+                return await m_session.FetchReferencesAsync(nodeId, ct).ConfigureAwait(false);
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<(IList<ReferenceDescriptionCollection>, IList<ServiceResult>)> FetchReferencesAsync(IList<NodeId> nodeIds, CancellationToken ct)
+        {
+            using (Activity activity = ActivitySource.StartActivity(nameof(FetchReferencesAsync)))
+            {
+                return await m_session.FetchReferencesAsync(nodeIds, ct).ConfigureAwait(false);
+            }
+        }
+
+        /// <inheritdoc/>
         public void Open(string sessionName, IUserIdentity identity)
         {
             using (Activity activity = ActivitySource.StartActivity(nameof(Open)))
@@ -568,6 +648,44 @@ namespace Opc.Ua.Client
                 m_session.ReadDisplayName(nodeIds, out displayNames, out errors);
             }
         }
+
+        /// <inheritdoc/>
+        public async Task OpenAsync(string sessionName, IUserIdentity identity, CancellationToken ct)
+        {
+            using (Activity activity = ActivitySource.StartActivity(nameof(OpenAsync)))
+            {
+                await m_session.OpenAsync(sessionName, identity, ct).ConfigureAwait(false);
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task OpenAsync(string sessionName, uint sessionTimeout, IUserIdentity identity, IList<string> preferredLocales, CancellationToken ct)
+        {
+            using (Activity activity = ActivitySource.StartActivity(nameof(OpenAsync)))
+            {
+                await m_session.OpenAsync(sessionName, sessionTimeout, identity, preferredLocales, ct).ConfigureAwait(false);
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task OpenAsync(string sessionName, uint sessionTimeout, IUserIdentity identity, IList<string> preferredLocales, bool checkDomain, CancellationToken ct)
+        {
+            using (Activity activity = ActivitySource.StartActivity(nameof(OpenAsync)))
+            {
+                await m_session.OpenAsync(sessionName, sessionTimeout, identity, preferredLocales, checkDomain, ct).ConfigureAwait(false);
+            }
+        }
+
+
+        /// <inheritdoc/>
+        public async Task FetchNamespaceTablesAsync(CancellationToken ct = default)
+        {
+            using (Activity activity = ActivitySource.StartActivity(nameof(FetchNamespaceTablesAsync)))
+            {
+                await m_session.FetchNamespaceTablesAsync(ct).ConfigureAwait(false);
+            }
+        }
+
         /// <inheritdoc/>
         public async Task<(IList<Node>, IList<ServiceResult>)> ReadNodesAsync(IList<NodeId> nodeIds, NodeClass nodeClass, bool optionalAttributes = false, CancellationToken ct = default)
         {
@@ -811,6 +929,15 @@ namespace Opc.Ua.Client
             using (Activity activity = ActivitySource.StartActivity(nameof(Republish)))
             {
                 return m_session.Republish(subscriptionId, sequenceNumber);
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<bool> RepublishAsync(uint subscriptionId, uint sequenceNumber, CancellationToken ct = default)
+        {
+            using (Activity activity = ActivitySource.StartActivity(nameof(RepublishAsync)))
+            {
+                return await m_session.RepublishAsync(subscriptionId, sequenceNumber, ct).ConfigureAwait(false);
             }
         }
 
