@@ -423,7 +423,7 @@ namespace Opc.Ua.Bindings
 
             if (securityPolicyUri != null)
             {
-                headerSize += new UTF8Encoding().GetByteCount(securityPolicyUri);
+                headerSize += Encoding.UTF8.GetByteCount(securityPolicyUri);
             }
 
             headerSize += TcpMessageLimits.StringLengthSize;
@@ -462,7 +462,7 @@ namespace Opc.Ua.Bindings
 
             if (securityPolicyUri != null)
             {
-                headerSize += new UTF8Encoding().GetByteCount(securityPolicyUri);
+                headerSize += Encoding.UTF8.GetByteCount(securityPolicyUri);
             }
 
             headerSize += TcpMessageLimits.StringLengthSize;
@@ -622,7 +622,7 @@ namespace Opc.Ua.Bindings
 
             if (securityPolicyUri != null)
             {
-                occupiedSize += new UTF8Encoding().GetByteCount(securityPolicyUri);   //security policy uri size
+                occupiedSize += Encoding.UTF8.GetByteCount(securityPolicyUri);   //security policy uri size
             }
 
             occupiedSize += TcpMessageLimits.StringLengthSize; //SenderCertificateLength
@@ -666,12 +666,13 @@ namespace Opc.Ua.Bindings
             BufferCollection chunksToSend = new BufferCollection();
 
             byte[] buffer = BufferManager.TakeBuffer(SendBufferSize, "WriteAsymmetricMessage");
+            BinaryEncoder encoder = null;
 
             try
             {
-                BinaryEncoder encoder = new BinaryEncoder(buffer, 0, SendBufferSize, Quotas.MessageContext);
-                int headerSize = 0;
+                encoder = new BinaryEncoder(buffer, 0, SendBufferSize, Quotas.MessageContext);
 
+                int headerSize = 0;
                 if (senderCertificateChain != null && senderCertificateChain.Count > 0)
                 {
                     int senderCertificateSize = 0;
@@ -830,9 +831,11 @@ namespace Opc.Ua.Bindings
                     // reset the encoder to write the plaintext for the next chunk into the same buffer.
                     if (bytesToWrite > 0)
                     {
+                        Utils.SilentDispose(encoder);
+                        // ostrm is disposed by the encoder.
                         MemoryStream ostrm = new MemoryStream(buffer, 0, SendBufferSize);
                         ostrm.Seek(header.Count, SeekOrigin.Current);
-                        encoder = new BinaryEncoder(ostrm, Quotas.MessageContext);
+                        encoder = new BinaryEncoder(ostrm, Quotas.MessageContext, false);
                     }
                 }
 
@@ -842,10 +845,12 @@ namespace Opc.Ua.Bindings
             }
             catch (Exception ex)
             {
-                throw new Exception("Could not write async message", ex);
+                throw new ServiceResultException("Could not write async message", ex);
             }
             finally
             {
+                Utils.SilentDispose(encoder);
+
                 BufferManager.ReturnBuffer(buffer, "WriteAsymmetricMessage");
 
                 if (!success)
@@ -1061,9 +1066,7 @@ namespace Opc.Ua.Bindings
             // validate the sender certificate.
             if (senderCertificate != null && Quotas.CertificateValidator != null && securityPolicyUri != SecurityPolicies.None)
             {
-                CertificateValidator certificateValidator = Quotas.CertificateValidator as CertificateValidator;
-
-                if (certificateValidator != null)
+                if (Quotas.CertificateValidator is CertificateValidator certificateValidator)
                 {
                     certificateValidator.Validate(senderCertificateChain);
                 }
