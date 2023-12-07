@@ -855,7 +855,6 @@ namespace Opc.Ua.Gds.Client
             uint fileHandle = (uint)outputArguments[0];
             using (MemoryStream ostrm = new MemoryStream())
             {
-
                 try
                 {
                     while (true)

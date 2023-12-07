@@ -977,7 +977,7 @@ namespace Opc.Ua
                         return -1;
                     }
 
-                    if (this.IsNullNodeId && expandedId.InnerNodeId.IsNullNodeId)
+                    if (this.IsNullNodeId && (expandedId.InnerNodeId != null) && expandedId.InnerNodeId.IsNullNodeId)
                     {
                         return 0;
                     }
@@ -988,8 +988,23 @@ namespace Opc.Ua
                 }
                 else if (obj != null)
                 {
-                    // can not compare to unknown object type
-                    return -1;
+                    Guid? guid2 = obj as Guid?;
+                    Uuid? uuid2 = obj as Uuid?;
+                    if (guid2 != null || uuid2 != null)
+                    {
+                        if (namespaceIndex != 0 || idType != IdType.Guid)
+                        {
+                            return -1;
+                        }
+
+                        idType = IdType.Guid;
+                        id = m_identifier;
+                    }
+                    else
+                    {
+                        // can not compare to unknown object type
+                        return -1;
+                    }
                 }
             }
 
@@ -1528,9 +1543,7 @@ namespace Opc.Ua
 
                     case IdType.String:
                     {
-                        string text = nonNull as string;
-
-                        if (text != null && text.Length == 0)
+                        if (nonNull is string text && text.Length == 0)
                         {
                             return 0;
                         }
@@ -1540,9 +1553,7 @@ namespace Opc.Ua
 
                     case IdType.Opaque:
                     {
-                        byte[] bytes = nonNull as byte[];
-
-                        if (bytes != null && bytes.Length == 0)
+                        if (nonNull is byte[] bytes && bytes.Length == 0)
                         {
                             return 0;
                         }
@@ -1554,13 +1565,10 @@ namespace Opc.Ua
                 return (id1 == null) ? -1 : +1;
             }
 
-            byte[] bytes1 = id1 as byte[];
 
-            if (bytes1 != null)
+            if (id1 is byte[] bytes1)
             {
-                byte[] bytes2 = id2 as byte[];
-
-                if (bytes2 == null)
+                if (!(id2 is byte[] bytes2))
                 {
                     return +1;
                 }
@@ -1584,9 +1592,8 @@ namespace Opc.Ua
                 return 0;
             }
 
-            IComparable comparable1 = id1 as IComparable;
 
-            if (comparable1 != null)
+            if (id1 is IComparable comparable1)
             {
                 return comparable1.CompareTo(id2);
             }

@@ -35,7 +35,7 @@ namespace Opc.Ua
         /// <summary>
         /// Limits the recursion depth for the InnerDiagnosticInfo field.
         /// </summary>
-        public const int MaxInnerDepth = 5;
+        public static readonly int MaxInnerDepth = 5;
 
         #region Constructors
         /// <summary>
@@ -506,9 +506,8 @@ namespace Opc.Ua
                 return true;
             }
 
-            DiagnosticInfo value = obj as DiagnosticInfo;
 
-            if (value != null)
+            if (obj is DiagnosticInfo value)
             {
 
                 if (this.m_symbolicId != value.m_symbolicId)

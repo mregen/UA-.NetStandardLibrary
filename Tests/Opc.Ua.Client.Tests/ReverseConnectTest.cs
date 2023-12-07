@@ -95,6 +95,7 @@ namespace Opc.Ua.Client.Tests
         [OneTimeTearDown]
         public new Task OneTimeTearDownAsync()
         {
+            Utils.SilentDispose(ClientFixture);
             return base.OneTimeTearDownAsync();
         }
 
@@ -140,11 +141,16 @@ namespace Opc.Ua.Client.Tests
                     m_endpointUrl, null, cancellationTokenSource.Token).ConfigureAwait(false);
                 Assert.NotNull(connection, "Failed to get connection.");
             }
-            var endpointConfiguration = EndpointConfiguration.Create();
-            endpointConfiguration.OperationTimeout = MaxTimeout;
-            using (DiscoveryClient client = DiscoveryClient.Create(config, connection, endpointConfiguration))
+
+            using (var cancellationTokenSource = new CancellationTokenSource(MaxTimeout))
             {
-                Endpoints = client.GetEndpoints(null);
+                var endpointConfiguration = EndpointConfiguration.Create();
+                endpointConfiguration.OperationTimeout = MaxTimeout;
+                using (DiscoveryClient client = DiscoveryClient.Create(config, connection, endpointConfiguration))
+                {
+                    Endpoints = await client.GetEndpointsAsync(null, cancellationTokenSource.Token).ConfigureAwait(false);
+                    await client.CloseAsync(cancellationTokenSource.Token).ConfigureAwait(false);
+                }
             }
         }
 
@@ -164,7 +170,7 @@ namespace Opc.Ua.Client.Tests
         }
 
         [Theory, Order(300)]
-        public async Task ReverseConnect(string securityPolicy)
+        public async Task ReverseConnect(string securityPolicy, bool traceableSession)
         {
             // ensure endpoints are available
             await RequireEndpoints().ConfigureAwait(false);
@@ -187,11 +193,7 @@ namespace Opc.Ua.Client.Tests
             Assert.NotNull(endpoint);
 
             // connect
-#if NET6_0_OR_GREATER
-            var sessionfactory = TraceableSessionFactory.Instance;
-#else
-            var sessionfactory = DefaultSessionFactory.Instance;
-#endif
+            var sessionfactory = traceableSession ? TraceableSessionFactory.Instance : TestableSessionFactory.Instance;
             var session = await sessionfactory.CreateAsync(config, connection, endpoint, false, false, "Reverse Connect Client",
                 MaxTimeout, new UserIdentity(new AnonymousIdentityToken()), null).ConfigureAwait(false);
             Assert.NotNull(session);
@@ -213,7 +215,7 @@ namespace Opc.Ua.Client.Tests
         }
 
         [Theory, Order(301)]
-        public async Task ReverseConnect2(bool updateBeforeConnect, bool checkDomain)
+        public async Task ReverseConnect2(bool updateBeforeConnect, bool checkDomain, bool traceableSession)
         {
             string securityPolicy = SecurityPolicies.Basic256Sha256;
 
@@ -231,11 +233,7 @@ namespace Opc.Ua.Client.Tests
             Assert.NotNull(endpoint);
 
             // connect
-#if NET6_0_OR_GREATER
-            var sessionfactory = TraceableSessionFactory.Instance;
-#else
-            var sessionfactory = DefaultSessionFactory.Instance;
-#endif
+            var sessionfactory = traceableSession ? TraceableSessionFactory.Instance : TestableSessionFactory.Instance;
             var session = await sessionfactory.CreateAsync(config, ClientFixture.ReverseConnectManager, endpoint, updateBeforeConnect, checkDomain, "Reverse Connect Client",
                 MaxTimeout, new UserIdentity(new AnonymousIdentityToken()), null).ConfigureAwait(false);
 
