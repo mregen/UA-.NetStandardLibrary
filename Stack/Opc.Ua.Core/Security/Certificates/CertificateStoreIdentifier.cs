@@ -52,11 +52,7 @@ namespace Opc.Ua
         /// </returns>
         public string ToString(string format, IFormatProvider formatProvider)
         {
-            if (!String.IsNullOrEmpty(format))
-            {
-                throw new FormatException();
-            }
-
+            if (format != null) throw new FormatException(Utils.Format("Invalid format string: '{0}'.", format));
             return ToString();
         }
         #endregion
@@ -234,14 +230,22 @@ namespace Opc.Ua
         #endregion
 
         #region Internal Methods
-        internal static ICertificateStoreType GetCertificateStoreTypeByName(string storeTypeName)
+        /// <summary>
+        /// Returns the registered type for a custom certificate store.
+        /// </summary>
+        /// <param name="storeTypeName"></param>
+        /// <returns></returns>
+        public static ICertificateStoreType GetCertificateStoreTypeByName(string storeTypeName)
         {
             ICertificateStoreType result;
             s_registeredStoreTypes.TryGetValue(storeTypeName, out result);
             return result;
         }
 
-        internal static IReadOnlyCollection<string> RegisteredStoreTypeNames => s_registeredStoreTypes.Keys;
+        /// <summary>
+        /// Returns the collection of registered certificate store keys.
+        /// </summary>
+        public static IReadOnlyCollection<string> RegisteredStoreTypeNames => s_registeredStoreTypes.Keys;
         #endregion 
 
         #region Data Members
