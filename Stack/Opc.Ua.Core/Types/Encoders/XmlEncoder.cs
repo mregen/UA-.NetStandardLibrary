@@ -573,7 +573,7 @@ namespace Opc.Ua
                     }
 
                     StringBuilder buffer = new StringBuilder();
-                    NodeId.Format(buffer, value.Identifier, value.IdType, namespaceIndex);
+                    NodeId.Format(CultureInfo.InvariantCulture, buffer, value.Identifier, value.IdType, namespaceIndex);
                     WriteString("Identifier", buffer.ToString());
                 }
 
@@ -609,7 +609,7 @@ namespace Opc.Ua
                     }
 
                     StringBuilder buffer = new StringBuilder();
-                    ExpandedNodeId.Format(buffer, value.Identifier, value.IdType, namespaceIndex, value.NamespaceUri, serverIndex);
+                    ExpandedNodeId.Format(CultureInfo.InvariantCulture, buffer, value.Identifier, value.IdType, namespaceIndex, value.NamespaceUri, serverIndex);
                     WriteString("Identifier", buffer.ToString());
                 }
 
@@ -895,7 +895,7 @@ namespace Opc.Ua
                 if (value != null)
                 {
                     var valueSymbol = value.ToString();
-                    var valueInt32 = Convert.ToInt32(value, CultureInfo.InvariantCulture).ToString();
+                    var valueInt32 = Convert.ToInt32(value, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture);
                     if (valueSymbol != valueInt32)
                     {
                         m_writer.WriteString(Utils.Format("{0}_{1}", valueSymbol, valueInt32));
@@ -969,7 +969,7 @@ namespace Opc.Ua
         }
 
         /// <summary>
-        /// Writes a sbyte array to the stream.
+        /// Writes a byte array to the stream.
         /// </summary>
         public void WriteByteArray(string fieldName, IList<byte> values)
         {

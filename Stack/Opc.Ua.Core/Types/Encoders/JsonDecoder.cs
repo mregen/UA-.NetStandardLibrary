@@ -2196,7 +2196,7 @@ namespace Opc.Ua
         /// Reads an encodeable array from the stream.
         /// </summary>
         /// <param name="fieldName">The encodeable array field name</param>
-        /// <param name="systemType">The system type of the encopdeable objects to be read object</param>
+        /// <param name="systemType">The system type of the encodeable objects to be read object</param>
         /// <param name="encodeableTypeId">The TypeId for the <see cref="IEncodeable"/> instances that will be read.</param>
         /// <returns>An <see cref="IEncodeable"/> array that was read from the stream.</returns>
         public Array ReadEncodeableArray(string fieldName, System.Type systemType, ExpandedNodeId encodeableTypeId = null)
@@ -2463,7 +2463,7 @@ namespace Opc.Ua
                             int ii = 0;
                             foreach (var element in elements)
                             {
-                                newElements.SetValue(Convert.ChangeType(element, systemType), ii++);
+                                newElements.SetValue(Convert.ChangeType(element, systemType, CultureInfo.InvariantCulture), ii++);
                             }
                             matrix = new Matrix(newElements, builtInType, dimensions.ToArray());
                         }
@@ -2480,7 +2480,7 @@ namespace Opc.Ua
                             Array newElements = Array.CreateInstance(systemType, elements.Count);
                             for (int i = 0; i < elements.Count; i++)
                             {
-                                newElements.SetValue(Convert.ChangeType(elements[i], systemType), i);
+                                newElements.SetValue(Convert.ChangeType(elements[i], systemType, CultureInfo.InvariantCulture), i);
                             }
                             matrix = new Matrix(newElements, builtInType, dimensions.ToArray());
                             break;
@@ -2501,7 +2501,7 @@ namespace Opc.Ua
                             Array newElements = Array.CreateInstance(systemType, elements.Count);
                             for (int i = 0; i < elements.Count; i++)
                             {
-                                newElements.SetValue(Convert.ChangeType(elements[i], systemType), i);
+                                newElements.SetValue(Convert.ChangeType(elements[i], systemType, CultureInfo.InvariantCulture), i);
                             }
                             matrix = new Matrix(newElements, builtInType, dimensions.ToArray());
                             break;

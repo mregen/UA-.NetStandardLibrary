@@ -29,7 +29,7 @@ namespace Opc.Ua
     {
         #region Constructors
         /// <summary>
-        /// Initializes the instance with its defalt attribute values.
+        /// Initializes the instance with its default attribute values.
         /// </summary>
         public BaseObjectState(NodeState parent) : base(NodeClass.Object, parent)
         {
@@ -240,12 +240,12 @@ namespace Opc.Ua
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="decoder">The decoder.</param>
-        /// <param name="attibutesToLoad">The attributes to load.</param>
-        public override void Update(ISystemContext context, BinaryDecoder decoder, AttributesToSave attibutesToLoad)
+        /// <param name="attributesToLoad">The attributes to load.</param>
+        public override void Update(ISystemContext context, BinaryDecoder decoder, AttributesToSave attributesToLoad)
         {
-            base.Update(context, decoder, attibutesToLoad);
+            base.Update(context, decoder, attributesToLoad);
 
-            if ((attibutesToLoad & AttributesToSave.EventNotifier) != 0)
+            if ((attributesToLoad & AttributesToSave.EventNotifier) != 0)
             {
                 m_eventNotifier = decoder.ReadByte(null);
             }
@@ -269,9 +269,11 @@ namespace Opc.Ua
                 {
                     byte eventNotifier = m_eventNotifier;
 
-                    if (OnReadEventNotifier != null)
+                    NodeAttributeEventHandler<byte> readEventNotifier = OnReadEventNotifier;
+
+                    if (readEventNotifier != null)
                     {
-                        result = OnReadEventNotifier(context, this, ref eventNotifier);
+                        result = readEventNotifier(context, this, ref eventNotifier);
                     }
 
                     if (ServiceResult.IsGood(result))
@@ -316,9 +318,11 @@ namespace Opc.Ua
 
                     byte eventNotifier = eventNotifierRef.Value;
 
-                    if (OnWriteEventNotifier != null)
+                    NodeAttributeEventHandler<byte> writeEventNotifier = OnWriteEventNotifier;
+
+                    if (writeEventNotifier != null)
                     {
-                        result = OnWriteEventNotifier(context, this, ref eventNotifier);
+                        result = writeEventNotifier(context, this, ref eventNotifier);
                     }
 
                     if (ServiceResult.IsGood(result))
@@ -346,7 +350,7 @@ namespace Opc.Ua
     {
         #region Constructors
         /// <summary>
-        /// Initializes the instance with its defalt attribute values.
+        /// Initializes the instance with its default attribute values.
         /// </summary>
         public FolderState(NodeState parent) : base(parent)
         {
