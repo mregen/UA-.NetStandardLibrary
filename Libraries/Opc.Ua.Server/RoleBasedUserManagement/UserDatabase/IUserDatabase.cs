@@ -28,32 +28,33 @@
  * ======================================================================*/
 
 using System;
+using System.Collections.Generic;
 using System.Security;
 
-namespace Opc.Ua.Gds.Server.Database
+namespace Opc.Ua.Server.UserDatabase
 {
     /// <summary>
-    /// An abstract interface to the user database which stores logins
+    /// An abstract interface to the user database which stores logins with associated Roles
     /// </summary>
-    public interface IUsersDatabase
+    public interface IUserDatabase
     {
         /// <summary>
         /// Initialize User Database
         /// </summary>
         void Initialize();
         /// <summary>
-        /// Register new GDS User
+        /// Register new user
         /// </summary>
         /// <param name="userName">the username</param>
         /// <param name="password">the password</param>
-        /// <param name="role">the GdsRole of the new User</param>
-        /// <returns>true if registered sucessfull</returns>
-        bool CreateUser(string userName, string password, GdsRole role);
+        /// <param name="roles">the role of the new user</param>
+        /// <returns>true if registered successfull</returns>
+        bool CreateUser(string userName, string password, IEnumerable<Role> roles);
         /// <summary>
-        /// Delete existring GDS user
+        /// Delete existing user
         /// </summary>
         /// <param name="userName">the user to delete</param>
-        /// <returns>true if deleted sucessfully</returns>
+        /// <returns>true if deleted successfully</returns>
         bool DeleteUser(string userName);
         /// <summary>
         /// checks if the provided credentials fit a user
@@ -66,16 +67,16 @@ namespace Opc.Ua.Gds.Server.Database
         /// returns the Role of the provided user
         /// </summary>
         /// <param name="userName"></param>
-        /// <returns>the GdsRole of the provided users</returns>
+        /// <returns>the Role of the provided users</returns>
         /// <exception cref="ArgumentException">When the user is not found</exception>
-        GdsRole GetUserRole(string userName);
+        IEnumerable<Role> GetUserRoles(string userName);
         /// <summary>
         /// changes the password of an existing users
         /// </summary>
         /// <param name="userName"></param>
         /// <param name="oldPassword"></param>
         /// <param name="newPassword"></param>
-        /// <returns>true if change was sucessfull</returns>
+        /// <returns>true if change was successfull</returns>
         bool ChangePassword(string userName, string oldPassword, string newPassword);
     }
 }

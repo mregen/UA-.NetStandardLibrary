@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace Opc.Ua
 {
@@ -23,7 +24,7 @@ namespace Opc.Ua
     {
         #region Constructors
         /// <summary>
-        /// Creates a node from a reference desciption.
+        /// Creates a node from a reference description.
         /// </summary>
         /// <param name="reference">The reference.</param>
         public Node(ReferenceDescription reference)
@@ -95,7 +96,7 @@ namespace Opc.Ua
 
         #region Public Properties
         /// <summary>
-        /// An opaque handle that can be assoociated with the node.
+        /// An opaque handle that can be associated with the node.
         /// </summary>
         /// <value>The handle.</value>
         public object Handle
@@ -126,7 +127,7 @@ namespace Opc.Ua
                     return m_browseName.Name;
                 }
 
-                return Utils.Format("(unknown {0})", ((NodeClass)m_nodeClass).ToString().ToLower());
+                return Utils.Format("(unknown {0})", ((NodeClass)m_nodeClass).ToString().ToLower(CultureInfo.InvariantCulture));
             }
 
             throw new FormatException(Utils.Format("Invalid format string: '{0}'.", format));
@@ -500,7 +501,7 @@ namespace Opc.Ua
         /// Returns a string representation of the HierarchyBrowsePath.
         /// </summary>
         /// <returns>
-        /// A <see cref="T:System.String"/> that represents the current <see cref="T:System.Object"/>.
+        /// A <see cref="System.String"/> that represents the current <see cref="System.Object"/>.
         /// </returns>
         public override string ToString()
         {

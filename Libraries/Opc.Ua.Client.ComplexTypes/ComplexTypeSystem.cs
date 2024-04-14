@@ -225,7 +225,7 @@ namespace Opc.Ua.Client.ComplexTypes
         /// - Load the binary schema dictionaries with type definitions.
         /// - Create all remaining enumerated custom types using the dictionaries.
         /// - Convert all structured types in the dictionaries to the DataTypeDefinion attribute, if possible.
-        /// - Create all structured types from the dictionaries using the converted DataTypeDefinion attribute..
+        /// - Create all structured types from the dictionaries using the converted DataTypeDefinion attribute.
         /// </remarks>
         /// <returns>true if all DataTypes were loaded.</returns>
         public async Task<bool> Load(bool onlyEnumTypes = false, bool throwOnError = false, CancellationToken ct = default)
@@ -334,7 +334,7 @@ namespace Opc.Ua.Client.ComplexTypes
         internal bool DisableDataTypeDefinition { get; set; } = false;
 
         /// <summary>
-        /// Disable the use of DataType Dictinaries to create the complex type definition.
+        /// Disable the use of DataType Dictionaries to create the complex type definition.
         /// </summary>
         internal bool DisableDataTypeDictionary { get; set; } = false;
         #endregion Internal Properties

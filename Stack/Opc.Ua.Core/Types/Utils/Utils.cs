@@ -132,7 +132,7 @@ namespace Opc.Ua
         /// <summary>
         /// The default LocalFolder.
         /// </summary>
-        public static readonly string DefaultLocalFolder = Directory.GetCurrentDirectory();
+        public static string DefaultLocalFolder { get; set; } = Directory.GetCurrentDirectory();
 
         /// <summary>
         /// The full name of the Opc.Ua.Core assembly.
@@ -316,7 +316,7 @@ namespace Opc.Ua
             {
                 try
                 {
-                    output = String.Format(CultureInfo.InvariantCulture, message, args);
+                    output = string.Format(CultureInfo.InvariantCulture, message, args);
                 }
                 catch (Exception)
                 {
@@ -1029,7 +1029,7 @@ namespace Opc.Ua
 
         #region String, Object and Data Convienence Functions
         /// <summary>
-        /// Supresses any exceptions while disposing the object.
+        /// Suppresses any exceptions while disposing the object.
         /// </summary>
         /// <remarks>
         /// Writes errors to trace output in DEBUG builds.
@@ -1041,7 +1041,7 @@ namespace Opc.Ua
         }
 
         /// <summary>
-        /// Supresses any exceptions while disposing the object.
+        /// Suppresses any exceptions while disposing the object.
         /// </summary>
         /// <remarks>
         /// Writes errors to trace output in DEBUG builds.
@@ -1584,7 +1584,7 @@ namespace Opc.Ua
         {
             if (source != null)
             {
-                return String.Format(CultureInfo.InvariantCulture, "{0}", source);
+                return string.Format(CultureInfo.InvariantCulture, "{0}", source);
             }
 
             return String.Empty;
@@ -1595,7 +1595,7 @@ namespace Opc.Ua
         /// </summary>
         public static string Format(string text, params object[] args)
         {
-            return String.Format(CultureInfo.InvariantCulture, text, args);
+            return string.Format(CultureInfo.InvariantCulture, text, args);
         }
 
         /// <summary>
@@ -1875,6 +1875,95 @@ namespace Opc.Ua
         }
 
         /// <summary>
+        /// Checks if two T values are equal based on IEquatable compare.
+        /// </summary>
+        public static bool IsEqual<T>(T value1, T value2) where T : IEquatable<T>
+        {
+            // check for reference equality.
+            if (Object.ReferenceEquals(value1, value2))
+            {
+                return true;
+            }
+
+            if (Object.ReferenceEquals(value1, null))
+            {
+                if (!Object.ReferenceEquals(value2, null))
+                {
+                    return value2.Equals(value1);
+                }
+
+                return true;
+            }
+
+            // use IEquatable comparer
+            return value1.Equals(value2);
+        }
+
+        /// <summary>
+        /// Checks if two IEnumerable T values are equal.
+        /// </summary>
+        public static bool IsEqual<T>(IEnumerable<T> value1, IEnumerable<T> value2) where T : IEquatable<T>
+        {
+            // check for reference equality.
+            if (Object.ReferenceEquals(value1, value2))
+            {
+                return true;
+            }
+
+            if (Object.ReferenceEquals(value1, null) || Object.ReferenceEquals(value2, null))
+            {
+                return false;
+            }
+
+            return value1.SequenceEqual(value2);
+        }
+
+        /// <summary>
+        /// Checks if two T[] values are equal.
+        /// </summary>
+        public static bool IsEqual<T>(T[] value1, T[] value2) where T : unmanaged, IEquatable<T>
+        {
+            // check for reference equality.
+            if (Object.ReferenceEquals(value1, value2))
+            {
+                return true;
+            }
+
+            if (Object.ReferenceEquals(value1, null) || Object.ReferenceEquals(value2, null))
+            {
+                return false;
+            }
+
+            return value1.SequenceEqual(value2);
+        }
+
+#if NETFRAMEWORK
+        [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int memcmp(byte[] b1, byte[] b2, long count);
+
+        /// <summary>
+        /// Fast memcpy version of byte[] compare. 
+        /// </summary>
+        public static bool IsEqual(byte[] value1, byte[] value2)
+        {
+            // check for reference equality.
+            if (Object.ReferenceEquals(value1, value2))
+            {
+                return true;
+            }
+
+            if (Object.ReferenceEquals(value1, null) || Object.ReferenceEquals(value2, null))
+            {
+                return false;
+            }
+
+            // Validate buffers are the same length.
+            // This also ensures that the count does not exceed the length of either buffer.  
+            return value1.Length == value2.Length && memcmp(value1, value2, value1.Length) == 0;
+        }
+#endif
+
+        /// <summary>
         /// Checks if two values are equal.
         /// </summary>
         public static bool IsEqual(object value1, object value2)
@@ -1886,9 +1975,9 @@ namespace Opc.Ua
             }
 
             // check for null values.
-            if (value1 == null)
+            if (Object.ReferenceEquals(value1, null))
             {
-                if (value2 != null)
+                if (!Object.ReferenceEquals(value2, null))
                 {
                     return value2.Equals(value1);
                 }
@@ -1897,12 +1986,12 @@ namespace Opc.Ua
             }
 
             // check for null values.
-            if (value2 == null)
+            if (Object.ReferenceEquals(value2, null))
             {
                 return value1.Equals(value2);
             }
 
-            // check that data types are the same.
+            // check that data types are not the same.
             if (value1.GetType() != value2.GetType())
             {
                 return value1.Equals(value2);
@@ -1915,14 +2004,12 @@ namespace Opc.Ua
             }
 
             // check for compareable objects.
-
             if (value1 is IComparable comparable1)
             {
                 return comparable1.CompareTo(value2) == 0;
             }
 
             // check for encodeable objects.
-
             if (value1 is IEncodeable encodeable1)
             {
                 if (!(value2 is IEncodeable encodeable2))
@@ -1934,7 +2021,6 @@ namespace Opc.Ua
             }
 
             // check for XmlElement objects.
-
             if (value1 is XmlElement element1)
             {
                 if (!(value2 is XmlElement element2))
@@ -1946,7 +2032,6 @@ namespace Opc.Ua
             }
 
             // check for arrays.
-
             if (value1 is Array array1)
             {
                 // arrays are greater than non-arrays.
@@ -1975,6 +2060,16 @@ namespace Opc.Ua
                     {
                         return false;
                     }
+                }
+
+                // handle byte[] special case fast
+                if (array1 is byte[] byteArray1 && array2 is byte[] byteArray2)
+                {
+#if NETFRAMEWORK
+                    return memcmp(byteArray1, byteArray2, byteArray1.Length) == 0;
+#else
+                    return byteArray1.SequenceEqual(byteArray2);
+#endif
                 }
 
                 IEnumerator enumerator1 = array1.GetEnumerator();
@@ -2434,7 +2529,7 @@ namespace Opc.Ua
                 extensions.Add(document.DocumentElement);
             }
         }
-        #endregion
+#endregion
 
         #region Reflection Helper Functions
         /// <summary>

@@ -242,9 +242,9 @@ namespace Opc.Ua
         }
 
         /// <summary>
-        /// Replace the Event Id of a branch, usually due to an Acknowledgment
+        /// Replace the Event Id of a branch, usually due to an Acknowledgement
         /// </summary>
-        /// <param name="originalEventId">Event Id prior to the Acknowledgment</param>
+        /// <param name="originalEventId">Event Id prior to the Acknowledgement</param>
         /// <param name="alarm">Branch, containing the updated EventId to be stored</param>
         protected void ReplaceBranchEvent(byte[] originalEventId, ConditionState alarm)
         {
@@ -672,7 +672,7 @@ namespace Opc.Ua
         /// Does any processing before a condition is enabled or disabled.
         /// </summary>
         /// <param name="context">The system context.</param>
-        /// <param name="enabling">True is the condition is being enabled.</param>
+        /// <param name="enabling">True if the condition is being enabled.</param>
         protected virtual ServiceResult ProcessBeforeEnableDisable(ISystemContext context, bool enabling)
         {
             if (enabling && this.EnabledState.Id.Value)

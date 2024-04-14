@@ -658,16 +658,13 @@ namespace Opc.Ua.Client
                 {
                     EventFieldList eventchange = newValue as EventFieldList;
 
-                    if (m_eventCache != null)
+                    if (eventchange != null)
                     {
-                        m_eventCache.OnNotification(eventchange);
+                        m_eventCache?.OnNotification(eventchange);
                     }
                 }
 
-                if (m_Notification != null)
-                {
-                    m_Notification(this, new MonitoredItemNotificationEventArgs(newValue));
-                }
+                m_Notification?.Invoke(this, new MonitoredItemNotificationEventArgs(newValue));
             }
         }
         #endregion
@@ -1290,7 +1287,7 @@ namespace Opc.Ua.Client
     }
 
     /// <summary>
-    /// Saves the events received from the srever.
+    /// Saves the events received from the server.
     /// </summary>
     public class MonitoredItemEventCache
     {

@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -372,13 +373,13 @@ namespace Opc.Ua
         /// <summary>
         /// The encoding to use when the deserializing/serializing the body.
         /// </summary>
-        /// <value>The encoding for the embedd object.</value>
+        /// <value>The encoding for the embedded object.</value>
         public ExtensionObjectEncoding Encoding => m_encoding;
 
         /// <summary>
-        /// The body (embeded object) of the extension object.
+        /// The body (embedded object) of the extension object.
         /// </summary>
-        /// <value>The object to be embeded.</value>
+        /// <value>The object to be embedded.</value>
         /// <remarks>
         /// The body of the extension object. This property will work with objects of the
         /// following types:
@@ -421,7 +422,7 @@ namespace Opc.Ua
                 {
                     throw new ServiceResultException(
                         StatusCodes.BadNotSupported,
-                        Utils.Format("Cannot add a object with type '{0}' to an extension object.", m_body.GetType().FullName));
+                        Utils.Format("Cannot add an object with type '{0}' to an extension object.", m_body.GetType().FullName));
                 }
             }
         }
@@ -433,7 +434,7 @@ namespace Opc.Ua
         /// </summary>
         /// <param name="obj">The object to compare to this instance of object</param>
         /// <returns>
-        /// true if the specified <see cref="T:System.Object"/> is equal to the current embeded object; otherwise, false.
+        /// true if the specified <see cref="T:System.Object"/> is equal to the current embedded object; otherwise, false.
         /// </returns>
         public override bool Equals(object obj)
         {
@@ -462,10 +463,10 @@ namespace Opc.Ua
         }
 
         /// <summary>
-        /// Returns a unique hashcode for the embeded object.
+        /// Returns a unique hashcode for the embedded object.
         /// </summary>
         /// <returns>
-        /// A hash code for the current embeded object.
+        /// A hash code for the current embedded object.
         /// </returns>
         public override int GetHashCode()
         {
@@ -496,12 +497,12 @@ namespace Opc.Ua
 
         #region IFormattable Members
         /// <summary>
-        /// Returns the string representation of the embededobject.
+        /// Returns the string representation of the embeddedobject.
         /// </summary>
         /// <param name="format">(Unused). Leave this as null</param>
         /// <param name="formatProvider">The provider of a mechanism for retrieving an object to control formatting.</param>
         /// <returns>
-        /// A <see cref="T:System.String"/> containing the value of the current embeded instance in the specified format.
+        /// A <see cref="System.String"/> containing the value of the current embedded instance in the specified format.
         /// </returns>
         /// <exception cref="FormatException">Thrown if the <i>format</i> parameter is not null</exception>
         public string ToString(string format, IFormatProvider formatProvider)
@@ -510,17 +511,17 @@ namespace Opc.Ua
             {
                 if (m_body is byte[] byteString)
                 {
-                    return String.Format(formatProvider, "Byte[{0}]", byteString.Length);
+                    return string.Format(formatProvider, "Byte[{0}]", byteString.Length);
                 }
 
                 if (m_body is XmlElement element)
                 {
-                    return String.Format(formatProvider, "<{0}>", element.Name);
+                    return string.Format(formatProvider, "<{0}>", element.Name);
                 }
 
                 if (m_body is IFormattable formattable)
                 {
-                    return String.Format(formatProvider, "{0}", formattable.ToString(null, formatProvider));
+                    return string.Format(formatProvider, "{0}", formattable.ToString(null, formatProvider));
                 }
 
                 if (m_body is IEncodeable)
@@ -546,7 +547,7 @@ namespace Opc.Ua
                                     body.Append(" | ");
                                 }
 
-                                body.AppendFormat("{0}", property.GetGetMethod().Invoke(m_body, null));
+                                body.AppendFormat(formatProvider, "{0}", property.GetGetMethod().Invoke(m_body, null));
                             }
                         }
                     }
@@ -556,12 +557,12 @@ namespace Opc.Ua
                         body.Append('}');
                     }
 
-                    return String.Format(formatProvider, "{0}", body);
+                    return string.Format(formatProvider, "{0}", body);
                 }
 
                 if (!NodeId.IsNull(this.m_typeId))
                 {
-                    return String.Format(formatProvider, "{{{0}}}", this.m_typeId);
+                    return string.Format(formatProvider, "{{{0}}}", this.m_typeId);
                 }
 
                 return "(null)";
@@ -592,11 +593,11 @@ namespace Opc.Ua
 
         #region Static Members
         /// <summary>
-        /// Tests if the extension or embedd objects are null value.
+        /// Tests if the extension or embed objects are null value.
         /// </summary>
         /// <param name="extension">The object to check if null</param>
         /// <returns>
-        /// 	<c>true</c> if the specified <paramref name="extension"/> is null of the embeded object is null; otherwise, <c>false</c>.
+        /// 	<c>true</c> if the specified <paramref name="extension"/> is null of the embedded object is null; otherwise, <c>false</c>.
         /// </returns>
         /// <remarks>
         /// Tests is the  extension object is null value.
@@ -615,7 +616,7 @@ namespace Opc.Ua
         /// Converts an extension object to an encodeable object.
         /// </summary>
         /// <param name="extension">The extension object to convert to an encodeable object</param>
-        /// <returns>Instance of <see cref="IEncodeable"/> for the embeded object.</returns>
+        /// <returns>Instance of <see cref="IEncodeable"/> for the embedded object.</returns>
         /// <remarks>
         /// Converts an extension object to an encodeable object.
         /// </remarks>
