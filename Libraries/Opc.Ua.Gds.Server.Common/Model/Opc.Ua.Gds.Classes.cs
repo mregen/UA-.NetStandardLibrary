@@ -1,5 +1,5 @@
 /* ========================================================================
- * Copyright (c) 2005-2020 The OPC Foundation, Inc. All rights reserved.
+ * Copyright (c) 2005-2024 The OPC Foundation, Inc. All rights reserved.
  *
  * OPC Foundation MIT License 1.00
  * 
@@ -38,44 +38,33 @@ namespace Opc.Ua.Gds
 {
     #region FindApplicationsMethodState Class
     #if (!OPCUA_EXCLUDE_FindApplicationsMethodState)
-    /// <summary>
-    /// Stores an instance of the FindApplicationsMethodType Method.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class FindApplicationsMethodState : MethodState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public FindApplicationsMethodState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Constructs an instance of a node.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <returns>The new node.</returns>
+        /// <remarks />
         public new static NodeState Construct(NodeState parent)
         {
             return new FindApplicationsMethodState(parent);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -86,17 +75,15 @@ namespace Opc.Ua.Gds
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYYIKBAAAAAEAGgAAAEZp" +
            "bmRBcHBsaWNhdGlvbnNNZXRob2RUeXBlAQECAAAvAQECAAIAAAABAf////8CAAAAF2CpCgIAAAAAAA4A" +
            "AABJbnB1dEFyZ3VtZW50cwEBAwAALgBEAwAAAJYBAAAAAQAqAQEdAAAADgAAAEFwcGxpY2F0aW9uVXJp" +
-           "AAz/////AAAAAAABACgBAQAAAAEAAAAAAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJn" +
+           "AAz/////AAAAAAABACgBAQAAAAEAAAABAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJn" +
            "dW1lbnRzAQEEAAAuAEQEAAAAlgEAAAABACoBASEAAAAMAAAAQXBwbGljYXRpb25zAQEBAAEAAAABAAAA" +
-           "AAAAAAABACgBAQAAAAEAAAAAAAAAAQH/////AAAAAA==";
+           "AAAAAAABACgBAQAAAAEAAAABAAAAAQH/////AAAAAA==";
         #endregion
         #endif
         #endregion
 
         #region Event Callbacks
-        /// <summary>
-        /// Raised when the the method is called.
-        /// </summary>
+        /// <remarks />
         public FindApplicationsMethodStateMethodCallHandler OnCall;
         #endregion
 
@@ -104,9 +91,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Invokes the method, returns the result and output argument.
-        /// </summary>
+        /// <remarks />
         protected override ServiceResult Call(
             ISystemContext _context,
             NodeId _objectId,
@@ -118,7 +103,7 @@ namespace Opc.Ua.Gds
                 return base.Call(_context, _objectId, _inputArguments, _outputArguments);
             }
 
-            ServiceResult result = null;
+            ServiceResult _result = null;
 
             string applicationUri = (string)_inputArguments[0];
 
@@ -126,7 +111,7 @@ namespace Opc.Ua.Gds
 
             if (OnCall != null)
             {
-                result = OnCall(
+                _result = OnCall(
                     _context,
                     this,
                     _objectId,
@@ -136,7 +121,7 @@ namespace Opc.Ua.Gds
 
             _outputArguments[0] = applications;
 
-            return result;
+            return _result;
         }
         #endregion
 
@@ -144,14 +129,12 @@ namespace Opc.Ua.Gds
         #endregion
     }
 
-    /// <summary>
-    /// Used to receive notifications when the method is called.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     public delegate ServiceResult FindApplicationsMethodStateMethodCallHandler(
-        ISystemContext context,
-        MethodState method,
-        NodeId objectId,
+        ISystemContext _context,
+        MethodState _method,
+        NodeId _objectId,
         string applicationUri,
         ref ApplicationRecordDataType[] applications);
     #endif
@@ -159,44 +142,33 @@ namespace Opc.Ua.Gds
 
     #region RegisterApplicationMethodState Class
     #if (!OPCUA_EXCLUDE_RegisterApplicationMethodState)
-    /// <summary>
-    /// Stores an instance of the RegisterApplicationMethodType Method.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class RegisterApplicationMethodState : MethodState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public RegisterApplicationMethodState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Constructs an instance of a node.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <returns>The new node.</returns>
+        /// <remarks />
         public new static NodeState Construct(NodeState parent)
         {
             return new RegisterApplicationMethodState(parent);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -207,17 +179,15 @@ namespace Opc.Ua.Gds
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYYIKBAAAAAEAHQAAAFJl" +
            "Z2lzdGVyQXBwbGljYXRpb25NZXRob2RUeXBlAQEFAAAvAQEFAAUAAAABAf////8CAAAAF2CpCgIAAAAA" +
            "AA4AAABJbnB1dEFyZ3VtZW50cwEBBgAALgBEBgAAAJYBAAAAAQAqAQEcAAAACwAAAEFwcGxpY2F0aW9u" +
-           "AQEBAP////8AAAAAAAEAKAEBAAAAAQAAAAAAAAABAf////8AAAAAF2CpCgIAAAAAAA8AAABPdXRwdXRB" +
+           "AQEBAP////8AAAAAAAEAKAEBAAAAAQAAAAEAAAABAf////8AAAAAF2CpCgIAAAAAAA8AAABPdXRwdXRB" +
            "cmd1bWVudHMBAQcAAC4ARAcAAACWAQAAAAEAKgEBHAAAAA0AAABBcHBsaWNhdGlvbklkABH/////AAAA" +
-           "AAABACgBAQAAAAEAAAAAAAAAAQH/////AAAAAA==";
+           "AAABACgBAQAAAAEAAAABAAAAAQH/////AAAAAA==";
         #endregion
         #endif
         #endregion
 
         #region Event Callbacks
-        /// <summary>
-        /// Raised when the the method is called.
-        /// </summary>
+        /// <remarks />
         public RegisterApplicationMethodStateMethodCallHandler OnCall;
         #endregion
 
@@ -225,9 +195,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Invokes the method, returns the result and output argument.
-        /// </summary>
+        /// <remarks />
         protected override ServiceResult Call(
             ISystemContext _context,
             NodeId _objectId,
@@ -239,7 +207,7 @@ namespace Opc.Ua.Gds
                 return base.Call(_context, _objectId, _inputArguments, _outputArguments);
             }
 
-            ServiceResult result = null;
+            ServiceResult _result = null;
 
             ApplicationRecordDataType application = (ApplicationRecordDataType)ExtensionObject.ToEncodeable((ExtensionObject)_inputArguments[0]);
 
@@ -247,7 +215,7 @@ namespace Opc.Ua.Gds
 
             if (OnCall != null)
             {
-                result = OnCall(
+                _result = OnCall(
                     _context,
                     this,
                     _objectId,
@@ -257,7 +225,7 @@ namespace Opc.Ua.Gds
 
             _outputArguments[0] = applicationId;
 
-            return result;
+            return _result;
         }
         #endregion
 
@@ -265,14 +233,12 @@ namespace Opc.Ua.Gds
         #endregion
     }
 
-    /// <summary>
-    /// Used to receive notifications when the method is called.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     public delegate ServiceResult RegisterApplicationMethodStateMethodCallHandler(
-        ISystemContext context,
-        MethodState method,
-        NodeId objectId,
+        ISystemContext _context,
+        MethodState _method,
+        NodeId _objectId,
         ApplicationRecordDataType application,
         ref NodeId applicationId);
     #endif
@@ -280,44 +246,33 @@ namespace Opc.Ua.Gds
 
     #region UpdateApplicationMethodState Class
     #if (!OPCUA_EXCLUDE_UpdateApplicationMethodState)
-    /// <summary>
-    /// Stores an instance of the UpdateApplicationMethodType Method.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class UpdateApplicationMethodState : MethodState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public UpdateApplicationMethodState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Constructs an instance of a node.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <returns>The new node.</returns>
+        /// <remarks />
         public new static NodeState Construct(NodeState parent)
         {
             return new UpdateApplicationMethodState(parent);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -328,15 +283,13 @@ namespace Opc.Ua.Gds
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYYIKBAAAAAEAGwAAAFVw" +
            "ZGF0ZUFwcGxpY2F0aW9uTWV0aG9kVHlwZQEBugAALwEBugC6AAAAAQH/////AQAAABdgqQoCAAAAAAAO" +
            "AAAASW5wdXRBcmd1bWVudHMBAbsAAC4ARLsAAACWAQAAAAEAKgEBHAAAAAsAAABBcHBsaWNhdGlvbgEB" +
-           "AQD/////AAAAAAABACgBAQAAAAEAAAAAAAAAAQH/////AAAAAA==";
+           "AQD/////AAAAAAABACgBAQAAAAEAAAABAAAAAQH/////AAAAAA==";
         #endregion
         #endif
         #endregion
 
         #region Event Callbacks
-        /// <summary>
-        /// Raised when the the method is called.
-        /// </summary>
+        /// <remarks />
         public UpdateApplicationMethodStateMethodCallHandler OnCall;
         #endregion
 
@@ -344,9 +297,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Invokes the method, returns the result and output argument.
-        /// </summary>
+        /// <remarks />
         protected override ServiceResult Call(
             ISystemContext _context,
             NodeId _objectId,
@@ -358,20 +309,20 @@ namespace Opc.Ua.Gds
                 return base.Call(_context, _objectId, _inputArguments, _outputArguments);
             }
 
-            ServiceResult result = null;
+            ServiceResult _result = null;
 
             ApplicationRecordDataType application = (ApplicationRecordDataType)ExtensionObject.ToEncodeable((ExtensionObject)_inputArguments[0]);
 
             if (OnCall != null)
             {
-                result = OnCall(
+                _result = OnCall(
                     _context,
                     this,
                     _objectId,
                     application);
             }
 
-            return result;
+            return _result;
         }
         #endregion
 
@@ -379,58 +330,45 @@ namespace Opc.Ua.Gds
         #endregion
     }
 
-    /// <summary>
-    /// Used to receive notifications when the method is called.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     public delegate ServiceResult UpdateApplicationMethodStateMethodCallHandler(
-        ISystemContext context,
-        MethodState method,
-        NodeId objectId,
+        ISystemContext _context,
+        MethodState _method,
+        NodeId _objectId,
         ApplicationRecordDataType application);
     #endif
     #endregion
 
     #region UnregisterApplicationMethodState Class
     #if (!OPCUA_EXCLUDE_UnregisterApplicationMethodState)
-    /// <summary>
-    /// Stores an instance of the UnregisterApplicationMethodType Method.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class UnregisterApplicationMethodState : MethodState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public UnregisterApplicationMethodState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Constructs an instance of a node.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <returns>The new node.</returns>
+        /// <remarks />
         public new static NodeState Construct(NodeState parent)
         {
             return new UnregisterApplicationMethodState(parent);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -441,15 +379,13 @@ namespace Opc.Ua.Gds
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYYIKBAAAAAEAHwAAAFVu" +
            "cmVnaXN0ZXJBcHBsaWNhdGlvbk1ldGhvZFR5cGUBAQgAAC8BAQgACAAAAAEB/////wEAAAAXYKkKAgAA" +
            "AAAADgAAAElucHV0QXJndW1lbnRzAQEJAAAuAEQJAAAAlgEAAAABACoBARwAAAANAAAAQXBwbGljYXRp" +
-           "b25JZAAR/////wAAAAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAAAAA=";
+           "b25JZAAR/////wAAAAAAAQAoAQEAAAABAAAAAQAAAAEB/////wAAAAA=";
         #endregion
         #endif
         #endregion
 
         #region Event Callbacks
-        /// <summary>
-        /// Raised when the the method is called.
-        /// </summary>
+        /// <remarks />
         public UnregisterApplicationMethodStateMethodCallHandler OnCall;
         #endregion
 
@@ -457,9 +393,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Invokes the method, returns the result and output argument.
-        /// </summary>
+        /// <remarks />
         protected override ServiceResult Call(
             ISystemContext _context,
             NodeId _objectId,
@@ -471,20 +405,20 @@ namespace Opc.Ua.Gds
                 return base.Call(_context, _objectId, _inputArguments, _outputArguments);
             }
 
-            ServiceResult result = null;
+            ServiceResult _result = null;
 
             NodeId applicationId = (NodeId)_inputArguments[0];
 
             if (OnCall != null)
             {
-                result = OnCall(
+                _result = OnCall(
                     _context,
                     this,
                     _objectId,
                     applicationId);
             }
 
-            return result;
+            return _result;
         }
         #endregion
 
@@ -492,58 +426,45 @@ namespace Opc.Ua.Gds
         #endregion
     }
 
-    /// <summary>
-    /// Used to receive notifications when the method is called.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     public delegate ServiceResult UnregisterApplicationMethodStateMethodCallHandler(
-        ISystemContext context,
-        MethodState method,
-        NodeId objectId,
+        ISystemContext _context,
+        MethodState _method,
+        NodeId _objectId,
         NodeId applicationId);
     #endif
     #endregion
 
     #region GetApplicationMethodState Class
     #if (!OPCUA_EXCLUDE_GetApplicationMethodState)
-    /// <summary>
-    /// Stores an instance of the GetApplicationMethodType Method.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class GetApplicationMethodState : MethodState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public GetApplicationMethodState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Constructs an instance of a node.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <returns>The new node.</returns>
+        /// <remarks />
         public new static NodeState Construct(NodeState parent)
         {
             return new GetApplicationMethodState(parent);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -554,17 +475,15 @@ namespace Opc.Ua.Gds
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYYIKBAAAAAEAGAAAAEdl" +
            "dEFwcGxpY2F0aW9uTWV0aG9kVHlwZQEBzwAALwEBzwDPAAAAAQH/////AgAAABdgqQoCAAAAAAAOAAAA" +
            "SW5wdXRBcmd1bWVudHMBAdAAAC4ARNAAAACWAQAAAAEAKgEBHAAAAA0AAABBcHBsaWNhdGlvbklkABH/" +
-           "////AAAAAAABACgBAQAAAAEAAAAAAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJndW1l" +
+           "////AAAAAAABACgBAQAAAAEAAAABAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJndW1l" +
            "bnRzAQHRAAAuAETRAAAAlgEAAAABACoBARwAAAALAAAAQXBwbGljYXRpb24BAQEA/////wAAAAAAAQAo" +
-           "AQEAAAABAAAAAAAAAAEB/////wAAAAA=";
+           "AQEAAAABAAAAAQAAAAEB/////wAAAAA=";
         #endregion
         #endif
         #endregion
 
         #region Event Callbacks
-        /// <summary>
-        /// Raised when the the method is called.
-        /// </summary>
+        /// <remarks />
         public GetApplicationMethodStateMethodCallHandler OnCall;
         #endregion
 
@@ -572,9 +491,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Invokes the method, returns the result and output argument.
-        /// </summary>
+        /// <remarks />
         protected override ServiceResult Call(
             ISystemContext _context,
             NodeId _objectId,
@@ -586,7 +503,7 @@ namespace Opc.Ua.Gds
                 return base.Call(_context, _objectId, _inputArguments, _outputArguments);
             }
 
-            ServiceResult result = null;
+            ServiceResult _result = null;
 
             NodeId applicationId = (NodeId)_inputArguments[0];
 
@@ -594,7 +511,7 @@ namespace Opc.Ua.Gds
 
             if (OnCall != null)
             {
-                result = OnCall(
+                _result = OnCall(
                     _context,
                     this,
                     _objectId,
@@ -604,7 +521,7 @@ namespace Opc.Ua.Gds
 
             _outputArguments[0] = application;
 
-            return result;
+            return _result;
         }
         #endregion
 
@@ -612,14 +529,12 @@ namespace Opc.Ua.Gds
         #endregion
     }
 
-    /// <summary>
-    /// Used to receive notifications when the method is called.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     public delegate ServiceResult GetApplicationMethodStateMethodCallHandler(
-        ISystemContext context,
-        MethodState method,
-        NodeId objectId,
+        ISystemContext _context,
+        MethodState _method,
+        NodeId _objectId,
         NodeId applicationId,
         ref ApplicationRecordDataType application);
     #endif
@@ -627,44 +542,33 @@ namespace Opc.Ua.Gds
 
     #region QueryApplicationsMethodState Class
     #if (!OPCUA_EXCLUDE_QueryApplicationsMethodState)
-    /// <summary>
-    /// Stores an instance of the QueryApplicationsMethodType Method.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class QueryApplicationsMethodState : MethodState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public QueryApplicationsMethodState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Constructs an instance of a node.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <returns>The new node.</returns>
+        /// <remarks />
         public new static NodeState Construct(NodeState parent)
         {
             return new QueryApplicationsMethodState(parent);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -679,18 +583,16 @@ namespace Opc.Ua.Gds
            "AR4AAAAPAAAAQXBwbGljYXRpb25OYW1lAAz/////AAAAAAABACoBAR0AAAAOAAAAQXBwbGljYXRpb25V" +
            "cmkADP////8AAAAAAAEAKgEBHgAAAA8AAABBcHBsaWNhdGlvblR5cGUAB/////8AAAAAAAEAKgEBGQAA" +
            "AAoAAABQcm9kdWN0VXJpAAz/////AAAAAAABACoBAR8AAAAMAAAAQ2FwYWJpbGl0aWVzAAwBAAAAAQAA" +
-           "AAAAAAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAAAAAXYKkKAgAAAAAADwAAAE91dHB1dEFyZ3VtZW50" +
+           "AAAAAAAAAQAoAQEAAAABAAAABwAAAAEB/////wAAAAAXYKkKAgAAAAAADwAAAE91dHB1dEFyZ3VtZW50" +
            "cwEBYwMALgBEYwMAAJYDAAAAAQAqAQElAAAAFAAAAExhc3RDb3VudGVyUmVzZXRUaW1lAQAmAf////8A" +
            "AAAAAAEAKgEBGwAAAAwAAABOZXh0UmVjb3JkSWQAB/////8AAAAAAAEAKgEBIQAAAAwAAABBcHBsaWNh" +
-           "dGlvbnMBADQBAQAAAAEAAAAAAAAAAAEAKAEBAAAAAQAAAAAAAAABAf////8AAAAA";
+           "dGlvbnMBADQBAQAAAAEAAAAAAAAAAAEAKAEBAAAAAQAAAAMAAAABAf////8AAAAA";
         #endregion
         #endif
         #endregion
 
         #region Event Callbacks
-        /// <summary>
-        /// Raised when the the method is called.
-        /// </summary>
+        /// <remarks />
         public QueryApplicationsMethodStateMethodCallHandler OnCall;
         #endregion
 
@@ -698,9 +600,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Invokes the method, returns the result and output argument.
-        /// </summary>
+        /// <remarks />
         protected override ServiceResult Call(
             ISystemContext _context,
             NodeId _objectId,
@@ -712,7 +612,7 @@ namespace Opc.Ua.Gds
                 return base.Call(_context, _objectId, _inputArguments, _outputArguments);
             }
 
-            ServiceResult result = null;
+            ServiceResult _result = null;
 
             uint startingRecordId = (uint)_inputArguments[0];
             uint maxRecordsToReturn = (uint)_inputArguments[1];
@@ -724,11 +624,11 @@ namespace Opc.Ua.Gds
 
             DateTime lastCounterResetTime = (DateTime)_outputArguments[0];
             uint nextRecordId = (uint)_outputArguments[1];
-            ApplicationDescription[] applications = (ApplicationDescription[])_outputArguments[2];
+            Opc.Ua.ApplicationDescription[] applications = (Opc.Ua.ApplicationDescription[])_outputArguments[2];
 
             if (OnCall != null)
             {
-                result = OnCall(
+                _result = OnCall(
                     _context,
                     this,
                     _objectId,
@@ -748,7 +648,7 @@ namespace Opc.Ua.Gds
             _outputArguments[1] = nextRecordId;
             _outputArguments[2] = applications;
 
-            return result;
+            return _result;
         }
         #endregion
 
@@ -756,14 +656,12 @@ namespace Opc.Ua.Gds
         #endregion
     }
 
-    /// <summary>
-    /// Used to receive notifications when the method is called.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     public delegate ServiceResult QueryApplicationsMethodStateMethodCallHandler(
-        ISystemContext context,
-        MethodState method,
-        NodeId objectId,
+        ISystemContext _context,
+        MethodState _method,
+        NodeId _objectId,
         uint startingRecordId,
         uint maxRecordsToReturn,
         string applicationName,
@@ -773,50 +671,39 @@ namespace Opc.Ua.Gds
         string[] capabilities,
         ref DateTime lastCounterResetTime,
         ref uint nextRecordId,
-        ref ApplicationDescription[] applications);
+        ref Opc.Ua.ApplicationDescription[] applications);
     #endif
     #endregion
 
     #region QueryServersMethodState Class
     #if (!OPCUA_EXCLUDE_QueryServersMethodState)
-    /// <summary>
-    /// Stores an instance of the QueryServersMethodType Method.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class QueryServersMethodState : MethodState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public QueryServersMethodState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Constructs an instance of a node.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <returns>The new node.</returns>
+        /// <remarks />
         public new static NodeState Construct(NodeState parent)
         {
             return new QueryServersMethodState(parent);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -830,18 +717,16 @@ namespace Opc.Ua.Gds
            "/////wAAAAAAAQAqAQEhAAAAEgAAAE1heFJlY29yZHNUb1JldHVybgAH/////wAAAAAAAQAqAQEeAAAA" +
            "DwAAAEFwcGxpY2F0aW9uTmFtZQAM/////wAAAAAAAQAqAQEdAAAADgAAAEFwcGxpY2F0aW9uVXJpAAz/" +
            "////AAAAAAABACoBARkAAAAKAAAAUHJvZHVjdFVyaQAM/////wAAAAAAAQAqAQElAAAAEgAAAFNlcnZl" +
-           "ckNhcGFiaWxpdGllcwAMAQAAAAEAAAAAAAAAAAEAKAEBAAAAAQAAAAAAAAABAf////8AAAAAF2CpCgIA" +
+           "ckNhcGFiaWxpdGllcwAMAQAAAAEAAAAAAAAAAAEAKAEBAAAAAQAAAAYAAAABAf////8AAAAAF2CpCgIA" +
            "AAAAAA8AAABPdXRwdXRBcmd1bWVudHMBAQwAAC4ARAwAAACWAgAAAAEAKgEBJQAAABQAAABMYXN0Q291" +
            "bnRlclJlc2V0VGltZQEAJgH/////AAAAAAABACoBARwAAAAHAAAAU2VydmVycwEAnS8BAAAAAQAAAAAA" +
-           "AAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAAAAA=";
+           "AAAAAQAoAQEAAAABAAAAAgAAAAEB/////wAAAAA=";
         #endregion
         #endif
         #endregion
 
         #region Event Callbacks
-        /// <summary>
-        /// Raised when the the method is called.
-        /// </summary>
+        /// <remarks />
         public QueryServersMethodStateMethodCallHandler OnCall;
         #endregion
 
@@ -849,9 +734,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Invokes the method, returns the result and output argument.
-        /// </summary>
+        /// <remarks />
         protected override ServiceResult Call(
             ISystemContext _context,
             NodeId _objectId,
@@ -863,7 +746,7 @@ namespace Opc.Ua.Gds
                 return base.Call(_context, _objectId, _inputArguments, _outputArguments);
             }
 
-            ServiceResult result = null;
+            ServiceResult _result = null;
 
             uint startingRecordId = (uint)_inputArguments[0];
             uint maxRecordsToReturn = (uint)_inputArguments[1];
@@ -873,11 +756,11 @@ namespace Opc.Ua.Gds
             string[] serverCapabilities = (string[])_inputArguments[5];
 
             DateTime lastCounterResetTime = (DateTime)_outputArguments[0];
-            ServerOnNetwork[] servers = (ServerOnNetwork[])_outputArguments[1];
+            Opc.Ua.ServerOnNetwork[] servers = (Opc.Ua.ServerOnNetwork[])_outputArguments[1];
 
             if (OnCall != null)
             {
-                result = OnCall(
+                _result = OnCall(
                     _context,
                     this,
                     _objectId,
@@ -894,7 +777,7 @@ namespace Opc.Ua.Gds
             _outputArguments[0] = lastCounterResetTime;
             _outputArguments[1] = servers;
 
-            return result;
+            return _result;
         }
         #endregion
 
@@ -902,14 +785,12 @@ namespace Opc.Ua.Gds
         #endregion
     }
 
-    /// <summary>
-    /// Used to receive notifications when the method is called.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     public delegate ServiceResult QueryServersMethodStateMethodCallHandler(
-        ISystemContext context,
-        MethodState method,
-        NodeId objectId,
+        ISystemContext _context,
+        MethodState _method,
+        NodeId _objectId,
         uint startingRecordId,
         uint maxRecordsToReturn,
         string applicationName,
@@ -917,57 +798,46 @@ namespace Opc.Ua.Gds
         string productUri,
         string[] serverCapabilities,
         ref DateTime lastCounterResetTime,
-        ref ServerOnNetwork[] servers);
+        ref Opc.Ua.ServerOnNetwork[] servers);
     #endif
     #endregion
 
     #region DirectoryState Class
     #if (!OPCUA_EXCLUDE_DirectoryState)
-    /// <summary>
-    /// Stores an instance of the DirectoryType ObjectType.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class DirectoryState : FolderState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public DirectoryState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Returns the id of the default type definition node for the instance.
-        /// </summary>
+        /// <remarks />
         protected override NodeId GetDefaultTypeDefinitionId(NamespaceTable namespaceUris)
         {
             return Opc.Ua.NodeId.Create(Opc.Ua.Gds.ObjectTypes.DirectoryType, Opc.Ua.Gds.Namespaces.OpcUaGds, namespaceUris);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the instance with a node.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context, NodeState source)
         {
             InitializeOptionalChildren(context);
             base.Initialize(context, source);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -979,42 +849,42 @@ namespace Opc.Ua.Gds
            "cmVjdG9yeVR5cGVJbnN0YW5jZQEBDQABAQ0ADQAAAP////8IAAAABGCACgEAAAABAAwAAABBcHBsaWNh" +
            "dGlvbnMBAQ4AAC8APQ4AAAD/////AAAAAARhggoEAAAAAQAQAAAARmluZEFwcGxpY2F0aW9ucwEBDwAA" +
            "LwEBDwAPAAAAAQH/////AgAAABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMBARAAAC4ARBAAAACW" +
-           "AQAAAAEAKgEBHQAAAA4AAABBcHBsaWNhdGlvblVyaQAM/////wAAAAAAAQAoAQEAAAABAAAAAAAAAAEB" +
+           "AQAAAAEAKgEBHQAAAA4AAABBcHBsaWNhdGlvblVyaQAM/////wAAAAAAAQAoAQEAAAABAAAAAQAAAAEB" +
            "/////wAAAAAXYKkKAgAAAAAADwAAAE91dHB1dEFyZ3VtZW50cwEBEQAALgBEEQAAAJYBAAAAAQAqAQEh" +
-           "AAAADAAAAEFwcGxpY2F0aW9ucwEBAQABAAAAAQAAAAAAAAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAA" +
+           "AAAADAAAAEFwcGxpY2F0aW9ucwEBAQABAAAAAQAAAAAAAAAAAQAoAQEAAAABAAAAAQAAAAEB/////wAA" +
            "AAAEYYIKBAAAAAEAEwAAAFJlZ2lzdGVyQXBwbGljYXRpb24BARIAAC8BARIAEgAAAAEB/////wIAAAAX" +
            "YKkKAgAAAAAADgAAAElucHV0QXJndW1lbnRzAQETAAAuAEQTAAAAlgEAAAABACoBARwAAAALAAAAQXBw" +
-           "bGljYXRpb24BAQEA/////wAAAAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAAAAAXYKkKAgAAAAAADwAA" +
+           "bGljYXRpb24BAQEA/////wAAAAAAAQAoAQEAAAABAAAAAQAAAAEB/////wAAAAAXYKkKAgAAAAAADwAA" +
            "AE91dHB1dEFyZ3VtZW50cwEBFAAALgBEFAAAAJYBAAAAAQAqAQEcAAAADQAAAEFwcGxpY2F0aW9uSWQA" +
-           "Ef////8AAAAAAAEAKAEBAAAAAQAAAAAAAAABAf////8AAAAABGGCCgQAAAABABEAAABVcGRhdGVBcHBs" +
+           "Ef////8AAAAAAAEAKAEBAAAAAQAAAAEAAAABAf////8AAAAABGGCCgQAAAABABEAAABVcGRhdGVBcHBs" +
            "aWNhdGlvbgEBvAAALwEBvAC8AAAAAQH/////AQAAABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMB" +
            "Ab0AAC4ARL0AAACWAQAAAAEAKgEBHAAAAAsAAABBcHBsaWNhdGlvbgEBAQD/////AAAAAAABACgBAQAA" +
-           "AAEAAAAAAAAAAQH/////AAAAAARhggoEAAAAAQAVAAAAVW5yZWdpc3RlckFwcGxpY2F0aW9uAQEVAAAv" +
+           "AAEAAAABAAAAAQH/////AAAAAARhggoEAAAAAQAVAAAAVW5yZWdpc3RlckFwcGxpY2F0aW9uAQEVAAAv" +
            "AQEVABUAAAABAf////8BAAAAF2CpCgIAAAAAAA4AAABJbnB1dEFyZ3VtZW50cwEBFgAALgBEFgAAAJYB" +
-           "AAAAAQAqAQEcAAAADQAAAEFwcGxpY2F0aW9uSWQAEf////8AAAAAAAEAKAEBAAAAAQAAAAAAAAABAf//" +
+           "AAAAAQAqAQEcAAAADQAAAEFwcGxpY2F0aW9uSWQAEf////8AAAAAAAEAKAEBAAAAAQAAAAEAAAABAf//" +
            "//8AAAAABGGCCgQAAAABAA4AAABHZXRBcHBsaWNhdGlvbgEB0gAALwEB0gDSAAAAAQH/////AgAAABdg" +
            "qQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMBAdMAAC4ARNMAAACWAQAAAAEAKgEBHAAAAA0AAABBcHBs" +
-           "aWNhdGlvbklkABH/////AAAAAAABACgBAQAAAAEAAAAAAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAA" +
+           "aWNhdGlvbklkABH/////AAAAAAABACgBAQAAAAEAAAABAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAA" +
            "T3V0cHV0QXJndW1lbnRzAQHUAAAuAETUAAAAlgEAAAABACoBARwAAAALAAAAQXBwbGljYXRpb24BAQEA" +
-           "/////wAAAAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAAAAAEYYIKBAAAAAEAEQAAAFF1ZXJ5QXBwbGlj" +
+           "/////wAAAAAAAQAoAQEAAAABAAAAAQAAAAEB/////wAAAAAEYYIKBAAAAAEAEQAAAFF1ZXJ5QXBwbGlj" +
            "YXRpb25zAQFkAwAvAQFkA2QDAAABAf////8CAAAAF2CpCgIAAAAAAA4AAABJbnB1dEFyZ3VtZW50cwEB" +
            "ZQMALgBEZQMAAJYHAAAAAQAqAQEfAAAAEAAAAFN0YXJ0aW5nUmVjb3JkSWQAB/////8AAAAAAAEAKgEB" +
            "IQAAABIAAABNYXhSZWNvcmRzVG9SZXR1cm4AB/////8AAAAAAAEAKgEBHgAAAA8AAABBcHBsaWNhdGlv" +
            "bk5hbWUADP////8AAAAAAAEAKgEBHQAAAA4AAABBcHBsaWNhdGlvblVyaQAM/////wAAAAAAAQAqAQEe" +
            "AAAADwAAAEFwcGxpY2F0aW9uVHlwZQAH/////wAAAAAAAQAqAQEZAAAACgAAAFByb2R1Y3RVcmkADP//" +
-           "//8AAAAAAAEAKgEBHwAAAAwAAABDYXBhYmlsaXRpZXMADAEAAAABAAAAAAAAAAABACgBAQAAAAEAAAAA" +
+           "//8AAAAAAAEAKgEBHwAAAAwAAABDYXBhYmlsaXRpZXMADAEAAAABAAAAAAAAAAABACgBAQAAAAEAAAAH" +
            "AAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJndW1lbnRzAQFmAwAuAERmAwAAlgMAAAAB" +
            "ACoBASUAAAAUAAAATGFzdENvdW50ZXJSZXNldFRpbWUBACYB/////wAAAAAAAQAqAQEbAAAADAAAAE5l" +
            "eHRSZWNvcmRJZAAH/////wAAAAAAAQAqAQEhAAAADAAAAEFwcGxpY2F0aW9ucwEANAEBAAAAAQAAAAAA" +
-           "AAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAAAAAEYYIKBAAAAAEADAAAAFF1ZXJ5U2VydmVycwEBFwAA" +
+           "AAAAAQAoAQEAAAABAAAAAwAAAAEB/////wAAAAAEYYIKBAAAAAEADAAAAFF1ZXJ5U2VydmVycwEBFwAA" +
            "LwEBFwAXAAAAAQH/////AgAAABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMBARgAAC4ARBgAAACW" +
            "BgAAAAEAKgEBHwAAABAAAABTdGFydGluZ1JlY29yZElkAAf/////AAAAAAABACoBASEAAAASAAAATWF4" +
            "UmVjb3Jkc1RvUmV0dXJuAAf/////AAAAAAABACoBAR4AAAAPAAAAQXBwbGljYXRpb25OYW1lAAz/////" +
            "AAAAAAABACoBAR0AAAAOAAAAQXBwbGljYXRpb25VcmkADP////8AAAAAAAEAKgEBGQAAAAoAAABQcm9k" +
            "dWN0VXJpAAz/////AAAAAAABACoBASUAAAASAAAAU2VydmVyQ2FwYWJpbGl0aWVzAAwBAAAAAQAAAAAA" +
-           "AAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAAAAAXYKkKAgAAAAAADwAAAE91dHB1dEFyZ3VtZW50cwEB" +
+           "AAAAAQAoAQEAAAABAAAABgAAAAEB/////wAAAAAXYKkKAgAAAAAADwAAAE91dHB1dEFyZ3VtZW50cwEB" +
            "GQAALgBEGQAAAJYCAAAAAQAqAQElAAAAFAAAAExhc3RDb3VudGVyUmVzZXRUaW1lAQAmAf////8AAAAA" +
-           "AAEAKgEBHAAAAAcAAABTZXJ2ZXJzAQCdLwEAAAABAAAAAAAAAAABACgBAQAAAAEAAAAAAAAAAQH/////" +
+           "AAEAKgEBHAAAAAcAAABTZXJ2ZXJzAQCdLwEAAAABAAAAAAAAAAABACgBAQAAAAEAAAACAAAAAQH/////" +
            "AAAAAA==";
         #endregion
         #endif
@@ -1175,11 +1045,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Populates a list with the children that belong to the node.
-        /// </summary>
-        /// <param name="context">The context for the system being accessed.</param>
-        /// <param name="children">The list of children to populate.</param>
+        /// <remarks />
         public override void GetChildren(
             ISystemContext context,
             IList<BaseInstanceState> children)
@@ -1226,10 +1092,8 @@ namespace Opc.Ua.Gds
 
             base.GetChildren(context, children);
         }
-
-        /// <summary>
-        /// Finds the child with the specified browse name.
-        /// </summary>
+            
+        /// <remarks />
         protected override BaseInstanceState FindChild(
             ISystemContext context,
             QualifiedName browseName,
@@ -1439,51 +1303,40 @@ namespace Opc.Ua.Gds
 
     #region ApplicationRegistrationChangedAuditEventState Class
     #if (!OPCUA_EXCLUDE_ApplicationRegistrationChangedAuditEventState)
-    /// <summary>
-    /// Stores an instance of the ApplicationRegistrationChangedAuditEventType ObjectType.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class ApplicationRegistrationChangedAuditEventState : AuditUpdateMethodEventState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public ApplicationRegistrationChangedAuditEventState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Returns the id of the default type definition node for the instance.
-        /// </summary>
+        /// <remarks />
         protected override NodeId GetDefaultTypeDefinitionId(NamespaceTable namespaceUris)
         {
             return Opc.Ua.NodeId.Create(Opc.Ua.Gds.ObjectTypes.ApplicationRegistrationChangedAuditEventType, Opc.Ua.Gds.Namespaces.OpcUaGds, namespaceUris);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the instance with a node.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context, NodeState source)
         {
             InitializeOptionalChildren(context);
             base.Initialize(context, source);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -1493,20 +1346,21 @@ namespace Opc.Ua.Gds
         private const string InitializationString =
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYIACAQAAAAEANAAAAEFw" +
            "cGxpY2F0aW9uUmVnaXN0cmF0aW9uQ2hhbmdlZEF1ZGl0RXZlbnRUeXBlSW5zdGFuY2UBARoAAQEaABoA" +
-           "AAD/////DwAAABVgiQoCAAAAAAAHAAAARXZlbnRJZAEBGwAALgBEGwAAAAAP/////wEB/////wAAAAAV" +
-           "YIkKAgAAAAAACQAAAEV2ZW50VHlwZQEBHAAALgBEHAAAAAAR/////wEB/////wAAAAAVYIkKAgAAAAAA" +
-           "CgAAAFNvdXJjZU5vZGUBAR0AAC4ARB0AAAAAEf////8BAf////8AAAAAFWCJCgIAAAAAAAoAAABTb3Vy" +
-           "Y2VOYW1lAQEeAAAuAEQeAAAAAAz/////AQH/////AAAAABVgiQoCAAAAAAAEAAAAVGltZQEBHwAALgBE" +
-           "HwAAAAEAJgH/////AQH/////AAAAABVgiQoCAAAAAAALAAAAUmVjZWl2ZVRpbWUBASAAAC4ARCAAAAAB" +
-           "ACYB/////wEB/////wAAAAAVYIkKAgAAAAAABwAAAE1lc3NhZ2UBASIAAC4ARCIAAAAAFf////8BAf//" +
-           "//8AAAAAFWCJCgIAAAAAAAgAAABTZXZlcml0eQEBIwAALgBEIwAAAAAF/////wEB/////wAAAAAVYIkK" +
-           "AgAAAAAADwAAAEFjdGlvblRpbWVTdGFtcAEBJAAALgBEJAAAAAEAJgH/////AQH/////AAAAABVgiQoC" +
-           "AAAAAAAGAAAAU3RhdHVzAQElAAAuAEQlAAAAAAH/////AQH/////AAAAABVgiQoCAAAAAAAIAAAAU2Vy" +
-           "dmVySWQBASYAAC4ARCYAAAAADP////8BAf////8AAAAAFWCJCgIAAAAAABIAAABDbGllbnRBdWRpdEVu" +
-           "dHJ5SWQBAScAAC4ARCcAAAAADP////8BAf////8AAAAAFWCJCgIAAAAAAAwAAABDbGllbnRVc2VySWQB" +
-           "ASgAAC4ARCgAAAAADP////8BAf////8AAAAAFWCJCgIAAAAAAAgAAABNZXRob2RJZAEBKQAALgBEKQAA" +
-           "AAAR/////wEB/////wAAAAAXYIkKAgAAAAAADgAAAElucHV0QXJndW1lbnRzAQEqAAAuAEQqAAAAABgB" +
-           "AAAAAQAAAAAAAAABAf////8AAAAA";
+           "AAD/////DwAAABVgiQoCAAAAAAAHAAAARXZlbnRJZAIBAEFCDwAALgBEQUIPAAAP/////wEB/////wAA" +
+           "AAAVYIkKAgAAAAAACQAAAEV2ZW50VHlwZQIBAEJCDwAALgBEQkIPAAAR/////wEB/////wAAAAAVYIkK" +
+           "AgAAAAAACgAAAFNvdXJjZU5vZGUCAQBDQg8AAC4ARENCDwAAEf////8BAf////8AAAAAFWCJCgIAAAAA" +
+           "AAoAAABTb3VyY2VOYW1lAgEAREIPAAAuAEREQg8AAAz/////AQH/////AAAAABVgiQoCAAAAAAAEAAAA" +
+           "VGltZQIBAEVCDwAALgBERUIPAAEAJgH/////AQH/////AAAAABVgiQoCAAAAAAALAAAAUmVjZWl2ZVRp" +
+           "bWUCAQBGQg8AAC4AREZCDwABACYB/////wEB/////wAAAAAVYIkKAgAAAAAABwAAAE1lc3NhZ2UCAQBI" +
+           "Qg8AAC4AREhCDwAAFf////8BAf////8AAAAAFWCJCgIAAAAAAAgAAABTZXZlcml0eQIBAElCDwAALgBE" +
+           "SUIPAAAF/////wEB/////wAAAAAVYIkKAgAAAAAADwAAAEFjdGlvblRpbWVTdGFtcAIBAE5CDwAALgBE" +
+           "TkIPAAEAJgH/////AQH/////AAAAABVgiQoCAAAAAAAGAAAAU3RhdHVzAgEAT0IPAAAuAERPQg8AAAH/" +
+           "////AQH/////AAAAABVgiQoCAAAAAAAIAAAAU2VydmVySWQCAQBQQg8AAC4ARFBCDwAADP////8BAf//" +
+           "//8AAAAAFWCJCgIAAAAAABIAAABDbGllbnRBdWRpdEVudHJ5SWQCAQBRQg8AAC4ARFFCDwAADP////8B" +
+           "Af////8AAAAAFWCJCgIAAAAAAAwAAABDbGllbnRVc2VySWQCAQBSQg8AAC4ARFJCDwAADP////8BAf//" +
+           "//8AAAAAFWCJCgIAAAAAAAgAAABNZXRob2RJZAIBAFNCDwAALgBEU0IPAAAR/////wEB/////wAAAAAX" +
+           "YIkKAgAAAAAADgAAAElucHV0QXJndW1lbnRzAgEAVEIPAAAuAERUQg8AABgBAAAAAQAAAAAAAAABAf//" +
+           "//8AAAAA";
         #endregion
         #endif
         #endregion
@@ -1525,44 +1379,33 @@ namespace Opc.Ua.Gds
 
     #region StartSigningRequestMethodState Class
     #if (!OPCUA_EXCLUDE_StartSigningRequestMethodState)
-    /// <summary>
-    /// Stores an instance of the StartSigningRequestMethodType Method.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class StartSigningRequestMethodState : MethodState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public StartSigningRequestMethodState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Constructs an instance of a node.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <returns>The new node.</returns>
+        /// <remarks />
         public new static NodeState Construct(NodeState parent)
         {
             return new StartSigningRequestMethodState(parent);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -1575,17 +1418,15 @@ namespace Opc.Ua.Gds
            "AA4AAABJbnB1dEFyZ3VtZW50cwEBNAAALgBENAAAAJYEAAAAAQAqAQEcAAAADQAAAEFwcGxpY2F0aW9u" +
            "SWQAEf////8AAAAAAAEAKgEBIQAAABIAAABDZXJ0aWZpY2F0ZUdyb3VwSWQAEf////8AAAAAAAEAKgEB" +
            "IAAAABEAAABDZXJ0aWZpY2F0ZVR5cGVJZAAR/////wAAAAAAAQAqAQEhAAAAEgAAAENlcnRpZmljYXRl" +
-           "UmVxdWVzdAAP/////wAAAAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAAAAAXYKkKAgAAAAAADwAAAE91" +
+           "UmVxdWVzdAAP/////wAAAAAAAQAoAQEAAAABAAAABAAAAAEB/////wAAAAAXYKkKAgAAAAAADwAAAE91" +
            "dHB1dEFyZ3VtZW50cwEBNQAALgBENQAAAJYBAAAAAQAqAQEYAAAACQAAAFJlcXVlc3RJZAAR/////wAA" +
-           "AAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAAAAA=";
+           "AAAAAQAoAQEAAAABAAAAAQAAAAEB/////wAAAAA=";
         #endregion
         #endif
         #endregion
 
         #region Event Callbacks
-        /// <summary>
-        /// Raised when the the method is called.
-        /// </summary>
+        /// <remarks />
         public StartSigningRequestMethodStateMethodCallHandler OnCall;
         #endregion
 
@@ -1593,9 +1434,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Invokes the method, returns the result and output argument.
-        /// </summary>
+        /// <remarks />
         protected override ServiceResult Call(
             ISystemContext _context,
             NodeId _objectId,
@@ -1607,7 +1446,7 @@ namespace Opc.Ua.Gds
                 return base.Call(_context, _objectId, _inputArguments, _outputArguments);
             }
 
-            ServiceResult result = null;
+            ServiceResult _result = null;
 
             NodeId applicationId = (NodeId)_inputArguments[0];
             NodeId certificateGroupId = (NodeId)_inputArguments[1];
@@ -1618,7 +1457,7 @@ namespace Opc.Ua.Gds
 
             if (OnCall != null)
             {
-                result = OnCall(
+                _result = OnCall(
                     _context,
                     this,
                     _objectId,
@@ -1631,7 +1470,7 @@ namespace Opc.Ua.Gds
 
             _outputArguments[0] = requestId;
 
-            return result;
+            return _result;
         }
         #endregion
 
@@ -1639,14 +1478,12 @@ namespace Opc.Ua.Gds
         #endregion
     }
 
-    /// <summary>
-    /// Used to receive notifications when the method is called.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     public delegate ServiceResult StartSigningRequestMethodStateMethodCallHandler(
-        ISystemContext context,
-        MethodState method,
-        NodeId objectId,
+        ISystemContext _context,
+        MethodState _method,
+        NodeId _objectId,
         NodeId applicationId,
         NodeId certificateGroupId,
         NodeId certificateTypeId,
@@ -1657,44 +1494,33 @@ namespace Opc.Ua.Gds
 
     #region StartNewKeyPairRequestMethodState Class
     #if (!OPCUA_EXCLUDE_StartNewKeyPairRequestMethodState)
-    /// <summary>
-    /// Stores an instance of the StartNewKeyPairRequestMethodType Method.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class StartNewKeyPairRequestMethodState : MethodState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public StartNewKeyPairRequestMethodState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Constructs an instance of a node.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <returns>The new node.</returns>
+        /// <remarks />
         public new static NodeState Construct(NodeState parent)
         {
             return new StartNewKeyPairRequestMethodState(parent);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -1709,17 +1535,15 @@ namespace Opc.Ua.Gds
            "KgEBIAAAABEAAABDZXJ0aWZpY2F0ZVR5cGVJZAAR/////wAAAAAAAQAqAQEaAAAACwAAAFN1YmplY3RO" +
            "YW1lAAz/////AAAAAAABACoBAR4AAAALAAAARG9tYWluTmFtZXMADAEAAAABAAAAAAAAAAABACoBAR8A" +
            "AAAQAAAAUHJpdmF0ZUtleUZvcm1hdAAM/////wAAAAAAAQAqAQEhAAAAEgAAAFByaXZhdGVLZXlQYXNz" +
-           "d29yZAAM/////wAAAAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAAAAAXYKkKAgAAAAAADwAAAE91dHB1" +
+           "d29yZAAM/////wAAAAAAAQAoAQEAAAABAAAABwAAAAEB/////wAAAAAXYKkKAgAAAAAADwAAAE91dHB1" +
            "dEFyZ3VtZW50cwEBMgAALgBEMgAAAJYBAAAAAQAqAQEYAAAACQAAAFJlcXVlc3RJZAAR/////wAAAAAA" +
-           "AQAoAQEAAAABAAAAAAAAAAEB/////wAAAAA=";
+           "AQAoAQEAAAABAAAAAQAAAAEB/////wAAAAA=";
         #endregion
         #endif
         #endregion
 
         #region Event Callbacks
-        /// <summary>
-        /// Raised when the the method is called.
-        /// </summary>
+        /// <remarks />
         public StartNewKeyPairRequestMethodStateMethodCallHandler OnCall;
         #endregion
 
@@ -1727,9 +1551,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Invokes the method, returns the result and output argument.
-        /// </summary>
+        /// <remarks />
         protected override ServiceResult Call(
             ISystemContext _context,
             NodeId _objectId,
@@ -1741,7 +1563,7 @@ namespace Opc.Ua.Gds
                 return base.Call(_context, _objectId, _inputArguments, _outputArguments);
             }
 
-            ServiceResult result = null;
+            ServiceResult _result = null;
 
             NodeId applicationId = (NodeId)_inputArguments[0];
             NodeId certificateGroupId = (NodeId)_inputArguments[1];
@@ -1755,7 +1577,7 @@ namespace Opc.Ua.Gds
 
             if (OnCall != null)
             {
-                result = OnCall(
+                _result = OnCall(
                     _context,
                     this,
                     _objectId,
@@ -1771,7 +1593,7 @@ namespace Opc.Ua.Gds
 
             _outputArguments[0] = requestId;
 
-            return result;
+            return _result;
         }
         #endregion
 
@@ -1779,14 +1601,12 @@ namespace Opc.Ua.Gds
         #endregion
     }
 
-    /// <summary>
-    /// Used to receive notifications when the method is called.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     public delegate ServiceResult StartNewKeyPairRequestMethodStateMethodCallHandler(
-        ISystemContext context,
-        MethodState method,
-        NodeId objectId,
+        ISystemContext _context,
+        MethodState _method,
+        NodeId _objectId,
         NodeId applicationId,
         NodeId certificateGroupId,
         NodeId certificateTypeId,
@@ -1800,44 +1620,33 @@ namespace Opc.Ua.Gds
 
     #region FinishRequestMethodState Class
     #if (!OPCUA_EXCLUDE_FinishRequestMethodState)
-    /// <summary>
-    /// Stores an instance of the FinishRequestMethodType Method.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class FinishRequestMethodState : MethodState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public FinishRequestMethodState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Constructs an instance of a node.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <returns>The new node.</returns>
+        /// <remarks />
         public new static NodeState Construct(NodeState parent)
         {
             return new FinishRequestMethodState(parent);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -1848,19 +1657,17 @@ namespace Opc.Ua.Gds
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYYIKBAAAAAEAFwAAAEZp" +
            "bmlzaFJlcXVlc3RNZXRob2RUeXBlAQE5AAAvAQE5ADkAAAABAf////8CAAAAF2CpCgIAAAAAAA4AAABJ" +
            "bnB1dEFyZ3VtZW50cwEBOgAALgBEOgAAAJYCAAAAAQAqAQEcAAAADQAAAEFwcGxpY2F0aW9uSWQAEf//" +
-           "//8AAAAAAAEAKgEBGAAAAAkAAABSZXF1ZXN0SWQAEf////8AAAAAAAEAKAEBAAAAAQAAAAAAAAABAf//" +
+           "//8AAAAAAAEAKgEBGAAAAAkAAABSZXF1ZXN0SWQAEf////8AAAAAAAEAKAEBAAAAAQAAAAIAAAABAf//" +
            "//8AAAAAF2CpCgIAAAAAAA8AAABPdXRwdXRBcmd1bWVudHMBATsAAC4ARDsAAACWAwAAAAEAKgEBGgAA" +
            "AAsAAABDZXJ0aWZpY2F0ZQAP/////wAAAAAAAQAqAQEZAAAACgAAAFByaXZhdGVLZXkAD/////8AAAAA" +
-           "AAEAKgEBJQAAABIAAABJc3N1ZXJDZXJ0aWZpY2F0ZXMADwEAAAABAAAAAAAAAAABACgBAQAAAAEAAAAA" +
+           "AAEAKgEBJQAAABIAAABJc3N1ZXJDZXJ0aWZpY2F0ZXMADwEAAAABAAAAAAAAAAABACgBAQAAAAEAAAAD" +
            "AAAAAQH/////AAAAAA==";
         #endregion
         #endif
         #endregion
 
         #region Event Callbacks
-        /// <summary>
-        /// Raised when the the method is called.
-        /// </summary>
+        /// <remarks />
         public FinishRequestMethodStateMethodCallHandler OnCall;
         #endregion
 
@@ -1868,9 +1675,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Invokes the method, returns the result and output argument.
-        /// </summary>
+        /// <remarks />
         protected override ServiceResult Call(
             ISystemContext _context,
             NodeId _objectId,
@@ -1882,7 +1687,7 @@ namespace Opc.Ua.Gds
                 return base.Call(_context, _objectId, _inputArguments, _outputArguments);
             }
 
-            ServiceResult result = null;
+            ServiceResult _result = null;
 
             NodeId applicationId = (NodeId)_inputArguments[0];
             NodeId requestId = (NodeId)_inputArguments[1];
@@ -1893,7 +1698,7 @@ namespace Opc.Ua.Gds
 
             if (OnCall != null)
             {
-                result = OnCall(
+                _result = OnCall(
                     _context,
                     this,
                     _objectId,
@@ -1908,7 +1713,7 @@ namespace Opc.Ua.Gds
             _outputArguments[1] = privateKey;
             _outputArguments[2] = issuerCertificates;
 
-            return result;
+            return _result;
         }
         #endregion
 
@@ -1916,14 +1721,12 @@ namespace Opc.Ua.Gds
         #endregion
     }
 
-    /// <summary>
-    /// Used to receive notifications when the method is called.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     public delegate ServiceResult FinishRequestMethodStateMethodCallHandler(
-        ISystemContext context,
-        MethodState method,
-        NodeId objectId,
+        ISystemContext _context,
+        MethodState _method,
+        NodeId _objectId,
         NodeId applicationId,
         NodeId requestId,
         ref byte[] certificate,
@@ -1934,44 +1737,33 @@ namespace Opc.Ua.Gds
 
     #region GetCertificateGroupsMethodState Class
     #if (!OPCUA_EXCLUDE_GetCertificateGroupsMethodState)
-    /// <summary>
-    /// Stores an instance of the GetCertificateGroupsMethodType Method.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class GetCertificateGroupsMethodState : MethodState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public GetCertificateGroupsMethodState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Constructs an instance of a node.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <returns>The new node.</returns>
+        /// <remarks />
         public new static NodeState Construct(NodeState parent)
         {
             return new GetCertificateGroupsMethodState(parent);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -1982,17 +1774,15 @@ namespace Opc.Ua.Gds
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYYIKBAAAAAEAHgAAAEdl" +
            "dENlcnRpZmljYXRlR3JvdXBzTWV0aG9kVHlwZQEB5gAALwEB5gDmAAAAAQH/////AgAAABdgqQoCAAAA" +
            "AAAOAAAASW5wdXRBcmd1bWVudHMBAecAAC4AROcAAACWAQAAAAEAKgEBHAAAAA0AAABBcHBsaWNhdGlv" +
-           "bklkABH/////AAAAAAABACgBAQAAAAEAAAAAAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0" +
+           "bklkABH/////AAAAAAABACgBAQAAAAEAAAABAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0" +
            "QXJndW1lbnRzAQHoAAAuAEToAAAAlgEAAAABACoBASYAAAATAAAAQ2VydGlmaWNhdGVHcm91cElkcwAR" +
-           "AQAAAAEAAAAAAAAAAAEAKAEBAAAAAQAAAAAAAAABAf////8AAAAA";
+           "AQAAAAEAAAAAAAAAAAEAKAEBAAAAAQAAAAEAAAABAf////8AAAAA";
         #endregion
         #endif
         #endregion
 
         #region Event Callbacks
-        /// <summary>
-        /// Raised when the the method is called.
-        /// </summary>
+        /// <remarks />
         public GetCertificateGroupsMethodStateMethodCallHandler OnCall;
         #endregion
 
@@ -2000,9 +1790,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Invokes the method, returns the result and output argument.
-        /// </summary>
+        /// <remarks />
         protected override ServiceResult Call(
             ISystemContext _context,
             NodeId _objectId,
@@ -2014,7 +1802,7 @@ namespace Opc.Ua.Gds
                 return base.Call(_context, _objectId, _inputArguments, _outputArguments);
             }
 
-            ServiceResult result = null;
+            ServiceResult _result = null;
 
             NodeId applicationId = (NodeId)_inputArguments[0];
 
@@ -2022,7 +1810,7 @@ namespace Opc.Ua.Gds
 
             if (OnCall != null)
             {
-                result = OnCall(
+                _result = OnCall(
                     _context,
                     this,
                     _objectId,
@@ -2032,7 +1820,7 @@ namespace Opc.Ua.Gds
 
             _outputArguments[0] = certificateGroupIds;
 
-            return result;
+            return _result;
         }
         #endregion
 
@@ -2040,14 +1828,12 @@ namespace Opc.Ua.Gds
         #endregion
     }
 
-    /// <summary>
-    /// Used to receive notifications when the method is called.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     public delegate ServiceResult GetCertificateGroupsMethodStateMethodCallHandler(
-        ISystemContext context,
-        MethodState method,
-        NodeId objectId,
+        ISystemContext _context,
+        MethodState _method,
+        NodeId _objectId,
         NodeId applicationId,
         ref NodeId[] certificateGroupIds);
     #endif
@@ -2055,44 +1841,33 @@ namespace Opc.Ua.Gds
 
     #region GetTrustListMethodState Class
     #if (!OPCUA_EXCLUDE_GetTrustListMethodState)
-    /// <summary>
-    /// Stores an instance of the GetTrustListMethodType Method.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class GetTrustListMethodState : MethodState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public GetTrustListMethodState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Constructs an instance of a node.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <returns>The new node.</returns>
+        /// <remarks />
         public new static NodeState Construct(NodeState parent)
         {
             return new GetTrustListMethodState(parent);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -2104,17 +1879,15 @@ namespace Opc.Ua.Gds
            "dFRydXN0TGlzdE1ldGhvZFR5cGUBAb4AAC8BAb4AvgAAAAEB/////wIAAAAXYKkKAgAAAAAADgAAAElu" +
            "cHV0QXJndW1lbnRzAQG/AAAuAES/AAAAlgIAAAABACoBARwAAAANAAAAQXBwbGljYXRpb25JZAAR////" +
            "/wAAAAAAAQAqAQEhAAAAEgAAAENlcnRpZmljYXRlR3JvdXBJZAAR/////wAAAAAAAQAoAQEAAAABAAAA" +
-           "AAAAAAEB/////wAAAAAXYKkKAgAAAAAADwAAAE91dHB1dEFyZ3VtZW50cwEBwAAALgBEwAAAAJYBAAAA" +
-           "AQAqAQEaAAAACwAAAFRydXN0TGlzdElkABH/////AAAAAAABACgBAQAAAAEAAAAAAAAAAQH/////AAAA" +
+           "AgAAAAEB/////wAAAAAXYKkKAgAAAAAADwAAAE91dHB1dEFyZ3VtZW50cwEBwAAALgBEwAAAAJYBAAAA" +
+           "AQAqAQEaAAAACwAAAFRydXN0TGlzdElkABH/////AAAAAAABACgBAQAAAAEAAAABAAAAAQH/////AAAA" +
            "AA==";
         #endregion
         #endif
         #endregion
 
         #region Event Callbacks
-        /// <summary>
-        /// Raised when the the method is called.
-        /// </summary>
+        /// <remarks />
         public GetTrustListMethodStateMethodCallHandler OnCall;
         #endregion
 
@@ -2122,9 +1895,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Invokes the method, returns the result and output argument.
-        /// </summary>
+        /// <remarks />
         protected override ServiceResult Call(
             ISystemContext _context,
             NodeId _objectId,
@@ -2136,7 +1907,7 @@ namespace Opc.Ua.Gds
                 return base.Call(_context, _objectId, _inputArguments, _outputArguments);
             }
 
-            ServiceResult result = null;
+            ServiceResult _result = null;
 
             NodeId applicationId = (NodeId)_inputArguments[0];
             NodeId certificateGroupId = (NodeId)_inputArguments[1];
@@ -2145,7 +1916,7 @@ namespace Opc.Ua.Gds
 
             if (OnCall != null)
             {
-                result = OnCall(
+                _result = OnCall(
                     _context,
                     this,
                     _objectId,
@@ -2156,7 +1927,7 @@ namespace Opc.Ua.Gds
 
             _outputArguments[0] = trustListId;
 
-            return result;
+            return _result;
         }
         #endregion
 
@@ -2164,14 +1935,12 @@ namespace Opc.Ua.Gds
         #endregion
     }
 
-    /// <summary>
-    /// Used to receive notifications when the method is called.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     public delegate ServiceResult GetTrustListMethodStateMethodCallHandler(
-        ISystemContext context,
-        MethodState method,
-        NodeId objectId,
+        ISystemContext _context,
+        MethodState _method,
+        NodeId _objectId,
         NodeId applicationId,
         NodeId certificateGroupId,
         ref NodeId trustListId);
@@ -2180,44 +1949,33 @@ namespace Opc.Ua.Gds
 
     #region RevokeCertificateMethodState Class
     #if (!OPCUA_EXCLUDE_RevokeCertificateMethodState)
-    /// <summary>
-    /// Stores an instance of the RevokeCertificateMethodType Method.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class RevokeCertificateMethodState : MethodState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public RevokeCertificateMethodState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Constructs an instance of a node.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <returns>The new node.</returns>
+        /// <remarks />
         public new static NodeState Construct(NodeState parent)
         {
             return new RevokeCertificateMethodState(parent);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -2228,16 +1986,14 @@ namespace Opc.Ua.Gds
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYYIKBAAAAAEAGwAAAFJl" +
            "dm9rZUNlcnRpZmljYXRlTWV0aG9kVHlwZQEBmToALwEBmTqZOgAAAQH/////AQAAABdgqQoCAAAAAAAO" +
            "AAAASW5wdXRBcmd1bWVudHMBAZo6AC4ARJo6AACWAgAAAAEAKgEBHAAAAA0AAABBcHBsaWNhdGlvbklk" +
-           "ABH/////AAAAAAABACoBARoAAAALAAAAQ2VydGlmaWNhdGUAD/////8AAAAAAAEAKAEBAAAAAQAAAAAA" +
+           "ABH/////AAAAAAABACoBARoAAAALAAAAQ2VydGlmaWNhdGUAD/////8AAAAAAAEAKAEBAAAAAQAAAAIA" +
            "AAABAf////8AAAAA";
         #endregion
         #endif
         #endregion
 
         #region Event Callbacks
-        /// <summary>
-        /// Raised when the the method is called.
-        /// </summary>
+        /// <remarks />
         public RevokeCertificateMethodStateMethodCallHandler OnCall;
         #endregion
 
@@ -2245,9 +2001,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Invokes the method, returns the result and output argument.
-        /// </summary>
+        /// <remarks />
         protected override ServiceResult Call(
             ISystemContext _context,
             NodeId _objectId,
@@ -2259,14 +2013,14 @@ namespace Opc.Ua.Gds
                 return base.Call(_context, _objectId, _inputArguments, _outputArguments);
             }
 
-            ServiceResult result = null;
+            ServiceResult _result = null;
 
             NodeId applicationId = (NodeId)_inputArguments[0];
             byte[] certificate = (byte[])_inputArguments[1];
 
             if (OnCall != null)
             {
-                result = OnCall(
+                _result = OnCall(
                     _context,
                     this,
                     _objectId,
@@ -2274,7 +2028,7 @@ namespace Opc.Ua.Gds
                     certificate);
             }
 
-            return result;
+            return _result;
         }
         #endregion
 
@@ -2282,14 +2036,12 @@ namespace Opc.Ua.Gds
         #endregion
     }
 
-    /// <summary>
-    /// Used to receive notifications when the method is called.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     public delegate ServiceResult RevokeCertificateMethodStateMethodCallHandler(
-        ISystemContext context,
-        MethodState method,
-        NodeId objectId,
+        ISystemContext _context,
+        MethodState _method,
+        NodeId _objectId,
         NodeId applicationId,
         byte[] certificate);
     #endif
@@ -2297,44 +2049,33 @@ namespace Opc.Ua.Gds
 
     #region GetCertificateStatusMethodState Class
     #if (!OPCUA_EXCLUDE_GetCertificateStatusMethodState)
-    /// <summary>
-    /// Stores an instance of the GetCertificateStatusMethodType Method.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class GetCertificateStatusMethodState : MethodState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public GetCertificateStatusMethodState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Constructs an instance of a node.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <returns>The new node.</returns>
+        /// <remarks />
         public new static NodeState Construct(NodeState parent)
         {
             return new GetCertificateStatusMethodState(parent);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -2346,17 +2087,15 @@ namespace Opc.Ua.Gds
            "dENlcnRpZmljYXRlU3RhdHVzTWV0aG9kVHlwZQEB2wAALwEB2wDbAAAAAQH/////AgAAABdgqQoCAAAA" +
            "AAAOAAAASW5wdXRBcmd1bWVudHMBAdwAAC4ARNwAAACWAwAAAAEAKgEBHAAAAA0AAABBcHBsaWNhdGlv" +
            "bklkABH/////AAAAAAABACoBASEAAAASAAAAQ2VydGlmaWNhdGVHcm91cElkABH/////AAAAAAABACoB" +
-           "ASAAAAARAAAAQ2VydGlmaWNhdGVUeXBlSWQAEf////8AAAAAAAEAKAEBAAAAAQAAAAAAAAABAf////8A" +
+           "ASAAAAARAAAAQ2VydGlmaWNhdGVUeXBlSWQAEf////8AAAAAAAEAKAEBAAAAAQAAAAMAAAABAf////8A" +
            "AAAAF2CpCgIAAAAAAA8AAABPdXRwdXRBcmd1bWVudHMBAd0AAC4ARN0AAACWAQAAAAEAKgEBHQAAAA4A" +
-           "AABVcGRhdGVSZXF1aXJlZAAB/////wAAAAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAAAAA=";
+           "AABVcGRhdGVSZXF1aXJlZAAB/////wAAAAAAAQAoAQEAAAABAAAAAQAAAAEB/////wAAAAA=";
         #endregion
         #endif
         #endregion
 
         #region Event Callbacks
-        /// <summary>
-        /// Raised when the the method is called.
-        /// </summary>
+        /// <remarks />
         public GetCertificateStatusMethodStateMethodCallHandler OnCall;
         #endregion
 
@@ -2364,9 +2103,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Invokes the method, returns the result and output argument.
-        /// </summary>
+        /// <remarks />
         protected override ServiceResult Call(
             ISystemContext _context,
             NodeId _objectId,
@@ -2378,7 +2115,7 @@ namespace Opc.Ua.Gds
                 return base.Call(_context, _objectId, _inputArguments, _outputArguments);
             }
 
-            ServiceResult result = null;
+            ServiceResult _result = null;
 
             NodeId applicationId = (NodeId)_inputArguments[0];
             NodeId certificateGroupId = (NodeId)_inputArguments[1];
@@ -2388,7 +2125,7 @@ namespace Opc.Ua.Gds
 
             if (OnCall != null)
             {
-                result = OnCall(
+                _result = OnCall(
                     _context,
                     this,
                     _objectId,
@@ -2400,7 +2137,7 @@ namespace Opc.Ua.Gds
 
             _outputArguments[0] = updateRequired;
 
-            return result;
+            return _result;
         }
         #endregion
 
@@ -2408,14 +2145,12 @@ namespace Opc.Ua.Gds
         #endregion
     }
 
-    /// <summary>
-    /// Used to receive notifications when the method is called.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     public delegate ServiceResult GetCertificateStatusMethodStateMethodCallHandler(
-        ISystemContext context,
-        MethodState method,
-        NodeId objectId,
+        ISystemContext _context,
+        MethodState _method,
+        NodeId _objectId,
         NodeId applicationId,
         NodeId certificateGroupId,
         NodeId certificateTypeId,
@@ -2423,53 +2158,263 @@ namespace Opc.Ua.Gds
     #endif
     #endregion
 
+    #region GetCertificatesMethodState Class
+    #if (!OPCUA_EXCLUDE_GetCertificatesMethodState)
+    /// <remarks />
+    /// <exclude />
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
+    public partial class GetCertificatesMethodState : MethodState
+    {
+        #region Constructors
+        /// <remarks />
+        public GetCertificatesMethodState(NodeState parent) : base(parent)
+        {
+        }
+
+        /// <remarks />
+        public new static NodeState Construct(NodeState parent)
+        {
+            return new GetCertificatesMethodState(parent);
+        }
+
+        #if (!OPCUA_EXCLUDE_InitializationStrings)
+        /// <remarks />
+        protected override void Initialize(ISystemContext context)
+        {
+            base.Initialize(context);
+            Initialize(context, InitializationString);
+            InitializeOptionalChildren(context);
+        }
+
+        /// <remarks />
+        protected override void InitializeOptionalChildren(ISystemContext context)
+        {
+            base.InitializeOptionalChildren(context);
+        }
+
+        #region Initialization String
+        private const string InitializationString =
+           "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYYIKBAAAAAEAGQAAAEdl" +
+           "dENlcnRpZmljYXRlc01ldGhvZFR5cGUBASsAAC8BASsAKwAAAAEB/////wIAAAAXYKkKAgAAAAAADgAA" +
+           "AElucHV0QXJndW1lbnRzAQEsAAAuAEQsAAAAlgIAAAABACoBARwAAAANAAAAQXBwbGljYXRpb25JZAAR" +
+           "/////wAAAAAAAQAqAQEhAAAAEgAAAENlcnRpZmljYXRlR3JvdXBJZAAR/////wAAAAAAAQAoAQEAAAAB" +
+           "AAAAAgAAAAEB/////wAAAAAXYKkKAgAAAAAADwAAAE91dHB1dEFyZ3VtZW50cwEBLQAALgBELQAAAJYC" +
+           "AAAAAQAqAQElAAAAEgAAAENlcnRpZmljYXRlVHlwZUlkcwARAQAAAAEAAAAAAAAAAAEAKgEBHwAAAAwA" +
+           "AABDZXJ0aWZpY2F0ZXMADwEAAAABAAAAAAAAAAABACgBAQAAAAEAAAACAAAAAQH/////AAAAAA==";
+        #endregion
+        #endif
+        #endregion
+
+        #region Event Callbacks
+        /// <remarks />
+        public GetCertificatesMethodStateMethodCallHandler OnCall;
+        #endregion
+
+        #region Public Properties
+        #endregion
+
+        #region Overridden Methods
+        /// <remarks />
+        protected override ServiceResult Call(
+            ISystemContext _context,
+            NodeId _objectId,
+            IList<object> _inputArguments,
+            IList<object> _outputArguments)
+        {
+            if (OnCall == null)
+            {
+                return base.Call(_context, _objectId, _inputArguments, _outputArguments);
+            }
+
+            ServiceResult _result = null;
+
+            NodeId applicationId = (NodeId)_inputArguments[0];
+            NodeId certificateGroupId = (NodeId)_inputArguments[1];
+
+            NodeId[] certificateTypeIds = (NodeId[])_outputArguments[0];
+            byte[][] certificates = (byte[][])_outputArguments[1];
+
+            if (OnCall != null)
+            {
+                _result = OnCall(
+                    _context,
+                    this,
+                    _objectId,
+                    applicationId,
+                    certificateGroupId,
+                    ref certificateTypeIds,
+                    ref certificates);
+            }
+
+            _outputArguments[0] = certificateTypeIds;
+            _outputArguments[1] = certificates;
+
+            return _result;
+        }
+        #endregion
+
+        #region Private Fields
+        #endregion
+    }
+
+    /// <remarks />
+    /// <exclude />
+    public delegate ServiceResult GetCertificatesMethodStateMethodCallHandler(
+        ISystemContext _context,
+        MethodState _method,
+        NodeId _objectId,
+        NodeId applicationId,
+        NodeId certificateGroupId,
+        ref NodeId[] certificateTypeIds,
+        ref byte[][] certificates);
+    #endif
+    #endregion
+
+    #region CheckRevocationStatusMethodState Class
+    #if (!OPCUA_EXCLUDE_CheckRevocationStatusMethodState)
+    /// <remarks />
+    /// <exclude />
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
+    public partial class CheckRevocationStatusMethodState : MethodState
+    {
+        #region Constructors
+        /// <remarks />
+        public CheckRevocationStatusMethodState(NodeState parent) : base(parent)
+        {
+        }
+
+        /// <remarks />
+        public new static NodeState Construct(NodeState parent)
+        {
+            return new CheckRevocationStatusMethodState(parent);
+        }
+
+        #if (!OPCUA_EXCLUDE_InitializationStrings)
+        /// <remarks />
+        protected override void Initialize(ISystemContext context)
+        {
+            base.Initialize(context);
+            Initialize(context, InitializationString);
+            InitializeOptionalChildren(context);
+        }
+
+        /// <remarks />
+        protected override void InitializeOptionalChildren(ISystemContext context)
+        {
+            base.InitializeOptionalChildren(context);
+        }
+
+        #region Initialization String
+        private const string InitializationString =
+           "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYYIKBAAAAAEAHwAAAENo" +
+           "ZWNrUmV2b2NhdGlvblN0YXR1c01ldGhvZFR5cGUBAS4AAC8BAS4ALgAAAAEB/////wIAAAAXYKkKAgAA" +
+           "AAAADgAAAElucHV0QXJndW1lbnRzAQEvAAAuAEQvAAAAlgEAAAABACoBARoAAAALAAAAQ2VydGlmaWNh" +
+           "dGUAD/////8AAAAAAAEAKAEBAAAAAQAAAAEAAAABAf////8AAAAAF2CpCgIAAAAAAA8AAABPdXRwdXRB" +
+           "cmd1bWVudHMBATYAAC4ARDYAAACWAgAAAAEAKgEBIAAAABEAAABDZXJ0aWZpY2F0ZVN0YXR1cwAT////" +
+           "/wAAAAAAAQAqAQEdAAAADAAAAFZhbGlkaXR5VGltZQEAJgH/////AAAAAAABACgBAQAAAAEAAAACAAAA" +
+           "AQH/////AAAAAA==";
+        #endregion
+        #endif
+        #endregion
+
+        #region Event Callbacks
+        /// <remarks />
+        public CheckRevocationStatusMethodStateMethodCallHandler OnCall;
+        #endregion
+
+        #region Public Properties
+        #endregion
+
+        #region Overridden Methods
+        /// <remarks />
+        protected override ServiceResult Call(
+            ISystemContext _context,
+            NodeId _objectId,
+            IList<object> _inputArguments,
+            IList<object> _outputArguments)
+        {
+            if (OnCall == null)
+            {
+                return base.Call(_context, _objectId, _inputArguments, _outputArguments);
+            }
+
+            ServiceResult _result = null;
+
+            byte[] certificate = (byte[])_inputArguments[0];
+
+            StatusCode certificateStatus = (StatusCode)_outputArguments[0];
+            DateTime validityTime = (DateTime)_outputArguments[1];
+
+            if (OnCall != null)
+            {
+                _result = OnCall(
+                    _context,
+                    this,
+                    _objectId,
+                    certificate,
+                    ref certificateStatus,
+                    ref validityTime);
+            }
+
+            _outputArguments[0] = certificateStatus;
+            _outputArguments[1] = validityTime;
+
+            return _result;
+        }
+        #endregion
+
+        #region Private Fields
+        #endregion
+    }
+
+    /// <remarks />
+    /// <exclude />
+    public delegate ServiceResult CheckRevocationStatusMethodStateMethodCallHandler(
+        ISystemContext _context,
+        MethodState _method,
+        NodeId _objectId,
+        byte[] certificate,
+        ref StatusCode certificateStatus,
+        ref DateTime validityTime);
+    #endif
+    #endregion
+
     #region CertificateDirectoryState Class
     #if (!OPCUA_EXCLUDE_CertificateDirectoryState)
-    /// <summary>
-    /// Stores an instance of the CertificateDirectoryType ObjectType.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class CertificateDirectoryState : DirectoryState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public CertificateDirectoryState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Returns the id of the default type definition node for the instance.
-        /// </summary>
+        /// <remarks />
         protected override NodeId GetDefaultTypeDefinitionId(NamespaceTable namespaceUris)
         {
             return Opc.Ua.NodeId.Create(Opc.Ua.Gds.ObjectTypes.CertificateDirectoryType, Opc.Ua.Gds.Namespaces.OpcUaGds, namespaceUris);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the instance with a node.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context, NodeState source)
         {
             InitializeOptionalChildren(context);
             base.Initialize(context, source);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -2478,6 +2423,16 @@ namespace Opc.Ua.Gds
             {
                 RevokeCertificate.Initialize(context, RevokeCertificate_InitializationString);
             }
+
+            if (GetCertificates != null)
+            {
+                GetCertificates.Initialize(context, GetCertificates_InitializationString);
+            }
+
+            if (CheckRevocationStatus != null)
+            {
+                CheckRevocationStatus.Initialize(context, CheckRevocationStatus_InitializationString);
+            }
         }
 
         #region Initialization String
@@ -2485,125 +2440,166 @@ namespace Opc.Ua.Gds
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYYIKBAAAAAEAEQAAAFJl" +
            "dm9rZUNlcnRpZmljYXRlAQGbOgAvAQGbOps6AAABAf////8BAAAAF2CpCgIAAAAAAA4AAABJbnB1dEFy" +
            "Z3VtZW50cwEBnDoALgBEnDoAAJYCAAAAAQAqAQEcAAAADQAAAEFwcGxpY2F0aW9uSWQAEf////8AAAAA" +
-           "AAEAKgEBGgAAAAsAAABDZXJ0aWZpY2F0ZQAP/////wAAAAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAA" +
+           "AAEAKgEBGgAAAAsAAABDZXJ0aWZpY2F0ZQAP/////wAAAAAAAQAoAQEAAAABAAAAAgAAAAEB/////wAA" +
            "AAA=";
+
+        private const string GetCertificates_InitializationString =
+           "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYYIKBAAAAAEADwAAAEdl" +
+           "dENlcnRpZmljYXRlcwEBWQAALwEBWQBZAAAAAQH/////AgAAABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1" +
+           "bWVudHMBAVoAAC4ARFoAAACWAgAAAAEAKgEBHAAAAA0AAABBcHBsaWNhdGlvbklkABH/////AAAAAAAB" +
+           "ACoBASEAAAASAAAAQ2VydGlmaWNhdGVHcm91cElkABH/////AAAAAAABACgBAQAAAAEAAAACAAAAAQH/" +
+           "////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJndW1lbnRzAQFsAAAuAERsAAAAlgIAAAABACoBASUA" +
+           "AAASAAAAQ2VydGlmaWNhdGVUeXBlSWRzABEBAAAAAQAAAAAAAAAAAQAqAQEfAAAADAAAAENlcnRpZmlj" +
+           "YXRlcwAPAQAAAAEAAAAAAAAAAAEAKAEBAAAAAQAAAAIAAAABAf////8AAAAA";
+
+        private const string CheckRevocationStatus_InitializationString =
+           "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYYIKBAAAAAEAFQAAAENo" +
+           "ZWNrUmV2b2NhdGlvblN0YXR1cwEBfgAALwEBfgB+AAAAAQH/////AgAAABdgqQoCAAAAAAAOAAAASW5w" +
+           "dXRBcmd1bWVudHMBAaAAAC4ARKAAAACWAQAAAAEAKgEBGgAAAAsAAABDZXJ0aWZpY2F0ZQAP/////wAA" +
+           "AAAAAQAoAQEAAAABAAAAAQAAAAEB/////wAAAAAXYKkKAgAAAAAADwAAAE91dHB1dEFyZ3VtZW50cwEB" +
+           "oQAALgBEoQAAAJYCAAAAAQAqAQEgAAAAEQAAAENlcnRpZmljYXRlU3RhdHVzABP/////AAAAAAABACoB" +
+           "AR0AAAAMAAAAVmFsaWRpdHlUaW1lAQAmAf////8AAAAAAAEAKAEBAAAAAQAAAAIAAAABAf////8AAAAA";
 
         private const string InitializationString =
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYIACAQAAAAEAIAAAAENl" +
-           "cnRpZmljYXRlRGlyZWN0b3J5VHlwZUluc3RhbmNlAQE/AAEBPwA/AAAA/////xAAAAAEYIAKAQAAAAEA" +
-           "DAAAAEFwcGxpY2F0aW9ucwEBQAAALwA9QAAAAP////8AAAAABGGCCgQAAAABABAAAABGaW5kQXBwbGlj" +
-           "YXRpb25zAQFBAAAvAQEPAEEAAAABAf////8CAAAAF2CpCgIAAAAAAA4AAABJbnB1dEFyZ3VtZW50cwEB" +
-           "QgAALgBEQgAAAJYBAAAAAQAqAQEdAAAADgAAAEFwcGxpY2F0aW9uVXJpAAz/////AAAAAAABACgBAQAA" +
-           "AAEAAAAAAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJndW1lbnRzAQFDAAAuAERDAAAA" +
-           "lgEAAAABACoBASEAAAAMAAAAQXBwbGljYXRpb25zAQEBAAEAAAABAAAAAAAAAAABACgBAQAAAAEAAAAA" +
-           "AAAAAQH/////AAAAAARhggoEAAAAAQATAAAAUmVnaXN0ZXJBcHBsaWNhdGlvbgEBRAAALwEBEgBEAAAA" +
-           "AQH/////AgAAABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMBAUUAAC4AREUAAACWAQAAAAEAKgEB" +
-           "HAAAAAsAAABBcHBsaWNhdGlvbgEBAQD/////AAAAAAABACgBAQAAAAEAAAAAAAAAAQH/////AAAAABdg" +
-           "qQoCAAAAAAAPAAAAT3V0cHV0QXJndW1lbnRzAQFGAAAuAERGAAAAlgEAAAABACoBARwAAAANAAAAQXBw" +
-           "bGljYXRpb25JZAAR/////wAAAAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAAAAAEYYIKBAAAAAEAEQAA" +
-           "AFVwZGF0ZUFwcGxpY2F0aW9uAQHBAAAvAQG8AMEAAAABAf////8BAAAAF2CpCgIAAAAAAA4AAABJbnB1" +
-           "dEFyZ3VtZW50cwEBwgAALgBEwgAAAJYBAAAAAQAqAQEcAAAACwAAAEFwcGxpY2F0aW9uAQEBAP////8A" +
-           "AAAAAAEAKAEBAAAAAQAAAAAAAAABAf////8AAAAABGGCCgQAAAABABUAAABVbnJlZ2lzdGVyQXBwbGlj" +
-           "YXRpb24BAUcAAC8BARUARwAAAAEB/////wEAAAAXYKkKAgAAAAAADgAAAElucHV0QXJndW1lbnRzAQFI" +
-           "AAAuAERIAAAAlgEAAAABACoBARwAAAANAAAAQXBwbGljYXRpb25JZAAR/////wAAAAAAAQAoAQEAAAAB" +
-           "AAAAAAAAAAEB/////wAAAAAEYYIKBAAAAAEADgAAAEdldEFwcGxpY2F0aW9uAQHVAAAvAQHSANUAAAAB" +
-           "Af////8CAAAAF2CpCgIAAAAAAA4AAABJbnB1dEFyZ3VtZW50cwEB1gAALgBE1gAAAJYBAAAAAQAqAQEc" +
-           "AAAADQAAAEFwcGxpY2F0aW9uSWQAEf////8AAAAAAAEAKAEBAAAAAQAAAAAAAAABAf////8AAAAAF2Cp" +
-           "CgIAAAAAAA8AAABPdXRwdXRBcmd1bWVudHMBAdcAAC4ARNcAAACWAQAAAAEAKgEBHAAAAAsAAABBcHBs" +
-           "aWNhdGlvbgEBAQD/////AAAAAAABACgBAQAAAAEAAAAAAAAAAQH/////AAAAAARhggoEAAAAAQARAAAA" +
-           "UXVlcnlBcHBsaWNhdGlvbnMBAWcDAC8BAWQDZwMAAAEB/////wIAAAAXYKkKAgAAAAAADgAAAElucHV0" +
-           "QXJndW1lbnRzAQFoAwAuAERoAwAAlgcAAAABACoBAR8AAAAQAAAAU3RhcnRpbmdSZWNvcmRJZAAH////" +
-           "/wAAAAAAAQAqAQEhAAAAEgAAAE1heFJlY29yZHNUb1JldHVybgAH/////wAAAAAAAQAqAQEeAAAADwAA" +
-           "AEFwcGxpY2F0aW9uTmFtZQAM/////wAAAAAAAQAqAQEdAAAADgAAAEFwcGxpY2F0aW9uVXJpAAz/////" +
-           "AAAAAAABACoBAR4AAAAPAAAAQXBwbGljYXRpb25UeXBlAAf/////AAAAAAABACoBARkAAAAKAAAAUHJv" +
-           "ZHVjdFVyaQAM/////wAAAAAAAQAqAQEfAAAADAAAAENhcGFiaWxpdGllcwAMAQAAAAEAAAAAAAAAAAEA" +
-           "KAEBAAAAAQAAAAAAAAABAf////8AAAAAF2CpCgIAAAAAAA8AAABPdXRwdXRBcmd1bWVudHMBAWkDAC4A" +
-           "RGkDAACWAwAAAAEAKgEBJQAAABQAAABMYXN0Q291bnRlclJlc2V0VGltZQEAJgH/////AAAAAAABACoB" +
-           "ARsAAAAMAAAATmV4dFJlY29yZElkAAf/////AAAAAAABACoBASEAAAAMAAAAQXBwbGljYXRpb25zAQA0" +
-           "AQEAAAABAAAAAAAAAAABACgBAQAAAAEAAAAAAAAAAQH/////AAAAAARhggoEAAAAAQAMAAAAUXVlcnlT" +
-           "ZXJ2ZXJzAQFJAAAvAQEXAEkAAAABAf////8CAAAAF2CpCgIAAAAAAA4AAABJbnB1dEFyZ3VtZW50cwEB" +
-           "SgAALgBESgAAAJYGAAAAAQAqAQEfAAAAEAAAAFN0YXJ0aW5nUmVjb3JkSWQAB/////8AAAAAAAEAKgEB" +
-           "IQAAABIAAABNYXhSZWNvcmRzVG9SZXR1cm4AB/////8AAAAAAAEAKgEBHgAAAA8AAABBcHBsaWNhdGlv" +
-           "bk5hbWUADP////8AAAAAAAEAKgEBHQAAAA4AAABBcHBsaWNhdGlvblVyaQAM/////wAAAAAAAQAqAQEZ" +
-           "AAAACgAAAFByb2R1Y3RVcmkADP////8AAAAAAAEAKgEBJQAAABIAAABTZXJ2ZXJDYXBhYmlsaXRpZXMA" +
-           "DAEAAAABAAAAAAAAAAABACgBAQAAAAEAAAAAAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0" +
-           "QXJndW1lbnRzAQFLAAAuAERLAAAAlgIAAAABACoBASUAAAAUAAAATGFzdENvdW50ZXJSZXNldFRpbWUB" +
+           "cnRpZmljYXRlRGlyZWN0b3J5VHlwZUluc3RhbmNlAQE/AAEBPwA/AAAA/////xIAAAAEYIAKAQAAAAEA" +
+           "DAAAAEFwcGxpY2F0aW9ucwIBAFVCDwAALwA9VUIPAP////8AAAAABGGCCgQAAAABABAAAABGaW5kQXBw" +
+           "bGljYXRpb25zAgEAVkIPAAAvAQEPAFZCDwABAf////8CAAAAF2CpCgIAAAAAAA4AAABJbnB1dEFyZ3Vt" +
+           "ZW50cwIBAFdCDwAALgBEV0IPAJYBAAAAAQAqAQEdAAAADgAAAEFwcGxpY2F0aW9uVXJpAAz/////AAAA" +
+           "AAABACgBAQAAAAEAAAABAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJndW1lbnRzAgEA" +
+           "WEIPAAAuAERYQg8AlgEAAAABACoBASEAAAAMAAAAQXBwbGljYXRpb25zAQEBAAEAAAABAAAAAAAAAAAB" +
+           "ACgBAQAAAAEAAAABAAAAAQH/////AAAAAARhggoEAAAAAQATAAAAUmVnaXN0ZXJBcHBsaWNhdGlvbgIB" +
+           "AFlCDwAALwEBEgBZQg8AAQH/////AgAAABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMCAQBaQg8A" +
+           "AC4ARFpCDwCWAQAAAAEAKgEBHAAAAAsAAABBcHBsaWNhdGlvbgEBAQD/////AAAAAAABACgBAQAAAAEA" +
+           "AAABAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJndW1lbnRzAgEAW0IPAAAuAERbQg8A" +
+           "lgEAAAABACoBARwAAAANAAAAQXBwbGljYXRpb25JZAAR/////wAAAAAAAQAoAQEAAAABAAAAAQAAAAEB" +
+           "/////wAAAAAEYYIKBAAAAAEAEQAAAFVwZGF0ZUFwcGxpY2F0aW9uAgEAXEIPAAAvAQG8AFxCDwABAf//" +
+           "//8BAAAAF2CpCgIAAAAAAA4AAABJbnB1dEFyZ3VtZW50cwIBAF1CDwAALgBEXUIPAJYBAAAAAQAqAQEc" +
+           "AAAACwAAAEFwcGxpY2F0aW9uAQEBAP////8AAAAAAAEAKAEBAAAAAQAAAAEAAAABAf////8AAAAABGGC" +
+           "CgQAAAABABUAAABVbnJlZ2lzdGVyQXBwbGljYXRpb24CAQBeQg8AAC8BARUAXkIPAAEB/////wEAAAAX" +
+           "YKkKAgAAAAAADgAAAElucHV0QXJndW1lbnRzAgEAX0IPAAAuAERfQg8AlgEAAAABACoBARwAAAANAAAA" +
+           "QXBwbGljYXRpb25JZAAR/////wAAAAAAAQAoAQEAAAABAAAAAQAAAAEB/////wAAAAAEYYIKBAAAAAEA" +
+           "DgAAAEdldEFwcGxpY2F0aW9uAgEAYEIPAAAvAQHSAGBCDwABAf////8CAAAAF2CpCgIAAAAAAA4AAABJ" +
+           "bnB1dEFyZ3VtZW50cwIBAGFCDwAALgBEYUIPAJYBAAAAAQAqAQEcAAAADQAAAEFwcGxpY2F0aW9uSWQA" +
+           "Ef////8AAAAAAAEAKAEBAAAAAQAAAAEAAAABAf////8AAAAAF2CpCgIAAAAAAA8AAABPdXRwdXRBcmd1" +
+           "bWVudHMCAQBiQg8AAC4ARGJCDwCWAQAAAAEAKgEBHAAAAAsAAABBcHBsaWNhdGlvbgEBAQD/////AAAA" +
+           "AAABACgBAQAAAAEAAAABAAAAAQH/////AAAAAARhggoEAAAAAQARAAAAUXVlcnlBcHBsaWNhdGlvbnMC" +
+           "AQBjQg8AAC8BAWQDY0IPAAEB/////wIAAAAXYKkKAgAAAAAADgAAAElucHV0QXJndW1lbnRzAgEAZEIP" +
+           "AAAuAERkQg8AlgcAAAABACoBAR8AAAAQAAAAU3RhcnRpbmdSZWNvcmRJZAAH/////wAAAAAAAQAqAQEh" +
+           "AAAAEgAAAE1heFJlY29yZHNUb1JldHVybgAH/////wAAAAAAAQAqAQEeAAAADwAAAEFwcGxpY2F0aW9u" +
+           "TmFtZQAM/////wAAAAAAAQAqAQEdAAAADgAAAEFwcGxpY2F0aW9uVXJpAAz/////AAAAAAABACoBAR4A" +
+           "AAAPAAAAQXBwbGljYXRpb25UeXBlAAf/////AAAAAAABACoBARkAAAAKAAAAUHJvZHVjdFVyaQAM////" +
+           "/wAAAAAAAQAqAQEfAAAADAAAAENhcGFiaWxpdGllcwAMAQAAAAEAAAAAAAAAAAEAKAEBAAAAAQAAAAcA" +
+           "AAABAf////8AAAAAF2CpCgIAAAAAAA8AAABPdXRwdXRBcmd1bWVudHMCAQBlQg8AAC4ARGVCDwCWAwAA" +
+           "AAEAKgEBJQAAABQAAABMYXN0Q291bnRlclJlc2V0VGltZQEAJgH/////AAAAAAABACoBARsAAAAMAAAA" +
+           "TmV4dFJlY29yZElkAAf/////AAAAAAABACoBASEAAAAMAAAAQXBwbGljYXRpb25zAQA0AQEAAAABAAAA" +
+           "AAAAAAABACgBAQAAAAEAAAADAAAAAQH/////AAAAAARhggoEAAAAAQAMAAAAUXVlcnlTZXJ2ZXJzAgEA" +
+           "ZkIPAAAvAQEXAGZCDwABAf////8CAAAAF2CpCgIAAAAAAA4AAABJbnB1dEFyZ3VtZW50cwIBAGdCDwAA" +
+           "LgBEZ0IPAJYGAAAAAQAqAQEfAAAAEAAAAFN0YXJ0aW5nUmVjb3JkSWQAB/////8AAAAAAAEAKgEBIQAA" +
+           "ABIAAABNYXhSZWNvcmRzVG9SZXR1cm4AB/////8AAAAAAAEAKgEBHgAAAA8AAABBcHBsaWNhdGlvbk5h" +
+           "bWUADP////8AAAAAAAEAKgEBHQAAAA4AAABBcHBsaWNhdGlvblVyaQAM/////wAAAAAAAQAqAQEZAAAA" +
+           "CgAAAFByb2R1Y3RVcmkADP////8AAAAAAAEAKgEBJQAAABIAAABTZXJ2ZXJDYXBhYmlsaXRpZXMADAEA" +
+           "AAABAAAAAAAAAAABACgBAQAAAAEAAAAGAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJn" +
+           "dW1lbnRzAgEAaEIPAAAuAERoQg8AlgIAAAABACoBASUAAAAUAAAATGFzdENvdW50ZXJSZXNldFRpbWUB" +
            "ACYB/////wAAAAAAAQAqAQEcAAAABwAAAFNlcnZlcnMBAJ0vAQAAAAEAAAAAAAAAAAEAKAEBAAAAAQAA" +
-           "AAAAAAABAf////8AAAAABGCACgEAAAABABEAAABDZXJ0aWZpY2F0ZUdyb3VwcwEB/wEAIwEA9TX/AQAA" +
-           "/////wEAAAAEYIAKAQAAAAAAFwAAAERlZmF1bHRBcHBsaWNhdGlvbkdyb3VwAQEAAgAvAQALMQACAAD/" +
-           "////AgAAAARggAoBAAAAAAAJAAAAVHJ1c3RMaXN0AQEBAgAvAQDqMAECAAD/////DAAAABVgiQoCAAAA" +
-           "AAAEAAAAU2l6ZQEBAgIALgBEAgIAAAAJ/////wEB/////wAAAAAVYIkKAgAAAAAACAAAAFdyaXRhYmxl" +
-           "AQEDAgAuAEQDAgAAAAH/////AQH/////AAAAABVgiQoCAAAAAAAMAAAAVXNlcldyaXRhYmxlAQEEAgAu" +
-           "AEQEAgAAAAH/////AQH/////AAAAABVgiQoCAAAAAAAJAAAAT3BlbkNvdW50AQEFAgAuAEQFAgAAAAX/" +
-           "////AQH/////AAAAAARhggoEAAAAAAAEAAAAT3BlbgEBBwIALwEAPC0HAgAAAQH/////AgAAABdgqQoC" +
-           "AAAAAAAOAAAASW5wdXRBcmd1bWVudHMBAQgCAC4ARAgCAACWAQAAAAEAKgEBEwAAAAQAAABNb2RlAAP/" +
-           "////AAAAAAABACgBAQAAAAEAAAAAAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJndW1l" +
-           "bnRzAQEJAgAuAEQJAgAAlgEAAAABACoBARkAAAAKAAAARmlsZUhhbmRsZQAH/////wAAAAAAAQAoAQEA" +
-           "AAABAAAAAAAAAAEB/////wAAAAAEYYIKBAAAAAAABQAAAENsb3NlAQEKAgAvAQA/LQoCAAABAf////8B" +
-           "AAAAF2CpCgIAAAAAAA4AAABJbnB1dEFyZ3VtZW50cwEBCwIALgBECwIAAJYBAAAAAQAqAQEZAAAACgAA" +
-           "AEZpbGVIYW5kbGUAB/////8AAAAAAAEAKAEBAAAAAQAAAAAAAAABAf////8AAAAABGGCCgQAAAAAAAQA" +
-           "AABSZWFkAQEMAgAvAQBBLQwCAAABAf////8CAAAAF2CpCgIAAAAAAA4AAABJbnB1dEFyZ3VtZW50cwEB" +
-           "DQIALgBEDQIAAJYCAAAAAQAqAQEZAAAACgAAAEZpbGVIYW5kbGUAB/////8AAAAAAAEAKgEBFQAAAAYA" +
-           "AABMZW5ndGgABv////8AAAAAAAEAKAEBAAAAAQAAAAAAAAABAf////8AAAAAF2CpCgIAAAAAAA8AAABP" +
-           "dXRwdXRBcmd1bWVudHMBAQ4CAC4ARA4CAACWAQAAAAEAKgEBEwAAAAQAAABEYXRhAA//////AAAAAAAB" +
-           "ACgBAQAAAAEAAAAAAAAAAQH/////AAAAAARhggoEAAAAAAAFAAAAV3JpdGUBAQ8CAC8BAEQtDwIAAAEB" +
-           "/////wEAAAAXYKkKAgAAAAAADgAAAElucHV0QXJndW1lbnRzAQEQAgAuAEQQAgAAlgIAAAABACoBARkA" +
-           "AAAKAAAARmlsZUhhbmRsZQAH/////wAAAAAAAQAqAQETAAAABAAAAERhdGEAD/////8AAAAAAAEAKAEB" +
-           "AAAAAQAAAAAAAAABAf////8AAAAABGGCCgQAAAAAAAsAAABHZXRQb3NpdGlvbgEBEQIALwEARi0RAgAA" +
-           "AQH/////AgAAABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMBARICAC4ARBICAACWAQAAAAEAKgEB" +
-           "GQAAAAoAAABGaWxlSGFuZGxlAAf/////AAAAAAABACgBAQAAAAEAAAAAAAAAAQH/////AAAAABdgqQoC" +
-           "AAAAAAAPAAAAT3V0cHV0QXJndW1lbnRzAQETAgAuAEQTAgAAlgEAAAABACoBARcAAAAIAAAAUG9zaXRp" +
-           "b24ACf////8AAAAAAAEAKAEBAAAAAQAAAAAAAAABAf////8AAAAABGGCCgQAAAAAAAsAAABTZXRQb3Np" +
-           "dGlvbgEBFAIALwEASS0UAgAAAQH/////AQAAABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMBARUC" +
-           "AC4ARBUCAACWAgAAAAEAKgEBGQAAAAoAAABGaWxlSGFuZGxlAAf/////AAAAAAABACoBARcAAAAIAAAA" +
-           "UG9zaXRpb24ACf////8AAAAAAAEAKAEBAAAAAQAAAAAAAAABAf////8AAAAAFWCJCgIAAAAAAA4AAABM" +
-           "YXN0VXBkYXRlVGltZQEBFgIALgBEFgIAAAEAJgH/////AQH/////AAAAAARhggoEAAAAAAANAAAAT3Bl" +
-           "bldpdGhNYXNrcwEBFwIALwEA/zAXAgAAAQH/////AgAAABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1bWVu" +
-           "dHMBARgCAC4ARBgCAACWAQAAAAEAKgEBFAAAAAUAAABNYXNrcwAH/////wAAAAAAAQAoAQEAAAABAAAA" +
-           "AAAAAAEB/////wAAAAAXYKkKAgAAAAAADwAAAE91dHB1dEFyZ3VtZW50cwEBGQIALgBEGQIAAJYBAAAA" +
-           "AQAqAQEZAAAACgAAAEZpbGVIYW5kbGUAB/////8AAAAAAAEAKAEBAAAAAQAAAAAAAAABAf////8AAAAA" +
-           "F2CJCgIAAAAAABAAAABDZXJ0aWZpY2F0ZVR5cGVzAQEhAgAuAEQhAgAAABEBAAAAAQAAAAAAAAABAf//" +
-           "//8AAAAABGGCCgQAAAABABMAAABTdGFydFNpZ25pbmdSZXF1ZXN0AQFPAAAvAQFPAE8AAAABAf////8C" +
-           "AAAAF2CpCgIAAAAAAA4AAABJbnB1dEFyZ3VtZW50cwEBUAAALgBEUAAAAJYEAAAAAQAqAQEcAAAADQAA" +
-           "AEFwcGxpY2F0aW9uSWQAEf////8AAAAAAAEAKgEBIQAAABIAAABDZXJ0aWZpY2F0ZUdyb3VwSWQAEf//" +
-           "//8AAAAAAAEAKgEBIAAAABEAAABDZXJ0aWZpY2F0ZVR5cGVJZAAR/////wAAAAAAAQAqAQEhAAAAEgAA" +
-           "AENlcnRpZmljYXRlUmVxdWVzdAAP/////wAAAAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAAAAAXYKkK" +
-           "AgAAAAAADwAAAE91dHB1dEFyZ3VtZW50cwEBUQAALgBEUQAAAJYBAAAAAQAqAQEYAAAACQAAAFJlcXVl" +
-           "c3RJZAAR/////wAAAAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAAAAAEYYIKBAAAAAEAFgAAAFN0YXJ0" +
-           "TmV3S2V5UGFpclJlcXVlc3QBAUwAAC8BAUwATAAAAAEB/////wIAAAAXYKkKAgAAAAAADgAAAElucHV0" +
-           "QXJndW1lbnRzAQFNAAAuAERNAAAAlgcAAAABACoBARwAAAANAAAAQXBwbGljYXRpb25JZAAR/////wAA" +
-           "AAAAAQAqAQEhAAAAEgAAAENlcnRpZmljYXRlR3JvdXBJZAAR/////wAAAAAAAQAqAQEgAAAAEQAAAENl" +
-           "cnRpZmljYXRlVHlwZUlkABH/////AAAAAAABACoBARoAAAALAAAAU3ViamVjdE5hbWUADP////8AAAAA" +
-           "AAEAKgEBHgAAAAsAAABEb21haW5OYW1lcwAMAQAAAAEAAAAAAAAAAAEAKgEBHwAAABAAAABQcml2YXRl" +
-           "S2V5Rm9ybWF0AAz/////AAAAAAABACoBASEAAAASAAAAUHJpdmF0ZUtleVBhc3N3b3JkAAz/////AAAA" +
-           "AAABACgBAQAAAAEAAAAAAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJndW1lbnRzAQFO" +
-           "AAAuAEROAAAAlgEAAAABACoBARgAAAAJAAAAUmVxdWVzdElkABH/////AAAAAAABACgBAQAAAAEAAAAA" +
-           "AAAAAQH/////AAAAAARhggoEAAAAAQANAAAARmluaXNoUmVxdWVzdAEBVQAALwEBVQBVAAAAAQH/////" +
-           "AgAAABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMBAVYAAC4ARFYAAACWAgAAAAEAKgEBHAAAAA0A" +
-           "AABBcHBsaWNhdGlvbklkABH/////AAAAAAABACoBARgAAAAJAAAAUmVxdWVzdElkABH/////AAAAAAAB" +
-           "ACgBAQAAAAEAAAAAAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJndW1lbnRzAQFXAAAu" +
-           "AERXAAAAlgMAAAABACoBARoAAAALAAAAQ2VydGlmaWNhdGUAD/////8AAAAAAAEAKgEBGQAAAAoAAABQ" +
-           "cml2YXRlS2V5AA//////AAAAAAABACoBASUAAAASAAAASXNzdWVyQ2VydGlmaWNhdGVzAA8BAAAAAQAA" +
-           "AAAAAAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAAAAAEYYIKBAAAAAEAEQAAAFJldm9rZUNlcnRpZmlj" +
-           "YXRlAQGbOgAvAQGbOps6AAABAf////8BAAAAF2CpCgIAAAAAAA4AAABJbnB1dEFyZ3VtZW50cwEBnDoA" +
-           "LgBEnDoAAJYCAAAAAQAqAQEcAAAADQAAAEFwcGxpY2F0aW9uSWQAEf////8AAAAAAAEAKgEBGgAAAAsA" +
-           "AABDZXJ0aWZpY2F0ZQAP/////wAAAAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAAAAAEYYIKBAAAAAEA" +
-           "FAAAAEdldENlcnRpZmljYXRlR3JvdXBzAQFxAQAvAQFxAXEBAAABAf////8CAAAAF2CpCgIAAAAAAA4A" +
-           "AABJbnB1dEFyZ3VtZW50cwEBcgEALgBEcgEAAJYBAAAAAQAqAQEcAAAADQAAAEFwcGxpY2F0aW9uSWQA" +
-           "Ef////8AAAAAAAEAKAEBAAAAAQAAAAAAAAABAf////8AAAAAF2CpCgIAAAAAAA8AAABPdXRwdXRBcmd1" +
-           "bWVudHMBAXMBAC4ARHMBAACWAQAAAAEAKgEBJgAAABMAAABDZXJ0aWZpY2F0ZUdyb3VwSWRzABEBAAAA" +
-           "AQAAAAAAAAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAAAAAEYYIKBAAAAAEADAAAAEdldFRydXN0TGlz" +
-           "dAEBxQAALwEBxQDFAAAAAQH/////AgAAABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMBAcYAAC4A" +
-           "RMYAAACWAgAAAAEAKgEBHAAAAA0AAABBcHBsaWNhdGlvbklkABH/////AAAAAAABACoBASEAAAASAAAA" +
-           "Q2VydGlmaWNhdGVHcm91cElkABH/////AAAAAAABACgBAQAAAAEAAAAAAAAAAQH/////AAAAABdgqQoC" +
-           "AAAAAAAPAAAAT3V0cHV0QXJndW1lbnRzAQHHAAAuAETHAAAAlgEAAAABACoBARoAAAALAAAAVHJ1c3RM" +
-           "aXN0SWQAEf////8AAAAAAAEAKAEBAAAAAQAAAAAAAAABAf////8AAAAABGGCCgQAAAABABQAAABHZXRD" +
-           "ZXJ0aWZpY2F0ZVN0YXR1cwEB3gAALwEB3gDeAAAAAQH/////AgAAABdgqQoCAAAAAAAOAAAASW5wdXRB" +
-           "cmd1bWVudHMBAd8AAC4ARN8AAACWAwAAAAEAKgEBHAAAAA0AAABBcHBsaWNhdGlvbklkABH/////AAAA" +
-           "AAABACoBASEAAAASAAAAQ2VydGlmaWNhdGVHcm91cElkABH/////AAAAAAABACoBASAAAAARAAAAQ2Vy" +
-           "dGlmaWNhdGVUeXBlSWQAEf////8AAAAAAAEAKAEBAAAAAQAAAAAAAAABAf////8AAAAAF2CpCgIAAAAA" +
-           "AA8AAABPdXRwdXRBcmd1bWVudHMBAeAAAC4AROAAAACWAQAAAAEAKgEBHQAAAA4AAABVcGRhdGVSZXF1" +
-           "aXJlZAAB/////wAAAAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAAAAA=";
+           "AAIAAAABAf////8AAAAABGCACgEAAAABABEAAABDZXJ0aWZpY2F0ZUdyb3VwcwEB/wEAIwEA9TX/AQAA" +
+           "/////wEAAAAEYIAKAQAAAAAAFwAAAERlZmF1bHRBcHBsaWNhdGlvbkdyb3VwAQEAAgAvAQALMQACAAAB" +
+           "AAAAAQAuIwABAKkzAgAAAARggAoBAAAAAAAJAAAAVHJ1c3RMaXN0AQEBAgAvAQDqMAECAAD/////DwAA" +
+           "ABVgiQoCAAAAAAAEAAAAU2l6ZQEBAgIALgBEAgIAAAAJ/////wEB/////wAAAAAVYIkKAgAAAAAACAAA" +
+           "AFdyaXRhYmxlAQEDAgAuAEQDAgAAAAH/////AQH/////AAAAABVgiQoCAAAAAAAMAAAAVXNlcldyaXRh" +
+           "YmxlAQEEAgAuAEQEAgAAAAH/////AQH/////AAAAABVgiQoCAAAAAAAJAAAAT3BlbkNvdW50AQEFAgAu" +
+           "AEQFAgAAAAX/////AQH/////AAAAAARhggoEAAAAAAAEAAAAT3BlbgEBBwIALwEAPC0HAgAAAQH/////" +
+           "AgAAABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMBAQgCAC4ARAgCAACWAQAAAAEAKgEBEwAAAAQA" +
+           "AABNb2RlAAP/////AAAAAAABACgBAQAAAAEAAAABAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0" +
+           "cHV0QXJndW1lbnRzAQEJAgAuAEQJAgAAlgEAAAABACoBARkAAAAKAAAARmlsZUhhbmRsZQAH/////wAA" +
+           "AAAAAQAoAQEAAAABAAAAAQAAAAEB/////wAAAAAEYYIKBAAAAAAABQAAAENsb3NlAQEKAgAvAQA/LQoC" +
+           "AAABAf////8BAAAAF2CpCgIAAAAAAA4AAABJbnB1dEFyZ3VtZW50cwEBCwIALgBECwIAAJYBAAAAAQAq" +
+           "AQEZAAAACgAAAEZpbGVIYW5kbGUAB/////8AAAAAAAEAKAEBAAAAAQAAAAEAAAABAf////8AAAAABGGC" +
+           "CgQAAAAAAAQAAABSZWFkAQEMAgAvAQBBLQwCAAABAf////8CAAAAF2CpCgIAAAAAAA4AAABJbnB1dEFy" +
+           "Z3VtZW50cwEBDQIALgBEDQIAAJYCAAAAAQAqAQEZAAAACgAAAEZpbGVIYW5kbGUAB/////8AAAAAAAEA" +
+           "KgEBFQAAAAYAAABMZW5ndGgABv////8AAAAAAAEAKAEBAAAAAQAAAAIAAAABAf////8AAAAAF2CpCgIA" +
+           "AAAAAA8AAABPdXRwdXRBcmd1bWVudHMBAQ4CAC4ARA4CAACWAQAAAAEAKgEBEwAAAAQAAABEYXRhAA//" +
+           "////AAAAAAABACgBAQAAAAEAAAABAAAAAQH/////AAAAAARhggoEAAAAAAAFAAAAV3JpdGUBAQ8CAC8B" +
+           "AEQtDwIAAAEB/////wEAAAAXYKkKAgAAAAAADgAAAElucHV0QXJndW1lbnRzAQEQAgAuAEQQAgAAlgIA" +
+           "AAABACoBARkAAAAKAAAARmlsZUhhbmRsZQAH/////wAAAAAAAQAqAQETAAAABAAAAERhdGEAD/////8A" +
+           "AAAAAAEAKAEBAAAAAQAAAAIAAAABAf////8AAAAABGGCCgQAAAAAAAsAAABHZXRQb3NpdGlvbgEBEQIA" +
+           "LwEARi0RAgAAAQH/////AgAAABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMBARICAC4ARBICAACW" +
+           "AQAAAAEAKgEBGQAAAAoAAABGaWxlSGFuZGxlAAf/////AAAAAAABACgBAQAAAAEAAAABAAAAAQH/////" +
+           "AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJndW1lbnRzAQETAgAuAEQTAgAAlgEAAAABACoBARcAAAAI" +
+           "AAAAUG9zaXRpb24ACf////8AAAAAAAEAKAEBAAAAAQAAAAEAAAABAf////8AAAAABGGCCgQAAAAAAAsA" +
+           "AABTZXRQb3NpdGlvbgEBFAIALwEASS0UAgAAAQH/////AQAAABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1" +
+           "bWVudHMBARUCAC4ARBUCAACWAgAAAAEAKgEBGQAAAAoAAABGaWxlSGFuZGxlAAf/////AAAAAAABACoB" +
+           "ARcAAAAIAAAAUG9zaXRpb24ACf////8AAAAAAAEAKAEBAAAAAQAAAAIAAAABAf////8AAAAAFWCJCgIA" +
+           "AAAAAA4AAABMYXN0VXBkYXRlVGltZQEBFgIALgBEFgIAAAEAJgH/////AQH/////AAAAAARhggoEAAAA" +
+           "AAANAAAAT3BlbldpdGhNYXNrcwEBFwIALwEA/zAXAgAAAQH/////AgAAABdgqQoCAAAAAAAOAAAASW5w" +
+           "dXRBcmd1bWVudHMBARgCAC4ARBgCAACWAQAAAAEAKgEBFAAAAAUAAABNYXNrcwAH/////wAAAAAAAQAo" +
+           "AQEAAAABAAAAAQAAAAEB/////wAAAAAXYKkKAgAAAAAADwAAAE91dHB1dEFyZ3VtZW50cwEBGQIALgBE" +
+           "GQIAAJYBAAAAAQAqAQEZAAAACgAAAEZpbGVIYW5kbGUAB/////8AAAAAAAEAKAEBAAAAAQAAAAEAAAAB" +
+           "Af////8AAAAABGGCCgQAAAAAAA4AAABDbG9zZUFuZFVwZGF0ZQEBGgIALwEAAjEaAgAAAQH/////AgAA" +
+           "ABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMBARsCAC4ARBsCAACWAQAAAAEAKgEBGQAAAAoAAABG" +
+           "aWxlSGFuZGxlAAf/////AAAAAAABACgBAQAAAAEAAAABAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAA" +
+           "T3V0cHV0QXJndW1lbnRzAQEcAgAuAEQcAgAAlgEAAAABACoBASMAAAAUAAAAQXBwbHlDaGFuZ2VzUmVx" +
+           "dWlyZWQAAf////8AAAAAAAEAKAEBAAAAAQAAAAEAAAABAf////8AAAAABGGCCgQAAAAAAA4AAABBZGRD" +
+           "ZXJ0aWZpY2F0ZQEBHQIALwEABDEdAgAAAQH/////AQAAABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1bWVu" +
+           "dHMBAR4CAC4ARB4CAACWAgAAAAEAKgEBGgAAAAsAAABDZXJ0aWZpY2F0ZQAP/////wAAAAAAAQAqAQEj" +
+           "AAAAFAAAAElzVHJ1c3RlZENlcnRpZmljYXRlAAH/////AAAAAAABACgBAQAAAAEAAAACAAAAAQH/////" +
+           "AAAAAARhggoEAAAAAAARAAAAUmVtb3ZlQ2VydGlmaWNhdGUBAR8CAC8BAAYxHwIAAAEB/////wEAAAAX" +
+           "YKkKAgAAAAAADgAAAElucHV0QXJndW1lbnRzAQEgAgAuAEQgAgAAlgIAAAABACoBARkAAAAKAAAAVGh1" +
+           "bWJwcmludAAM/////wAAAAAAAQAqAQEjAAAAFAAAAElzVHJ1c3RlZENlcnRpZmljYXRlAAH/////AAAA" +
+           "AAABACgBAQAAAAEAAAACAAAAAQH/////AAAAABdgiQoCAAAAAAAQAAAAQ2VydGlmaWNhdGVUeXBlcwEB" +
+           "IQIALgBEIQIAAAARAQAAAAEAAAAAAAAAAQH/////AAAAAARhggoEAAAAAQATAAAAU3RhcnRTaWduaW5n" +
+           "UmVxdWVzdAEBTwAALwEBTwBPAAAAAQH/////AgAAABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMB" +
+           "AVAAAC4ARFAAAACWBAAAAAEAKgEBHAAAAA0AAABBcHBsaWNhdGlvbklkABH/////AAAAAAABACoBASEA" +
+           "AAASAAAAQ2VydGlmaWNhdGVHcm91cElkABH/////AAAAAAABACoBASAAAAARAAAAQ2VydGlmaWNhdGVU" +
+           "eXBlSWQAEf////8AAAAAAAEAKgEBIQAAABIAAABDZXJ0aWZpY2F0ZVJlcXVlc3QAD/////8AAAAAAAEA" +
+           "KAEBAAAAAQAAAAQAAAABAf////8AAAAAF2CpCgIAAAAAAA8AAABPdXRwdXRBcmd1bWVudHMBAVEAAC4A" +
+           "RFEAAACWAQAAAAEAKgEBGAAAAAkAAABSZXF1ZXN0SWQAEf////8AAAAAAAEAKAEBAAAAAQAAAAEAAAAB" +
+           "Af////8AAAAABGGCCgQAAAABABYAAABTdGFydE5ld0tleVBhaXJSZXF1ZXN0AQFMAAAvAQFMAEwAAAAB" +
+           "Af////8CAAAAF2CpCgIAAAAAAA4AAABJbnB1dEFyZ3VtZW50cwEBTQAALgBETQAAAJYHAAAAAQAqAQEc" +
+           "AAAADQAAAEFwcGxpY2F0aW9uSWQAEf////8AAAAAAAEAKgEBIQAAABIAAABDZXJ0aWZpY2F0ZUdyb3Vw" +
+           "SWQAEf////8AAAAAAAEAKgEBIAAAABEAAABDZXJ0aWZpY2F0ZVR5cGVJZAAR/////wAAAAAAAQAqAQEa" +
+           "AAAACwAAAFN1YmplY3ROYW1lAAz/////AAAAAAABACoBAR4AAAALAAAARG9tYWluTmFtZXMADAEAAAAB" +
+           "AAAAAAAAAAABACoBAR8AAAAQAAAAUHJpdmF0ZUtleUZvcm1hdAAM/////wAAAAAAAQAqAQEhAAAAEgAA" +
+           "AFByaXZhdGVLZXlQYXNzd29yZAAM/////wAAAAAAAQAoAQEAAAABAAAABwAAAAEB/////wAAAAAXYKkK" +
+           "AgAAAAAADwAAAE91dHB1dEFyZ3VtZW50cwEBTgAALgBETgAAAJYBAAAAAQAqAQEYAAAACQAAAFJlcXVl" +
+           "c3RJZAAR/////wAAAAAAAQAoAQEAAAABAAAAAQAAAAEB/////wAAAAAEYYIKBAAAAAEADQAAAEZpbmlz" +
+           "aFJlcXVlc3QBAVUAAC8BAVUAVQAAAAEB/////wIAAAAXYKkKAgAAAAAADgAAAElucHV0QXJndW1lbnRz" +
+           "AQFWAAAuAERWAAAAlgIAAAABACoBARwAAAANAAAAQXBwbGljYXRpb25JZAAR/////wAAAAAAAQAqAQEY" +
+           "AAAACQAAAFJlcXVlc3RJZAAR/////wAAAAAAAQAoAQEAAAABAAAAAgAAAAEB/////wAAAAAXYKkKAgAA" +
+           "AAAADwAAAE91dHB1dEFyZ3VtZW50cwEBVwAALgBEVwAAAJYDAAAAAQAqAQEaAAAACwAAAENlcnRpZmlj" +
+           "YXRlAA//////AAAAAAABACoBARkAAAAKAAAAUHJpdmF0ZUtleQAP/////wAAAAAAAQAqAQElAAAAEgAA" +
+           "AElzc3VlckNlcnRpZmljYXRlcwAPAQAAAAEAAAAAAAAAAAEAKAEBAAAAAQAAAAMAAAABAf////8AAAAA" +
+           "BGGCCgQAAAABABEAAABSZXZva2VDZXJ0aWZpY2F0ZQEBmzoALwEBmzqbOgAAAQH/////AQAAABdgqQoC" +
+           "AAAAAAAOAAAASW5wdXRBcmd1bWVudHMBAZw6AC4ARJw6AACWAgAAAAEAKgEBHAAAAA0AAABBcHBsaWNh" +
+           "dGlvbklkABH/////AAAAAAABACoBARoAAAALAAAAQ2VydGlmaWNhdGUAD/////8AAAAAAAEAKAEBAAAA" +
+           "AQAAAAIAAAABAf////8AAAAABGGCCgQAAAABABQAAABHZXRDZXJ0aWZpY2F0ZUdyb3VwcwEBcQEALwEB" +
+           "cQFxAQAAAQH/////AgAAABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMBAXIBAC4ARHIBAACWAQAA" +
+           "AAEAKgEBHAAAAA0AAABBcHBsaWNhdGlvbklkABH/////AAAAAAABACgBAQAAAAEAAAABAAAAAQH/////" +
+           "AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJndW1lbnRzAQFzAQAuAERzAQAAlgEAAAABACoBASYAAAAT" +
+           "AAAAQ2VydGlmaWNhdGVHcm91cElkcwARAQAAAAEAAAAAAAAAAAEAKAEBAAAAAQAAAAEAAAABAf////8A" +
+           "AAAABGGCCgQAAAABAA8AAABHZXRDZXJ0aWZpY2F0ZXMBAVkAAC8BAVkAWQAAAAEB/////wIAAAAXYKkK" +
+           "AgAAAAAADgAAAElucHV0QXJndW1lbnRzAQFaAAAuAERaAAAAlgIAAAABACoBARwAAAANAAAAQXBwbGlj" +
+           "YXRpb25JZAAR/////wAAAAAAAQAqAQEhAAAAEgAAAENlcnRpZmljYXRlR3JvdXBJZAAR/////wAAAAAA" +
+           "AQAoAQEAAAABAAAAAgAAAAEB/////wAAAAAXYKkKAgAAAAAADwAAAE91dHB1dEFyZ3VtZW50cwEBbAAA" +
+           "LgBEbAAAAJYCAAAAAQAqAQElAAAAEgAAAENlcnRpZmljYXRlVHlwZUlkcwARAQAAAAEAAAAAAAAAAAEA" +
+           "KgEBHwAAAAwAAABDZXJ0aWZpY2F0ZXMADwEAAAABAAAAAAAAAAABACgBAQAAAAEAAAACAAAAAQH/////" +
+           "AAAAAARhggoEAAAAAQAMAAAAR2V0VHJ1c3RMaXN0AQHFAAAvAQHFAMUAAAABAf////8CAAAAF2CpCgIA" +
+           "AAAAAA4AAABJbnB1dEFyZ3VtZW50cwEBxgAALgBExgAAAJYCAAAAAQAqAQEcAAAADQAAAEFwcGxpY2F0" +
+           "aW9uSWQAEf////8AAAAAAAEAKgEBIQAAABIAAABDZXJ0aWZpY2F0ZUdyb3VwSWQAEf////8AAAAAAAEA" +
+           "KAEBAAAAAQAAAAIAAAABAf////8AAAAAF2CpCgIAAAAAAA8AAABPdXRwdXRBcmd1bWVudHMBAccAAC4A" +
+           "RMcAAACWAQAAAAEAKgEBGgAAAAsAAABUcnVzdExpc3RJZAAR/////wAAAAAAAQAoAQEAAAABAAAAAQAA" +
+           "AAEB/////wAAAAAEYYIKBAAAAAEAFAAAAEdldENlcnRpZmljYXRlU3RhdHVzAQHeAAAvAQHeAN4AAAAB" +
+           "Af////8CAAAAF2CpCgIAAAAAAA4AAABJbnB1dEFyZ3VtZW50cwEB3wAALgBE3wAAAJYDAAAAAQAqAQEc" +
+           "AAAADQAAAEFwcGxpY2F0aW9uSWQAEf////8AAAAAAAEAKgEBIQAAABIAAABDZXJ0aWZpY2F0ZUdyb3Vw" +
+           "SWQAEf////8AAAAAAAEAKgEBIAAAABEAAABDZXJ0aWZpY2F0ZVR5cGVJZAAR/////wAAAAAAAQAoAQEA" +
+           "AAABAAAAAwAAAAEB/////wAAAAAXYKkKAgAAAAAADwAAAE91dHB1dEFyZ3VtZW50cwEB4AAALgBE4AAA" +
+           "AJYBAAAAAQAqAQEdAAAADgAAAFVwZGF0ZVJlcXVpcmVkAAH/////AAAAAAABACgBAQAAAAEAAAABAAAA" +
+           "AQH/////AAAAAARhggoEAAAAAQAVAAAAQ2hlY2tSZXZvY2F0aW9uU3RhdHVzAQF+AAAvAQF+AH4AAAAB" +
+           "Af////8CAAAAF2CpCgIAAAAAAA4AAABJbnB1dEFyZ3VtZW50cwEBoAAALgBEoAAAAJYBAAAAAQAqAQEa" +
+           "AAAACwAAAENlcnRpZmljYXRlAA//////AAAAAAABACgBAQAAAAEAAAABAAAAAQH/////AAAAABdgqQoC" +
+           "AAAAAAAPAAAAT3V0cHV0QXJndW1lbnRzAQGhAAAuAEShAAAAlgIAAAABACoBASAAAAARAAAAQ2VydGlm" +
+           "aWNhdGVTdGF0dXMAE/////8AAAAAAAEAKgEBHQAAAAwAAABWYWxpZGl0eVRpbWUBACYB/////wAAAAAA" +
+           "AQAoAQEAAAABAAAAAgAAAAEB/////wAAAAA=";
         #endregion
         #endif
         #endregion
@@ -2724,6 +2720,25 @@ namespace Opc.Ua.Gds
         }
 
         /// <remarks />
+        public GetCertificatesMethodState GetCertificates
+        {
+            get
+            {
+                return m_getCertificatesMethod;
+            }
+
+            set
+            {
+                if (!Object.ReferenceEquals(m_getCertificatesMethod, value))
+                {
+                    ChangeMasks |= NodeStateChangeMasks.Children;
+                }
+
+                m_getCertificatesMethod = value;
+            }
+        }
+
+        /// <remarks />
         public GetTrustListMethodState GetTrustList
         {
             get
@@ -2760,14 +2775,29 @@ namespace Opc.Ua.Gds
                 m_getCertificateStatusMethod = value;
             }
         }
+
+        /// <remarks />
+        public CheckRevocationStatusMethodState CheckRevocationStatus
+        {
+            get
+            {
+                return m_checkRevocationStatusMethod;
+            }
+
+            set
+            {
+                if (!Object.ReferenceEquals(m_checkRevocationStatusMethod, value))
+                {
+                    ChangeMasks |= NodeStateChangeMasks.Children;
+                }
+
+                m_checkRevocationStatusMethod = value;
+            }
+        }
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Populates a list with the children that belong to the node.
-        /// </summary>
-        /// <param name="context">The context for the system being accessed.</param>
-        /// <param name="children">The list of children to populate.</param>
+        /// <remarks />
         public override void GetChildren(
             ISystemContext context,
             IList<BaseInstanceState> children)
@@ -2802,6 +2832,11 @@ namespace Opc.Ua.Gds
                 children.Add(m_getCertificateGroupsMethod);
             }
 
+            if (m_getCertificatesMethod != null)
+            {
+                children.Add(m_getCertificatesMethod);
+            }
+
             if (m_getTrustListMethod != null)
             {
                 children.Add(m_getTrustListMethod);
@@ -2812,12 +2847,15 @@ namespace Opc.Ua.Gds
                 children.Add(m_getCertificateStatusMethod);
             }
 
+            if (m_checkRevocationStatusMethod != null)
+            {
+                children.Add(m_checkRevocationStatusMethod);
+            }
+
             base.GetChildren(context, children);
         }
-
-        /// <summary>
-        /// Finds the child with the specified browse name.
-        /// </summary>
+            
+        /// <remarks />
         protected override BaseInstanceState FindChild(
             ISystemContext context,
             QualifiedName browseName,
@@ -2959,6 +2997,27 @@ namespace Opc.Ua.Gds
                     break;
                 }
 
+                case Opc.Ua.Gds.BrowseNames.GetCertificates:
+                {
+                    if (createOrReplace)
+                    {
+                        if (GetCertificates == null)
+                        {
+                            if (replacement == null)
+                            {
+                                GetCertificates = new GetCertificatesMethodState(this);
+                            }
+                            else
+                            {
+                                GetCertificates = (GetCertificatesMethodState)replacement;
+                            }
+                        }
+                    }
+
+                    instance = GetCertificates;
+                    break;
+                }
+
                 case Opc.Ua.Gds.BrowseNames.GetTrustList:
                 {
                     if (createOrReplace)
@@ -3000,6 +3059,27 @@ namespace Opc.Ua.Gds
                     instance = GetCertificateStatus;
                     break;
                 }
+
+                case Opc.Ua.Gds.BrowseNames.CheckRevocationStatus:
+                {
+                    if (createOrReplace)
+                    {
+                        if (CheckRevocationStatus == null)
+                        {
+                            if (replacement == null)
+                            {
+                                CheckRevocationStatus = new CheckRevocationStatusMethodState(this);
+                            }
+                            else
+                            {
+                                CheckRevocationStatus = (CheckRevocationStatusMethodState)replacement;
+                            }
+                        }
+                    }
+
+                    instance = CheckRevocationStatus;
+                    break;
+                }
             }
 
             if (instance != null)
@@ -3018,8 +3098,10 @@ namespace Opc.Ua.Gds
         private FinishRequestMethodState m_finishRequestMethod;
         private RevokeCertificateMethodState m_revokeCertificateMethod;
         private GetCertificateGroupsMethodState m_getCertificateGroupsMethod;
+        private GetCertificatesMethodState m_getCertificatesMethod;
         private GetTrustListMethodState m_getTrustListMethod;
         private GetCertificateStatusMethodState m_getCertificateStatusMethod;
+        private CheckRevocationStatusMethodState m_checkRevocationStatusMethod;
         #endregion
     }
     #endif
@@ -3027,51 +3109,40 @@ namespace Opc.Ua.Gds
 
     #region CertificateRequestedAuditEventState Class
     #if (!OPCUA_EXCLUDE_CertificateRequestedAuditEventState)
-    /// <summary>
-    /// Stores an instance of the CertificateRequestedAuditEventType ObjectType.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class CertificateRequestedAuditEventState : AuditUpdateMethodEventState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public CertificateRequestedAuditEventState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Returns the id of the default type definition node for the instance.
-        /// </summary>
+        /// <remarks />
         protected override NodeId GetDefaultTypeDefinitionId(NamespaceTable namespaceUris)
         {
             return Opc.Ua.NodeId.Create(Opc.Ua.Gds.ObjectTypes.CertificateRequestedAuditEventType, Opc.Ua.Gds.Namespaces.OpcUaGds, namespaceUris);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the instance with a node.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context, NodeState source)
         {
             InitializeOptionalChildren(context);
             base.Initialize(context, source);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -3081,22 +3152,22 @@ namespace Opc.Ua.Gds
         private const string InitializationString =
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYIACAQAAAAEAKgAAAENl" +
            "cnRpZmljYXRlUmVxdWVzdGVkQXVkaXRFdmVudFR5cGVJbnN0YW5jZQEBWwABAVsAWwAAAP////8RAAAA" +
-           "FWCJCgIAAAAAAAcAAABFdmVudElkAQFcAAAuAERcAAAAAA//////AQH/////AAAAABVgiQoCAAAAAAAJ" +
-           "AAAARXZlbnRUeXBlAQFdAAAuAERdAAAAABH/////AQH/////AAAAABVgiQoCAAAAAAAKAAAAU291cmNl" +
-           "Tm9kZQEBXgAALgBEXgAAAAAR/////wEB/////wAAAAAVYIkKAgAAAAAACgAAAFNvdXJjZU5hbWUBAV8A" +
-           "AC4ARF8AAAAADP////8BAf////8AAAAAFWCJCgIAAAAAAAQAAABUaW1lAQFgAAAuAERgAAAAAQAmAf//" +
-           "//8BAf////8AAAAAFWCJCgIAAAAAAAsAAABSZWNlaXZlVGltZQEBYQAALgBEYQAAAAEAJgH/////AQH/" +
-           "////AAAAABVgiQoCAAAAAAAHAAAATWVzc2FnZQEBYwAALgBEYwAAAAAV/////wEB/////wAAAAAVYIkK" +
-           "AgAAAAAACAAAAFNldmVyaXR5AQFkAAAuAERkAAAAAAX/////AQH/////AAAAABVgiQoCAAAAAAAPAAAA" +
-           "QWN0aW9uVGltZVN0YW1wAQFlAAAuAERlAAAAAQAmAf////8BAf////8AAAAAFWCJCgIAAAAAAAYAAABT" +
-           "dGF0dXMBAWYAAC4ARGYAAAAAAf////8BAf////8AAAAAFWCJCgIAAAAAAAgAAABTZXJ2ZXJJZAEBZwAA" +
-           "LgBEZwAAAAAM/////wEB/////wAAAAAVYIkKAgAAAAAAEgAAAENsaWVudEF1ZGl0RW50cnlJZAEBaAAA" +
-           "LgBEaAAAAAAM/////wEB/////wAAAAAVYIkKAgAAAAAADAAAAENsaWVudFVzZXJJZAEBaQAALgBEaQAA" +
-           "AAAM/////wEB/////wAAAAAVYIkKAgAAAAAACAAAAE1ldGhvZElkAQFqAAAuAERqAAAAABH/////AQH/" +
-           "////AAAAABdgiQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMBAWsAAC4ARGsAAAAAGAEAAAABAAAAAAAA" +
-           "AAEB/////wAAAAAVYIkKAgAAAAEAEAAAAENlcnRpZmljYXRlR3JvdXABAc0CAC4ARM0CAAAAEf////8B" +
-           "Af////8AAAAAFWCJCgIAAAABAA8AAABDZXJ0aWZpY2F0ZVR5cGUBAc4CAC4ARM4CAAAAEf////8BAf//" +
-           "//8AAAAA";
+           "FWCJCgIAAAAAAAcAAABFdmVudElkAgEAaUIPAAAuAERpQg8AAA//////AQH/////AAAAABVgiQoCAAAA" +
+           "AAAJAAAARXZlbnRUeXBlAgEAakIPAAAuAERqQg8AABH/////AQH/////AAAAABVgiQoCAAAAAAAKAAAA" +
+           "U291cmNlTm9kZQIBAGtCDwAALgBEa0IPAAAR/////wEB/////wAAAAAVYIkKAgAAAAAACgAAAFNvdXJj" +
+           "ZU5hbWUCAQBsQg8AAC4ARGxCDwAADP////8BAf////8AAAAAFWCJCgIAAAAAAAQAAABUaW1lAgEAbUIP" +
+           "AAAuAERtQg8AAQAmAf////8BAf////8AAAAAFWCJCgIAAAAAAAsAAABSZWNlaXZlVGltZQIBAG5CDwAA" +
+           "LgBEbkIPAAEAJgH/////AQH/////AAAAABVgiQoCAAAAAAAHAAAATWVzc2FnZQIBAHBCDwAALgBEcEIP" +
+           "AAAV/////wEB/////wAAAAAVYIkKAgAAAAAACAAAAFNldmVyaXR5AgEAcUIPAAAuAERxQg8AAAX/////" +
+           "AQH/////AAAAABVgiQoCAAAAAAAPAAAAQWN0aW9uVGltZVN0YW1wAgEAdkIPAAAuAER2Qg8AAQAmAf//" +
+           "//8BAf////8AAAAAFWCJCgIAAAAAAAYAAABTdGF0dXMCAQB3Qg8AAC4ARHdCDwAAAf////8BAf////8A" +
+           "AAAAFWCJCgIAAAAAAAgAAABTZXJ2ZXJJZAIBAHhCDwAALgBEeEIPAAAM/////wEB/////wAAAAAVYIkK" +
+           "AgAAAAAAEgAAAENsaWVudEF1ZGl0RW50cnlJZAIBAHlCDwAALgBEeUIPAAAM/////wEB/////wAAAAAV" +
+           "YIkKAgAAAAAADAAAAENsaWVudFVzZXJJZAIBAHpCDwAALgBEekIPAAAM/////wEB/////wAAAAAVYIkK" +
+           "AgAAAAAACAAAAE1ldGhvZElkAgEAe0IPAAAuAER7Qg8AABH/////AQH/////AAAAABdgiQoCAAAAAAAO" +
+           "AAAASW5wdXRBcmd1bWVudHMCAQB8Qg8AAC4ARHxCDwAAGAEAAAABAAAAAAAAAAEB/////wAAAAAVYIkK" +
+           "AgAAAAEAEAAAAENlcnRpZmljYXRlR3JvdXABAc0CAC4ARM0CAAAAEf////8BAf////8AAAAAFWCJCgIA" +
+           "AAABAA8AAABDZXJ0aWZpY2F0ZVR5cGUBAc4CAC4ARM4CAAAAEf////8BAf////8AAAAA";
         #endregion
         #endif
         #endregion
@@ -3142,11 +3213,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Populates a list with the children that belong to the node.
-        /// </summary>
-        /// <param name="context">The context for the system being accessed.</param>
-        /// <param name="children">The list of children to populate.</param>
+        /// <remarks />
         public override void GetChildren(
             ISystemContext context,
             IList<BaseInstanceState> children)
@@ -3163,10 +3230,8 @@ namespace Opc.Ua.Gds
 
             base.GetChildren(context, children);
         }
-
-        /// <summary>
-        /// Finds the child with the specified browse name.
-        /// </summary>
+            
+        /// <remarks />
         protected override BaseInstanceState FindChild(
             ISystemContext context,
             QualifiedName browseName,
@@ -3244,51 +3309,40 @@ namespace Opc.Ua.Gds
 
     #region CertificateDeliveredAuditEventState Class
     #if (!OPCUA_EXCLUDE_CertificateDeliveredAuditEventState)
-    /// <summary>
-    /// Stores an instance of the CertificateDeliveredAuditEventType ObjectType.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class CertificateDeliveredAuditEventState : AuditUpdateMethodEventState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public CertificateDeliveredAuditEventState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Returns the id of the default type definition node for the instance.
-        /// </summary>
+        /// <remarks />
         protected override NodeId GetDefaultTypeDefinitionId(NamespaceTable namespaceUris)
         {
             return Opc.Ua.NodeId.Create(Opc.Ua.Gds.ObjectTypes.CertificateDeliveredAuditEventType, Opc.Ua.Gds.Namespaces.OpcUaGds, namespaceUris);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the instance with a node.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context, NodeState source)
         {
             InitializeOptionalChildren(context);
             base.Initialize(context, source);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -3298,22 +3352,22 @@ namespace Opc.Ua.Gds
         private const string InitializationString =
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYIACAQAAAAEAKgAAAENl" +
            "cnRpZmljYXRlRGVsaXZlcmVkQXVkaXRFdmVudFR5cGVJbnN0YW5jZQEBbQABAW0AbQAAAP////8RAAAA" +
-           "FWCJCgIAAAAAAAcAAABFdmVudElkAQFuAAAuAERuAAAAAA//////AQH/////AAAAABVgiQoCAAAAAAAJ" +
-           "AAAARXZlbnRUeXBlAQFvAAAuAERvAAAAABH/////AQH/////AAAAABVgiQoCAAAAAAAKAAAAU291cmNl" +
-           "Tm9kZQEBcAAALgBEcAAAAAAR/////wEB/////wAAAAAVYIkKAgAAAAAACgAAAFNvdXJjZU5hbWUBAXEA" +
-           "AC4ARHEAAAAADP////8BAf////8AAAAAFWCJCgIAAAAAAAQAAABUaW1lAQFyAAAuAERyAAAAAQAmAf//" +
-           "//8BAf////8AAAAAFWCJCgIAAAAAAAsAAABSZWNlaXZlVGltZQEBcwAALgBEcwAAAAEAJgH/////AQH/" +
-           "////AAAAABVgiQoCAAAAAAAHAAAATWVzc2FnZQEBdQAALgBEdQAAAAAV/////wEB/////wAAAAAVYIkK" +
-           "AgAAAAAACAAAAFNldmVyaXR5AQF2AAAuAER2AAAAAAX/////AQH/////AAAAABVgiQoCAAAAAAAPAAAA" +
-           "QWN0aW9uVGltZVN0YW1wAQF3AAAuAER3AAAAAQAmAf////8BAf////8AAAAAFWCJCgIAAAAAAAYAAABT" +
-           "dGF0dXMBAXgAAC4ARHgAAAAAAf////8BAf////8AAAAAFWCJCgIAAAAAAAgAAABTZXJ2ZXJJZAEBeQAA" +
-           "LgBEeQAAAAAM/////wEB/////wAAAAAVYIkKAgAAAAAAEgAAAENsaWVudEF1ZGl0RW50cnlJZAEBegAA" +
-           "LgBEegAAAAAM/////wEB/////wAAAAAVYIkKAgAAAAAADAAAAENsaWVudFVzZXJJZAEBewAALgBEewAA" +
-           "AAAM/////wEB/////wAAAAAVYIkKAgAAAAAACAAAAE1ldGhvZElkAQF8AAAuAER8AAAAABH/////AQH/" +
-           "////AAAAABdgiQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMBAX0AAC4ARH0AAAAAGAEAAAABAAAAAAAA" +
-           "AAEB/////wAAAAAVYIkKAgAAAAEAEAAAAENlcnRpZmljYXRlR3JvdXABAc8CAC4ARM8CAAAAEf////8B" +
-           "Af////8AAAAAFWCJCgIAAAABAA8AAABDZXJ0aWZpY2F0ZVR5cGUBAdACAC4ARNACAAAAEf////8BAf//" +
-           "//8AAAAA";
+           "FWCJCgIAAAAAAAcAAABFdmVudElkAgEAfUIPAAAuAER9Qg8AAA//////AQH/////AAAAABVgiQoCAAAA" +
+           "AAAJAAAARXZlbnRUeXBlAgEAfkIPAAAuAER+Qg8AABH/////AQH/////AAAAABVgiQoCAAAAAAAKAAAA" +
+           "U291cmNlTm9kZQIBAH9CDwAALgBEf0IPAAAR/////wEB/////wAAAAAVYIkKAgAAAAAACgAAAFNvdXJj" +
+           "ZU5hbWUCAQCAQg8AAC4ARIBCDwAADP////8BAf////8AAAAAFWCJCgIAAAAAAAQAAABUaW1lAgEAgUIP" +
+           "AAAuAESBQg8AAQAmAf////8BAf////8AAAAAFWCJCgIAAAAAAAsAAABSZWNlaXZlVGltZQIBAIJCDwAA" +
+           "LgBEgkIPAAEAJgH/////AQH/////AAAAABVgiQoCAAAAAAAHAAAATWVzc2FnZQIBAIRCDwAALgBEhEIP" +
+           "AAAV/////wEB/////wAAAAAVYIkKAgAAAAAACAAAAFNldmVyaXR5AgEAhUIPAAAuAESFQg8AAAX/////" +
+           "AQH/////AAAAABVgiQoCAAAAAAAPAAAAQWN0aW9uVGltZVN0YW1wAgEAikIPAAAuAESKQg8AAQAmAf//" +
+           "//8BAf////8AAAAAFWCJCgIAAAAAAAYAAABTdGF0dXMCAQCLQg8AAC4ARItCDwAAAf////8BAf////8A" +
+           "AAAAFWCJCgIAAAAAAAgAAABTZXJ2ZXJJZAIBAIxCDwAALgBEjEIPAAAM/////wEB/////wAAAAAVYIkK" +
+           "AgAAAAAAEgAAAENsaWVudEF1ZGl0RW50cnlJZAIBAI1CDwAALgBEjUIPAAAM/////wEB/////wAAAAAV" +
+           "YIkKAgAAAAAADAAAAENsaWVudFVzZXJJZAIBAI5CDwAALgBEjkIPAAAM/////wEB/////wAAAAAVYIkK" +
+           "AgAAAAAACAAAAE1ldGhvZElkAgEAj0IPAAAuAESPQg8AABH/////AQH/////AAAAABdgiQoCAAAAAAAO" +
+           "AAAASW5wdXRBcmd1bWVudHMCAQCQQg8AAC4ARJBCDwAAGAEAAAABAAAAAAAAAAEB/////wAAAAAVYIkK" +
+           "AgAAAAEAEAAAAENlcnRpZmljYXRlR3JvdXABAc8CAC4ARM8CAAAAEf////8BAf////8AAAAAFWCJCgIA" +
+           "AAABAA8AAABDZXJ0aWZpY2F0ZVR5cGUBAdACAC4ARNACAAAAEf////8BAf////8AAAAA";
         #endregion
         #endif
         #endregion
@@ -3359,11 +3413,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Populates a list with the children that belong to the node.
-        /// </summary>
-        /// <param name="context">The context for the system being accessed.</param>
-        /// <param name="children">The list of children to populate.</param>
+        /// <remarks />
         public override void GetChildren(
             ISystemContext context,
             IList<BaseInstanceState> children)
@@ -3380,10 +3430,8 @@ namespace Opc.Ua.Gds
 
             base.GetChildren(context, children);
         }
-
-        /// <summary>
-        /// Finds the child with the specified browse name.
-        /// </summary>
+            
+        /// <remarks />
         protected override BaseInstanceState FindChild(
             ISystemContext context,
             QualifiedName browseName,
@@ -3459,56 +3507,111 @@ namespace Opc.Ua.Gds
     #endif
     #endregion
 
-    #region KeyCredentialServiceState Class
-    #if (!OPCUA_EXCLUDE_KeyCredentialServiceState)
-    /// <summary>
-    /// Stores an instance of the KeyCredentialServiceType ObjectType.
-    /// </summary>
+    #region KeyCredentialManagementFolderState Class
+    #if (!OPCUA_EXCLUDE_KeyCredentialManagementFolderState)
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
-    public partial class KeyCredentialServiceState : BaseObjectState
+    public partial class KeyCredentialManagementFolderState : FolderState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
-        public KeyCredentialServiceState(NodeState parent) : base(parent)
+        /// <remarks />
+        public KeyCredentialManagementFolderState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Returns the id of the default type definition node for the instance.
-        /// </summary>
+        /// <remarks />
         protected override NodeId GetDefaultTypeDefinitionId(NamespaceTable namespaceUris)
         {
-            return Opc.Ua.NodeId.Create(Opc.Ua.Gds.ObjectTypes.KeyCredentialServiceType, Opc.Ua.Gds.Namespaces.OpcUaGds, namespaceUris);
+            return Opc.Ua.NodeId.Create(Opc.Ua.Gds.ObjectTypes.KeyCredentialManagementFolderType, Opc.Ua.Gds.Namespaces.OpcUaGds, namespaceUris);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the instance with a node.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context, NodeState source)
         {
             InitializeOptionalChildren(context);
             base.Initialize(context, source);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
+        }
+
+        #region Initialization String
+        private const string InitializationString =
+           "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYIACAQAAAAEAKQAAAEtl" +
+           "eUNyZWRlbnRpYWxNYW5hZ2VtZW50Rm9sZGVyVHlwZUluc3RhbmNlAQE3AAEBNwA3AAAA/////wAAAAA=";
+        #endregion
+        #endif
+        #endregion
+
+        #region Public Properties
+        #endregion
+
+        #region Overridden Methods
+        #endregion
+
+        #region Private Fields
+        #endregion
+    }
+    #endif
+    #endregion
+
+    #region KeyCredentialServiceState Class
+    #if (!OPCUA_EXCLUDE_KeyCredentialServiceState)
+    /// <remarks />
+    /// <exclude />
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
+    public partial class KeyCredentialServiceState : BaseObjectState
+    {
+        #region Constructors
+        /// <remarks />
+        public KeyCredentialServiceState(NodeState parent) : base(parent)
+        {
+        }
+
+        /// <remarks />
+        protected override NodeId GetDefaultTypeDefinitionId(NamespaceTable namespaceUris)
+        {
+            return Opc.Ua.NodeId.Create(Opc.Ua.Gds.ObjectTypes.KeyCredentialServiceType, Opc.Ua.Gds.Namespaces.OpcUaGds, namespaceUris);
+        }
+
+        #if (!OPCUA_EXCLUDE_InitializationStrings)
+        /// <remarks />
+        protected override void Initialize(ISystemContext context)
+        {
+            base.Initialize(context);
+            Initialize(context, InitializationString);
+            InitializeOptionalChildren(context);
+        }
+
+        /// <remarks />
+        protected override void Initialize(ISystemContext context, NodeState source)
+        {
+            InitializeOptionalChildren(context);
+            base.Initialize(context, source);
+        }
+
+        /// <remarks />
+        protected override void InitializeOptionalChildren(ISystemContext context)
+        {
+            base.InitializeOptionalChildren(context);
+
+            if (SecurityPolicyUris != null)
+            {
+                SecurityPolicyUris.Initialize(context, SecurityPolicyUris_InitializationString);
+            }
 
             if (Revoke != null)
             {
@@ -3517,34 +3620,39 @@ namespace Opc.Ua.Gds
         }
 
         #region Initialization String
+        private const string SecurityPolicyUris_InitializationString =
+           "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8XYIkKAgAAAAEAEgAAAFNl" +
+           "Y3VyaXR5UG9saWN5VXJpcwEB7wEALgBE7wEAAAAMAQAAAAEAAAAAAAAAAQH/////AAAAAA==";
+
         private const string Revoke_InitializationString =
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYYIKBAAAAAEABgAAAFJl" +
            "dm9rZQEBBQQALwEBBQQFBAAAAQH/////AQAAABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMBAQYE" +
            "AC4ARAYEAACWAQAAAAEAKgEBGwAAAAwAAABDcmVkZW50aWFsSWQADP////8AAAAAAAEAKAEBAAAAAQAA" +
-           "AAAAAAABAf////8AAAAA";
+           "AAEAAAABAf////8AAAAA";
 
         private const string InitializationString =
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYIACAQAAAAEAIAAAAEtl" +
-           "eUNyZWRlbnRpYWxTZXJ2aWNlVHlwZUluc3RhbmNlAQH8AwEB/AP8AwAA/////wUAAAAVYIkKAgAAAAEA" +
+           "eUNyZWRlbnRpYWxTZXJ2aWNlVHlwZUluc3RhbmNlAQH8AwEB/AP8AwAA/////wYAAAAVYIkKAgAAAAEA" +
            "CwAAAFJlc291cmNlVXJpAQH9AwAuAET9AwAAAAz/////AQH/////AAAAABdgiQoCAAAAAQALAAAAUHJv" +
-           "ZmlsZVVyaXMBAf4DAC4ARP4DAAAADAEAAAABAAAAAAAAAAEB/////wAAAAAEYYIKBAAAAAEADAAAAFN0" +
-           "YXJ0UmVxdWVzdAEB/wMALwEB/wP/AwAAAQH/////AgAAABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1bWVu" +
-           "dHMBAQAEAC4ARAAEAACWBAAAAAEAKgEBHQAAAA4AAABBcHBsaWNhdGlvblVyaQAM/////wAAAAAAAQAq" +
-           "AQEYAAAACQAAAFB1YmxpY0tleQAP/////wAAAAAAAQAqAQEgAAAAEQAAAFNlY3VyaXR5UG9saWN5VXJp" +
-           "AAz/////AAAAAAABACoBASEAAAAOAAAAUmVxdWVzdGVkUm9sZXMAEQEAAAABAAAAAAAAAAABACgBAQAA" +
-           "AAEAAAAAAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJndW1lbnRzAQEBBAAuAEQBBAAA" +
-           "lgEAAAABACoBARgAAAAJAAAAUmVxdWVzdElkABH/////AAAAAAABACgBAQAAAAEAAAAAAAAAAQH/////" +
-           "AAAAAARhggoEAAAAAQANAAAARmluaXNoUmVxdWVzdAEBAgQALwEBAgQCBAAAAQH/////AgAAABdgqQoC" +
-           "AAAAAAAOAAAASW5wdXRBcmd1bWVudHMBAQMEAC4ARAMEAACWAgAAAAEAKgEBGAAAAAkAAABSZXF1ZXN0" +
-           "SWQAEf////8AAAAAAAEAKgEBHAAAAA0AAABDYW5jZWxSZXF1ZXN0AAH/////AAAAAAABACgBAQAAAAEA" +
-           "AAAAAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJndW1lbnRzAQEEBAAuAEQEBAAAlgUA" +
-           "AAABACoBARsAAAAMAAAAQ3JlZGVudGlhbElkAAz/////AAAAAAABACoBAR8AAAAQAAAAQ3JlZGVudGlh" +
-           "bFNlY3JldAAP/////wAAAAAAAQAqAQEkAAAAFQAAAENlcnRpZmljYXRlVGh1bWJwcmludAAM/////wAA" +
-           "AAAAAQAqAQEgAAAAEQAAAFNlY3VyaXR5UG9saWN5VXJpAAz/////AAAAAAABACoBAR8AAAAMAAAAR3Jh" +
-           "bnRlZFJvbGVzABEBAAAAAQAAAAAAAAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAAAAAEYYIKBAAAAAEA" +
-           "BgAAAFJldm9rZQEBBQQALwEBBQQFBAAAAQH/////AQAAABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1bWVu" +
-           "dHMBAQYEAC4ARAYEAACWAQAAAAEAKgEBGwAAAAwAAABDcmVkZW50aWFsSWQADP////8AAAAAAAEAKAEB" +
-           "AAAAAQAAAAAAAAABAf////8AAAAA";
+           "ZmlsZVVyaXMBAf4DAC4ARP4DAAAADAEAAAABAAAAAAAAAAEB/////wAAAAAXYIkKAgAAAAEAEgAAAFNl" +
+           "Y3VyaXR5UG9saWN5VXJpcwEB7wEALgBE7wEAAAAMAQAAAAEAAAAAAAAAAQH/////AAAAAARhggoEAAAA" +
+           "AQAMAAAAU3RhcnRSZXF1ZXN0AQH/AwAvAQH/A/8DAAABAf////8CAAAAF2CpCgIAAAAAAA4AAABJbnB1" +
+           "dEFyZ3VtZW50cwEBAAQALgBEAAQAAJYEAAAAAQAqAQEdAAAADgAAAEFwcGxpY2F0aW9uVXJpAAz/////" +
+           "AAAAAAABACoBARgAAAAJAAAAUHVibGljS2V5AA//////AAAAAAABACoBASAAAAARAAAAU2VjdXJpdHlQ" +
+           "b2xpY3lVcmkADP////8AAAAAAAEAKgEBIQAAAA4AAABSZXF1ZXN0ZWRSb2xlcwARAQAAAAEAAAAAAAAA" +
+           "AAEAKAEBAAAAAQAAAAQAAAABAf////8AAAAAF2CpCgIAAAAAAA8AAABPdXRwdXRBcmd1bWVudHMBAQEE" +
+           "AC4ARAEEAACWAQAAAAEAKgEBGAAAAAkAAABSZXF1ZXN0SWQAEf////8AAAAAAAEAKAEBAAAAAQAAAAEA" +
+           "AAABAf////8AAAAABGGCCgQAAAABAA0AAABGaW5pc2hSZXF1ZXN0AQECBAAvAQECBAIEAAABAf////8C" +
+           "AAAAF2CpCgIAAAAAAA4AAABJbnB1dEFyZ3VtZW50cwEBAwQALgBEAwQAAJYCAAAAAQAqAQEYAAAACQAA" +
+           "AFJlcXVlc3RJZAAR/////wAAAAAAAQAqAQEcAAAADQAAAENhbmNlbFJlcXVlc3QAAf////8AAAAAAAEA" +
+           "KAEBAAAAAQAAAAIAAAABAf////8AAAAAF2CpCgIAAAAAAA8AAABPdXRwdXRBcmd1bWVudHMBAQQEAC4A" +
+           "RAQEAACWBQAAAAEAKgEBGwAAAAwAAABDcmVkZW50aWFsSWQADP////8AAAAAAAEAKgEBHwAAABAAAABD" +
+           "cmVkZW50aWFsU2VjcmV0AA//////AAAAAAABACoBASQAAAAVAAAAQ2VydGlmaWNhdGVUaHVtYnByaW50" +
+           "AAz/////AAAAAAABACoBASAAAAARAAAAU2VjdXJpdHlQb2xpY3lVcmkADP////8AAAAAAAEAKgEBHwAA" +
+           "AAwAAABHcmFudGVkUm9sZXMAEQEAAAABAAAAAAAAAAABACgBAQAAAAEAAAAFAAAAAQH/////AAAAAARh" +
+           "ggoEAAAAAQAGAAAAUmV2b2tlAQEFBAAvAQEFBAUEAAABAf////8BAAAAF2CpCgIAAAAAAA4AAABJbnB1" +
+           "dEFyZ3VtZW50cwEBBgQALgBEBgQAAJYBAAAAAQAqAQEbAAAADAAAAENyZWRlbnRpYWxJZAAM/////wAA" +
+           "AAAAAQAoAQEAAAABAAAAAQAAAAEB/////wAAAAA=";
         #endregion
         #endif
         #endregion
@@ -3585,6 +3693,25 @@ namespace Opc.Ua.Gds
                 }
 
                 m_profileUris = value;
+            }
+        }
+
+        /// <remarks />
+        public PropertyState<string[]> SecurityPolicyUris
+        {
+            get
+            {
+                return m_securityPolicyUris;
+            }
+
+            set
+            {
+                if (!Object.ReferenceEquals(m_securityPolicyUris, value))
+                {
+                    ChangeMasks |= NodeStateChangeMasks.Children;
+                }
+
+                m_securityPolicyUris = value;
             }
         }
 
@@ -3647,11 +3774,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Populates a list with the children that belong to the node.
-        /// </summary>
-        /// <param name="context">The context for the system being accessed.</param>
-        /// <param name="children">The list of children to populate.</param>
+        /// <remarks />
         public override void GetChildren(
             ISystemContext context,
             IList<BaseInstanceState> children)
@@ -3664,6 +3787,11 @@ namespace Opc.Ua.Gds
             if (m_profileUris != null)
             {
                 children.Add(m_profileUris);
+            }
+
+            if (m_securityPolicyUris != null)
+            {
+                children.Add(m_securityPolicyUris);
             }
 
             if (m_startRequestMethod != null)
@@ -3683,10 +3811,8 @@ namespace Opc.Ua.Gds
 
             base.GetChildren(context, children);
         }
-
-        /// <summary>
-        /// Finds the child with the specified browse name.
-        /// </summary>
+            
+        /// <remarks />
         protected override BaseInstanceState FindChild(
             ISystemContext context,
             QualifiedName browseName,
@@ -3741,6 +3867,27 @@ namespace Opc.Ua.Gds
                     }
 
                     instance = ProfileUris;
+                    break;
+                }
+
+                case Opc.Ua.Gds.BrowseNames.SecurityPolicyUris:
+                {
+                    if (createOrReplace)
+                    {
+                        if (SecurityPolicyUris == null)
+                        {
+                            if (replacement == null)
+                            {
+                                SecurityPolicyUris = new PropertyState<string[]>(this);
+                            }
+                            else
+                            {
+                                SecurityPolicyUris = (PropertyState<string[]>)replacement;
+                            }
+                        }
+                    }
+
+                    instance = SecurityPolicyUris;
                     break;
                 }
 
@@ -3820,6 +3967,7 @@ namespace Opc.Ua.Gds
         #region Private Fields
         private PropertyState<string> m_resourceUri;
         private PropertyState<string[]> m_profileUris;
+        private PropertyState<string[]> m_securityPolicyUris;
         private KeyCredentialStartRequestMethodState m_startRequestMethod;
         private KeyCredentialFinishRequestMethodState m_finishRequestMethod;
         private KeyCredentialRevokeMethodState m_revokeMethod;
@@ -3830,44 +3978,33 @@ namespace Opc.Ua.Gds
 
     #region KeyCredentialStartRequestMethodState Class
     #if (!OPCUA_EXCLUDE_KeyCredentialStartRequestMethodState)
-    /// <summary>
-    /// Stores an instance of the KeyCredentialStartRequestMethodType Method.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class KeyCredentialStartRequestMethodState : MethodState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public KeyCredentialStartRequestMethodState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Constructs an instance of a node.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <returns>The new node.</returns>
+        /// <remarks />
         public new static NodeState Construct(NodeState parent)
         {
             return new KeyCredentialStartRequestMethodState(parent);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -3880,17 +4017,15 @@ namespace Opc.Ua.Gds
            "CgIAAAAAAA4AAABJbnB1dEFyZ3VtZW50cwEBCAQALgBECAQAAJYEAAAAAQAqAQEdAAAADgAAAEFwcGxp" +
            "Y2F0aW9uVXJpAAz/////AAAAAAABACoBARgAAAAJAAAAUHVibGljS2V5AA//////AAAAAAABACoBASAA" +
            "AAARAAAAU2VjdXJpdHlQb2xpY3lVcmkADP////8AAAAAAAEAKgEBIQAAAA4AAABSZXF1ZXN0ZWRSb2xl" +
-           "cwARAQAAAAEAAAAAAAAAAAEAKAEBAAAAAQAAAAAAAAABAf////8AAAAAF2CpCgIAAAAAAA8AAABPdXRw" +
+           "cwARAQAAAAEAAAAAAAAAAAEAKAEBAAAAAQAAAAQAAAABAf////8AAAAAF2CpCgIAAAAAAA8AAABPdXRw" +
            "dXRBcmd1bWVudHMBAQkEAC4ARAkEAACWAQAAAAEAKgEBGAAAAAkAAABSZXF1ZXN0SWQAEf////8AAAAA" +
-           "AAEAKAEBAAAAAQAAAAAAAAABAf////8AAAAA";
+           "AAEAKAEBAAAAAQAAAAEAAAABAf////8AAAAA";
         #endregion
         #endif
         #endregion
 
         #region Event Callbacks
-        /// <summary>
-        /// Raised when the the method is called.
-        /// </summary>
+        /// <remarks />
         public KeyCredentialStartRequestMethodStateMethodCallHandler OnCall;
         #endregion
 
@@ -3898,9 +4033,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Invokes the method, returns the result and output argument.
-        /// </summary>
+        /// <remarks />
         protected override ServiceResult Call(
             ISystemContext _context,
             NodeId _objectId,
@@ -3912,7 +4045,7 @@ namespace Opc.Ua.Gds
                 return base.Call(_context, _objectId, _inputArguments, _outputArguments);
             }
 
-            ServiceResult result = null;
+            ServiceResult _result = null;
 
             string applicationUri = (string)_inputArguments[0];
             byte[] publicKey = (byte[])_inputArguments[1];
@@ -3923,7 +4056,7 @@ namespace Opc.Ua.Gds
 
             if (OnCall != null)
             {
-                result = OnCall(
+                _result = OnCall(
                     _context,
                     this,
                     _objectId,
@@ -3936,7 +4069,7 @@ namespace Opc.Ua.Gds
 
             _outputArguments[0] = requestId;
 
-            return result;
+            return _result;
         }
         #endregion
 
@@ -3944,14 +4077,12 @@ namespace Opc.Ua.Gds
         #endregion
     }
 
-    /// <summary>
-    /// Used to receive notifications when the method is called.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     public delegate ServiceResult KeyCredentialStartRequestMethodStateMethodCallHandler(
-        ISystemContext context,
-        MethodState method,
-        NodeId objectId,
+        ISystemContext _context,
+        MethodState _method,
+        NodeId _objectId,
         string applicationUri,
         byte[] publicKey,
         string securityPolicyUri,
@@ -3962,44 +4093,33 @@ namespace Opc.Ua.Gds
 
     #region KeyCredentialFinishRequestMethodState Class
     #if (!OPCUA_EXCLUDE_KeyCredentialFinishRequestMethodState)
-    /// <summary>
-    /// Stores an instance of the KeyCredentialFinishRequestMethodType Method.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class KeyCredentialFinishRequestMethodState : MethodState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public KeyCredentialFinishRequestMethodState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Constructs an instance of a node.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <returns>The new node.</returns>
+        /// <remarks />
         public new static NodeState Construct(NodeState parent)
         {
             return new KeyCredentialFinishRequestMethodState(parent);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -4011,19 +4131,17 @@ namespace Opc.Ua.Gds
            "eUNyZWRlbnRpYWxGaW5pc2hSZXF1ZXN0TWV0aG9kVHlwZQEBCgQALwEBCgQKBAAAAQH/////AgAAABdg" +
            "qQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMBAQsEAC4ARAsEAACWAgAAAAEAKgEBGAAAAAkAAABSZXF1" +
            "ZXN0SWQAEf////8AAAAAAAEAKgEBHAAAAA0AAABDYW5jZWxSZXF1ZXN0AAH/////AAAAAAABACgBAQAA" +
-           "AAEAAAAAAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJndW1lbnRzAQEMBAAuAEQMBAAA" +
+           "AAEAAAACAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJndW1lbnRzAQEMBAAuAEQMBAAA" +
            "lgUAAAABACoBARsAAAAMAAAAQ3JlZGVudGlhbElkAAz/////AAAAAAABACoBAR8AAAAQAAAAQ3JlZGVu" +
            "dGlhbFNlY3JldAAP/////wAAAAAAAQAqAQEkAAAAFQAAAENlcnRpZmljYXRlVGh1bWJwcmludAAM////" +
            "/wAAAAAAAQAqAQEgAAAAEQAAAFNlY3VyaXR5UG9saWN5VXJpAAz/////AAAAAAABACoBAR8AAAAMAAAA" +
-           "R3JhbnRlZFJvbGVzABEBAAAAAQAAAAAAAAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAAAAA=";
+           "R3JhbnRlZFJvbGVzABEBAAAAAQAAAAAAAAAAAQAoAQEAAAABAAAABQAAAAEB/////wAAAAA=";
         #endregion
         #endif
         #endregion
 
         #region Event Callbacks
-        /// <summary>
-        /// Raised when the the method is called.
-        /// </summary>
+        /// <remarks />
         public KeyCredentialFinishRequestMethodStateMethodCallHandler OnCall;
         #endregion
 
@@ -4031,9 +4149,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Invokes the method, returns the result and output argument.
-        /// </summary>
+        /// <remarks />
         protected override ServiceResult Call(
             ISystemContext _context,
             NodeId _objectId,
@@ -4045,7 +4161,7 @@ namespace Opc.Ua.Gds
                 return base.Call(_context, _objectId, _inputArguments, _outputArguments);
             }
 
-            ServiceResult result = null;
+            ServiceResult _result = null;
 
             NodeId requestId = (NodeId)_inputArguments[0];
             bool cancelRequest = (bool)_inputArguments[1];
@@ -4058,7 +4174,7 @@ namespace Opc.Ua.Gds
 
             if (OnCall != null)
             {
-                result = OnCall(
+                _result = OnCall(
                     _context,
                     this,
                     _objectId,
@@ -4077,7 +4193,7 @@ namespace Opc.Ua.Gds
             _outputArguments[3] = securityPolicyUri;
             _outputArguments[4] = grantedRoles;
 
-            return result;
+            return _result;
         }
         #endregion
 
@@ -4085,14 +4201,12 @@ namespace Opc.Ua.Gds
         #endregion
     }
 
-    /// <summary>
-    /// Used to receive notifications when the method is called.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     public delegate ServiceResult KeyCredentialFinishRequestMethodStateMethodCallHandler(
-        ISystemContext context,
-        MethodState method,
-        NodeId objectId,
+        ISystemContext _context,
+        MethodState _method,
+        NodeId _objectId,
         NodeId requestId,
         bool cancelRequest,
         ref string credentialId,
@@ -4105,44 +4219,33 @@ namespace Opc.Ua.Gds
 
     #region KeyCredentialRevokeMethodState Class
     #if (!OPCUA_EXCLUDE_KeyCredentialRevokeMethodState)
-    /// <summary>
-    /// Stores an instance of the KeyCredentialRevokeMethodType Method.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class KeyCredentialRevokeMethodState : MethodState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public KeyCredentialRevokeMethodState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Constructs an instance of a node.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <returns>The new node.</returns>
+        /// <remarks />
         public new static NodeState Construct(NodeState parent)
         {
             return new KeyCredentialRevokeMethodState(parent);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -4153,15 +4256,13 @@ namespace Opc.Ua.Gds
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYYIKBAAAAAEAHQAAAEtl" +
            "eUNyZWRlbnRpYWxSZXZva2VNZXRob2RUeXBlAQENBAAvAQENBA0EAAABAf////8BAAAAF2CpCgIAAAAA" +
            "AA4AAABJbnB1dEFyZ3VtZW50cwEBDgQALgBEDgQAAJYBAAAAAQAqAQEbAAAADAAAAENyZWRlbnRpYWxJ" +
-           "ZAAM/////wAAAAAAAQAoAQEAAAABAAAAAAAAAAEB/////wAAAAA=";
+           "ZAAM/////wAAAAAAAQAoAQEAAAABAAAAAQAAAAEB/////wAAAAA=";
         #endregion
         #endif
         #endregion
 
         #region Event Callbacks
-        /// <summary>
-        /// Raised when the the method is called.
-        /// </summary>
+        /// <remarks />
         public KeyCredentialRevokeMethodStateMethodCallHandler OnCall;
         #endregion
 
@@ -4169,9 +4270,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Invokes the method, returns the result and output argument.
-        /// </summary>
+        /// <remarks />
         protected override ServiceResult Call(
             ISystemContext _context,
             NodeId _objectId,
@@ -4183,20 +4282,20 @@ namespace Opc.Ua.Gds
                 return base.Call(_context, _objectId, _inputArguments, _outputArguments);
             }
 
-            ServiceResult result = null;
+            ServiceResult _result = null;
 
             string credentialId = (string)_inputArguments[0];
 
             if (OnCall != null)
             {
-                result = OnCall(
+                _result = OnCall(
                     _context,
                     this,
                     _objectId,
                     credentialId);
             }
 
-            return result;
+            return _result;
         }
         #endregion
 
@@ -4204,65 +4303,52 @@ namespace Opc.Ua.Gds
         #endregion
     }
 
-    /// <summary>
-    /// Used to receive notifications when the method is called.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     public delegate ServiceResult KeyCredentialRevokeMethodStateMethodCallHandler(
-        ISystemContext context,
-        MethodState method,
-        NodeId objectId,
+        ISystemContext _context,
+        MethodState _method,
+        NodeId _objectId,
         string credentialId);
     #endif
     #endregion
 
     #region KeyCredentialRequestedAuditEventState Class
     #if (!OPCUA_EXCLUDE_KeyCredentialRequestedAuditEventState)
-    /// <summary>
-    /// Stores an instance of the KeyCredentialRequestedAuditEventType ObjectType.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class KeyCredentialRequestedAuditEventState : KeyCredentialAuditEventState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public KeyCredentialRequestedAuditEventState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Returns the id of the default type definition node for the instance.
-        /// </summary>
+        /// <remarks />
         protected override NodeId GetDefaultTypeDefinitionId(NamespaceTable namespaceUris)
         {
             return Opc.Ua.NodeId.Create(Opc.Ua.Gds.ObjectTypes.KeyCredentialRequestedAuditEventType, Opc.Ua.Gds.Namespaces.OpcUaGds, namespaceUris);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the instance with a node.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context, NodeState source)
         {
             InitializeOptionalChildren(context);
             base.Initialize(context, source);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -4272,21 +4358,21 @@ namespace Opc.Ua.Gds
         private const string InitializationString =
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYIACAQAAAAEALAAAAEtl" +
            "eUNyZWRlbnRpYWxSZXF1ZXN0ZWRBdWRpdEV2ZW50VHlwZUluc3RhbmNlAQEPBAEBDwQPBAAA/////xAA" +
-           "AAAVYIkKAgAAAAAABwAAAEV2ZW50SWQBARAEAC4ARBAEAAAAD/////8BAf////8AAAAAFWCJCgIAAAAA" +
-           "AAkAAABFdmVudFR5cGUBAREEAC4ARBEEAAAAEf////8BAf////8AAAAAFWCJCgIAAAAAAAoAAABTb3Vy" +
-           "Y2VOb2RlAQESBAAuAEQSBAAAABH/////AQH/////AAAAABVgiQoCAAAAAAAKAAAAU291cmNlTmFtZQEB" +
-           "EwQALgBEEwQAAAAM/////wEB/////wAAAAAVYIkKAgAAAAAABAAAAFRpbWUBARQEAC4ARBQEAAABACYB" +
-           "/////wEB/////wAAAAAVYIkKAgAAAAAACwAAAFJlY2VpdmVUaW1lAQEVBAAuAEQVBAAAAQAmAf////8B" +
-           "Af////8AAAAAFWCJCgIAAAAAAAcAAABNZXNzYWdlAQEXBAAuAEQXBAAAABX/////AQH/////AAAAABVg" +
-           "iQoCAAAAAAAIAAAAU2V2ZXJpdHkBARgEAC4ARBgEAAAABf////8BAf////8AAAAAFWCJCgIAAAAAAA8A" +
-           "AABBY3Rpb25UaW1lU3RhbXABARkEAC4ARBkEAAABACYB/////wEB/////wAAAAAVYIkKAgAAAAAABgAA" +
-           "AFN0YXR1cwEBGgQALgBEGgQAAAAB/////wEB/////wAAAAAVYIkKAgAAAAAACAAAAFNlcnZlcklkAQEb" +
-           "BAAuAEQbBAAAAAz/////AQH/////AAAAABVgiQoCAAAAAAASAAAAQ2xpZW50QXVkaXRFbnRyeUlkAQEc" +
-           "BAAuAEQcBAAAAAz/////AQH/////AAAAABVgiQoCAAAAAAAMAAAAQ2xpZW50VXNlcklkAQEdBAAuAEQd" +
-           "BAAAAAz/////AQH/////AAAAABVgiQoCAAAAAAAIAAAATWV0aG9kSWQBAR4EAC4ARB4EAAAAEf////8B" +
-           "Af////8AAAAAF2CJCgIAAAAAAA4AAABJbnB1dEFyZ3VtZW50cwEBHwQALgBEHwQAAAAYAQAAAAEAAAAA" +
-           "AAAAAQH/////AAAAABVgiQoCAAAAAAALAAAAUmVzb3VyY2VVcmkBASAEAC4ARCAEAAAADP////8BAf//" +
-           "//8AAAAA";
+           "AAAVYIkKAgAAAAAABwAAAEV2ZW50SWQCAQCdQg8AAC4ARJ1CDwAAD/////8BAf////8AAAAAFWCJCgIA" +
+           "AAAAAAkAAABFdmVudFR5cGUCAQCeQg8AAC4ARJ5CDwAAEf////8BAf////8AAAAAFWCJCgIAAAAAAAoA" +
+           "AABTb3VyY2VOb2RlAgEAn0IPAAAuAESfQg8AABH/////AQH/////AAAAABVgiQoCAAAAAAAKAAAAU291" +
+           "cmNlTmFtZQIBAKBCDwAALgBEoEIPAAAM/////wEB/////wAAAAAVYIkKAgAAAAAABAAAAFRpbWUCAQCh" +
+           "Qg8AAC4ARKFCDwABACYB/////wEB/////wAAAAAVYIkKAgAAAAAACwAAAFJlY2VpdmVUaW1lAgEAokIP" +
+           "AAAuAESiQg8AAQAmAf////8BAf////8AAAAAFWCJCgIAAAAAAAcAAABNZXNzYWdlAgEApEIPAAAuAESk" +
+           "Qg8AABX/////AQH/////AAAAABVgiQoCAAAAAAAIAAAAU2V2ZXJpdHkCAQClQg8AAC4ARKVCDwAABf//" +
+           "//8BAf////8AAAAAFWCJCgIAAAAAAA8AAABBY3Rpb25UaW1lU3RhbXACAQCqQg8AAC4ARKpCDwABACYB" +
+           "/////wEB/////wAAAAAVYIkKAgAAAAAABgAAAFN0YXR1cwIBAKtCDwAALgBEq0IPAAAB/////wEB////" +
+           "/wAAAAAVYIkKAgAAAAAACAAAAFNlcnZlcklkAgEArEIPAAAuAESsQg8AAAz/////AQH/////AAAAABVg" +
+           "iQoCAAAAAAASAAAAQ2xpZW50QXVkaXRFbnRyeUlkAgEArUIPAAAuAEStQg8AAAz/////AQH/////AAAA" +
+           "ABVgiQoCAAAAAAAMAAAAQ2xpZW50VXNlcklkAgEArkIPAAAuAESuQg8AAAz/////AQH/////AAAAABVg" +
+           "iQoCAAAAAAAIAAAATWV0aG9kSWQCAQCvQg8AAC4ARK9CDwAAEf////8BAf////8AAAAAF2CJCgIAAAAA" +
+           "AA4AAABJbnB1dEFyZ3VtZW50cwIBALBCDwAALgBEsEIPAAAYAQAAAAEAAAAAAAAAAQH/////AAAAABVg" +
+           "iQoCAAAAAAALAAAAUmVzb3VyY2VVcmkCAQCxQg8AAC4ARLFCDwAADP////8BAf////8AAAAA";
         #endregion
         #endif
         #endregion
@@ -4305,51 +4391,40 @@ namespace Opc.Ua.Gds
 
     #region KeyCredentialDeliveredAuditEventState Class
     #if (!OPCUA_EXCLUDE_KeyCredentialDeliveredAuditEventState)
-    /// <summary>
-    /// Stores an instance of the KeyCredentialDeliveredAuditEventType ObjectType.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class KeyCredentialDeliveredAuditEventState : KeyCredentialAuditEventState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public KeyCredentialDeliveredAuditEventState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Returns the id of the default type definition node for the instance.
-        /// </summary>
+        /// <remarks />
         protected override NodeId GetDefaultTypeDefinitionId(NamespaceTable namespaceUris)
         {
             return Opc.Ua.NodeId.Create(Opc.Ua.Gds.ObjectTypes.KeyCredentialDeliveredAuditEventType, Opc.Ua.Gds.Namespaces.OpcUaGds, namespaceUris);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the instance with a node.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context, NodeState source)
         {
             InitializeOptionalChildren(context);
             base.Initialize(context, source);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -4359,21 +4434,21 @@ namespace Opc.Ua.Gds
         private const string InitializationString =
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYIACAQAAAAEALAAAAEtl" +
            "eUNyZWRlbnRpYWxEZWxpdmVyZWRBdWRpdEV2ZW50VHlwZUluc3RhbmNlAQEhBAEBIQQhBAAA/////xAA" +
-           "AAAVYIkKAgAAAAAABwAAAEV2ZW50SWQBASIEAC4ARCIEAAAAD/////8BAf////8AAAAAFWCJCgIAAAAA" +
-           "AAkAAABFdmVudFR5cGUBASMEAC4ARCMEAAAAEf////8BAf////8AAAAAFWCJCgIAAAAAAAoAAABTb3Vy" +
-           "Y2VOb2RlAQEkBAAuAEQkBAAAABH/////AQH/////AAAAABVgiQoCAAAAAAAKAAAAU291cmNlTmFtZQEB" +
-           "JQQALgBEJQQAAAAM/////wEB/////wAAAAAVYIkKAgAAAAAABAAAAFRpbWUBASYEAC4ARCYEAAABACYB" +
-           "/////wEB/////wAAAAAVYIkKAgAAAAAACwAAAFJlY2VpdmVUaW1lAQEnBAAuAEQnBAAAAQAmAf////8B" +
-           "Af////8AAAAAFWCJCgIAAAAAAAcAAABNZXNzYWdlAQEpBAAuAEQpBAAAABX/////AQH/////AAAAABVg" +
-           "iQoCAAAAAAAIAAAAU2V2ZXJpdHkBASoEAC4ARCoEAAAABf////8BAf////8AAAAAFWCJCgIAAAAAAA8A" +
-           "AABBY3Rpb25UaW1lU3RhbXABASsEAC4ARCsEAAABACYB/////wEB/////wAAAAAVYIkKAgAAAAAABgAA" +
-           "AFN0YXR1cwEBLAQALgBELAQAAAAB/////wEB/////wAAAAAVYIkKAgAAAAAACAAAAFNlcnZlcklkAQEt" +
-           "BAAuAEQtBAAAAAz/////AQH/////AAAAABVgiQoCAAAAAAASAAAAQ2xpZW50QXVkaXRFbnRyeUlkAQEu" +
-           "BAAuAEQuBAAAAAz/////AQH/////AAAAABVgiQoCAAAAAAAMAAAAQ2xpZW50VXNlcklkAQEvBAAuAEQv" +
-           "BAAAAAz/////AQH/////AAAAABVgiQoCAAAAAAAIAAAATWV0aG9kSWQBATAEAC4ARDAEAAAAEf////8B" +
-           "Af////8AAAAAF2CJCgIAAAAAAA4AAABJbnB1dEFyZ3VtZW50cwEBMQQALgBEMQQAAAAYAQAAAAEAAAAA" +
-           "AAAAAQH/////AAAAABVgiQoCAAAAAAALAAAAUmVzb3VyY2VVcmkBATIEAC4ARDIEAAAADP////8BAf//" +
-           "//8AAAAA";
+           "AAAVYIkKAgAAAAAABwAAAEV2ZW50SWQCAQCyQg8AAC4ARLJCDwAAD/////8BAf////8AAAAAFWCJCgIA" +
+           "AAAAAAkAAABFdmVudFR5cGUCAQCzQg8AAC4ARLNCDwAAEf////8BAf////8AAAAAFWCJCgIAAAAAAAoA" +
+           "AABTb3VyY2VOb2RlAgEAtEIPAAAuAES0Qg8AABH/////AQH/////AAAAABVgiQoCAAAAAAAKAAAAU291" +
+           "cmNlTmFtZQIBALVCDwAALgBEtUIPAAAM/////wEB/////wAAAAAVYIkKAgAAAAAABAAAAFRpbWUCAQC2" +
+           "Qg8AAC4ARLZCDwABACYB/////wEB/////wAAAAAVYIkKAgAAAAAACwAAAFJlY2VpdmVUaW1lAgEAt0IP" +
+           "AAAuAES3Qg8AAQAmAf////8BAf////8AAAAAFWCJCgIAAAAAAAcAAABNZXNzYWdlAgEAuUIPAAAuAES5" +
+           "Qg8AABX/////AQH/////AAAAABVgiQoCAAAAAAAIAAAAU2V2ZXJpdHkCAQC6Qg8AAC4ARLpCDwAABf//" +
+           "//8BAf////8AAAAAFWCJCgIAAAAAAA8AAABBY3Rpb25UaW1lU3RhbXACAQC/Qg8AAC4ARL9CDwABACYB" +
+           "/////wEB/////wAAAAAVYIkKAgAAAAAABgAAAFN0YXR1cwIBAMBCDwAALgBEwEIPAAAB/////wEB////" +
+           "/wAAAAAVYIkKAgAAAAAACAAAAFNlcnZlcklkAgEAwUIPAAAuAETBQg8AAAz/////AQH/////AAAAABVg" +
+           "iQoCAAAAAAASAAAAQ2xpZW50QXVkaXRFbnRyeUlkAgEAwkIPAAAuAETCQg8AAAz/////AQH/////AAAA" +
+           "ABVgiQoCAAAAAAAMAAAAQ2xpZW50VXNlcklkAgEAw0IPAAAuAETDQg8AAAz/////AQH/////AAAAABVg" +
+           "iQoCAAAAAAAIAAAATWV0aG9kSWQCAQDEQg8AAC4ARMRCDwAAEf////8BAf////8AAAAAF2CJCgIAAAAA" +
+           "AA4AAABJbnB1dEFyZ3VtZW50cwIBAMVCDwAALgBExUIPAAAYAQAAAAEAAAAAAAAAAQH/////AAAAABVg" +
+           "iQoCAAAAAAALAAAAUmVzb3VyY2VVcmkCAQDGQg8AAC4ARMZCDwAADP////8BAf////8AAAAA";
         #endregion
         #endif
         #endregion
@@ -4392,51 +4467,40 @@ namespace Opc.Ua.Gds
 
     #region KeyCredentialRevokedAuditEventState Class
     #if (!OPCUA_EXCLUDE_KeyCredentialRevokedAuditEventState)
-    /// <summary>
-    /// Stores an instance of the KeyCredentialRevokedAuditEventType ObjectType.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class KeyCredentialRevokedAuditEventState : KeyCredentialAuditEventState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public KeyCredentialRevokedAuditEventState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Returns the id of the default type definition node for the instance.
-        /// </summary>
+        /// <remarks />
         protected override NodeId GetDefaultTypeDefinitionId(NamespaceTable namespaceUris)
         {
             return Opc.Ua.NodeId.Create(Opc.Ua.Gds.ObjectTypes.KeyCredentialRevokedAuditEventType, Opc.Ua.Gds.Namespaces.OpcUaGds, namespaceUris);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the instance with a node.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context, NodeState source)
         {
             InitializeOptionalChildren(context);
             base.Initialize(context, source);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -4446,21 +4510,82 @@ namespace Opc.Ua.Gds
         private const string InitializationString =
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYIACAQAAAAEAKgAAAEtl" +
            "eUNyZWRlbnRpYWxSZXZva2VkQXVkaXRFdmVudFR5cGVJbnN0YW5jZQEBMwQBATMEMwQAAP////8QAAAA" +
-           "FWCJCgIAAAAAAAcAAABFdmVudElkAQE0BAAuAEQ0BAAAAA//////AQH/////AAAAABVgiQoCAAAAAAAJ" +
-           "AAAARXZlbnRUeXBlAQE1BAAuAEQ1BAAAABH/////AQH/////AAAAABVgiQoCAAAAAAAKAAAAU291cmNl" +
-           "Tm9kZQEBNgQALgBENgQAAAAR/////wEB/////wAAAAAVYIkKAgAAAAAACgAAAFNvdXJjZU5hbWUBATcE" +
-           "AC4ARDcEAAAADP////8BAf////8AAAAAFWCJCgIAAAAAAAQAAABUaW1lAQE4BAAuAEQ4BAAAAQAmAf//" +
-           "//8BAf////8AAAAAFWCJCgIAAAAAAAsAAABSZWNlaXZlVGltZQEBOQQALgBEOQQAAAEAJgH/////AQH/" +
-           "////AAAAABVgiQoCAAAAAAAHAAAATWVzc2FnZQEBOwQALgBEOwQAAAAV/////wEB/////wAAAAAVYIkK" +
-           "AgAAAAAACAAAAFNldmVyaXR5AQE8BAAuAEQ8BAAAAAX/////AQH/////AAAAABVgiQoCAAAAAAAPAAAA" +
-           "QWN0aW9uVGltZVN0YW1wAQE9BAAuAEQ9BAAAAQAmAf////8BAf////8AAAAAFWCJCgIAAAAAAAYAAABT" +
-           "dGF0dXMBAT4EAC4ARD4EAAAAAf////8BAf////8AAAAAFWCJCgIAAAAAAAgAAABTZXJ2ZXJJZAEBPwQA" +
-           "LgBEPwQAAAAM/////wEB/////wAAAAAVYIkKAgAAAAAAEgAAAENsaWVudEF1ZGl0RW50cnlJZAEBQAQA" +
-           "LgBEQAQAAAAM/////wEB/////wAAAAAVYIkKAgAAAAAADAAAAENsaWVudFVzZXJJZAEBQQQALgBEQQQA" +
-           "AAAM/////wEB/////wAAAAAVYIkKAgAAAAAACAAAAE1ldGhvZElkAQFCBAAuAERCBAAAABH/////AQH/" +
-           "////AAAAABdgiQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMBAUMEAC4AREMEAAAAGAEAAAABAAAAAAAA" +
-           "AAEB/////wAAAAAVYIkKAgAAAAAACwAAAFJlc291cmNlVXJpAQFEBAAuAEREBAAAAAz/////AQH/////" +
-           "AAAAAA==";
+           "FWCJCgIAAAAAAAcAAABFdmVudElkAgEAx0IPAAAuAETHQg8AAA//////AQH/////AAAAABVgiQoCAAAA" +
+           "AAAJAAAARXZlbnRUeXBlAgEAyEIPAAAuAETIQg8AABH/////AQH/////AAAAABVgiQoCAAAAAAAKAAAA" +
+           "U291cmNlTm9kZQIBAMlCDwAALgBEyUIPAAAR/////wEB/////wAAAAAVYIkKAgAAAAAACgAAAFNvdXJj" +
+           "ZU5hbWUCAQDKQg8AAC4ARMpCDwAADP////8BAf////8AAAAAFWCJCgIAAAAAAAQAAABUaW1lAgEAy0IP" +
+           "AAAuAETLQg8AAQAmAf////8BAf////8AAAAAFWCJCgIAAAAAAAsAAABSZWNlaXZlVGltZQIBAMxCDwAA" +
+           "LgBEzEIPAAEAJgH/////AQH/////AAAAABVgiQoCAAAAAAAHAAAATWVzc2FnZQIBAM5CDwAALgBEzkIP" +
+           "AAAV/////wEB/////wAAAAAVYIkKAgAAAAAACAAAAFNldmVyaXR5AgEAz0IPAAAuAETPQg8AAAX/////" +
+           "AQH/////AAAAABVgiQoCAAAAAAAPAAAAQWN0aW9uVGltZVN0YW1wAgEA1EIPAAAuAETUQg8AAQAmAf//" +
+           "//8BAf////8AAAAAFWCJCgIAAAAAAAYAAABTdGF0dXMCAQDVQg8AAC4ARNVCDwAAAf////8BAf////8A" +
+           "AAAAFWCJCgIAAAAAAAgAAABTZXJ2ZXJJZAIBANZCDwAALgBE1kIPAAAM/////wEB/////wAAAAAVYIkK" +
+           "AgAAAAAAEgAAAENsaWVudEF1ZGl0RW50cnlJZAIBANdCDwAALgBE10IPAAAM/////wEB/////wAAAAAV" +
+           "YIkKAgAAAAAADAAAAENsaWVudFVzZXJJZAIBANhCDwAALgBE2EIPAAAM/////wEB/////wAAAAAVYIkK" +
+           "AgAAAAAACAAAAE1ldGhvZElkAgEA2UIPAAAuAETZQg8AABH/////AQH/////AAAAABdgiQoCAAAAAAAO" +
+           "AAAASW5wdXRBcmd1bWVudHMCAQDaQg8AAC4ARNpCDwAAGAEAAAABAAAAAAAAAAEB/////wAAAAAVYIkK" +
+           "AgAAAAAACwAAAFJlc291cmNlVXJpAgEA20IPAAAuAETbQg8AAAz/////AQH/////AAAAAA==";
+        #endregion
+        #endif
+        #endregion
+
+        #region Public Properties
+        #endregion
+
+        #region Overridden Methods
+        #endregion
+
+        #region Private Fields
+        #endregion
+    }
+    #endif
+    #endregion
+
+    #region AuthorizationServicesFolderState Class
+    #if (!OPCUA_EXCLUDE_AuthorizationServicesFolderState)
+    /// <remarks />
+    /// <exclude />
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
+    public partial class AuthorizationServicesFolderState : FolderState
+    {
+        #region Constructors
+        /// <remarks />
+        public AuthorizationServicesFolderState(NodeState parent) : base(parent)
+        {
+        }
+
+        /// <remarks />
+        protected override NodeId GetDefaultTypeDefinitionId(NamespaceTable namespaceUris)
+        {
+            return Opc.Ua.NodeId.Create(Opc.Ua.Gds.ObjectTypes.AuthorizationServicesFolderType, Opc.Ua.Gds.Namespaces.OpcUaGds, namespaceUris);
+        }
+
+        #if (!OPCUA_EXCLUDE_InitializationStrings)
+        /// <remarks />
+        protected override void Initialize(ISystemContext context)
+        {
+            base.Initialize(context);
+            Initialize(context, InitializationString);
+            InitializeOptionalChildren(context);
+        }
+
+        /// <remarks />
+        protected override void Initialize(ISystemContext context, NodeState source)
+        {
+            InitializeOptionalChildren(context);
+            base.Initialize(context, source);
+        }
+
+        /// <remarks />
+        protected override void InitializeOptionalChildren(ISystemContext context)
+        {
+            base.InitializeOptionalChildren(context);
+        }
+
+        #region Initialization String
+        private const string InitializationString =
+           "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYIACAQAAAAEAJwAAAEF1" +
+           "dGhvcml6YXRpb25TZXJ2aWNlc0ZvbGRlclR5cGVJbnN0YW5jZQEB6QABAekA6QAAAP////8AAAAA";
         #endregion
         #endif
         #endregion
@@ -4479,51 +4604,40 @@ namespace Opc.Ua.Gds
 
     #region AuthorizationServiceState Class
     #if (!OPCUA_EXCLUDE_AuthorizationServiceState)
-    /// <summary>
-    /// Stores an instance of the AuthorizationServiceType ObjectType.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class AuthorizationServiceState : BaseObjectState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public AuthorizationServiceState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Returns the id of the default type definition node for the instance.
-        /// </summary>
+        /// <remarks />
         protected override NodeId GetDefaultTypeDefinitionId(NamespaceTable namespaceUris)
         {
             return Opc.Ua.NodeId.Create(Opc.Ua.Gds.ObjectTypes.AuthorizationServiceType, Opc.Ua.Gds.Namespaces.OpcUaGds, namespaceUris);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the instance with a node.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context, NodeState source)
         {
             InitializeOptionalChildren(context);
             base.Initialize(context, source);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -4548,9 +4662,9 @@ namespace Opc.Ua.Gds
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYYIKBAAAAAEAEgAAAFJl" +
            "cXVlc3RBY2Nlc3NUb2tlbgEByQMALwEByQPJAwAAAQH/////AgAAABdgqQoCAAAAAAAOAAAASW5wdXRB" +
            "cmd1bWVudHMBAcoDAC4ARMoDAACWAgAAAAEAKgEBHgAAAA0AAABJZGVudGl0eVRva2VuAQA8Af////8A" +
-           "AAAAAAEAKgEBGQAAAAoAAABSZXNvdXJjZUlkAAz/////AAAAAAABACgBAQAAAAEAAAAAAAAAAQH/////" +
+           "AAAAAAEAKgEBGQAAAAoAAABSZXNvdXJjZUlkAAz/////AAAAAAABACgBAQAAAAEAAAACAAAAAQH/////" +
            "AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJndW1lbnRzAQHLAwAuAETLAwAAlgEAAAABACoBARoAAAAL" +
-           "AAAAQWNjZXNzVG9rZW4ADP////8AAAAAAAEAKAEBAAAAAQAAAAAAAAABAf////8AAAAA";
+           "AAAAQWNjZXNzVG9rZW4ADP////8AAAAAAAEAKAEBAAAAAQAAAAEAAAABAf////8AAAAA";
 
         private const string InitializationString =
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYIACAQAAAAEAIAAAAEF1" +
@@ -4561,12 +4675,12 @@ namespace Opc.Ua.Gds
            "ABUAAABHZXRTZXJ2aWNlRGVzY3JpcHRpb24BAewDAC8BAewD7AMAAAEB/////wEAAAAXYKkKAgAAAAAA" +
            "DwAAAE91dHB1dEFyZ3VtZW50cwEB7QMALgBE7QMAAJYDAAAAAQAqAQEZAAAACgAAAFNlcnZpY2VVcmkA" +
            "DP////8AAAAAAAEAKgEBIQAAABIAAABTZXJ2aWNlQ2VydGlmaWNhdGUAD/////8AAAAAAAEAKgEBJgAA" +
-           "ABEAAABVc2VyVG9rZW5Qb2xpY2llcwEAMAEBAAAAAQAAAAAAAAAAAQAoAQEAAAABAAAAAAAAAAEB////" +
+           "ABEAAABVc2VyVG9rZW5Qb2xpY2llcwEAMAEBAAAAAQAAAAAAAAAAAQAoAQEAAAABAAAAAwAAAAEB////" +
            "/wAAAAAEYYIKBAAAAAEAEgAAAFJlcXVlc3RBY2Nlc3NUb2tlbgEByQMALwEByQPJAwAAAQH/////AgAA" +
            "ABdgqQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMBAcoDAC4ARMoDAACWAgAAAAEAKgEBHgAAAA0AAABJ" +
            "ZGVudGl0eVRva2VuAQA8Af////8AAAAAAAEAKgEBGQAAAAoAAABSZXNvdXJjZUlkAAz/////AAAAAAAB" +
-           "ACgBAQAAAAEAAAAAAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJndW1lbnRzAQHLAwAu" +
-           "AETLAwAAlgEAAAABACoBARoAAAALAAAAQWNjZXNzVG9rZW4ADP////8AAAAAAAEAKAEBAAAAAQAAAAAA" +
+           "ACgBAQAAAAEAAAACAAAAAQH/////AAAAABdgqQoCAAAAAAAPAAAAT3V0cHV0QXJndW1lbnRzAQHLAwAu" +
+           "AETLAwAAlgEAAAABACoBARoAAAALAAAAQWNjZXNzVG9rZW4ADP////8AAAAAAAEAKAEBAAAAAQAAAAEA" +
            "AAABAf////8AAAAA";
         #endregion
         #endif
@@ -4670,11 +4784,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Populates a list with the children that belong to the node.
-        /// </summary>
-        /// <param name="context">The context for the system being accessed.</param>
-        /// <param name="children">The list of children to populate.</param>
+        /// <remarks />
         public override void GetChildren(
             ISystemContext context,
             IList<BaseInstanceState> children)
@@ -4706,10 +4816,8 @@ namespace Opc.Ua.Gds
 
             base.GetChildren(context, children);
         }
-
-        /// <summary>
-        /// Finds the child with the specified browse name.
-        /// </summary>
+            
+        /// <remarks />
         protected override BaseInstanceState FindChild(
             ISystemContext context,
             QualifiedName browseName,
@@ -4853,44 +4961,33 @@ namespace Opc.Ua.Gds
 
     #region GetServiceDescriptionMethodState Class
     #if (!OPCUA_EXCLUDE_GetServiceDescriptionMethodState)
-    /// <summary>
-    /// Stores an instance of the GetServiceDescriptionMethodType Method.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class GetServiceDescriptionMethodState : MethodState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public GetServiceDescriptionMethodState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Constructs an instance of a node.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <returns>The new node.</returns>
+        /// <remarks />
         public new static NodeState Construct(NodeState parent)
         {
             return new GetServiceDescriptionMethodState(parent);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -4902,16 +4999,14 @@ namespace Opc.Ua.Gds
            "dFNlcnZpY2VEZXNjcmlwdGlvbk1ldGhvZFR5cGUBAe4DAC8BAe4D7gMAAAEB/////wEAAAAXYKkKAgAA" +
            "AAAADwAAAE91dHB1dEFyZ3VtZW50cwEB7wMALgBE7wMAAJYDAAAAAQAqAQEZAAAACgAAAFNlcnZpY2VV" +
            "cmkADP////8AAAAAAAEAKgEBIQAAABIAAABTZXJ2aWNlQ2VydGlmaWNhdGUAD/////8AAAAAAAEAKgEB" +
-           "JgAAABEAAABVc2VyVG9rZW5Qb2xpY2llcwEAMAEBAAAAAQAAAAAAAAAAAQAoAQEAAAABAAAAAAAAAAEB" +
+           "JgAAABEAAABVc2VyVG9rZW5Qb2xpY2llcwEAMAEBAAAAAQAAAAAAAAAAAQAoAQEAAAABAAAAAwAAAAEB" +
            "/////wAAAAA=";
         #endregion
         #endif
         #endregion
 
         #region Event Callbacks
-        /// <summary>
-        /// Raised when the the method is called.
-        /// </summary>
+        /// <remarks />
         public GetServiceDescriptionMethodStateMethodCallHandler OnCall;
         #endregion
 
@@ -4919,9 +5014,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Invokes the method, returns the result and output argument.
-        /// </summary>
+        /// <remarks />
         protected override ServiceResult Call(
             ISystemContext _context,
             NodeId _objectId,
@@ -4933,15 +5026,15 @@ namespace Opc.Ua.Gds
                 return base.Call(_context, _objectId, _inputArguments, _outputArguments);
             }
 
-            ServiceResult result = null;
+            ServiceResult _result = null;
 
             string serviceUri = (string)_outputArguments[0];
             byte[] serviceCertificate = (byte[])_outputArguments[1];
-            UserTokenPolicy[] userTokenPolicies = (UserTokenPolicy[])_outputArguments[2];
+            Opc.Ua.UserTokenPolicy[] userTokenPolicies = (Opc.Ua.UserTokenPolicy[])_outputArguments[2];
 
             if (OnCall != null)
             {
-                result = OnCall(
+                _result = OnCall(
                     _context,
                     this,
                     _objectId,
@@ -4954,7 +5047,7 @@ namespace Opc.Ua.Gds
             _outputArguments[1] = serviceCertificate;
             _outputArguments[2] = userTokenPolicies;
 
-            return result;
+            return _result;
         }
         #endregion
 
@@ -4962,60 +5055,47 @@ namespace Opc.Ua.Gds
         #endregion
     }
 
-    /// <summary>
-    /// Used to receive notifications when the method is called.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     public delegate ServiceResult GetServiceDescriptionMethodStateMethodCallHandler(
-        ISystemContext context,
-        MethodState method,
-        NodeId objectId,
+        ISystemContext _context,
+        MethodState _method,
+        NodeId _objectId,
         ref string serviceUri,
         ref byte[] serviceCertificate,
-        ref UserTokenPolicy[] userTokenPolicies);
+        ref Opc.Ua.UserTokenPolicy[] userTokenPolicies);
     #endif
     #endregion
 
     #region RequestAccessTokenMethodState Class
     #if (!OPCUA_EXCLUDE_RequestAccessTokenMethodState)
-    /// <summary>
-    /// Stores an instance of the RequestAccessTokenMethodType Method.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class RequestAccessTokenMethodState : MethodState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public RequestAccessTokenMethodState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Constructs an instance of a node.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <returns>The new node.</returns>
+        /// <remarks />
         public new static NodeState Construct(NodeState parent)
         {
             return new RequestAccessTokenMethodState(parent);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -5027,17 +5107,15 @@ namespace Opc.Ua.Gds
            "cXVlc3RBY2Nlc3NUb2tlbk1ldGhvZFR5cGUBAeMDAC8BAeMD4wMAAAEB/////wIAAAAXYKkKAgAAAAAA" +
            "DgAAAElucHV0QXJndW1lbnRzAQHkAwAuAETkAwAAlgIAAAABACoBAR4AAAANAAAASWRlbnRpdHlUb2tl" +
            "bgEAPAH/////AAAAAAABACoBARkAAAAKAAAAUmVzb3VyY2VJZAAM/////wAAAAAAAQAoAQEAAAABAAAA" +
-           "AAAAAAEB/////wAAAAAXYKkKAgAAAAAADwAAAE91dHB1dEFyZ3VtZW50cwEB5QMALgBE5QMAAJYBAAAA" +
-           "AQAqAQEaAAAACwAAAEFjY2Vzc1Rva2VuAAz/////AAAAAAABACgBAQAAAAEAAAAAAAAAAQH/////AAAA" +
+           "AgAAAAEB/////wAAAAAXYKkKAgAAAAAADwAAAE91dHB1dEFyZ3VtZW50cwEB5QMALgBE5QMAAJYBAAAA" +
+           "AQAqAQEaAAAACwAAAEFjY2Vzc1Rva2VuAAz/////AAAAAAABACgBAQAAAAEAAAABAAAAAQH/////AAAA" +
            "AA==";
         #endregion
         #endif
         #endregion
 
         #region Event Callbacks
-        /// <summary>
-        /// Raised when the the method is called.
-        /// </summary>
+        /// <remarks />
         public RequestAccessTokenMethodStateMethodCallHandler OnCall;
         #endregion
 
@@ -5045,9 +5123,7 @@ namespace Opc.Ua.Gds
         #endregion
 
         #region Overridden Methods
-        /// <summary>
-        /// Invokes the method, returns the result and output argument.
-        /// </summary>
+        /// <remarks />
         protected override ServiceResult Call(
             ISystemContext _context,
             NodeId _objectId,
@@ -5059,16 +5135,16 @@ namespace Opc.Ua.Gds
                 return base.Call(_context, _objectId, _inputArguments, _outputArguments);
             }
 
-            ServiceResult result = null;
+            ServiceResult _result = null;
 
-            UserIdentityToken identityToken = (UserIdentityToken)ExtensionObject.ToEncodeable((ExtensionObject)_inputArguments[0]);
+            Opc.Ua.UserIdentityToken identityToken = (Opc.Ua.UserIdentityToken)ExtensionObject.ToEncodeable((ExtensionObject)_inputArguments[0]);
             string resourceId = (string)_inputArguments[1];
 
             string accessToken = (string)_outputArguments[0];
 
             if (OnCall != null)
             {
-                result = OnCall(
+                _result = OnCall(
                     _context,
                     this,
                     _objectId,
@@ -5079,7 +5155,7 @@ namespace Opc.Ua.Gds
 
             _outputArguments[0] = accessToken;
 
-            return result;
+            return _result;
         }
         #endregion
 
@@ -5087,15 +5163,13 @@ namespace Opc.Ua.Gds
         #endregion
     }
 
-    /// <summary>
-    /// Used to receive notifications when the method is called.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     public delegate ServiceResult RequestAccessTokenMethodStateMethodCallHandler(
-        ISystemContext context,
-        MethodState method,
-        NodeId objectId,
-        UserIdentityToken identityToken,
+        ISystemContext _context,
+        MethodState _method,
+        NodeId _objectId,
+        Opc.Ua.UserIdentityToken identityToken,
         string resourceId,
         ref string accessToken);
     #endif
@@ -5103,51 +5177,40 @@ namespace Opc.Ua.Gds
 
     #region AccessTokenIssuedAuditEventState Class
     #if (!OPCUA_EXCLUDE_AccessTokenIssuedAuditEventState)
-    /// <summary>
-    /// Stores an instance of the AccessTokenIssuedAuditEventType ObjectType.
-    /// </summary>
+    /// <remarks />
     /// <exclude />
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Opc.Ua.ModelCompiler", "1.0.0.0")]
     public partial class AccessTokenIssuedAuditEventState : AuditUpdateMethodEventState
     {
         #region Constructors
-        /// <summary>
-        /// Initializes the type with its default attribute values.
-        /// </summary>
+        /// <remarks />
         public AccessTokenIssuedAuditEventState(NodeState parent) : base(parent)
         {
         }
 
-        /// <summary>
-        /// Returns the id of the default type definition node for the instance.
-        /// </summary>
+        /// <remarks />
         protected override NodeId GetDefaultTypeDefinitionId(NamespaceTable namespaceUris)
         {
             return Opc.Ua.NodeId.Create(Opc.Ua.Gds.ObjectTypes.AccessTokenIssuedAuditEventType, Opc.Ua.Gds.Namespaces.OpcUaGds, namespaceUris);
         }
 
         #if (!OPCUA_EXCLUDE_InitializationStrings)
-        /// <summary>
-        /// Initializes the instance.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context)
         {
+            base.Initialize(context);
             Initialize(context, InitializationString);
             InitializeOptionalChildren(context);
         }
 
-        /// <summary>
-        /// Initializes the instance with a node.
-        /// </summary>
+        /// <remarks />
         protected override void Initialize(ISystemContext context, NodeState source)
         {
             InitializeOptionalChildren(context);
             base.Initialize(context, source);
         }
 
-        /// <summary>
-        /// Initializes the any option children defined for the instance.
-        /// </summary>
+        /// <remarks />
         protected override void InitializeOptionalChildren(ISystemContext context)
         {
             base.InitializeOptionalChildren(context);
@@ -5157,20 +5220,20 @@ namespace Opc.Ua.Gds
         private const string InitializationString =
            "AQAAACAAAABodHRwOi8vb3BjZm91bmRhdGlvbi5vcmcvVUEvR0RTL/////8EYIACAQAAAAEAJwAAAEFj" +
            "Y2Vzc1Rva2VuSXNzdWVkQXVkaXRFdmVudFR5cGVJbnN0YW5jZQEBzwMBAc8DzwMAAP////8PAAAAFWCJ" +
-           "CgIAAAAAAAcAAABFdmVudElkAQHQAwAuAETQAwAAAA//////AQH/////AAAAABVgiQoCAAAAAAAJAAAA" +
-           "RXZlbnRUeXBlAQHRAwAuAETRAwAAABH/////AQH/////AAAAABVgiQoCAAAAAAAKAAAAU291cmNlTm9k" +
-           "ZQEB0gMALgBE0gMAAAAR/////wEB/////wAAAAAVYIkKAgAAAAAACgAAAFNvdXJjZU5hbWUBAdMDAC4A" +
-           "RNMDAAAADP////8BAf////8AAAAAFWCJCgIAAAAAAAQAAABUaW1lAQHUAwAuAETUAwAAAQAmAf////8B" +
-           "Af////8AAAAAFWCJCgIAAAAAAAsAAABSZWNlaXZlVGltZQEB1QMALgBE1QMAAAEAJgH/////AQH/////" +
-           "AAAAABVgiQoCAAAAAAAHAAAATWVzc2FnZQEB1wMALgBE1wMAAAAV/////wEB/////wAAAAAVYIkKAgAA" +
-           "AAAACAAAAFNldmVyaXR5AQHYAwAuAETYAwAAAAX/////AQH/////AAAAABVgiQoCAAAAAAAPAAAAQWN0" +
-           "aW9uVGltZVN0YW1wAQHZAwAuAETZAwAAAQAmAf////8BAf////8AAAAAFWCJCgIAAAAAAAYAAABTdGF0" +
-           "dXMBAdoDAC4ARNoDAAAAAf////8BAf////8AAAAAFWCJCgIAAAAAAAgAAABTZXJ2ZXJJZAEB2wMALgBE" +
-           "2wMAAAAM/////wEB/////wAAAAAVYIkKAgAAAAAAEgAAAENsaWVudEF1ZGl0RW50cnlJZAEB3AMALgBE" +
-           "3AMAAAAM/////wEB/////wAAAAAVYIkKAgAAAAAADAAAAENsaWVudFVzZXJJZAEB3QMALgBE3QMAAAAM" +
-           "/////wEB/////wAAAAAVYIkKAgAAAAAACAAAAE1ldGhvZElkAQHeAwAuAETeAwAAABH/////AQH/////" +
-           "AAAAABdgiQoCAAAAAAAOAAAASW5wdXRBcmd1bWVudHMBAd8DAC4ARN8DAAAAGAEAAAABAAAAAAAAAAEB" +
-           "/////wAAAAA=";
+           "CgIAAAAAAAcAAABFdmVudElkAgEA5UIPAAAuAETlQg8AAA//////AQH/////AAAAABVgiQoCAAAAAAAJ" +
+           "AAAARXZlbnRUeXBlAgEA5kIPAAAuAETmQg8AABH/////AQH/////AAAAABVgiQoCAAAAAAAKAAAAU291" +
+           "cmNlTm9kZQIBAOdCDwAALgBE50IPAAAR/////wEB/////wAAAAAVYIkKAgAAAAAACgAAAFNvdXJjZU5h" +
+           "bWUCAQDoQg8AAC4AROhCDwAADP////8BAf////8AAAAAFWCJCgIAAAAAAAQAAABUaW1lAgEA6UIPAAAu" +
+           "AETpQg8AAQAmAf////8BAf////8AAAAAFWCJCgIAAAAAAAsAAABSZWNlaXZlVGltZQIBAOpCDwAALgBE" +
+           "6kIPAAEAJgH/////AQH/////AAAAABVgiQoCAAAAAAAHAAAATWVzc2FnZQIBAOxCDwAALgBE7EIPAAAV" +
+           "/////wEB/////wAAAAAVYIkKAgAAAAAACAAAAFNldmVyaXR5AgEA7UIPAAAuAETtQg8AAAX/////AQH/" +
+           "////AAAAABVgiQoCAAAAAAAPAAAAQWN0aW9uVGltZVN0YW1wAgEA8kIPAAAuAETyQg8AAQAmAf////8B" +
+           "Af////8AAAAAFWCJCgIAAAAAAAYAAABTdGF0dXMCAQDzQg8AAC4ARPNCDwAAAf////8BAf////8AAAAA" +
+           "FWCJCgIAAAAAAAgAAABTZXJ2ZXJJZAIBAPRCDwAALgBE9EIPAAAM/////wEB/////wAAAAAVYIkKAgAA" +
+           "AAAAEgAAAENsaWVudEF1ZGl0RW50cnlJZAIBAPVCDwAALgBE9UIPAAAM/////wEB/////wAAAAAVYIkK" +
+           "AgAAAAAADAAAAENsaWVudFVzZXJJZAIBAPZCDwAALgBE9kIPAAAM/////wEB/////wAAAAAVYIkKAgAA" +
+           "AAAACAAAAE1ldGhvZElkAgEA90IPAAAuAET3Qg8AABH/////AQH/////AAAAABdgiQoCAAAAAAAOAAAA" +
+           "SW5wdXRBcmd1bWVudHMCAQD4Qg8AAC4ARPhCDwAAGAEAAAABAAAAAAAAAAEB/////wAAAAA=";
         #endregion
         #endif
         #endregion

@@ -40,7 +40,28 @@ namespace Opc.Ua.Bindings
         /// <returns>The transport listener.</returns>
         public override ITransportListener Create()
         {
-            return new HttpsTransportListener();
+            return new HttpsTransportListener(Utils.UriSchemeHttps);
+        }
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="HttpsTransportListener"/> with
+    /// <see cref="ITransportListener"/> interface.
+    /// </summary>
+    public class OpcHttpsTransportListenerFactory : HttpsServiceHost
+    {
+        /// <summary>
+        /// The protocol supported by the listener.
+        /// </summary>
+        public override string UriScheme => Utils.UriSchemeOpcHttps;
+
+        /// <summary>
+        /// The method creates a new instance of a <see cref="HttpsTransportListener"/>.
+        /// </summary>
+        /// <returns>The transport listener.</returns>
+        public override ITransportListener Create()
+        {
+            return new HttpsTransportListener(Utils.UriSchemeOpcHttps);
         }
     }
 
@@ -92,8 +113,9 @@ namespace Opc.Ua.Bindings
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpsTransportListener"/> class.
         /// </summary>
-        public HttpsTransportListener()
+        public HttpsTransportListener(string uriScheme)
         {
+            m_uriScheme = uriScheme;
         }
         #endregion
 
@@ -124,10 +146,11 @@ namespace Opc.Ua.Bindings
         #endregion
 
         #region ITransportListener Members
-        /// <summary>
-        /// The URI scheme handled by the listener.
-        /// </summary>
-        public string UriScheme => Utils.UriSchemeHttps;
+        /// <inheritdoc/>
+        public string UriScheme => m_uriScheme;
+
+        /// <inheritdoc/>
+        public string ListenerId => m_listenerId;
 
         /// <summary>
         /// Opens the listener and starts accepting connection.
@@ -161,6 +184,8 @@ namespace Opc.Ua.Bindings
                     MaxByteStringLength = configuration.MaxByteStringLength,
                     MaxMessageSize = configuration.MaxMessageSize,
                     MaxStringLength = configuration.MaxStringLength,
+                    MaxEncodingNestingLevels = configuration.MaxEncodingNestingLevels,
+                    MaxDecoderRecoveries = configuration.MaxDecoderRecoveries,
                     NamespaceUris = settings.NamespaceUris,
                     ServerUris = new StringTable(),
                     Factory = settings.Factory
@@ -200,7 +225,7 @@ namespace Opc.Ua.Bindings
 
         /// <inheritdoc/>
         /// <remarks>
-        /// Reverse connect for the https transport listener is not implemeted.
+        /// Reverse connect for the https transport listener is not implemented.
         /// </remarks>
         public void CreateReverseConnection(Uri url, int timeout)
         {
@@ -210,6 +235,12 @@ namespace Opc.Ua.Bindings
             ConnectionStatusChanged = null;
             ConnectionStatusChanged?.Invoke(null, null);
             throw new NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public void UpdateChannelLastActiveTime(string globalChannelId)
+        {
+            // intentionally not implemented
         }
         #endregion
 
@@ -231,7 +262,13 @@ namespace Opc.Ua.Bindings
                 CheckCertificateRevocation = false,
                 ClientCertificateMode = ClientCertificateMode.NoCertificate,
                 // note: this is the TLS certificate!
+#if NETCOREAPP3_1_OR_GREATER || NETSTANDARD2_1 || NET472_OR_GREATER || NET5_0_OR_GREATER
+                // Create a copy of the certificate with the private key on platforms
+                // which default to the ephemeral KeySet.
+                ServerCertificate = X509Utils.CreateCopyWithPrivateKey(m_serverCertificate, false)
+#else
                 ServerCertificate = m_serverCertificate
+#endif
             };
 
 #if NET462
@@ -325,9 +362,9 @@ namespace Opc.Ua.Bindings
                 if (NodeId.IsNull(input.RequestHeader.AuthenticationToken) &&
                     input.TypeId != DataTypeIds.CreateSessionRequest)
                 {
-                    if (context.Request.Headers.ContainsKey(kAuthorizationKey))
+                    if (context.Request.Headers.TryGetValue(kAuthorizationKey, out var keys))
                     {
-                        foreach (string value in context.Request.Headers[kAuthorizationKey])
+                        foreach (string value in keys)
                         {
                             if (value.StartsWith(kBearerKey, StringComparison.OrdinalIgnoreCase))
                             {
@@ -346,7 +383,7 @@ namespace Opc.Ua.Bindings
                 EndpointDescription endpoint = null;
                 foreach (var ep in m_descriptions)
                 {
-                    if (ep.EndpointUrl.StartsWith(Utils.UriSchemeHttps, StringComparison.Ordinal))
+                    if (Utils.IsUriHttpsScheme(ep.EndpointUrl))
                     {
                         if (!string.IsNullOrEmpty(header))
                         {
@@ -361,14 +398,26 @@ namespace Opc.Ua.Bindings
                     }
                 }
 
-                if (endpoint == null &&
-                    input.TypeId != DataTypeIds.GetEndpointsRequest &&
-                    input.TypeId != DataTypeIds.FindServersRequest)
+                if (endpoint == null)
                 {
-                    message = "Connection refused, invalid security policy.";
-                    Utils.LogError(message);
-                    await WriteResponseAsync(context.Response, message, HttpStatusCode.Unauthorized).ConfigureAwait(false);
-                    return;
+                    ServiceResultException serviceResultException = null;
+                    if (input.TypeId != DataTypeIds.GetEndpointsRequest &&
+                        input.TypeId != DataTypeIds.FindServersRequest &&
+                        input.TypeId != DataTypeIds.FindServersOnNetworkRequest)
+                    {
+                        serviceResultException = new ServiceResultException(StatusCodes.BadSecurityPolicyRejected, "Channel can only be used for discovery.");
+                    }
+                    else if (length > TcpMessageLimits.DefaultDiscoveryMaxMessageSize)
+                    {
+                        serviceResultException = new ServiceResultException(StatusCodes.BadSecurityPolicyRejected, "Discovery Channel message size exceeded.");
+                    }
+
+                    if (serviceResultException != null)
+                    {
+                        IServiceResponse serviceResponse = EndpointBase.CreateFault(null, serviceResultException);
+                        await WriteServiceResponseAsync(context, serviceResponse, ct).ConfigureAwait(false);
+                        return;
+                    }
                 }
 
                 // note: do not use Task.Factory.FromAsync here 
@@ -381,15 +430,11 @@ namespace Opc.Ua.Bindings
 
                 IServiceResponse output = m_callback.EndProcessRequest(result);
 
-                byte[] response = BinaryEncoder.EncodeMessage(output, m_quotas.MessageContext);
-                context.Response.ContentLength = response.Length;
-                context.Response.ContentType = context.Request.ContentType;
-                context.Response.StatusCode = (int)HttpStatusCode.OK;
-#if NETSTANDARD2_1 || NET5_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
-                await context.Response.Body.WriteAsync(response.AsMemory(0, response.Length), ct).ConfigureAwait(false);
-#else
-                await context.Response.Body.WriteAsync(response, 0, response.Length, ct).ConfigureAwait(false);
-#endif
+                if (!ct.IsCancellationRequested)
+                {
+                    await WriteServiceResponseAsync(context, output, ct).ConfigureAwait(false);
+                }
+
                 return;
             }
             catch (Exception e)
@@ -438,6 +483,22 @@ namespace Opc.Ua.Bindings
             Start();
         }
 
+        /// <summary>
+        /// Encodes a service response and writes it back.
+        /// </summary>
+        private async Task WriteServiceResponseAsync(HttpContext context, IServiceResponse response, CancellationToken ct)
+        {
+            byte[] encodedResponse = BinaryEncoder.EncodeMessage(response, m_quotas.MessageContext);
+            context.Response.ContentLength = encodedResponse.Length;
+            context.Response.ContentType = context.Request.ContentType;
+            context.Response.StatusCode = (int)HttpStatusCode.OK;
+#if NETSTANDARD2_1 || NET5_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+            await context.Response.Body.WriteAsync(encodedResponse.AsMemory(0, encodedResponse.Length), ct).ConfigureAwait(false);
+#else
+            await context.Response.Body.WriteAsync(encodedResponse, 0, encodedResponse.Length, ct).ConfigureAwait(false);
+#endif
+        }
+
         private static Task WriteResponseAsync(HttpResponse response, string message, HttpStatusCode status)
         {
             response.ContentLength = message.Length;
@@ -460,6 +521,7 @@ namespace Opc.Ua.Bindings
         #region Private Fields
         private string m_listenerId;
         private Uri m_uri;
+        private readonly string m_uriScheme;
         private EndpointDescriptionCollection m_descriptions;
         private ChannelQuotas m_quotas;
         private ITransportListenerCallback m_callback;

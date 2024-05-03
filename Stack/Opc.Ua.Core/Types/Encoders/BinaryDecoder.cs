@@ -11,7 +11,9 @@
 */
 
 using System;
+using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 
@@ -20,15 +22,22 @@ namespace Opc.Ua
     /// <summary>
     /// Decodes objects from a UA Binary encoded stream.
     /// </summary>
-    public class BinaryDecoder : IDecoder, IDisposable
+    public class BinaryDecoder : IDecoder
     {
         #region Constructor
         /// <summary>
         /// Creates a decoder that reads from a memory buffer.
         /// </summary>
         public BinaryDecoder(byte[] buffer, IServiceMessageContext context)
-        :
-            this(buffer, 0, buffer.Length, context)
+            : this(buffer, 0, buffer.Length, context)
+        {
+        }
+
+        /// <summary>
+        /// Creates a decoder that reads from an ArraySegment.
+        /// </summary>
+        public BinaryDecoder(ArraySegment<byte> buffer, IServiceMessageContext context)
+            : this(buffer.Array, buffer.Offset, buffer.Count, context)
         {
         }
 
@@ -37,23 +46,29 @@ namespace Opc.Ua
         /// </summary>
         public BinaryDecoder(byte[] buffer, int start, int count, IServiceMessageContext context)
         {
-            m_istrm = new MemoryStream(buffer, start, count, false);
-            m_reader = new BinaryReader(m_istrm);
-            m_context = context;
-            m_nestingLevel = 0;
+            var stream = new MemoryStream(buffer, start, count, false);
+            m_reader = new BinaryReader(stream);
+            Initialize(context);
         }
 
         /// <summary>
         /// Creates a decoder that reads from a stream.
         /// </summary>
-        public BinaryDecoder(Stream stream, IServiceMessageContext context)
+        public BinaryDecoder(Stream stream, IServiceMessageContext context, bool leaveOpen = false)
         {
-            if (stream == null) throw new ArgumentNullException(nameof(stream));
+            ValidateStreamRequirements(stream);
+            m_reader = new BinaryReader(stream, Encoding.UTF8, leaveOpen);
+            Initialize(context);
+        }
 
-            m_istrm = stream;
-            m_reader = new BinaryReader(m_istrm);
+        /// <summary>
+        /// Initializes the object.
+        /// </summary>
+        private void Initialize(IServiceMessageContext context)
+        {
             m_context = context;
             m_nestingLevel = 0;
+            m_encodeablesRecovered = 0;
         }
         #endregion
 
@@ -64,6 +79,7 @@ namespace Opc.Ua
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -73,15 +89,8 @@ namespace Opc.Ua
         {
             if (disposing)
             {
-                if (m_reader != null)
-                {
-                    m_reader.Dispose();
-                }
-
-                if (m_istrm != null)
-                {
-                    m_istrm.Dispose();
-                }
+                Utils.SilentDispose(m_reader);
+                m_reader = null;
             }
         }
         #endregion
@@ -114,18 +123,34 @@ namespace Opc.Ua
         /// </summary>
         public void Close()
         {
-            m_reader.Dispose();
+            m_reader.Close();
         }
 
         /// <summary>
         /// Returns the current position in the stream.
         /// </summary>
-        public int Position => (int)m_reader.BaseStream.Position;
+        public int Position
+        {
+            get
+            {
+                var stream = BaseStream;
+                if (stream?.CanSeek != true)
+                {
+                    throw new ServiceResultException(StatusCodes.BadDecodingError, "Stream does not support seeking.");
+                }
+                long position = (stream?.Position ?? 0);
+                if (position > int.MaxValue || position < int.MinValue)
+                {
+                    throw new ServiceResultException(StatusCodes.BadDecodingError, "Stream Position exceeds int.MaxValue or int.MinValue.");
+                }
+                return (int)position;
+            }
+        }
 
         /// <summary>
         /// Gets the stream that the decoder is reading from.
         /// </summary>
-        public Stream BaseStream => m_reader.BaseStream;
+        public Stream BaseStream => m_reader?.BaseStream;
 
         /// <summary>
         /// Decodes a message from a stream.
@@ -135,15 +160,9 @@ namespace Opc.Ua
             if (stream == null) throw new ArgumentNullException(nameof(stream));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            BinaryDecoder decoder = new BinaryDecoder(stream, context);
-
-            try
+            using (var decoder = new BinaryDecoder(stream, context))
             {
                 return decoder.DecodeMessage(expectedType);
-            }
-            finally
-            {
-                decoder.Close();
             }
         }
 
@@ -155,9 +174,7 @@ namespace Opc.Ua
             if (buffer == null) throw new ArgumentNullException(nameof(buffer));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            BinaryDecoder decoder = new BinaryDecoder(buffer, context);
-
-            try
+            using (var decoder = new BinaryDecoder(buffer, context))
             {
                 // read the node id.
                 NodeId typeId = decoder.ReadNodeId(null);
@@ -170,7 +187,8 @@ namespace Opc.Ua
 
                 if (actualType == null || actualType != typeof(SessionlessInvokeRequestType))
                 {
-                    throw new ServiceResultException(StatusCodes.BadDecodingError, Utils.Format("Cannot decode session-less service message with type id: {0}.", absoluteId));
+                    throw ServiceResultException.Create(StatusCodes.BadDecodingError,
+                        "Cannot decode session-less service message with type id: {0}.", absoluteId);
                 }
 
                 // decode the actual message.
@@ -178,31 +196,23 @@ namespace Opc.Ua
 
                 message.Decode(decoder);
 
-                return message.Message;
-            }
-            finally
-            {
                 decoder.Close();
+
+                return message.Message;
             }
         }
 
         /// <summary>
         /// Decodes a message from a buffer.
         /// </summary>
-        public static IEncodeable DecodeMessage(byte[] buffer, System.Type expectedType, IServiceMessageContext context)
+        public static IEncodeable DecodeMessage(byte[] buffer, Type expectedType, IServiceMessageContext context)
         {
             if (buffer == null) throw new ArgumentNullException(nameof(buffer));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            BinaryDecoder decoder = new BinaryDecoder(buffer, context);
-
-            try
+            using (var decoder = new BinaryDecoder(buffer, context))
             {
                 return decoder.DecodeMessage(expectedType);
-            }
-            finally
-            {
-                decoder.Close();
             }
         }
 
@@ -211,7 +221,7 @@ namespace Opc.Ua
         /// </summary>
         public IEncodeable DecodeMessage(System.Type expectedType)
         {
-            long start = m_istrm.Position;
+            int start = Position;
 
             // read the node id.
             NodeId typeId = ReadNodeId(null);
@@ -224,20 +234,19 @@ namespace Opc.Ua
 
             if (actualType == null)
             {
-                throw new ServiceResultException(StatusCodes.BadDecodingError, Utils.Format("Cannot decode message with type id: {0}.", absoluteId));
+                throw ServiceResultException.Create(StatusCodes.BadDecodingError,
+                    "Cannot decode message with type id: {0}.", absoluteId);
             }
 
             // read the message.
             IEncodeable message = ReadEncodeable(null, actualType, absoluteId);
 
             // check that the max message size was not exceeded.
-            if (m_context.MaxMessageSize > 0 && m_context.MaxMessageSize < (int)(m_istrm.Position - start))
+            int messageLength = Position - start;
+            if (m_context.MaxMessageSize > 0 && m_context.MaxMessageSize < messageLength)
             {
-                throw ServiceResultException.Create(
-                    StatusCodes.BadEncodingLimitsExceeded,
-                    "MaxMessageSize {0} < {1}",
-                    m_context.MaxMessageSize,
-                    (int)(m_istrm.Position - start));
+                throw ServiceResultException.Create(StatusCodes.BadEncodingLimitsExceeded,
+                    "MaxMessageSize {0} < {1}", m_context.MaxMessageSize, messageLength);
             }
 
             // return the message.
@@ -249,7 +258,7 @@ namespace Opc.Ua
         /// </summary>
         public bool LoadStringTable(StringTable stringTable)
         {
-            int count = ReadInt32(null);
+            int count = SafeReadInt32();
 
             if (count < -0)
             {
@@ -297,7 +306,7 @@ namespace Opc.Ua
         /// </summary>
         public bool ReadBoolean(string fieldName)
         {
-            return m_reader.ReadBoolean();
+            return SafeReadBoolean();
         }
 
         /// <summary>
@@ -305,7 +314,7 @@ namespace Opc.Ua
         /// </summary>
         public sbyte ReadSByte(string fieldName)
         {
-            return m_reader.ReadSByte();
+            return SafeReadSByte();
         }
 
         /// <summary>
@@ -313,7 +322,7 @@ namespace Opc.Ua
         /// </summary>
         public byte ReadByte(string fieldName)
         {
-            return m_reader.ReadByte();
+            return SafeReadByte();
         }
 
         /// <summary>
@@ -321,7 +330,7 @@ namespace Opc.Ua
         /// </summary>
         public short ReadInt16(string fieldName)
         {
-            return m_reader.ReadInt16();
+            return SafeReadInt16();
         }
 
         /// <summary>
@@ -329,7 +338,7 @@ namespace Opc.Ua
         /// </summary>
         public ushort ReadUInt16(string fieldName)
         {
-            return m_reader.ReadUInt16();
+            return SafeReadUInt16();
         }
 
         /// <summary>
@@ -337,7 +346,7 @@ namespace Opc.Ua
         /// </summary>
         public int ReadInt32(string fieldName)
         {
-            return m_reader.ReadInt32();
+            return SafeReadInt32();
         }
 
         /// <summary>
@@ -345,7 +354,7 @@ namespace Opc.Ua
         /// </summary>
         public uint ReadUInt32(string fieldName)
         {
-            return m_reader.ReadUInt32();
+            return SafeReadUInt32();
         }
 
         /// <summary>
@@ -353,7 +362,7 @@ namespace Opc.Ua
         /// </summary>
         public long ReadInt64(string fieldName)
         {
-            return m_reader.ReadInt64();
+            return SafeReadInt64();
         }
 
         /// <summary>
@@ -361,7 +370,7 @@ namespace Opc.Ua
         /// </summary>
         public ulong ReadUInt64(string fieldName)
         {
-            return m_reader.ReadUInt64();
+            return SafeReadUInt64();
         }
 
         /// <summary>
@@ -369,7 +378,7 @@ namespace Opc.Ua
         /// </summary>
         public float ReadFloat(string fieldName)
         {
-            return m_reader.ReadSingle();
+            return SafeReadFloat();
         }
 
         /// <summary>
@@ -377,7 +386,7 @@ namespace Opc.Ua
         /// </summary>
         public double ReadDouble(string fieldName)
         {
-            return m_reader.ReadDouble();
+            return SafeReadDouble();
         }
 
         /// <summary>
@@ -389,11 +398,12 @@ namespace Opc.Ua
         }
 
         /// <summary>
-        /// Reads a string from the stream (throws an exception if its length exceeds the limit specified).
+        /// Reads a string from the stream (throws an exception if
+        /// its length is invalid or exceeds the limit specified).
         /// </summary>
         public string ReadString(string fieldName, int maxStringLength)
         {
-            int length = m_reader.ReadInt32();
+            int length = SafeReadInt32();
 
             if (length < 0)
             {
@@ -407,14 +417,13 @@ namespace Opc.Ua
 
             if (maxStringLength > 0 && maxStringLength < length)
             {
-                throw ServiceResultException.Create(
-                    StatusCodes.BadEncodingLimitsExceeded,
-                    "MaxStringLength {0} < {1}",
-                    maxStringLength,
-                    length);
+                throw ServiceResultException.Create(StatusCodes.BadEncodingLimitsExceeded,
+                    "MaxStringLength {0} < {1}", maxStringLength, length);
             }
 
-            byte[] bytes = m_reader.ReadBytes(length);
+            byte[] bytes = SafeReadBytes(length);
+
+            // length is always >= 1 here
 
             // If 0 terminated, decrease length by one before converting to string
             var utf8StringLength = bytes[bytes.Length - 1] == 0 ? bytes.Length - 1 : bytes.Length;
@@ -426,7 +435,7 @@ namespace Opc.Ua
         /// </summary>
         public DateTime ReadDateTime(string fieldName)
         {
-            long ticks = m_reader.ReadInt64();
+            long ticks = SafeReadInt64();
 
             if (ticks >= (Int64.MaxValue - Utils.TimeBase.Ticks))
             {
@@ -453,7 +462,8 @@ namespace Opc.Ua
         /// </summary>
         public Uuid ReadGuid(string fieldName)
         {
-            byte[] bytes = m_reader.ReadBytes(16);
+            const int kGuidLength = 16;
+            byte[] bytes = SafeReadBytes(kGuidLength);
             return new Uuid(new Guid(bytes));
         }
 
@@ -470,7 +480,7 @@ namespace Opc.Ua
         /// </summary>
         public byte[] ReadByteString(string fieldName, int maxByteStringLength)
         {
-            int length = m_reader.ReadInt32();
+            int length = SafeReadInt32();
 
             if (length < 0)
             {
@@ -479,14 +489,11 @@ namespace Opc.Ua
 
             if (maxByteStringLength > 0 && maxByteStringLength < length)
             {
-                throw ServiceResultException.Create(
-                    StatusCodes.BadEncodingLimitsExceeded,
-                    "MaxByteStringLength {0} < {1}",
-                    maxByteStringLength,
-                    length);
+                throw ServiceResultException.Create(StatusCodes.BadEncodingLimitsExceeded,
+                    "MaxByteStringLength {0} < {1}", maxByteStringLength, length);
             }
 
-            return m_reader.ReadBytes(length);
+            return SafeReadBytes(length);
         }
 
         /// <summary>
@@ -527,7 +534,7 @@ namespace Opc.Ua
         /// </summary>
         public NodeId ReadNodeId(string fieldName)
         {
-            byte encodingByte = m_reader.ReadByte();
+            byte encodingByte = SafeReadByte();
 
             NodeId value = new NodeId();
 
@@ -546,7 +553,7 @@ namespace Opc.Ua
         /// </summary>
         public ExpandedNodeId ReadExpandedNodeId(string fieldName)
         {
-            byte encodingByte = m_reader.ReadByte();
+            byte encodingByte = SafeReadByte();
 
             ExpandedNodeId value = new ExpandedNodeId();
 
@@ -567,7 +574,7 @@ namespace Opc.Ua
             // read the server index if present.
             if ((encodingByte & 0x40) != 0)
             {
-                serverIndex = ReadUInt32(null);
+                serverIndex = SafeReadUInt32();
                 value.SetServerIndex(serverIndex);
             }
 
@@ -589,7 +596,7 @@ namespace Opc.Ua
         /// </summary>
         public StatusCode ReadStatusCode(string fieldName)
         {
-            return m_reader.ReadUInt32();
+            return SafeReadUInt32();
         }
 
         /// <summary>
@@ -597,61 +604,7 @@ namespace Opc.Ua
         /// </summary>
         public DiagnosticInfo ReadDiagnosticInfo(string fieldName)
         {
-            // check the nesting level for avoiding a stack overflow.
-            if (m_nestingLevel > m_context.MaxEncodingNestingLevels)
-            {
-                throw ServiceResultException.Create(
-                    StatusCodes.BadEncodingLimitsExceeded,
-                    "Maximum nesting level of {0} was exceeded",
-                    m_context.MaxEncodingNestingLevels);
-            }
-
-            m_nestingLevel++;
-
-            // read the encoding byte.
-            byte encodingByte = m_reader.ReadByte();
-
-            DiagnosticInfo value = new DiagnosticInfo();
-
-            // read the fields of the diagnostic info structure.
-            if ((encodingByte & (byte)DiagnosticInfoEncodingBits.SymbolicId) != 0)
-            {
-                value.SymbolicId = ReadInt32(null);
-            }
-
-            if ((encodingByte & (byte)DiagnosticInfoEncodingBits.NamespaceUri) != 0)
-            {
-                value.NamespaceUri = ReadInt32(null);
-            }
-
-            if ((encodingByte & (byte)DiagnosticInfoEncodingBits.Locale) != 0)
-            {
-                value.Locale = ReadInt32(null);
-            }
-
-            if ((encodingByte & (byte)DiagnosticInfoEncodingBits.LocalizedText) != 0)
-            {
-                value.LocalizedText = ReadInt32(null);
-            }
-
-            if ((encodingByte & (byte)DiagnosticInfoEncodingBits.AdditionalInfo) != 0)
-            {
-                value.AdditionalInfo = ReadString(null);
-            }
-
-            if ((encodingByte & (byte)DiagnosticInfoEncodingBits.InnerStatusCode) != 0)
-            {
-                value.InnerStatusCode = ReadStatusCode(null);
-            }
-
-            if ((encodingByte & (byte)DiagnosticInfoEncodingBits.InnerDiagnosticInfo) != 0)
-            {
-                value.InnerDiagnosticInfo = ReadDiagnosticInfo(null);
-            }
-
-            m_nestingLevel--;
-
-            return value;
+            return ReadDiagnosticInfo(fieldName, 0);
         }
 
         /// <summary>
@@ -676,7 +629,7 @@ namespace Opc.Ua
         public LocalizedText ReadLocalizedText(string fieldName)
         {
             // read the encoding byte.
-            byte encodingByte = m_reader.ReadByte();
+            byte encodingByte = SafeReadByte();
 
             string text = null;
             string locale = null;
@@ -700,22 +653,16 @@ namespace Opc.Ua
         /// </summary>
         public Variant ReadVariant(string fieldName)
         {
-            // check the nesting level for avoiding a stack overflow.
-            if (m_nestingLevel > m_context.MaxEncodingNestingLevels)
+            CheckAndIncrementNestingLevel();
+
+            try
             {
-                throw ServiceResultException.Create(
-                    StatusCodes.BadEncodingLimitsExceeded,
-                    "Maximum nesting level of {0} was exceeded",
-                    m_context.MaxEncodingNestingLevels);
+                return ReadVariantValue(fieldName);
             }
-
-            m_nestingLevel++;
-
-            Variant value = ReadVariantValue(fieldName);
-
-            m_nestingLevel--;
-
-            return value;
+            finally
+            {
+                m_nestingLevel--;
+            }
         }
 
         /// <summary>
@@ -724,7 +671,7 @@ namespace Opc.Ua
         public DataValue ReadDataValue(string fieldName)
         {
             // read the encoding byte.
-            byte encodingByte = m_reader.ReadByte();
+            byte encodingByte = SafeReadByte();
 
             DataValue value = new DataValue();
 
@@ -774,47 +721,40 @@ namespace Opc.Ua
         /// Reads an encodeable object from the stream.
         /// </summary>
         /// <param name="fieldName">The encodeable object field name</param>
-        /// <param name="systemType">The system type of the encopdeable object to be read</param>
+        /// <param name="systemType">The system type of the encodeable object to be read</param>
         /// <param name="encodeableTypeId">The TypeId for the <see cref="IEncodeable"/> instance that will be read.</param>
         /// <returns>An <see cref="IEncodeable"/> object that was read from the stream.</returns>
         public IEncodeable ReadEncodeable(string fieldName, System.Type systemType, ExpandedNodeId encodeableTypeId = null)
         {
             if (systemType == null) throw new ArgumentNullException(nameof(systemType));
 
-            IEncodeable encodeable = Activator.CreateInstance(systemType) as IEncodeable;
 
-            if (encodeable == null)
+            if (!(Activator.CreateInstance(systemType) is IEncodeable encodeable))
             {
-                throw new ServiceResultException(
-                    StatusCodes.BadDecodingError,
-                    Utils.Format("Cannot decode type '{0}'.", systemType.FullName));
+                throw ServiceResultException.Create(StatusCodes.BadDecodingError,
+                    "Cannot decode type '{0}'.", systemType.FullName);
             }
 
             if (encodeableTypeId != null)
             {
                 // set type identifier for custom complex data types before decode.
-                IComplexTypeInstance complexTypeInstance = encodeable as IComplexTypeInstance;
 
-                if (complexTypeInstance != null)
+                if (encodeable is IComplexTypeInstance complexTypeInstance)
                 {
                     complexTypeInstance.TypeId = encodeableTypeId;
                 }
             }
 
-            // check the nesting level for avoiding a stack overflow.
-            if (m_nestingLevel > m_context.MaxEncodingNestingLevels)
+            CheckAndIncrementNestingLevel();
+
+            try
             {
-                throw ServiceResultException.Create(
-                    StatusCodes.BadEncodingLimitsExceeded,
-                    "Maximum nesting level of {0} was exceeded",
-                    m_context.MaxEncodingNestingLevels);
+                encodeable.Decode(this);
             }
-
-            m_nestingLevel++;
-
-            encodeable.Decode(this);
-
-            m_nestingLevel--;
+            finally
+            {
+                m_nestingLevel--;
+            }
 
             return encodeable;
         }
@@ -824,7 +764,7 @@ namespace Opc.Ua
         /// </summary>
         public Enum ReadEnumerated(string fieldName, System.Type enumType)
         {
-            return (Enum)Enum.ToObject(enumType, m_reader.ReadInt32());
+            return (Enum)Enum.ToObject(enumType, SafeReadInt32());
         }
 
         /// <summary>
@@ -865,7 +805,7 @@ namespace Opc.Ua
 
             for (int ii = 0; ii < length; ii++)
             {
-                values.Add(ReadSByte(null));
+                values.Add(SafeReadSByte());
             }
 
             return values;
@@ -887,7 +827,7 @@ namespace Opc.Ua
 
             for (int ii = 0; ii < length; ii++)
             {
-                values.Add(ReadByte(null));
+                values.Add(SafeReadByte());
             }
 
             return values;
@@ -975,7 +915,7 @@ namespace Opc.Ua
 
             for (int ii = 0; ii < length; ii++)
             {
-                values.Add(ReadUInt32(null));
+                values.Add(SafeReadUInt32());
             }
 
             return values;
@@ -1381,7 +1321,7 @@ namespace Opc.Ua
         /// Reads an encodeable array from the stream.
         /// </summary>
         /// <param name="fieldName">The encodeable array field name</param>
-        /// <param name="systemType">The system type of the encopdeable objects to be read object</param>
+        /// <param name="systemType">The system type of the encodeable objects to be read object</param>
         /// <param name="encodeableTypeId">The TypeId for the <see cref="IEncodeable"/> instances that will be read.</param>
         /// <returns>An <see cref="IEncodeable"/> array that was read from the stream.</returns>
         public Array ReadEncodeableArray(string fieldName, System.Type systemType, ExpandedNodeId encodeableTypeId = null)
@@ -1509,9 +1449,8 @@ namespace Opc.Ua
                         {
                             return ReadEncodeableArray(fieldName, systemType, encodeableTypeId);
                         }
-                        throw new ServiceResultException(
-                            StatusCodes.BadDecodingError,
-                            Utils.Format("Cannot decode unknown type in Array object with BuiltInType: {0}.", builtInType));
+                        throw ServiceResultException.Create(StatusCodes.BadDecodingError,
+                            "Cannot decode unknown type in Array object with BuiltInType: {0}.", builtInType);
                     }
                 }
             }
@@ -1534,7 +1473,7 @@ namespace Opc.Ua
                         for (int i = 0; i < length; i++)
                         {
                             IEncodeable element = ReadEncodeable(null, systemType, encodeableTypeId);
-                            elements.SetValue(Convert.ChangeType(element, systemType), i);
+                            elements.SetValue(Convert.ChangeType(element, systemType, CultureInfo.InvariantCulture), i);
                         }
                     }
 
@@ -1545,8 +1484,7 @@ namespace Opc.Ua
 
                     if (elements == null)
                     {
-                        throw ServiceResultException.Create(
-                            StatusCodes.BadDecodingError,
+                        throw ServiceResultException.Create(StatusCodes.BadDecodingError,
                             "Unexpected null Array for multidimensional matrix with {0} elements.", length);
                     }
 
@@ -1563,8 +1501,7 @@ namespace Opc.Ua
 
                     return new Matrix(elements, builtInType, dimensions.ToArray()).ToArray();
                 }
-                throw ServiceResultException.Create(
-                    StatusCodes.BadDecodingError,
+                throw ServiceResultException.Create(StatusCodes.BadDecodingError,
                     "Unexpected null or empty Dimensions for multidimensional matrix.");
             }
             return null;
@@ -1572,6 +1509,77 @@ namespace Opc.Ua
         #endregion
 
         #region Private Methods
+        /// <summary>
+        /// Reads a DiagnosticInfo from the stream.
+        /// Limits the InnerDiagnosticInfo nesting level.
+        /// </summary>
+        private DiagnosticInfo ReadDiagnosticInfo(string fieldName, int depth)
+        {
+            if (depth >= DiagnosticInfo.MaxInnerDepth)
+            {
+                throw ServiceResultException.Create(StatusCodes.BadEncodingLimitsExceeded,
+                    "Maximum nesting level of InnerDiagnosticInfo was exceeded");
+            }
+
+            CheckAndIncrementNestingLevel();
+
+            try
+            {
+                // read the encoding byte.
+                byte encodingByte = SafeReadByte();
+
+                // check if the diagnostic info is null.
+                if (encodingByte == 0)
+                {
+                    return null;
+                }
+
+                DiagnosticInfo value = new DiagnosticInfo();
+
+                // read the fields of the diagnostic info structure.
+                if ((encodingByte & (byte)DiagnosticInfoEncodingBits.SymbolicId) != 0)
+                {
+                    value.SymbolicId = ReadInt32(null);
+                }
+
+                if ((encodingByte & (byte)DiagnosticInfoEncodingBits.NamespaceUri) != 0)
+                {
+                    value.NamespaceUri = ReadInt32(null);
+                }
+
+                if ((encodingByte & (byte)DiagnosticInfoEncodingBits.Locale) != 0)
+                {
+                    value.Locale = ReadInt32(null);
+                }
+
+                if ((encodingByte & (byte)DiagnosticInfoEncodingBits.LocalizedText) != 0)
+                {
+                    value.LocalizedText = ReadInt32(null);
+                }
+
+                if ((encodingByte & (byte)DiagnosticInfoEncodingBits.AdditionalInfo) != 0)
+                {
+                    value.AdditionalInfo = ReadString(null);
+                }
+
+                if ((encodingByte & (byte)DiagnosticInfoEncodingBits.InnerStatusCode) != 0)
+                {
+                    value.InnerStatusCode = ReadStatusCode(null);
+                }
+
+                if ((encodingByte & (byte)DiagnosticInfoEncodingBits.InnerDiagnosticInfo) != 0)
+                {
+                    value.InnerDiagnosticInfo = ReadDiagnosticInfo(null, depth + 1);
+                }
+
+                return value;
+            }
+            finally
+            {
+                m_nestingLevel--;
+            }
+        }
+
         /// <summary>
         /// Get the system type from the type factory if not specified by caller.
         /// </summary>
@@ -1614,7 +1622,7 @@ namespace Opc.Ua
 
                     for (int ii = 0; ii < values.Length; ii++)
                     {
-                        values[ii] = ReadSByte(null);
+                        values[ii] = SafeReadSByte();
                     }
 
                     array = values;
@@ -1627,7 +1635,7 @@ namespace Opc.Ua
 
                     for (int ii = 0; ii < values.Length; ii++)
                     {
-                        values[ii] = ReadByte(null);
+                        values[ii] = SafeReadByte();
                     }
 
                     array = values;
@@ -1679,7 +1687,7 @@ namespace Opc.Ua
 
                     for (int ii = 0; ii < values.Length; ii++)
                     {
-                        values[ii] = ReadUInt32(null);
+                        values[ii] = SafeReadUInt32();
                     }
 
                     array = values;
@@ -1914,6 +1922,7 @@ namespace Opc.Ua
                     array = values;
                     break;
                 }
+
                 case BuiltInType.DiagnosticInfo:
                 {
                     DiagnosticInfo[] values = new DiagnosticInfo[length];
@@ -1926,11 +1935,11 @@ namespace Opc.Ua
                     array = values;
                     break;
                 }
+
                 default:
                 {
-                    throw new ServiceResultException(
-                        StatusCodes.BadDecodingError,
-                        Utils.Format("Cannot decode unknown type in Variant object with BuiltInType: {0}.", builtInType));
+                    throw ServiceResultException.Create(StatusCodes.BadDecodingError,
+                        "Cannot decode unknown type in Variant object with BuiltInType: {0}.", builtInType);
                 }
             }
 
@@ -1942,7 +1951,7 @@ namespace Opc.Ua
         /// </summary>
         private int ReadArrayLength()
         {
-            int length = m_reader.ReadInt32();
+            int length = SafeReadInt32();
 
             if (length < 0)
             {
@@ -1951,11 +1960,8 @@ namespace Opc.Ua
 
             if (m_context.MaxArrayLength > 0 && m_context.MaxArrayLength < length)
             {
-                throw ServiceResultException.Create(
-                    StatusCodes.BadEncodingLimitsExceeded,
-                    "MaxArrayLength {0} < {1}",
-                    m_context.MaxArrayLength,
-                    length);
+                throw ServiceResultException.Create(StatusCodes.BadEncodingLimitsExceeded,
+                    "MaxArrayLength {0} < {1}", m_context.MaxArrayLength, length);
             }
 
             return length;
@@ -1971,50 +1977,49 @@ namespace Opc.Ua
                 case NodeIdEncodingBits.TwoByte:
                 {
                     value.SetNamespaceIndex(0);
-                    value.SetIdentifier(IdType.Numeric, (uint)m_reader.ReadByte());
+                    value.SetIdentifier(IdType.Numeric, (uint)SafeReadByte());
                     break;
                 }
 
                 case NodeIdEncodingBits.FourByte:
                 {
-                    value.SetNamespaceIndex(m_reader.ReadByte());
-                    value.SetIdentifier(IdType.Numeric, (uint)m_reader.ReadUInt16());
+                    value.SetNamespaceIndex(SafeReadByte());
+                    value.SetIdentifier(IdType.Numeric, (uint)SafeReadUInt16());
                     break;
                 }
 
                 case NodeIdEncodingBits.Numeric:
                 {
-                    value.SetNamespaceIndex(m_reader.ReadUInt16());
-                    value.SetIdentifier(IdType.Numeric, (uint)m_reader.ReadUInt32());
+                    value.SetNamespaceIndex(SafeReadUInt16());
+                    value.SetIdentifier(IdType.Numeric, SafeReadUInt32());
                     break;
                 }
 
                 case NodeIdEncodingBits.String:
                 {
-                    value.SetNamespaceIndex(m_reader.ReadUInt16());
+                    value.SetNamespaceIndex(SafeReadUInt16());
                     value.SetIdentifier(IdType.String, ReadString(null));
                     break;
                 }
 
                 case NodeIdEncodingBits.Guid:
                 {
-                    value.SetNamespaceIndex(m_reader.ReadUInt16());
+                    value.SetNamespaceIndex(SafeReadUInt16());
                     value.SetIdentifier(IdType.Guid, (Guid)ReadGuid(null));
                     break;
                 }
 
                 case NodeIdEncodingBits.ByteString:
                 {
-                    value.SetNamespaceIndex(m_reader.ReadUInt16());
+                    value.SetNamespaceIndex(SafeReadUInt16());
                     value.SetIdentifier(IdType.Opaque, ReadByteString(null));
                     break;
                 }
 
                 default:
                 {
-                    throw new ServiceResultException(
-                        StatusCodes.BadDecodingError,
-                        Utils.Format("Invald encoding byte (0x{0:X2}) for NodeId.", encodingByte));
+                    throw ServiceResultException.Create(StatusCodes.BadDecodingError,
+                        "Invalid encoding byte (0x{0:X2}) for NodeId.", encodingByte);
                 }
             }
         }
@@ -2035,12 +2040,12 @@ namespace Opc.Ua
             if (!NodeId.IsNull(typeId) && NodeId.IsNull(extension.TypeId))
             {
                 Utils.LogWarning(
-                    "Cannot de-serialized extension objects if the NamespaceUri is not in the NamespaceTable: Type = {0}",
+                    "Cannot deserialize extension objects if the NamespaceUri is not in the NamespaceTable: Type = {0}",
                     typeId);
             }
 
             // read encoding.
-            ExtensionObjectEncoding encoding = (ExtensionObjectEncoding)Enum.ToObject(typeof(ExtensionObjectEncoding), m_reader.ReadByte());
+            ExtensionObjectEncoding encoding = (ExtensionObjectEncoding)Enum.ToObject(typeof(ExtensionObjectEncoding), SafeReadByte());
 
             // nothing more to do for empty bodies.
             if (encoding == ExtensionObjectEncoding.None)
@@ -2060,40 +2065,25 @@ namespace Opc.Ua
                 if (systemType != null && extension.Body != null)
                 {
                     XmlElement element = extension.Body as XmlElement;
-                    XmlDecoder xmlDecoder = new XmlDecoder(element, this.Context);
-
-                    try
+                    using (XmlDecoder xmlDecoder = new XmlDecoder(element, this.Context))
                     {
-                        xmlDecoder.PushNamespace(element.NamespaceURI);
-                        IEncodeable body = xmlDecoder.ReadEncodeable(element.LocalName, systemType, extension.TypeId);
-                        xmlDecoder.PopNamespace();
+                        try
+                        {
+                            xmlDecoder.PushNamespace(element.NamespaceURI);
+                            IEncodeable body = xmlDecoder.ReadEncodeable(element.LocalName, systemType, extension.TypeId);
+                            xmlDecoder.PopNamespace();
 
-                        // update body.
-                        extension.Body = body;
-                    }
-                    catch (Exception e)
-                    {
-                        Utils.LogError("Could not decode known type {0}. Error={1}, Value={2}", systemType.FullName, e.Message, element.OuterXml);
+                            // update body.
+                            extension.Body = body;
+                        }
+                        catch (Exception e)
+                        {
+                            Utils.LogError("Could not decode known type {0} encoded as Xml. Error={1}, Value={2}", systemType.FullName, e.Message, element.OuterXml);
+                        }
                     }
                 }
 
                 return extension;
-            }
-
-            // create instance of type.
-            IEncodeable encodeable = null;
-
-            if (systemType != null)
-            {
-                encodeable = Activator.CreateInstance(systemType) as IEncodeable;
-
-                // set type identifier for custom complex data types before decode.
-                IComplexTypeInstance complexTypeInstance = encodeable as IComplexTypeInstance;
-
-                if (complexTypeInstance != null)
-                {
-                    complexTypeInstance.TypeId = extension.TypeId;
-                }
             }
 
             // get the length.
@@ -2102,35 +2092,88 @@ namespace Opc.Ua
             // save the current position.
             int start = Position;
 
+            // create instance of type.
+            IEncodeable encodeable = null;
+            if (systemType != null && length >= 0)
+            {
+                encodeable = Activator.CreateInstance(systemType) as IEncodeable;
+
+                // set type identifier for custom complex data types before decode.
+                if (encodeable is IComplexTypeInstance complexTypeInstance)
+                {
+                    complexTypeInstance.TypeId = extension.TypeId;
+                }
+            }
+
             // process known type.
             if (encodeable != null)
             {
-                // check the nesting level for avoiding a stack overflow.
-                if (m_nestingLevel > m_context.MaxEncodingNestingLevels)
-                {
-                    throw ServiceResultException.Create(
-                        StatusCodes.BadEncodingLimitsExceeded,
-                        "Maximum nesting level of {0} was exceeded",
-                        m_context.MaxEncodingNestingLevels);
-                }
+                bool resetStream = true;
+                string errorMessage = string.Empty;
+                Exception exception = null;
+                uint nestingLevel = m_nestingLevel;
 
-                uint nestingLevel = m_nestingLevel++;
+                CheckAndIncrementNestingLevel();
 
                 try
                 {
                     // decode body.
                     encodeable.Decode(this);
 
-                    m_nestingLevel--;
+                    // verify the decoder did not exceed the length of the encodeable object
+                    int used = Position - start;
+                    if (length != used)
+                    {
+                        errorMessage = "Length mismatch";
+                        exception = null;
+                    }
+                    else
+                    {
+                        // success!
+                        resetStream = false;
+                    }
                 }
-                catch (ServiceResultException sre) when (sre.StatusCode == StatusCodes.BadEncodingLimitsExceeded)
+                catch (EndOfStreamException eofStream)
                 {
-                    // type was known but decoding failed, reset stream!
-                    m_reader.BaseStream.Position = start;
+                    errorMessage = "End of stream";
+                    exception = eofStream;
+                }
+                catch (ServiceResultException sre) when
+                    ((sre.StatusCode == StatusCodes.BadEncodingLimitsExceeded) || (sre.StatusCode == StatusCodes.BadDecodingError))
+                {
+                    errorMessage = sre.Message;
+                    exception = sre;
+                }
+                finally
+                {
                     m_nestingLevel = nestingLevel;
+                }
+
+                if (resetStream)
+                {
+                    // type was known but decoding failed,
+                    // reset stream to return ExtensionObject if configured to do so!
+                    // decoding failure of a known type in ns=0 is always a decoding error.
+                    if (typeId.NamespaceIndex == 0 ||
+                        m_encodeablesRecovered >= m_context.MaxDecoderRecoveries)
+                    {
+                        throw exception ??
+                            ServiceResultException.Create(StatusCodes.BadDecodingError, "{0}, failed to decode encodeable type '{1}', NodeId='{2}'.",
+                                errorMessage, systemType.Name, extension.TypeId);
+                    }
+                    else if (m_encodeablesRecovered == 0)
+                    {
+                        // log the error only once to avoid flooding the log.
+                        Utils.LogWarning(exception, "{0}, failed to decode encodeable type '{1}', NodeId='{2}'. BinaryDecoder recovered.",
+                            errorMessage, systemType.Name, extension.TypeId);
+                    }
+
+                    // reset the stream to the begin of the ExtensionObject body.
+                    m_reader.BaseStream.Position = start;
                     encodeable = null;
-                    Utils.LogWarning(sre, "Failed to decode encodeable type '{0}', NodeId='{1}'. BinaryDecoder recovered.",
-                        systemType.Name, extension.TypeId);
+
+                    // count number of recoveries
+                    m_encodeablesRecovered++;
                 }
             }
 
@@ -2140,33 +2183,29 @@ namespace Opc.Ua
                 // figure out how long the object is.
                 if (length < 0)
                 {
-                    throw new ServiceResultException(
-                        StatusCodes.BadDecodingError,
-                        Utils.Format("Cannot determine length of unknown extension object body with type '{0}'.", extension.TypeId));
+                    throw ServiceResultException.Create(StatusCodes.BadDecodingError,
+                        "Cannot determine length of unknown extension object body with type '{0}'.", extension.TypeId);
                 }
 
                 // check the length.
                 if (m_context.MaxByteStringLength > 0 && m_context.MaxByteStringLength < length)
                 {
-                    throw ServiceResultException.Create(
-                        StatusCodes.BadEncodingLimitsExceeded,
-                        "MaxByteStringLength {0} < {1}",
-                        m_context.MaxByteStringLength,
-                        length);
+                    throw ServiceResultException.Create(StatusCodes.BadEncodingLimitsExceeded,
+                        "MaxByteStringLength {0} < {1}", m_context.MaxByteStringLength, length);
                 }
 
                 // read the bytes of the body.
-                extension.Body = m_reader.ReadBytes(length);
+                extension.Body = SafeReadBytes(length);
 
                 return extension;
             }
 
-            // skip any unread data.
-            int unused = length - (Position - start);
-
+            // any unread data indicates a decoding error.
+            long unused = length - (Position - start);
             if (unused > 0)
             {
-                m_reader.ReadBytes(unused);
+                throw ServiceResultException.Create(StatusCodes.BadDecodingError,
+                    "Cannot skip {0} bytes of unknown extension object body with type '{1}'.", unused, extension.TypeId);
             }
 
             if (encodeable != null)
@@ -2186,7 +2225,7 @@ namespace Opc.Ua
         private Variant ReadVariantValue(string fieldName)
         {
             // read the encoding byte.
-            byte encodingByte = m_reader.ReadByte();
+            byte encodingByte = SafeReadByte();
 
             Variant value = new Variant();
 
@@ -2206,7 +2245,7 @@ namespace Opc.Ua
 
                 if (array == null)
                 {
-                    value = new Variant(StatusCodes.BadDecodingError);
+                    value = new Variant((StatusCode)StatusCodes.BadDecodingError);
                 }
                 else
                 {
@@ -2218,8 +2257,7 @@ namespace Opc.Ua
                         // check if ArrayDimensions are consistent with the ArrayLength.
                         if (dimensions == null || dimensions.Count == 0)
                         {
-                            throw new ServiceResultException(
-                                StatusCodes.BadDecodingError,
+                            throw ServiceResultException.Create(StatusCodes.BadDecodingError,
                                 "ArrayDimensions not specified when ArrayDimensions encoding bit was set in Variant object.");
                         }
 
@@ -2228,7 +2266,8 @@ namespace Opc.Ua
 
                         if (!valid || (matrixLength != length))
                         {
-                            throw new ServiceResultException(StatusCodes.BadDecodingError, "ArrayDimensions does not match with the ArrayLength in Variant object.");
+                            throw ServiceResultException.Create(StatusCodes.BadDecodingError,
+                                "ArrayDimensions length does not match with the ArrayLength in Variant object.");
                         }
 
                         value = new Variant(new Matrix(array, builtInType, dimensions.ToArray()));
@@ -2257,13 +2296,13 @@ namespace Opc.Ua
 
                     case BuiltInType.SByte:
                     {
-                        value.Set(ReadSByte(null));
+                        value.Set(SafeReadSByte());
                         break;
                     }
 
                     case BuiltInType.Byte:
                     {
-                        value.Set(ReadByte(null));
+                        value.Set(SafeReadByte());
                         break;
                     }
 
@@ -2288,7 +2327,7 @@ namespace Opc.Ua
 
                     case BuiltInType.UInt32:
                     {
-                        value.Set(ReadUInt32(null));
+                        value.Set(SafeReadUInt32());
                         break;
                     }
 
@@ -2398,24 +2437,272 @@ namespace Opc.Ua
 
                     default:
                     {
-                        throw new ServiceResultException(
-                            StatusCodes.BadDecodingError,
-                            Utils.Format("Cannot decode unknown type in Variant object (0x{0:X2}).", encodingByte));
+                        throw ServiceResultException.Create(StatusCodes.BadDecodingError,
+                            "Cannot decode unknown type in Variant object (0x{0:X2}).", encodingByte);
                     }
                 }
             }
 
             return value;
         }
+
+        /// <summary>
+        /// Read bytes from stream and validate the length of the returned buffer.
+        /// Throws decoding error if less than the expected number of bytes were read.
+        /// </summary>
+        /// <param name="length">The number of bytes to read.</param>
+        /// <param name="functionName">The name of the calling function.</param>
+        /// <exception cref="ServiceResultException"> with <see cref="StatusCodes.BadDecodingError"/></exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private byte[] SafeReadBytes(int length, [CallerMemberName] string functionName = null)
+        {
+            if (length == 0)
+            {
+                return Array.Empty<byte>();
+            }
+
+            byte[] bytes = m_reader.ReadBytes(length);
+            if (bytes.Length != length)
+            {
+                throw ServiceResultException.Create(StatusCodes.BadDecodingError,
+                    "Reading {0} bytes of {1} reached end of stream after {2} bytes.", length, functionName, bytes.Length);
+            }
+            return bytes;
+        }
+
+        /// <summary>
+        /// Safe version of <see cref="ReadBoolean"></see> which returns a ServiceResultException on error.
+        /// </summary>
+        /// <exception cref="ServiceResultException"> with <see cref="StatusCodes.BadDecodingError"/></exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool SafeReadBoolean([CallerMemberName] string functionName = null)
+        {
+            try
+            {
+                return m_reader.ReadBoolean();
+            }
+            catch (EndOfStreamException)
+            {
+                throw CreateDecodingError(nameof(ReadBoolean), functionName);
+            }
+        }
+
+        /// <summary>
+        /// Safe version of <see cref="ReadSByte"></see> which returns a ServiceResultException on error.
+        /// </summary>
+        /// <exception cref="ServiceResultException"> with <see cref="StatusCodes.BadDecodingError"/></exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private sbyte SafeReadSByte([CallerMemberName] string functionName = null)
+        {
+            try
+            {
+                return m_reader.ReadSByte();
+            }
+            catch (EndOfStreamException)
+            {
+                throw CreateDecodingError(nameof(ReadSByte), functionName);
+            }
+        }
+
+        /// <summary>
+        /// Safe version of <see cref="ReadByte"></see> which returns a ServiceResultException on error.
+        /// </summary>
+        /// <exception cref="ServiceResultException"> with <see cref="StatusCodes.BadDecodingError"/></exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private byte SafeReadByte([CallerMemberName] string functionName = null)
+        {
+            try
+            {
+                return m_reader.ReadByte();
+            }
+            catch (EndOfStreamException)
+            {
+                throw CreateDecodingError(nameof(ReadByte), functionName);
+            }
+        }
+
+        /// <summary>
+        /// Safe version of <see cref="ReadInt16"></see> which returns a ServiceResultException on error.
+        /// </summary>
+        /// <exception cref="ServiceResultException"> with <see cref="StatusCodes.BadDecodingError"/></exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private short SafeReadInt16([CallerMemberName] string functionName = null)
+        {
+            try
+            {
+                return m_reader.ReadInt16();
+            }
+            catch (EndOfStreamException)
+            {
+                throw CreateDecodingError(nameof(ReadInt16), functionName);
+            }
+        }
+
+        /// <summary>
+        /// Safe version of <see cref="ReadUInt16"></see> which returns a ServiceResultException on error.
+        /// </summary>
+        /// <exception cref="ServiceResultException"> with <see cref="StatusCodes.BadDecodingError"/></exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private ushort SafeReadUInt16([CallerMemberName] string functionName = null)
+        {
+            try
+            {
+                return m_reader.ReadUInt16();
+            }
+            catch (EndOfStreamException)
+            {
+                throw CreateDecodingError(nameof(ReadUInt16), functionName);
+            }
+        }
+
+        /// <summary>
+        /// Safe version of <see cref="ReadInt32"></see> which returns a ServiceResultException on error.
+        /// </summary>
+        /// <exception cref="ServiceResultException"> with <see cref="StatusCodes.BadDecodingError"/></exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private int SafeReadInt32([CallerMemberName] string functionName = null)
+        {
+            try
+            {
+                return m_reader.ReadInt32();
+            }
+            catch (EndOfStreamException)
+            {
+                throw CreateDecodingError(nameof(ReadInt32), functionName);
+            }
+        }
+
+        /// <summary>
+        /// Safe version of <see cref="ReadUInt32"></see> which returns a ServiceResultException on error.
+        /// </summary>
+        /// <exception cref="ServiceResultException"> with <see cref="StatusCodes.BadDecodingError"/></exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private uint SafeReadUInt32([CallerMemberName] string functionName = null)
+        {
+            try
+            {
+                return m_reader.ReadUInt32();
+            }
+            catch (EndOfStreamException)
+            {
+                throw CreateDecodingError(nameof(ReadUInt32), functionName);
+            }
+        }
+
+        /// <summary>
+        /// Safe version of <see cref="ReadInt64"></see> which returns a ServiceResultException on error.
+        /// </summary>
+        /// <exception cref="ServiceResultException"> with <see cref="StatusCodes.BadDecodingError"/></exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private long SafeReadInt64([CallerMemberName] string functionName = null)
+        {
+            try
+            {
+                return m_reader.ReadInt64();
+            }
+            catch (EndOfStreamException)
+            {
+                throw CreateDecodingError(nameof(ReadInt64), functionName);
+            }
+        }
+
+        /// <summary>
+        /// Safe version of <see cref="ReadUInt64"></see> which returns a ServiceResultException on error.
+        /// </summary>
+        /// <exception cref="ServiceResultException"> with <see cref="StatusCodes.BadDecodingError"/></exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private ulong SafeReadUInt64([CallerMemberName] string functionName = null)
+        {
+            try
+            {
+                return m_reader.ReadUInt64();
+            }
+            catch (EndOfStreamException)
+            {
+                throw CreateDecodingError(nameof(ReadUInt64), functionName);
+            }
+        }
+
+        /// <summary>
+        /// Safe version of <see cref="ReadInt64"></see> which returns a ServiceResultException on error.
+        /// </summary>
+        /// <exception cref="ServiceResultException"> with <see cref="StatusCodes.BadDecodingError"/></exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private float SafeReadFloat([CallerMemberName] string functionName = null)
+        {
+            try
+            {
+                return m_reader.ReadSingle();
+            }
+            catch (EndOfStreamException)
+            {
+                throw CreateDecodingError(nameof(ReadFloat), functionName);
+            }
+        }
+
+        /// <summary>
+        /// Safe version of <see cref="ReadUInt64"></see> which returns a ServiceResultException on error.
+        /// </summary>
+        /// <exception cref="ServiceResultException"> with <see cref="StatusCodes.BadDecodingError"/></exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private double SafeReadDouble([CallerMemberName] string functionName = null)
+        {
+            try
+            {
+                return m_reader.ReadDouble();
+            }
+            catch (EndOfStreamException)
+            {
+                throw CreateDecodingError(nameof(ReadDouble), functionName);
+            }
+        }
+
+        /// <summary>
+        /// Throws a BadDecodingError for the specific dataType and function.
+        /// </summary>
+        /// <param name="dataTypeName">The datatype which reached the end of the stream.</param>
+        /// <param name="functionName">The property which tried to read the datatype.</param>
+        /// <exception cref="ServiceResultException"> with <see cref="StatusCodes.BadDecodingError"/></exception>
+        ServiceResultException CreateDecodingError(string dataTypeName, string functionName)
+        {
+            return ServiceResultException.Create(StatusCodes.BadDecodingError,
+                "Reading {0} in {1} reached end of stream.", dataTypeName, functionName);
+        }
+
+        /// <summary>
+        /// Test and increment the nesting level.
+        /// </summary>
+        private void CheckAndIncrementNestingLevel()
+        {
+            if (m_nestingLevel > m_context.MaxEncodingNestingLevels)
+            {
+                throw ServiceResultException.Create(StatusCodes.BadEncodingLimitsExceeded,
+                    "Maximum nesting level of {0} was exceeded", m_context.MaxEncodingNestingLevels);
+            }
+            m_nestingLevel++;
+        }
+
+        /// <summary>
+        /// Validate the stream requirements.
+        /// </summary>
+        /// <param name="stream">The stream used for decoding.</param>
+        private void ValidateStreamRequirements(Stream stream)
+        {
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
+            if (stream?.CanSeek != true || stream?.CanRead != true)
+            {
+                throw new ArgumentException("Stream must be seekable and readable.");
+            }
+        }
         #endregion
 
         #region Private Fields
-        private Stream m_istrm;
         private BinaryReader m_reader;
         private IServiceMessageContext m_context;
         private ushort[] m_namespaceMappings;
         private ushort[] m_serverMappings;
         private uint m_nestingLevel;
+        private uint m_encodeablesRecovered;
         #endregion
     }
 }

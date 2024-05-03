@@ -29,6 +29,7 @@
 
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Assert = NUnit.Framework.Legacy.ClassicAssert;
 
 namespace Opc.Ua.Server.Tests
 {
@@ -44,7 +45,7 @@ namespace Opc.Ua.Server.Tests
         const uint kTimeoutHint = 10000;
 
         [DatapointSource]
-        public string[] UriSchemes = { Utils.UriSchemeOpcTcp, Utils.UriSchemeHttps };
+        public string[] UriSchemes = { Utils.UriSchemeOpcTcp, Utils.UriSchemeHttps, Utils.UriSchemeOpcHttps };
 
         #region Test Methods
         /// <summary>

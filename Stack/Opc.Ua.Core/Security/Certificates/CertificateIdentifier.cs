@@ -41,11 +41,7 @@ namespace Opc.Ua
         /// </returns>
         public string ToString(string format, IFormatProvider formatProvider)
         {
-            if (!String.IsNullOrEmpty(format))
-            {
-                throw new FormatException();
-            }
-
+            if (format != null) throw new FormatException(Utils.Format("Invalid format string: '{0}'.", format));
             return ToString();
         }
         #endregion
@@ -82,9 +78,8 @@ namespace Opc.Ua
                 return true;
             }
 
-            CertificateIdentifier id = obj as CertificateIdentifier;
 
-            if (id == null)
+            if (!(obj is CertificateIdentifier id))
             {
                 return false;
             }
@@ -571,8 +566,16 @@ namespace Opc.Ua
     /// <summary>
     /// A collection of CertificateIdentifier objects.
     /// </summary>
-    public partial class CertificateIdentifierCollection : ICertificateStore
+    public partial class CertificateIdentifierCollection : ICertificateStore, ICloneable
     {
+
+        #region ICloneable
+        /// <inheritdoc/>
+        public virtual object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
         /// <summary>
         /// Creates a new object that is a copy of the current instance.
         /// </summary>
@@ -590,6 +593,7 @@ namespace Opc.Ua
 
             return collection;
         }
+        #endregion
 
         #region IDisposable Members
         /// <summary>

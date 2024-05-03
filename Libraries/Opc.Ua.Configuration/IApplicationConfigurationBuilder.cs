@@ -44,6 +44,7 @@ namespace Opc.Ua.Configuration
         IApplicationConfigurationBuilderClientSelected,
         IApplicationConfigurationBuilderSecurity,
         IApplicationConfigurationBuilderSecurityOptions,
+        IApplicationConfigurationBuilderSecurityOptionStores,
         IApplicationConfigurationBuilderServerPolicies,
         IApplicationConfigurationBuilderCreate
     {
@@ -102,6 +103,16 @@ namespace Opc.Ua.Configuration
         /// <param name="maxBufferSize">The max buffer size.</param>
         IApplicationConfigurationBuilderTransportQuotas SetMaxBufferSize(int maxBufferSize);
 
+        /// <inheritdoc cref="TransportQuotas.MaxEncodingNestingLevels"/>
+        /// <remarks>applies to <see cref="TransportQuotas.MaxEncodingNestingLevels"/></remarks>
+        /// <param name="maxEncodingNestingLevels"></param>
+        IApplicationConfigurationBuilderTransportQuotas SetMaxEncodingNestingLevels(int maxEncodingNestingLevels);
+
+        /// <inheritdoc cref="TransportQuotas.MaxDecoderRecoveries"/>
+        /// <remarks>applies to <see cref="TransportQuotas.MaxDecoderRecoveries"/></remarks>
+        /// <param name="maxDecoderRecoveries"></param>
+        IApplicationConfigurationBuilderTransportQuotas SetMaxDecoderRecoveries(int maxDecoderRecoveries);
+
         /// <inheritdoc cref="TransportQuotas.ChannelLifetime"/>
         /// <remarks>applies to <see cref="TransportQuotas.ChannelLifetime"/></remarks>
         /// <param name="channelLifetime">The lifetime.</param>
@@ -154,6 +165,11 @@ namespace Opc.Ua.Configuration
 
         /// <inheritdoc cref="ServerConfiguration.MaxSessionCount"/>
         IApplicationConfigurationBuilderServerOptions SetMaxSessionCount(int maxSessionCount);
+
+        /// <inheritdoc cref="ServerConfiguration.MaxChannelCount"/>
+        /// <remarks>applies to <see cref="ServerConfiguration.MaxChannelCount"/></remarks>
+        /// <param name="maxChannelCount">The lifetime.</param>
+        IApplicationConfigurationBuilderServerOptions SetMaxChannelCount(int maxChannelCount);
 
         /// <inheritdoc cref="ServerConfiguration.MinSessionTimeout"/>
         IApplicationConfigurationBuilderServerOptions SetMinSessionTimeout(int minSessionTimeout);
@@ -381,6 +397,50 @@ namespace Opc.Ua.Configuration
             string appRoot = null,
             string rejectedRoot = null
             );
+
+        /// <summary>
+        /// Add the security configuration for mandatory application, issuer and trusted stores.
+        /// </summary>
+        /// <param name="subjectName">Application certificate subject name as distinguished name.
+        /// A DC=localhost entry is converted to the hostname. The common name CN= is mandatory.</param>
+        /// <param name="appRoot">The path to the app cert store.</param>
+        /// <param name="trustedRoot">The path to the trusted cert store.</param>
+        /// <param name="issuerRoot">The path to the issuer cert store.</param>
+        /// <param name="rejectedRoot">The path to the rejected certificate store.</param>
+        IApplicationConfigurationBuilderSecurityOptionStores AddSecurityConfigurationStores(
+            string subjectName,
+            string appRoot,
+            string trustedRoot,
+            string issuerRoot,
+            string rejectedRoot = null
+            );
+    }
+
+    /// <summary>
+    /// Add security options to the configuration.
+    /// </summary>
+    public interface IApplicationConfigurationBuilderSecurityOptionStores :
+        IApplicationConfigurationBuilderSecurityOptions
+    {
+        /// <summary>
+        /// Add the security configuration for the user certificate issuer and trusted stores.
+        /// </summary>
+        /// <param name="trustedRoot">The path to the trusted cert store.</param>
+        /// <param name="issuerRoot">The path to the issuer cert store.</param>
+        IApplicationConfigurationBuilderSecurityOptionStores AddSecurityConfigurationUserStore(
+            string trustedRoot,
+            string issuerRoot
+            );
+
+        /// <summary>
+        /// Add the security configuration for the https certificate issuer and trusted stores.
+        /// </summary>
+        /// <param name="trustedRoot">The path to the trusted cert store.</param>
+        /// <param name="issuerRoot">The path to the issuer cert store.</param>
+        IApplicationConfigurationBuilderSecurityOptionStores AddSecurityConfigurationHttpsStore(
+            string trustedRoot,
+            string issuerRoot
+            );
     }
 
     /// <summary>
@@ -482,7 +542,7 @@ namespace Opc.Ua.Configuration
         IApplicationConfigurationBuilderTraceConfiguration SetDeleteOnLoad(bool deleteOnLoad);
 
         /// <inheritdoc cref="TraceConfiguration.TraceMasks"/>
-        IApplicationConfigurationBuilderTraceConfiguration SetTraceMasks(int TraceMasks);
+        IApplicationConfigurationBuilderTraceConfiguration SetTraceMasks(int traceMasks);
     }
 
     /// <summary>

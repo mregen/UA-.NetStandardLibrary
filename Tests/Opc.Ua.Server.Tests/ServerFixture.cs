@@ -28,6 +28,7 @@
  * ======================================================================*/
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Opc.Ua.Configuration;
@@ -40,7 +41,7 @@ namespace Opc.Ua.Server.Tests
     /// <typeparam name="T">A server class T used for testing.</typeparam>
     public class ServerFixture<T> where T : ServerBase, new()
     {
-        private NUnitTraceLogger m_traceLogger;
+        private NUnitTestLogger<T> m_traceLogger;
         public ApplicationInstance Application { get; private set; }
         public ApplicationConfiguration Config { get; private set; }
         public T Server { get; private set; }
@@ -53,6 +54,22 @@ namespace Opc.Ua.Server.Tests
         public bool SecurityNone { get; set; } = false;
         public string UriScheme { get; set; } = Utils.UriSchemeOpcTcp;
         public int Port { get; private set; }
+        public bool UseTracing { get; set; }
+        public ActivityListener ActivityListener { get; private set; }
+
+        public ServerFixture(bool useTracing, bool disableActivityLogging)
+        {
+            UseTracing = useTracing;
+            if (UseTracing)
+            {
+                StartActivityListenerInternal(disableActivityLogging);
+            }
+        }
+
+        public ServerFixture()
+        {
+
+        }
 
         public async Task LoadConfiguration(string pkiRoot = null)
         {
@@ -67,6 +84,9 @@ namespace Opc.Ua.Server.Tests
             var serverConfig = Application.Build(
                 "urn:localhost:UA:" + typeof(T).Name,
                 "uri:opcfoundation.org:" + typeof(T).Name)
+                .SetMaxByteStringLength(4 * 1024 * 1024)
+                .SetMaxArrayLength(1024 * 1024)
+                .SetChannelLifetime(30000)
                 .AsServer(
                     new string[] {
                     endpointUrl
@@ -76,11 +96,11 @@ namespace Opc.Ua.Server.Tests
             {
                 serverConfig.AddUnsecurePolicyNone();
             }
-            if (endpointUrl.StartsWith(Utils.UriSchemeHttps, StringComparison.InvariantCultureIgnoreCase))
+            if (Utils.IsUriHttpsScheme(endpointUrl))
             {
                 serverConfig.AddPolicy(MessageSecurityMode.SignAndEncrypt, SecurityPolicies.Basic256Sha256);
             }
-            else if (endpointUrl.StartsWith(Utils.UriSchemeOpcTcp, StringComparison.InvariantCultureIgnoreCase))
+            else if (endpointUrl.StartsWith(Utils.UriSchemeOpcTcp, StringComparison.Ordinal))
             {
                 // add deprecated policies for opc.tcp tests
                 serverConfig.AddPolicy(MessageSecurityMode.Sign, SecurityPolicies.Basic128Rsa15)
@@ -99,12 +119,20 @@ namespace Opc.Ua.Server.Tests
                     MaxNodesPerWrite = 1000,
                     MaxNodesPerMethodCall = 1000,
                     MaxMonitoredItemsPerCall = 1000,
+                    MaxNodesPerHistoryReadData = 1000,
+                    MaxNodesPerHistoryReadEvents = 1000,
+                    MaxNodesPerHistoryUpdateData = 1000,
+                    MaxNodesPerHistoryUpdateEvents = 1000,
+                    MaxNodesPerNodeManagement = 1000,
+                    MaxNodesPerRegisterNodes = 1000,
                     MaxNodesPerTranslateBrowsePathsToNodeIds = 1000
                 });
             }
 
+            serverConfig.SetMaxMessageQueueSize(20);
             serverConfig.SetDiagnosticsEnabled(true);
             serverConfig.SetAuditingEnabled(true);
+            serverConfig.SetMaxChannelCount(10);
 
             if (ReverseConnectTimeout != 0)
             {
@@ -185,7 +213,7 @@ namespace Opc.Ua.Server.Tests
 
             if (writer != null)
             {
-                m_traceLogger = NUnitTraceLogger.Create(writer, Config, TraceMasks);
+                m_traceLogger = NUnitTestLogger<T>.Create(writer, Config, TraceMasks);
             }
 
             // check the application certificate.
@@ -216,6 +244,37 @@ namespace Opc.Ua.Server.Tests
         }
 
         /// <summary>
+        /// Configures Activity Listener and registers with Activity Source.
+        /// </summary>
+        public void StartActivityListenerInternal(bool disableActivityLogging = false)
+        {
+            if (disableActivityLogging)
+            {
+                // Create an instance of ActivityListener without logging
+                ActivityListener = new ActivityListener() {
+                    ShouldListenTo = (source) => (source.Name == EndpointBase.ActivitySourceName),
+                    Sample = (ref ActivityCreationOptions<ActivityContext> options) => ActivitySamplingResult.AllDataAndRecorded,
+                    ActivityStarted = _ => { },
+                    ActivityStopped = _ => { }
+                };
+            }
+            else
+            {
+                // Create an instance of ActivityListener and configure its properties with logging
+                ActivityListener = new ActivityListener() {
+                    ShouldListenTo = (source) => (source.Name == EndpointBase.ActivitySourceName),
+                    Sample = (ref ActivityCreationOptions<ActivityContext> options) => ActivitySamplingResult.AllDataAndRecorded,
+                    ActivityStarted = activity => Utils.LogInfo("Server Started: {0,-15} - TraceId: {1,-32} SpanId: {2,-16} ParentId: {3,-32}",
+                        activity.OperationName, activity.TraceId, activity.SpanId, activity.ParentId),
+                    ActivityStopped = activity => Utils.LogInfo("Server Stopped: {0,-15} - TraceId: {1,-32} SpanId: {2,-16} ParentId: {3,-32} Duration: {4}",
+                        activity.OperationName, activity.TraceId, activity.SpanId, activity.ParentId, activity.Duration),
+                };
+            }
+            ActivitySource.AddActivityListener(ActivityListener);
+        }
+
+
+        /// <summary>
         /// Stop the server.
         /// </summary>
         public Task StopAsync()
@@ -223,6 +282,8 @@ namespace Opc.Ua.Server.Tests
             Server?.Stop();
             Server?.Dispose();
             Server = null;
+            ActivityListener?.Dispose();
+            ActivityListener = null;
             return Task.Delay(100);
         }
     }

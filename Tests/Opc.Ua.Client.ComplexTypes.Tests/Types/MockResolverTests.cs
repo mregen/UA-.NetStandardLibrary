@@ -29,11 +29,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Opc.Ua.Core.Tests.Types.Encoders;
+using Assert = NUnit.Framework.Legacy.ClassicAssert;
 
 namespace Opc.Ua.Client.ComplexTypes.Tests.Types
 {
@@ -146,7 +150,7 @@ namespace Opc.Ua.Client.ComplexTypes.Tests.Types
         /// Test the functionality to create a custom complex type.
         /// </summary>
         [Theory]
-        public async Task CreateMockTypeAsync(EncodingType encodingType)
+        public async Task CreateMockTypeAsync(EncodingType encodingType, MemoryStreamType memoryStreamType)
         {
             var mockResolver = new MockResolver();
 
@@ -247,19 +251,25 @@ namespace Opc.Ua.Client.ComplexTypes.Tests.Types
 
             TestContext.Out.WriteLine(car.ToString());
 
-            var encoderStream = new MemoryStream();
             ServiceMessageContext encoderContext = new ServiceMessageContext {
                 Factory = mockResolver.Factory,
                 NamespaceUris = mockResolver.NamespaceUris,
             };
-            IEncoder encoder = CreateEncoder(EncodingType.Json, encoderContext, encoderStream, carType);
-            encoder.WriteEncodeable("Car", car, carType);
-            Dispose(encoder);
-            var buffer = encoderStream.ToArray();
+
+            byte[] buffer;
+            using (var encoderStream = CreateEncoderMemoryStream(memoryStreamType))
+            {
+                using (IEncoder encoder = CreateEncoder(EncodingType.Json, encoderContext, encoderStream, carType))
+                {
+                    encoder.WriteEncodeable("Car", car, carType);
+                }
+                buffer = encoderStream.ToArray();
+            }
+
             _ = PrettifyAndValidateJson(Encoding.UTF8.GetString(buffer));
 
             // test encoder/decoder
-            EncodeDecodeComplexType(encoderContext, encodingType, StructureType.Structure, nodeId, car);
+            EncodeDecodeComplexType(encoderContext, memoryStreamType, encodingType, StructureType.Structure, nodeId, car);
 
             // Test extracting type definition
 
@@ -273,7 +283,7 @@ namespace Opc.Ua.Client.ComplexTypes.Tests.Types
         /// Test the functionality to create a custom complex type.
         /// </summary>
         [Theory]
-        public async Task CreateMockArrayTypeAsync(EncodingType encodingType)
+        public async Task CreateMockArrayTypeAsync(EncodingType encodingType, MemoryStreamType memoryStreamType)
         {
             var mockResolver = new MockResolver();
 
@@ -416,20 +426,25 @@ namespace Opc.Ua.Client.ComplexTypes.Tests.Types
 
             TestContext.Out.WriteLine(arrays.ToString());
 
-            var encoderStream = new MemoryStream();
             ServiceMessageContext encoderContext = new ServiceMessageContext {
                 Factory = mockResolver.Factory,
                 NamespaceUris = mockResolver.NamespaceUris,
             };
 
-            IEncoder encoder = CreateEncoder(EncodingType.Json, encoderContext, encoderStream, arraysTypes, false);
-            encoder.WriteEncodeable("Arrays", arrays, arraysTypes);
-            Dispose(encoder);
-            var buffer = encoderStream.ToArray();
+            byte[] buffer;
+            using (var encoderStream = CreateEncoderMemoryStream(memoryStreamType))
+            {
+                using (IEncoder encoder = CreateEncoder(EncodingType.Json, encoderContext, encoderStream, arraysTypes, false))
+                {
+                    encoder.WriteEncodeable("Arrays", arrays, arraysTypes);
+                }
+                buffer = encoderStream.ToArray();
+            }
+
             _ = PrettifyAndValidateJson(Encoding.UTF8.GetString(buffer));
 
             // test encoder/decoder
-            EncodeDecodeComplexType(encoderContext, encodingType, StructureType.Structure, dataTypeNode.NodeId, arrays);
+            EncodeDecodeComplexType(encoderContext, memoryStreamType, encodingType, StructureType.Structure, dataTypeNode.NodeId, arrays);
 
             // Test extracting type definition
 
@@ -443,7 +458,7 @@ namespace Opc.Ua.Client.ComplexTypes.Tests.Types
         /// Create a complex type with a single scalar or array type, with default and random values .
         /// </summary>
         [Theory]
-        public async Task CreateMockSingleTypeAsync(EncodingType encodingType, TestType typeDescription, bool randomValues, TestRanks testRank)
+        public async Task CreateMockSingleTypeAsync(EncodingType encodingType, MemoryStreamType memoryStreamType, TestType typeDescription, bool randomValues, TestRanks testRank)
         {
             SetRepeatedRandomSeed();
 
@@ -592,20 +607,25 @@ namespace Opc.Ua.Client.ComplexTypes.Tests.Types
 
             TestContext.Out.WriteLine(testType.ToString());
 
-            var encoderStream = new MemoryStream();
             ServiceMessageContext encoderContext = new ServiceMessageContext {
                 Factory = mockResolver.Factory,
                 NamespaceUris = mockResolver.NamespaceUris,
             };
 
-            IEncoder encoder = CreateEncoder(EncodingType.Json, encoderContext, encoderStream, arraysTypes, false);
-            encoder.WriteEncodeable("TestType", testType, arraysTypes);
-            Dispose(encoder);
-            var buffer = encoderStream.ToArray();
+            byte [] buffer;
+            using (var encoderStream = CreateEncoderMemoryStream(memoryStreamType))
+            {
+                using (IEncoder encoder = CreateEncoder(EncodingType.Json, encoderContext, encoderStream, arraysTypes, false))
+                {
+                    encoder.WriteEncodeable("TestType", testType, arraysTypes);
+                }
+                buffer = encoderStream.ToArray();
+            }
+
             _ = PrettifyAndValidateJson(Encoding.UTF8.GetString(buffer));
 
             // test encoder/decoder
-            EncodeDecodeComplexType(encoderContext, encodingType, StructureType.Structure, dataTypeNode.NodeId, testType);
+            EncodeDecodeComplexType(encoderContext, memoryStreamType, encodingType, StructureType.Structure, dataTypeNode.NodeId, testType);
 
             // Test extracting type definition
 
@@ -613,6 +633,31 @@ namespace Opc.Ua.Client.ComplexTypes.Tests.Types
             Assert.IsNotEmpty(definitions);
             Assert.AreEqual(1, definitions.Count);
             Assert.AreEqual(structure, definitions[dataTypeNode.NodeId]);
+        }
+
+        [Test]
+        public void CreateBaseComplexTypeTest()
+        {
+            var testDataComplexType = new TestDataComplexType() {
+                PropertyInt8 = 1,
+                PropertyInt16 = 2,
+                PropertyInt32 = 3,
+                PropertyInt64 = 4,
+                PropertyInt32Array = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 },
+                PropertyInt322DArray = new[,] { { 1, 2, 3, }, { 4, 5, 6 } },
+                PropertyInt325DArray = new[, , , ,] {
+                    {
+                        { { { 1, 2, 3, }, { 4, 5, 6 } }, { { 7, 8, 9 }, { 10, 11, 12 } } },
+                        { { { 111, 112, 113, }, { 114, 115, 116 } }, { { 117, 118, 119 }, { 1110, 1111, 1112 } } },
+                        { { { 311, 312, 313, }, { 314, 315, 316 } }, { { 317, 318, 319 }, { 3110, 3111, 3112 } } },
+                    },
+                    {
+                        { { { 71, 72, 73, }, { 74, 75, 76 } }, { { 77, 78, 79 }, { 710, 711, 712 } } },
+                        { { { 7111, 7112, 7113, }, { 7114, 7115, 7116 } }, { { 7117, 7118, 7119 }, { 71110, 71111, 71112 } } },
+                        { { { 7311, 7312, 7313, }, { 7314, 7315, 7316 } }, { { 7317, 7318, 7319 }, { 73110, 73111, 73112 } } },
+                    }
+                },
+            };
         }
         #endregion
 
@@ -628,7 +673,7 @@ namespace Opc.Ua.Client.ComplexTypes.Tests.Types
             {
                 var buildInfo = new BuildInfo() {
                     BuildDate = DataGenerator.GetRandomDateTime(),
-                    BuildNumber = "1.4." + DataGenerator.GetRandomByte().ToString(),
+                    BuildNumber = "1.4." + DataGenerator.GetRandomByte().ToString(CultureInfo.InvariantCulture),
                     ManufacturerName = "OPC Foundation",
                     ProductName = "Complex Type Client",
                     ProductUri = "http://opcfoundation.org/ComplexTypeClient",
@@ -637,7 +682,7 @@ namespace Opc.Ua.Client.ComplexTypes.Tests.Types
             }
             else
             {
-                Assert.Fail("Unexpected ValueType {0}", valueType);
+                Assert.Fail($"Unexpected ValueType {valueType}");
             }
             return null;
         }
@@ -675,4 +720,43 @@ namespace Opc.Ua.Client.ComplexTypes.Tests.Types
         }
         #endregion Private Methods
     }
+
+    #region TestDataComplexType
+    [StructureDefinition(BaseDataType = StructureBaseDataType.Structure)]
+    [StructureTypeId(ComplexTypeId = "i=10000", BinaryEncodingId = "i=10001", XmlEncodingId = "i=10002")]
+    public class TestDataComplexType : BaseComplexType
+    {
+        public TestDataComplexType()
+        {
+        }
+
+        [DataMember(Order = 0)]
+        [StructureField(BuiltInType = (int)BuiltInType.SByte)]
+        public SByte PropertyInt8 { get; set; }
+
+        [DataMember(Order = 1)]
+        [StructureField(BuiltInType = (int)BuiltInType.Int16)]
+        public Int16 PropertyInt16 { get; set; }
+
+        [DataMember(Order = 2)]
+        [StructureField(BuiltInType = (int)BuiltInType.Int32)]
+        public Int32 PropertyInt32 { get; set; }
+
+        [DataMember(Order = 3)]
+        [StructureField(BuiltInType = (int)BuiltInType.Int64)]
+        public Int64 PropertyInt64 { get; set; }
+
+        [DataMember(Order = 4)]
+        [StructureField(BuiltInType = (int)BuiltInType.Int32, ValueRank = 1, IsOptional = false)]
+        public Int32[] PropertyInt32Array { get; set; }
+
+        [DataMember(Order = 5)]
+        [StructureField(BuiltInType = (int)BuiltInType.Int32, ValueRank = 2, IsOptional = false)]
+        public Int32[,] PropertyInt322DArray { get; set; }
+
+        [DataMember(Order = 6)]
+        [StructureField(BuiltInType = (int)BuiltInType.Int32, ValueRank = 5, IsOptional = false)]
+        public Int32[,,,,] PropertyInt325DArray { get; set; }
+    }
+    #endregion
 }

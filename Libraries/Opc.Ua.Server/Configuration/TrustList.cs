@@ -75,7 +75,8 @@ namespace Opc.Ua.Server
         /// Delegate to validate the access to the trust list.
         /// </summary>
         /// <param name="context"></param>
-        public delegate void SecureAccess(ISystemContext context);
+        /// <param name="trustedStorePath">the path to identify the trustList</param>
+        public delegate void SecureAccess(ISystemContext context, string trustedStorePath);
         #endregion
 
         #region Private Methods
@@ -301,6 +302,8 @@ namespace Opc.Ua.Server
             uint fileHandle,
             ref bool restartRequired)
         {
+            object[] inputParameters = new object[] { fileHandle };
+            m_node.ReportTrustListUpdateRequestedAuditEvent(context, objectId, "Method/CloseAndUpdate", method.NodeId, inputParameters);
             HasSecureWriteAccess(context);
 
             ServiceResult result = StatusCodes.Good;
@@ -415,7 +418,6 @@ namespace Opc.Ua.Server
             restartRequired = false;
 
             // report the TrustListUpdatedAuditEvent
-            object[] inputParameters = new object[] { fileHandle };
             m_node.ReportTrustListUpdatedAuditEvent(context, objectId, "Method/CloseAndUpdate", method.NodeId, inputParameters, result.StatusCode);
 
             return result;
@@ -428,6 +430,8 @@ namespace Opc.Ua.Server
             byte[] certificate,
             bool isTrustedCertificate)
         {
+            object[] inputParameters = new object[] { certificate, isTrustedCertificate };
+            m_node.ReportTrustListUpdateRequestedAuditEvent(context, objectId, "Method/AddCertificate", method.NodeId, inputParameters);
             HasSecureWriteAccess(context);
 
             ServiceResult result = StatusCodes.Good;
@@ -470,7 +474,6 @@ namespace Opc.Ua.Server
             }
 
             // report the TrustListUpdatedAuditEvent
-            object[] inputParameters = new object[] { certificate, isTrustedCertificate };
             m_node.ReportTrustListUpdatedAuditEvent(context, objectId, "Method/AddCertificate", method.NodeId, inputParameters, result.StatusCode);
 
             return result;
@@ -484,6 +487,9 @@ namespace Opc.Ua.Server
             string thumbprint,
             bool isTrustedCertificate)
         {
+            object[] inputParameters = new object[] { thumbprint };
+            m_node.ReportTrustListUpdateRequestedAuditEvent(context, objectId, "Method/RemoveCertificate", method.NodeId, inputParameters);
+
             HasSecureWriteAccess(context);
             ServiceResult result = StatusCodes.Good;
             lock (m_lock)
@@ -547,7 +553,6 @@ namespace Opc.Ua.Server
             }
 
             // report the TrustListUpdatedAuditEvent
-            object[] inputParameters = new object[] { thumbprint };
             m_node.ReportTrustListUpdatedAuditEvent(context, objectId, "Method/RemoveCertificate", method.NodeId, inputParameters, result.StatusCode);
 
             return result;
@@ -564,8 +569,10 @@ namespace Opc.Ua.Server
                 Factory = context.EncodeableFactory
             };
             MemoryStream strm = new MemoryStream();
-            BinaryEncoder encoder = new BinaryEncoder(strm, messageContext);
-            encoder.WriteEncodeable(null, trustList, null);
+            using (BinaryEncoder encoder = new BinaryEncoder(strm, messageContext, true))
+            {
+                encoder.WriteEncodeable(null, trustList, null);
+            }
             strm.Position = 0;
             return strm;
         }
@@ -581,9 +588,10 @@ namespace Opc.Ua.Server
                 Factory = context.EncodeableFactory
             };
             strm.Position = 0;
-            BinaryDecoder decoder = new BinaryDecoder(strm, messageContext);
-            trustList.Decode(decoder);
-            decoder.Close();
+            using (IDecoder decoder = new BinaryDecoder(strm, messageContext))
+            {
+                trustList.Decode(decoder);
+            }
             return trustList;
         }
 
@@ -665,7 +673,7 @@ namespace Opc.Ua.Server
         {
             if (m_readAccess != null)
             {
-                m_readAccess.Invoke(context);
+                m_readAccess.Invoke(context, m_trustedStorePath);
             }
             else
             {
@@ -677,7 +685,7 @@ namespace Opc.Ua.Server
         {
             if (m_writeAccess != null)
             {
-                m_writeAccess.Invoke(context);
+                m_writeAccess.Invoke(context, m_trustedStorePath);
             }
             else
             {
@@ -687,7 +695,7 @@ namespace Opc.Ua.Server
         #endregion
 
         #region Private Fields
-        private object m_lock = new object();
+        private readonly object m_lock = new object();
         private SecureAccess m_readAccess;
         private SecureAccess m_writeAccess;
         private NodeId m_sessionId;

@@ -369,7 +369,7 @@ namespace Opc.Ua
         }
         #endregion
 
-        #region Overriden Members
+        #region Overridden Members
         /// <summary>
         /// Formats the relative path as a string.
         /// </summary>
@@ -400,7 +400,7 @@ namespace Opc.Ua
 
                 foreach (Element element in m_elements)
                 {
-                    path.AppendFormat("{0}", element);
+                    path.AppendFormat(formatProvider, "{0}", element);
                 }
 
                 return path.ToString();
@@ -578,7 +578,7 @@ namespace Opc.Ua
             }
             #endregion
 
-            #region Overriden Members
+            #region Overridden Members
             /// <summary>
             /// Formats the relative path element as a string.
             /// </summary>
@@ -635,7 +635,7 @@ namespace Opc.Ua
 
                                 if (m_referenceTypeName.NamespaceIndex != 0)
                                 {
-                                    path.AppendFormat("{0}:", m_referenceTypeName.NamespaceIndex);
+                                    path.AppendFormat(formatProvider, "{0}:", m_referenceTypeName.NamespaceIndex);
                                 }
 
                                 EncodeName(path, m_referenceTypeName.Name);
@@ -651,7 +651,7 @@ namespace Opc.Ua
                     {
                         if (m_targetName.NamespaceIndex != 0)
                         {
-                            path.AppendFormat("{0}:", m_targetName.NamespaceIndex);
+                            path.AppendFormat(formatProvider, "{0}:", m_targetName.NamespaceIndex);
                         }
 
                         EncodeName(path, m_targetName.Name);
@@ -740,7 +740,7 @@ namespace Opc.Ua
 
                 int last = reader.Peek();
 
-                for (int next = last; next != -1; next = reader.Peek(), last=next)
+                for (int next = last; next != -1; next = reader.Peek(), last = next)
                 {
                     if (!Char.IsDigit((char)next))
                     {
@@ -783,22 +783,37 @@ namespace Opc.Ua
                         }
                     }
 
-                    // check for invalid character.            
-                    if (next == '!' || next == ':' || next == '<' || next == '>' || next == '/' || next == '.')
-                    {
-                        throw new ServiceResultException(
-                            StatusCodes.BadSyntaxError,
-                            Utils.Format("Unexpected character '{0}' in browse path.", next));
-
-                    }
-
                     // check for escape character.
                     if (next == '&')
                     {
                         next = reader.Read();
+                        if (next == -1)
+                        {
+                            throw new ServiceResultException(
+                                StatusCodes.BadSyntaxError,
+                                "Unexpected end after escape character '&'.");
+                        }
                         next = reader.Read();
-                        buffer.Append((char)next);
-                        continue;
+
+                        if (next == '!' || next == ':' || next == '<' || next == '>' || next == '/' || next == '.' || next == '#' || next == '&')
+                        {
+                            buffer.Append((char)next);
+                            continue;
+                        }
+                        else
+                        {
+                            throw new ServiceResultException(
+                                StatusCodes.BadSyntaxError,
+                                Utils.Format("Invalid escape sequence '&{0}' in browse path.", next));
+                        }
+                    }
+
+                    // check for invalid character.
+                    if (next == '!' || next == ':' || next == '<' || next == '>' || next == '/' || next == '.' || next == '#' || next == '&')
+                    {
+                        throw new ServiceResultException(
+                            StatusCodes.BadSyntaxError,
+                            Utils.Format("Unexpected character '{0}' in browse path.", next));
                     }
 
                     // append character.
@@ -812,8 +827,8 @@ namespace Opc.Ua
                     if (last != '>')
                     {
                         throw new ServiceResultException(
-                            StatusCodes.BadSyntaxError,
-                            Utils.Format("Missing file '>' for reference type name in browse path."));
+                        StatusCodes.BadSyntaxError,
+                        Utils.Format("Missing closing '>' for reference type name in browse path."));
                     }
                 }
 

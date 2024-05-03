@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -18,7 +18,7 @@
     <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
@@ -73,7 +73,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Browse\AttrbuteListCtrl.Designer.cs">
+    <Compile Include="Browse\AttributeListCtrl.Designer.cs">
       <DependentUpon>AttributeListCtrl.cs</DependentUpon>
     </Compile>
     <Compile Include="Browse\AttributeListCtrl.cs">
@@ -112,11 +112,11 @@
     <Compile Include="Common\ClientUtils.Designer.cs">
       <DependentUpon>ClientUtils.cs</DependentUpon>
     </Compile>
-    <Compile Include="Common\Client\AttrributesListViewCtrl.cs">
+    <Compile Include="Common\Client\AttributesListViewCtrl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Common\Client\AttrributesListViewCtrl.Designer.cs">
-      <DependentUpon>AttrributesListViewCtrl.cs</DependentUpon>
+    <Compile Include="Common\Client\AttributesListViewCtrl.Designer.cs">
+      <DependentUpon>AttributesListViewCtrl.cs</DependentUpon>
     </Compile>
     <Compile Include="Common\Client\BrowseNodeCtrl.cs">
       <SubType>UserControl</SubType>
@@ -656,8 +656,8 @@
       <DependentUpon>ClientUtils.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Common\Client\AttrributesListViewCtrl.resx">
-      <DependentUpon>AttrributesListViewCtrl.cs</DependentUpon>
+    <EmbeddedResource Include="Common\Client\AttributesListViewCtrl.resx">
+      <DependentUpon>AttributesListViewCtrl.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Common\Client\BrowseNodeCtrl.resx">
@@ -1037,7 +1037,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions">
-      <Version>3.1.28</Version>
+      <Version>6.0.4</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

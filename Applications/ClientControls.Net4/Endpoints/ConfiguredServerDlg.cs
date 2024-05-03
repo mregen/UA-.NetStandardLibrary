@@ -329,7 +329,7 @@ namespace Opc.Ua.Client.Controls
         #endregion
 
         #region Public Interface
-        public EndpointDescriptionCollection AvailableEnpoints
+        public EndpointDescriptionCollection AvailableEndpoints
         {
             get { return m_availableEndpoints; }
         }
@@ -632,7 +632,7 @@ namespace Opc.Ua.Client.Controls
                 {
                     Url = Utils.ParseUri(url.EndpointUrl);
 
-                    if ((Url != null) && (Url.Scheme == Utils.UriSchemeHttps))
+                    if ((Url != null) && Utils.IsUriHttpsScheme(Url.Scheme))
                     {
                         switch (url.TransportProfileUri)
                         {

@@ -58,7 +58,7 @@ namespace Opc.Ua.Gds.Client
         {
             Configuration = configuration;
             EndpointUrl = endpointUrl;
-            m_sessionFactory = sessionFactory ?? new DefaultSessionFactory();
+            m_sessionFactory = sessionFactory ?? DefaultSessionFactory.Instance;
             // preset admin 
             AdminCredentials = adminUserIdentity;
         }
@@ -585,6 +585,36 @@ namespace Opc.Ua.Gds.Client
         }
 
         /// <summary>
+        /// Checks the provided certificate for validity
+        /// </summary>
+        /// <param name="certificate">The DER encoded form of the Certificate to check.</param>
+        /// <param name="certificateStatus">The first error encountered when validating the Certificate.</param>
+        /// <param name="validityTime">When the result expires and should be rechecked. DateTime.MinValue if this is unknown.</param>
+        public void CheckRevocationStatus(byte[] certificate,
+            out StatusCode certificateStatus,
+            out DateTime validityTime)
+        {
+            certificateStatus = StatusCodes.Good;
+            validityTime = DateTime.MinValue;
+
+            if (!IsConnected)
+            {
+                Connect();
+            }
+
+            var outputArguments = Session.Call(
+                ExpandedNodeId.ToNodeId(Opc.Ua.Gds.ObjectIds.Directory, Session.NamespaceUris),
+                ExpandedNodeId.ToNodeId(Opc.Ua.Gds.MethodIds.CertificateDirectoryType_CheckRevocationStatus, Session.NamespaceUris),
+                certificate);
+
+            if (outputArguments.Count >= 2)
+            {
+                certificateStatus = (StatusCode)outputArguments[0];
+                validityTime = (DateTime)outputArguments[1];
+            }
+        }
+
+        /// <summary>
         /// Updates the application.
         /// </summary>
         /// <param name="application">The application.</param>
@@ -616,6 +646,25 @@ namespace Opc.Ua.Gds.Client
                 ExpandedNodeId.ToNodeId(Opc.Ua.Gds.ObjectIds.Directory, Session.NamespaceUris),
                 ExpandedNodeId.ToNodeId(Opc.Ua.Gds.MethodIds.Directory_UnregisterApplication, Session.NamespaceUris),
                 applicationId);
+        }
+
+        /// <summary>
+        /// Revokes a Certificate issued to the Application by the CertificateManager
+        /// </summary>
+        /// <param name="applicationId">The application id.</param>
+        /// <param name="certificate">The certificate to revoke</param>
+        public void RevokeCertificate(NodeId applicationId, byte[] certificate)
+        {
+            if (!IsConnected)
+            {
+                Connect();
+            }
+
+            Session.Call(
+                ExpandedNodeId.ToNodeId(Opc.Ua.Gds.ObjectIds.Directory, Session.NamespaceUris),
+                ExpandedNodeId.ToNodeId(Opc.Ua.Gds.MethodIds.CertificateDirectoryType_RevokeCertificate, Session.NamespaceUris),
+                applicationId,
+                certificate);
         }
 
         /// <summary>
@@ -853,53 +902,53 @@ namespace Opc.Ua.Gds.Client
                 (byte)OpenFileMode.Read);
 
             uint fileHandle = (uint)outputArguments[0];
-            MemoryStream ostrm = new MemoryStream();
-
-            try
+            using (MemoryStream ostrm = new MemoryStream())
             {
-                while (true)
+                try
                 {
-                    int length = 4096;
-
-                    outputArguments = Session.Call(
-                        trustListId,
-                        Opc.Ua.MethodIds.FileType_Read,
-                        fileHandle,
-                        length);
-
-                    byte[] bytes = (byte[])outputArguments[0];
-                    ostrm.Write(bytes, 0, bytes.Length);
-
-                    if (length != bytes.Length)
+                    while (true)
                     {
-                        break;
+                        int length = 4096;
+
+                        outputArguments = Session.Call(
+                            trustListId,
+                            Opc.Ua.MethodIds.FileType_Read,
+                            fileHandle,
+                            length);
+
+                        byte[] bytes = (byte[])outputArguments[0];
+                        ostrm.Write(bytes, 0, bytes.Length);
+
+                        if (length != bytes.Length)
+                        {
+                            break;
+                        }
                     }
                 }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                if (IsConnected)
+                catch (Exception)
                 {
-                    Session.Call(
-                        trustListId,
-                        Opc.Ua.MethodIds.FileType_Close,
-                        fileHandle);
+                    throw;
                 }
+                finally
+                {
+                    if (IsConnected)
+                    {
+                        Session.Call(
+                            trustListId,
+                            Opc.Ua.MethodIds.FileType_Close,
+                            fileHandle);
+                    }
+                }
+
+                ostrm.Position = 0;
+
+                TrustListDataType trustList = new TrustListDataType();
+                using (BinaryDecoder decoder = new BinaryDecoder(ostrm, Session.MessageContext))
+                {
+                    trustList.Decode(decoder);
+                }
+                return trustList;
             }
-
-            ostrm.Position = 0;
-
-            BinaryDecoder decoder = new BinaryDecoder(ostrm, Session.MessageContext);
-            TrustListDataType trustList = new TrustListDataType();
-            trustList.Decode(decoder);
-            decoder.Close();
-            ostrm.Close();
-
-            return trustList;
         }
         #endregion
 

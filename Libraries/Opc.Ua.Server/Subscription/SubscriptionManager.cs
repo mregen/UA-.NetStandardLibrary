@@ -29,7 +29,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -67,9 +66,14 @@ namespace Opc.Ua.Server
             m_subscriptions = new Dictionary<uint, Subscription>();
             m_publishQueues = new Dictionary<NodeId, SessionPublishQueue>();
             m_statusMessages = new Dictionary<NodeId, Queue<StatusMessage>>();
+            m_lastSubscriptionId = BitConverter.ToInt64(Utils.Nonce.CreateNonce(sizeof(long)), 0);
 
             // create a event to signal shutdown.
             m_shutdownEvent = new ManualResetEvent(true);
+
+            // create queue and event for condition refresh worker
+            m_conditionRefreshEvent = new ManualResetEvent(false);
+            m_conditionRefreshQueue = new Queue<ConditionRefreshTask>();
         }
         #endregion
 
@@ -221,6 +225,12 @@ namespace Opc.Ua.Server
                 Task.Factory.StartNew(() => {
                     PublishSubscriptions(m_publishingResolution);
                 }, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach);
+
+                m_conditionRefreshEvent.Reset();
+
+                Task.Factory.StartNew(() => {
+                    ConditionRefreshWorker();
+                }, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach);
             }
         }
 
@@ -233,6 +243,9 @@ namespace Opc.Ua.Server
             {
                 // stop the publishing thread.
                 m_shutdownEvent.Set();
+
+                // trigger the condition refresh thread.
+                m_conditionRefreshEvent.Set();
 
                 // dispose of publish queues.
                 foreach (SessionPublishQueue queue in m_publishQueues.Values)
@@ -355,10 +368,28 @@ namespace Opc.Ua.Server
             // ensure a condition refresh is allowed.
             subscription.ValidateConditionRefresh(context);
 
-            // do the actual refresh in the background.
-            Task.Run(() => {
-                DoConditionRefresh(subscription);
-            });
+            var conditionRefreshTask = new ConditionRefreshTask(subscription, 0);
+
+            ServiceResultException serviceResultException = null;
+            lock (m_conditionRefreshLock)
+            {
+                if (!m_conditionRefreshQueue.Contains(conditionRefreshTask))
+                {
+                    m_conditionRefreshQueue.Enqueue(conditionRefreshTask);
+                }
+                else
+                {
+                    serviceResultException = new ServiceResultException(StatusCodes.BadRefreshInProgress);
+                }
+
+                // trigger the refresh worker.
+                m_conditionRefreshEvent.Set();
+            }
+
+            if (serviceResultException != null)
+            {
+                throw serviceResultException;
+            }
         }
 
         /// <summary>
@@ -381,30 +412,33 @@ namespace Opc.Ua.Server
             // ensure a condition refresh is allowed.
             subscription.ValidateConditionRefresh2(context, monitoredItemId);
 
-            // do the actual refresh in the background.
-            Task.Run(() => {
-                DoConditionRefresh2(subscription, monitoredItemId);
-            });
+            var conditionRefreshTask = new ConditionRefreshTask(subscription, monitoredItemId);
+
+            lock (m_conditionRefreshLock)
+            {
+                if (!m_conditionRefreshQueue.Contains(conditionRefreshTask))
+                {
+                    m_conditionRefreshQueue.Enqueue(conditionRefreshTask);
+                }
+                else
+                {
+                    throw new ServiceResultException(StatusCodes.BadRefreshInProgress);
+                }
+
+                // trigger the refresh worker.
+                m_conditionRefreshEvent.Set();
+            }
         }
 
         /// <summary>
         /// Completes a refresh conditions request.
         /// </summary>
-        private void DoConditionRefresh(object state)
+        private void DoConditionRefresh(Subscription subscription)
         {
             try
             {
-                Subscription subscription = state as Subscription;
-
-                if (subscription != null)
-                {
-                    Utils.LogInfo("Subscription {0} started, Id={1}.", "ConditionRefresh", subscription.Id);
-                    subscription.ConditionRefresh();
-                }
-                else
-                {
-                    Utils.LogWarning("Subscription - DoConditionRefresh called with invalid Subscription.");
-                }
+                Utils.LogTrace("Subscription ConditionRefresh started, Id={0}.", subscription.Id);
+                subscription.ConditionRefresh();
             }
             catch (Exception e)
             {
@@ -415,21 +449,13 @@ namespace Opc.Ua.Server
         /// <summary>
         /// Completes a refresh conditions request.
         /// </summary>
-        private void DoConditionRefresh2(object state, uint monitoredItemId)
+        private void DoConditionRefresh2(Subscription subscription, uint monitoredItemId)
         {
             try
             {
-                Subscription subscription = state as Subscription;
-                if (subscription != null)
-                {
-                    Utils.LogInfo("Subscription {0} started, Id={1}, MonitoredItemId={2}.",
-                        "ConditionRefresh2", subscription.Id, monitoredItemId);
-                    subscription.ConditionRefresh2(monitoredItemId);
-                }
-                else
-                {
-                    Utils.LogWarning("Subscription - DoConditionRefresh2 called with invalid Subscription. MonitoredItemId={0}.", monitoredItemId);
-                }
+                Utils.LogTrace("Subscription ConditionRefresh2 started, Id={0}, MonitoredItemId={1}.",
+                    subscription.Id, monitoredItemId);
+                subscription.ConditionRefresh2(monitoredItemId);
             }
             catch (Exception e)
             {
@@ -465,7 +491,7 @@ namespace Opc.Ua.Server
 
                         if (m_publishQueues.TryGetValue(sessionId, out queue))
                         {
-                            queue.Remove(subscription);
+                            queue.Remove(subscription, true);
                         }
                     }
                 }
@@ -601,7 +627,7 @@ namespace Opc.Ua.Server
             uint publishingIntervalCount = 0;
             Subscription subscription = null;
 
-            // get sessin from context.
+            // get session from context.
             Session session = context.Session;
 
             // assign new identifier.
@@ -756,7 +782,7 @@ namespace Opc.Ua.Server
                 }
             }
 
-            // acknowlege previous messages.
+            // acknowledge previous messages.
             queue.Acknowledge(
                 context,
                 subscriptionAcknowledgements,
@@ -773,7 +799,7 @@ namespace Opc.Ua.Server
                 }
             }
 
-            // save results for asynchrounous operation.
+            // save results for asynchronous operation.
             if (operation != null)
             {
                 operation.Response.Results = acknowledgeResults;
@@ -935,20 +961,9 @@ namespace Opc.Ua.Server
             {
                 Utils.LogTrace("Publish #{0} ReceivedFromClient", context.ClientHandle);
 
-                // check for status messages.
-                lock (m_statusMessagesLock)
+                if (ReturnPendingStatusMessage(context, out message, out subscriptionId))
                 {
-                    Queue<StatusMessage> statusQueue = null;
-
-                    if (m_statusMessages.TryGetValue(context.SessionId, out statusQueue))
-                    {
-                        if (statusQueue.Count > 0)
-                        {
-                            StatusMessage status = statusQueue.Dequeue();
-                            subscriptionId = status.SubscriptionId;
-                            return status.Message;
-                        }
-                    }
+                    return message;
                 }
 
                 bool requeue = false;
@@ -964,6 +979,12 @@ namespace Opc.Ua.Server
 
                     if (subscription == null)
                     {
+                        // check for pending status message.
+                        if (ReturnPendingStatusMessage(context, out message, out subscriptionId))
+                        {
+                            return message;
+                        }
+
                         Utils.LogTrace("Publish #{0} Timeout", context.ClientHandle);
                         return null;
                     }
@@ -1243,7 +1264,8 @@ namespace Opc.Ua.Server
                             if (m_publishQueues.TryGetValue(ownerSession.Id, out var ownerPublishQueue) &&
                                 ownerPublishQueue != null)
                             {
-                                ownerPublishQueue.Remove(subscription);
+                                // keep the queued requests for the status message
+                                ownerPublishQueue.Remove(subscription, false);
                             }
                         }
 
@@ -1298,7 +1320,9 @@ namespace Opc.Ua.Server
                             SessionDiagnosticsDataType diagnostics = ownerSession.SessionDiagnostics;
                             diagnostics.CurrentSubscriptionsCount--;
                         }
-                        // add the Good_SubscriptionTransferred
+
+                        // queue the Good_SubscriptionTransferred message
+                        bool statusQueued = false;
                         lock (m_statusMessagesLock)
                         {
                             if (!NodeId.IsNull(ownerSession.Id) && m_statusMessages.TryGetValue(ownerSession.Id, out var queue))
@@ -1308,6 +1332,29 @@ namespace Opc.Ua.Server
                                     Message = subscription.SubscriptionTransferred()
                                 };
                                 queue.Enqueue(message);
+                                statusQueued = true;
+                            }
+                        }
+
+                        lock (m_lock)
+                        {
+                            // trigger publish response to return status immediately
+                            if (m_publishQueues.TryGetValue(ownerSession.Id, out var ownerPublishQueue) &&
+                                ownerPublishQueue != null)
+                            {
+                                if (statusQueued)
+                                {
+                                    // queue the status message
+                                    bool success = ownerPublishQueue.TryPublishCustomStatus(StatusCodes.GoodSubscriptionTransferred);
+                                    if (!success)
+                                    {
+                                        Utils.LogWarning("Failed to queue Good_SubscriptionTransferred for SessionId {0}, SubscriptionId {1} due to an empty request queue.",
+                                            ownerSession.Id, subscription.Id);
+                                    }
+                                }
+
+                                // check to remove queued requests if no subscriptions are active
+                                ownerPublishQueue.RemoveQueuedRequests();
                             }
                         }
                     }
@@ -1339,7 +1386,7 @@ namespace Opc.Ua.Server
                     }
                 }
 
-                for(int i = 0; i < results.Count; i++)
+                for (int i = 0; i < results.Count; i++)
                 {
                     m_server.ReportAuditTransferSubscriptionEvent(context.AuditEntryId, context.Session, results[i].StatusCode);
                 }
@@ -1734,6 +1781,31 @@ namespace Opc.Ua.Server
 
         #region Private Methods
         /// <summary>
+        /// Checks if there is a status message to return.
+        /// </summary>
+        private bool ReturnPendingStatusMessage(OperationContext context, out NotificationMessage message, out uint subscriptionId)
+        {
+            message = null;
+            subscriptionId = 0;
+
+            // check for status messages.
+            lock (m_statusMessagesLock)
+            {
+                if (m_statusMessages.TryGetValue(context.SessionId, out Queue<StatusMessage> statusQueue))
+                {
+                    if (statusQueue.Count > 0)
+                    {
+                        StatusMessage status = statusQueue.Dequeue();
+                        subscriptionId = status.SubscriptionId;
+                        message = status.Message;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Periodically checks if the sessions have timed out.
         /// </summary>
         private void PublishSubscriptions(object data)
@@ -1833,6 +1905,62 @@ namespace Opc.Ua.Server
         }
 
         /// <summary>
+        /// A single thread to execute the condition refresh.
+        /// </summary>
+        private void ConditionRefreshWorker()
+        {
+            try
+            {
+                Utils.LogInfo("Subscription - ConditionRefresh Thread {0:X8} Started.", Environment.CurrentManagedThreadId);
+
+                do
+                {
+                    ConditionRefreshTask conditionRefreshTask = null; ;
+
+                    lock (m_conditionRefreshLock)
+                    {
+                        if (m_conditionRefreshQueue.Count > 0)
+                        {
+                            conditionRefreshTask = m_conditionRefreshQueue.Dequeue();
+                        }
+                        else
+                        {
+                            m_conditionRefreshEvent.Reset();
+                        }
+                    }
+
+                    if (conditionRefreshTask == null)
+                    {
+                        m_conditionRefreshEvent.WaitOne();
+                    }
+                    else
+                    {
+                        if (conditionRefreshTask.MonitoredItemId == 0)
+                        {
+                            DoConditionRefresh(conditionRefreshTask.Subscription);
+                        }
+                        else
+                        {
+                            DoConditionRefresh2(conditionRefreshTask.Subscription, conditionRefreshTask.MonitoredItemId);
+                        }
+                    }
+
+                    // use shutdown event to end loop
+                    if (m_shutdownEvent.WaitOne(0))
+                    {
+                        Utils.LogInfo("Subscription - ConditionRefresh Thread {0:X8} Exited Normally.", Environment.CurrentManagedThreadId);
+                        break;
+                    }
+                }
+                while (true);
+            }
+            catch (Exception e)
+            {
+                Utils.LogError(e, "Subscription - ConditionRefresh Thread {0:X8} Exited Unexpectedly.", Environment.CurrentManagedThreadId);
+            }
+        }
+
+        /// <summary>
         /// Cleanups the subscriptions.
         /// </summary>
         /// <param name="server">The server.</param>
@@ -1885,8 +2013,43 @@ namespace Opc.Ua.Server
         }
         #endregion
 
+        #region ConditionRefreshTask Class
+        private class ConditionRefreshTask
+        {
+            public ConditionRefreshTask(Subscription subscription, uint monitoredItemId)
+            {
+                Subscription = subscription;
+                MonitoredItemId = monitoredItemId;
+            }
+
+            public Subscription Subscription { get; private set; }
+            public uint MonitoredItemId { get; private set; }
+
+            public override bool Equals(Object obj)
+            {
+                var crt = obj as ConditionRefreshTask;
+
+                if (crt != null)
+                {
+                    if (Subscription?.Id == crt.Subscription?.Id &&
+                        MonitoredItemId == crt.MonitoredItemId)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            public override int GetHashCode()
+            {
+                return HashCode.Combine(Subscription.Id, MonitoredItemId);
+            }
+        }
+        #endregion
+
         #region Private Fields
-        private object m_lock = new object();
+        private readonly object m_lock = new object();
         private long m_lastSubscriptionId;
         private IServerInternal m_server;
         private double m_minPublishingInterval;
@@ -1901,11 +2064,14 @@ namespace Opc.Ua.Server
         private Dictionary<uint, Subscription> m_subscriptions;
         private List<Subscription> m_abandonedSubscriptions;
         private Dictionary<NodeId, Queue<StatusMessage>> m_statusMessages;
-        private object m_statusMessagesLock = new object();
         private Dictionary<NodeId, SessionPublishQueue> m_publishQueues;
         private ManualResetEvent m_shutdownEvent;
+        private Queue<ConditionRefreshTask> m_conditionRefreshQueue;
+        private ManualResetEvent m_conditionRefreshEvent;
 
-        private object m_eventLock = new object();
+        private readonly object m_statusMessagesLock = new object();
+        private readonly object m_eventLock = new object();
+        private readonly object m_conditionRefreshLock = new object();
         private event SubscriptionEventHandler m_SubscriptionCreated;
         private event SubscriptionEventHandler m_SubscriptionDeleted;
         #endregion

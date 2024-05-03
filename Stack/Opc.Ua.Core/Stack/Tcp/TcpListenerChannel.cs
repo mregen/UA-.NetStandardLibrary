@@ -11,11 +11,9 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Opc.Ua.Bindings
 {
@@ -55,7 +53,6 @@ namespace Opc.Ua.Bindings
             base(contextId, bufferManager, quotas, serverCertificate, serverCertificateChain, endpoints, MessageSecurityMode.None, SecurityPolicies.None)
         {
             m_listener = listener;
-            m_queuedResponses = new SortedDictionary<uint, IServiceResponse>();
         }
         #endregion
 
@@ -63,15 +60,8 @@ namespace Opc.Ua.Bindings
         /// <summary>
         /// An overrideable version of the Dispose.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = "m_cleanupTimer")]
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                Utils.SilentDispose(m_cleanupTimer);
-                m_cleanupTimer = null;
-            }
-
             base.Dispose(disposing);
         }
         #endregion
@@ -101,7 +91,7 @@ namespace Opc.Ua.Bindings
         /// <summary>
         /// Sets the callback used to raise channel audit events.
         /// </summary>
-        public void SetReportOpenSecureChannellAuditCalback(ReportAuditOpenSecureChannelEventHandler callback)
+        public void SetReportOpenSecureChannelAuditCallback(ReportAuditOpenSecureChannelEventHandler callback)
         {
             lock (DataLock)
             {
@@ -112,18 +102,18 @@ namespace Opc.Ua.Bindings
         /// <summary>
         /// Sets the callback used to raise channel audit events.
         /// </summary>
-        public void SetReportCloseSecureChannellAuditCalback(ReportAuditCloseSecureChannelEventHandler callback)
+        public void SetReportCloseSecureChannelAuditCallback(ReportAuditCloseSecureChannelEventHandler callback)
         {
             lock (DataLock)
             {
                 m_reportAuditCloseSecureChannelEvent = callback;
             }
-        }        
+        }
 
         /// <summary>
         /// Sets the callback used to raise channel audit events.
         /// </summary>
-        public void SetReportCertificateAuditCalback(ReportAuditCertificateEventHandler callback)
+        public void SetReportCertificateAuditCallback(ReportAuditCertificateEventHandler callback)
         {
             lock (DataLock)
             {
@@ -151,75 +141,40 @@ namespace Opc.Ua.Bindings
 
                 Socket = new TcpMessageSocket(this, socket, BufferManager, Quotas.MaxBufferSize);
 
-                Utils.LogInfo("{0} SOCKET ATTACHED: {1:X8}, ChannelId={2}", ChannelName, Socket.Handle, ChannelId);
+                Utils.LogTrace("{0} SOCKET ATTACHED: {1:X8}, ChannelId={2}", ChannelName, Socket.Handle, ChannelId);
 
                 Socket.ReadNextMessage();
 
-                // automatically clean up the channel if no hello received.
-                StartCleanupTimer(StatusCodes.BadTimeout);
             }
         }
 
         /// <summary>
-        /// Sends the response for the specified request.
+        /// Clean up an Opening or Open channel that has been idle for too long.
         /// </summary>
-        public void SendResponse(uint requestId, IServiceResponse response)
+        public void IdleCleanup()
         {
-            if (response == null) throw new ArgumentNullException(nameof(response));
+            TcpChannelState state;
 
             lock (DataLock)
             {
-                // must queue the response if the channel is in the faulted state.
-                if (State == TcpChannelState.Faulted)
+                state = State;
+                if (state == TcpChannelState.Open)
                 {
-                    m_queuedResponses[requestId] = response;
-                    return;
-                }
-
-                Utils.EventLog.SendResponse((int)ChannelId, (int)requestId);
-
-                BufferCollection buffers = null;
-
-                try
-                {
-                    // note that the server does nothing if the message limits are exceeded.
-                    bool limitsExceeded = false;
-
-                    buffers = WriteSymmetricMessage(
-                        TcpMessageType.Message,
-                        requestId,
-                        CurrentToken,
-                        response,
-                        false,
-                        out limitsExceeded);
-                }
-                catch (Exception e)
-                {
-                    SendServiceFault(
-                        CurrentToken,
-                        requestId,
-                        ServiceResult.Create(e, StatusCodes.BadEncodingError, "Could not encode outgoing message."));
-
-                    return;
-                }
-
-                try
-                {
-                    BeginWriteMessage(buffers, null);
-                    buffers = null;
-                }
-                catch (Exception)
-                {
-                    if (buffers != null)
-                    {
-                        buffers.Release(BufferManager, "SendResponse");
-                    }
-
-                    m_queuedResponses[requestId] = response;
-                    return;
+                    state = State = TcpChannelState.Closing;
                 }
             }
+
+            if (state == TcpChannelState.Closing || state == TcpChannelState.Opening || state == TcpChannelState.Faulted)
+            {
+                OnCleanup(new ServiceResult(StatusCodes.BadNoCommunication, "Channel closed due to inactivity."));
+            }
         }
+
+        /// <summary>
+        /// The time in milliseconds elapsed since the channel received or sent messages
+        /// or received a keep alive.
+        /// </summary>
+        public int ElapsedSinceLastActiveTime => (HiResClock.TickCount - LastActiveTickCount);
         #endregion
 
         #region Socket Event Handlers
@@ -268,13 +223,6 @@ namespace Opc.Ua.Bindings
         {
             lock (DataLock)
             {
-                Utils.LogError(
-                    "{0} ForceChannelFault Socket={1:X8}, ChannelId={2}, TokenId={3}, Reason={4}",
-                    ChannelName,
-                    (Socket != null) ? Socket.Handle : 0,
-                    (CurrentToken != null) ? CurrentToken.ChannelId : 0,
-                    (CurrentToken != null) ? CurrentToken.TokenId : 0,
-                    reason);
 
                 CompleteReverseHello(new ServiceResultException(reason));
 
@@ -282,6 +230,27 @@ namespace Opc.Ua.Bindings
                 if (State == TcpChannelState.Faulted)
                 {
                     return;
+                }
+
+                bool close = false;
+                if (State != TcpChannelState.Connecting)
+                {
+                    int socketHandle = (Socket != null) ? Socket.Handle : 0;
+                    if (socketHandle != -1)
+                    {
+                        Utils.LogError(
+                            "{0} ForceChannelFault Socket={1:X8}, ChannelId={2}, TokenId={3}, Reason={4}",
+                            ChannelName,
+                            socketHandle,
+                            (CurrentToken != null) ? CurrentToken.ChannelId : 0,
+                            (CurrentToken != null) ? CurrentToken.TokenId : 0,
+                            reason);
+                    }
+                }
+                else
+                {
+                    // Close immediately if the client never got out of connecting state
+                    close = true;
                 }
 
                 // send error and close response.
@@ -296,32 +265,16 @@ namespace Opc.Ua.Bindings
                 State = TcpChannelState.Faulted;
                 m_responseRequired = false;
 
-                // notify any monitors.
-                NotifyMonitors(reason, false);
-
-                // ensure the channel will be cleaned up if the client does not reconnect.
-                StartCleanupTimer(reason);
-            }
-        }
-
-        /// <summary>
-        /// Starts a timer that will clean up the channel if it is not opened/re-opened.
-        /// </summary>
-        protected void StartCleanupTimer(ServiceResult reason)
-        {
-            CleanupTimer();
-            m_cleanupTimer = new Timer(OnCleanup, reason, Quotas.ChannelLifetime, Timeout.Infinite);
-        }
-
-        /// <summary>
-        /// Cleans up a timer that will clean up the channel if it is not opened/re-opened.
-        /// </summary>
-        protected void CleanupTimer()
-        {
-            if (m_cleanupTimer != null)
-            {
-                m_cleanupTimer.Dispose();
-                m_cleanupTimer = null;
+                if (close)
+                {
+                    // close channel immediately.
+                    ChannelClosed();
+                }
+                else
+                {
+                    // notify any monitors.
+                    NotifyMonitors(reason, false);
+                }
             }
         }
 
@@ -332,7 +285,7 @@ namespace Opc.Ua.Bindings
         {
             lock (DataLock)
             {
-                CleanupTimer();
+
                 // nothing to do if the channel is now open or closed.
                 if (State == TcpChannelState.Closed || State == TcpChannelState.Open)
                 {
@@ -340,9 +293,8 @@ namespace Opc.Ua.Bindings
                 }
 
                 // get reason for cleanup.
-                ServiceResult reason = state as ServiceResult;
 
-                if (reason == null)
+                if (!(state is ServiceResult reason))
                 {
                     reason = new ServiceResult(StatusCodes.BadTimeout);
                 }
@@ -379,33 +331,6 @@ namespace Opc.Ua.Bindings
 
                 // notify any monitors.
                 NotifyMonitors(new ServiceResult(StatusCodes.BadConnectionClosed), true);
-
-                CleanupTimer();
-            }
-        }
-
-        /// <summary>
-        /// Called to send queued responses after a reconnect.
-        /// </summary>
-        private void OnChannelReconnected(object state)
-        {
-            SortedDictionary<uint, IServiceResponse> responses = state as SortedDictionary<uint, IServiceResponse>;
-
-            if (responses == null)
-            {
-                return;
-            }
-
-            foreach (KeyValuePair<uint, IServiceResponse> response in responses)
-            {
-                try
-                {
-                    SendResponse(response.Key, response.Value);
-                }
-                catch (Exception e)
-                {
-                    Utils.LogError(e, "Unexpected error re-sending request (ID={0}).", response.Key);
-                }
             }
         }
 
@@ -420,18 +345,19 @@ namespace Opc.Ua.Bindings
 
             try
             {
-                BinaryEncoder encoder = new BinaryEncoder(buffer, 0, SendBufferSize, Quotas.MessageContext);
+                using (BinaryEncoder encoder = new BinaryEncoder(buffer, 0, SendBufferSize, Quotas.MessageContext))
+                {
+                    encoder.WriteUInt32(null, TcpMessageType.Error);
+                    encoder.WriteUInt32(null, 0);
 
-                encoder.WriteUInt32(null, TcpMessageType.Error);
-                encoder.WriteUInt32(null, 0);
+                    WriteErrorMessageBody(encoder, error);
 
-                WriteErrorMessageBody(encoder, error);
+                    int size = encoder.Close();
+                    UpdateMessageSize(buffer, 0, size);
 
-                int size = encoder.Close();
-                UpdateMessageSize(buffer, 0, size);
-
-                BeginWriteMessage(new ArraySegment<byte>(buffer, 0, size), null);
-                buffer = null;
+                    BeginWriteMessage(new ArraySegment<byte>(buffer, 0, size), null);
+                    buffer = null;
+                }
             }
             finally
             {
@@ -598,15 +524,6 @@ namespace Opc.Ua.Bindings
 
         #region Protected Functions
         /// <summary>
-        /// Reset the sorted dictionary of queued responses after reconnect.
-        /// </summary>
-        protected void ResetQueuedResponses(Action<object> action)
-        {
-            Task.Factory.StartNew(action, m_queuedResponses);
-            m_queuedResponses = new SortedDictionary<uint, IServiceResponse>();
-        }
-
-        /// <summary>
         /// The channel request event handler.
         /// </summary>
         protected TcpChannelRequestEventHandler RequestReceived => m_requestReceived;
@@ -630,13 +547,11 @@ namespace Opc.Ua.Bindings
         #region Private Fields
         private ITcpChannelListener m_listener;
         private bool m_responseRequired;
-        private SortedDictionary<uint, IServiceResponse> m_queuedResponses;
         private TcpChannelRequestEventHandler m_requestReceived;
         private ReportAuditOpenSecureChannelEventHandler m_reportAuditOpenSecureChannelEvent;
         private ReportAuditCloseSecureChannelEventHandler m_reportAuditCloseSecureChannelEvent;
         private ReportAuditCertificateEventHandler m_reportAuditCertificateEvent;
         private long m_lastTokenId;
-        private Timer m_cleanupTimer;
         #endregion
     }
 

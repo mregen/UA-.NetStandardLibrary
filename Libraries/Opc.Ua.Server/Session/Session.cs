@@ -29,9 +29,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Security.Cryptography.X509Certificates;
-using System.Reflection;
 
 namespace Opc.Ua.Server
 {
@@ -347,6 +345,20 @@ namespace Opc.Ua.Server
         }
 
         /// <summary>
+        /// The last time the session was contacted by the client.
+        /// </summary>
+        public DateTime ClientLastContactTime
+        {
+            get
+            {
+                lock (DiagnosticsLock)
+                {
+                    return m_diagnostics.ClientLastContactTime;
+                }
+            }
+        }
+
+        /// <summary>
         /// Whether the session has been activated.
         /// </summary>
         public bool Activated
@@ -407,15 +419,25 @@ namespace Opc.Ua.Server
                     }
                 }
 
-                // verify timestamp.
-                if (requestHeader.Timestamp.AddMilliseconds(m_maxRequestAge) < DateTime.UtcNow)
-                {
-                    UpdateDiagnosticCounters(requestType, true, false);
-                    throw new ServiceResultException(StatusCodes.BadInvalidTimestamp);
-                }
-
                 // request accepted.
                 UpdateDiagnosticCounters(requestType, false, false);
+            }
+        }
+
+        /// <summary>
+        /// Validate the diagnostic info.
+        /// </summary>
+        public virtual void ValidateDiagnosticInfo(RequestHeader requestHeader)
+        {
+            const uint additionalInfoDiagnosticsMask = (uint)(DiagnosticsMasks.ServiceAdditionalInfo | DiagnosticsMasks.OperationAdditionalInfo);
+            if ((requestHeader.ReturnDiagnostics & additionalInfoDiagnosticsMask) != 0)
+            {
+                var currentRoleIds = m_effectiveIdentity?.GrantedRoleIds;
+                if ((currentRoleIds?.Contains(ObjectIds.WellKnownRole_SecurityAdmin)) == true ||
+                    (currentRoleIds?.Contains(ObjectIds.WellKnownRole_ConfigureAdmin)) == true)
+                {
+                    requestHeader.ReturnDiagnostics |= (uint)DiagnosticsMasks.UserPermissionAdditionalInfo;
+                }
             }
         }
 
@@ -935,7 +957,7 @@ namespace Opc.Ua.Server
             {
                 if (policy.IssuedTokenType == Profiles.JwtUserToken)
                 {
-                    issuedToken.IssuedTokenType = IssuedTokenType.JWT; 
+                    issuedToken.IssuedTokenType = IssuedTokenType.JWT;
                 }
             }
 
@@ -1126,7 +1148,7 @@ namespace Opc.Ua.Server
         #endregion
 
         #region Private Fields
-        private object m_lock = new object();
+        private readonly object m_lock = new object();
         private NodeId m_sessionId;
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         private NodeId m_authenticationToken;

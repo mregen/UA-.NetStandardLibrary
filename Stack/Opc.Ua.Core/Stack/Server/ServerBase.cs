@@ -17,12 +17,13 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Opc.Ua.Bindings;
-using Opc.Ua.Security.Certificates;
+using System.Net.Sockets;
 
 namespace Opc.Ua
 {
@@ -214,7 +215,7 @@ namespace Opc.Ua
                     if (ii.UriScheme == url.Scheme)
                     {
                         listener = ii;
-                        break;
+                        listener.CreateReverseConnection(url, timeout);
                     }
                 }
             }
@@ -223,8 +224,6 @@ namespace Opc.Ua
             {
                 throw new ArgumentException("No suitable listener found.", nameof(url));
             }
-
-            listener.CreateReverseConnection(url, timeout);
         }
 
         /// <summary>
@@ -347,7 +346,7 @@ namespace Opc.Ua
         /// <summary>
         /// Initializes the list of base addresses.
         /// </summary>
-        private void InitializeBaseAddresses(ApplicationConfiguration configuration)
+        protected void InitializeBaseAddresses(ApplicationConfiguration configuration)
         {
             BaseAddresses = new List<BaseAddress>();
 
@@ -396,6 +395,7 @@ namespace Opc.Ua
                 switch (address.Url.Scheme)
                 {
                     case Utils.UriSchemeHttps:
+                    case Utils.UriSchemeOpcHttps:
                     {
                         address.ProfileUri = Profiles.HttpsBinaryTransport;
                         address.DiscoveryUrl = address.Url;
@@ -405,6 +405,13 @@ namespace Opc.Ua
                     case Utils.UriSchemeOpcTcp:
                     {
                         address.ProfileUri = Profiles.UaTcpTransport;
+                        address.DiscoveryUrl = address.Url;
+                        break;
+                    }
+
+                    case Utils.UriSchemeOpcWss:
+                    {
+                        address.ProfileUri = Profiles.UaWssTransport;
                         address.DiscoveryUrl = address.Url;
                         break;
                     }
@@ -823,14 +830,20 @@ namespace Opc.Ua
             // create the stack listener.
             try
             {
-                TransportListenerSettings settings = new TransportListenerSettings();
+                TransportListenerSettings settings = new TransportListenerSettings {
+                    Descriptions = endpoints,
+                    Configuration = endpointConfiguration,
+                    ServerCertificate = InstanceCertificate,
+                    CertificateValidator = certificateValidator,
+                    NamespaceUris = MessageContext.NamespaceUris,
+                    Factory = MessageContext.Factory,
+                    MaxChannelCount = 0,
+                };
 
-                settings.Descriptions = endpoints;
-                settings.Configuration = endpointConfiguration;
-                settings.ServerCertificate = InstanceCertificate;
-                settings.CertificateValidator = certificateValidator;
-                settings.NamespaceUris = MessageContext.NamespaceUris;
-                settings.Factory = MessageContext.Factory;
+                if (m_configuration is ApplicationConfiguration applicationConfiguration)
+                {
+                    settings.MaxChannelCount = applicationConfiguration.ServerConfiguration.MaxChannelCount;
+                }
 
                 listener.Open(
                    endpointUri,
@@ -875,7 +888,7 @@ namespace Opc.Ua
 
             foreach (UserTokenPolicy policy in configuration.ServerConfiguration.UserTokenPolicies)
             {
-                UserTokenPolicy clone = (UserTokenPolicy)policy.MemberwiseClone();
+                UserTokenPolicy clone = (UserTokenPolicy)policy.Clone();
 
                 if (String.IsNullOrEmpty(policy.SecurityPolicyUri))
                 {
@@ -896,7 +909,7 @@ namespace Opc.Ua
 
                 // ensure each policy has a unique id within the context of the Server
                 clone.PolicyId = Utils.Format("{0}", ++m_userTokenPolicyId);
-                
+
                 policies.Add(clone);
             }
 
@@ -929,7 +942,28 @@ namespace Opc.Ua
                 }
 
                 // substitute the computer name for any local IP if an IP is used by client.
-                IPAddress[] addresses = Utils.GetHostAddresses(Utils.GetHostName());
+                IPAddress[] addresses = Array.Empty<IPAddress>();
+                try
+                {
+                    addresses = Utils.GetHostAddresses(computerName);
+                }
+                catch (SocketException e)
+                {
+                    Utils.LogWarning(e, "Unable to get host addresses for hostname {0}.", hostname);
+                }
+
+                if (addresses.Length == 0)
+                {
+                    string fullName = Dns.GetHostName();
+                    try
+                    {
+                        addresses = Utils.GetHostAddresses(fullName);
+                    }
+                    catch (SocketException e)
+                    {
+                        Utils.LogError(e, "Unable to get host addresses for DNS hostname {0}.", fullName);
+                    }
+                }
 
                 for (int ii = 0; ii < addresses.Length; ii++)
                 {
@@ -950,7 +984,7 @@ namespace Opc.Ua
             {
                 entry = Dns.GetHostEntry(computerName);
             }
-            catch (System.Net.Sockets.SocketException e)
+            catch (SocketException e)
             {
                 Utils.LogError(e, "Unable to check aliases for hostname {0}.", computerName);
             }
@@ -1002,15 +1036,8 @@ namespace Opc.Ua
         /// </summary>
         protected IList<BaseAddress> FilterByEndpointUrl(Uri endpointUrl, IList<BaseAddress> baseAddresses)
         {
-            // client gets all of the endpoints if it using a known variant of the hostname.
-            if (NormalizeHostname(endpointUrl.DnsSafeHost) == NormalizeHostname("localhost"))
-            {
-                return baseAddresses;
-            }
-
             // client only gets alternate addresses that match the DNS name that it used.
             List<BaseAddress> accessibleAddresses = new List<BaseAddress>();
-
             foreach (BaseAddress baseAddress in baseAddresses)
             {
                 if (baseAddress.Url.DnsSafeHost == endpointUrl.DnsSafeHost)
@@ -1025,27 +1052,43 @@ namespace Opc.Ua
                     {
                         if (alternateUrl.DnsSafeHost == endpointUrl.DnsSafeHost)
                         {
-                            accessibleAddresses.Add(new BaseAddress() { Url = alternateUrl, ProfileUri = baseAddress.ProfileUri, DiscoveryUrl = alternateUrl });
+                            if (!accessibleAddresses.Any(item => item.Url == alternateUrl))
+                            {
+                                accessibleAddresses.Add(new BaseAddress() { Url = alternateUrl, ProfileUri = baseAddress.ProfileUri, DiscoveryUrl = alternateUrl });
+                            }
                             break;
                         }
                     }
                 }
             }
 
-            // no match on client DNS name. client gets only addresses that match the scheme.
-            if (accessibleAddresses.Count == 0)
+            if (accessibleAddresses.Count != 0)
             {
-                foreach (BaseAddress baseAddress in baseAddresses)
+                return accessibleAddresses;
+            }
+
+            // client gets all of the endpoints if it using a known variant of the hostname
+            if (NormalizeHostname(endpointUrl.DnsSafeHost) == NormalizeHostname("localhost"))
+            {
+                return baseAddresses;
+            }
+
+            // no match on client DNS name. client gets only addresses that match the scheme.
+            foreach (BaseAddress baseAddress in baseAddresses)
+            {
+                if (baseAddress.Url.Scheme == endpointUrl.Scheme)
                 {
-                    if (baseAddress.Url.Scheme == endpointUrl.Scheme)
-                    {
-                        accessibleAddresses.Add(baseAddress);
-                        continue;
-                    }
+                    accessibleAddresses.Add(baseAddress);
+                    continue;
                 }
             }
 
-            return accessibleAddresses;
+            if (accessibleAddresses.Count != 0)
+            {
+                return accessibleAddresses;
+            }
+
+            return baseAddresses;
         }
 
         /// <summary>
@@ -1055,9 +1098,11 @@ namespace Opc.Ua
         {
             string url = baseAddress.Url.ToString();
 
-            if ((baseAddress.ProfileUri == Profiles.HttpsBinaryTransport) && (!(url.EndsWith("discovery"))))
+            if ((baseAddress.ProfileUri == Profiles.HttpsBinaryTransport) &&
+                url.StartsWith(Utils.UriSchemeHttp, StringComparison.Ordinal) &&
+                (!(url.EndsWith(ConfiguredEndpoint.DiscoverySuffix, StringComparison.OrdinalIgnoreCase))))
             {
-                url += "/discovery";
+                url += ConfiguredEndpoint.DiscoverySuffix;
             }
 
             return url;
@@ -1120,58 +1165,74 @@ namespace Opc.Ua
         {
             EndpointDescriptionCollection translations = new EndpointDescriptionCollection();
 
-            // process endpoints
-            foreach (EndpointDescription endpoint in endpoints)
+            bool matchPort = false;
+            do
             {
-                UriBuilder endpointUrl = new UriBuilder(endpoint.EndpointUrl);
+                // first round with port match
+                matchPort = !matchPort;
 
-                // find matching base address.
-                foreach (BaseAddress baseAddress in baseAddresses)
+                // process endpoints
+                foreach (EndpointDescription endpoint in endpoints)
                 {
-                    bool translateHttpsEndpoint = false;
-                    if (endpoint.TransportProfileUri == Profiles.HttpsBinaryTransport && baseAddress.ProfileUri == Profiles.HttpsBinaryTransport)
+                    UriBuilder endpointUrl = new UriBuilder(endpoint.EndpointUrl);
+
+                    // find matching base address.
+                    foreach (BaseAddress baseAddress in baseAddresses)
                     {
-                        translateHttpsEndpoint = true;
+                        bool translateHttpsEndpoint = false;
+                        if (endpoint.TransportProfileUri == Profiles.HttpsBinaryTransport && baseAddress.ProfileUri == Profiles.HttpsBinaryTransport)
+                        {
+                            translateHttpsEndpoint = true;
+                        }
+
+                        if (endpoint.TransportProfileUri != baseAddress.ProfileUri && !translateHttpsEndpoint)
+                        {
+                            continue;
+                        }
+
+                        if (endpointUrl.Scheme != baseAddress.Url.Scheme)
+                        {
+                            continue;
+                        }
+
+                        // try to match port in the first round, skip in the second round
+                        if (matchPort && endpointUrl.Port != baseAddress.Url.Port)
+                        {
+                            continue;
+                        }
+
+                        EndpointDescription translation = new EndpointDescription();
+
+                        translation.EndpointUrl = baseAddress.Url.ToString();
+
+                        if (endpointUrl.Path.StartsWith(baseAddress.Url.PathAndQuery, StringComparison.Ordinal) &&
+                            endpointUrl.Path.Length > baseAddress.Url.PathAndQuery.Length)
+                        {
+                            string suffix = endpointUrl.Path.Substring(baseAddress.Url.PathAndQuery.Length);
+                            translation.EndpointUrl += suffix;
+                        }
+
+                        translation.ProxyUrl = endpoint.ProxyUrl;
+                        translation.SecurityLevel = endpoint.SecurityLevel;
+                        translation.SecurityMode = endpoint.SecurityMode;
+                        translation.SecurityPolicyUri = endpoint.SecurityPolicyUri;
+                        translation.ServerCertificate = endpoint.ServerCertificate;
+                        translation.TransportProfileUri = endpoint.TransportProfileUri;
+                        translation.UserIdentityTokens = endpoint.UserIdentityTokens;
+                        translation.Server = application;
+
+                        if (!translations.Exists(match =>
+                            match.EndpointUrl.Equals(translation.EndpointUrl, StringComparison.Ordinal) &&
+                            match.SecurityMode == translation.SecurityMode &&
+                            match.SecurityPolicyUri.Equals(translation.SecurityPolicyUri, StringComparison.Ordinal)))
+                        {
+                            translations.Add(translation);
+                        }
                     }
-
-                    if (endpoint.TransportProfileUri != baseAddress.ProfileUri && !translateHttpsEndpoint)
-                    {
-                        continue;
-                    }
-
-                    if (endpointUrl.Scheme != baseAddress.Url.Scheme)
-                    {
-                        continue;
-                    }
-
-                    if (endpointUrl.Port != baseAddress.Url.Port)
-                    {
-                        continue;
-                    }
-
-                    EndpointDescription translation = new EndpointDescription();
-
-                    translation.EndpointUrl = baseAddress.Url.ToString();
-
-                    if (endpointUrl.Path.StartsWith(baseAddress.Url.PathAndQuery, StringComparison.Ordinal) &&
-                        endpointUrl.Path.Length > baseAddress.Url.PathAndQuery.Length)
-                    {
-                        string suffix = endpointUrl.Path.Substring(baseAddress.Url.PathAndQuery.Length);
-                        translation.EndpointUrl += suffix;
-                    }
-
-                    translation.ProxyUrl = endpoint.ProxyUrl;
-                    translation.SecurityLevel = endpoint.SecurityLevel;
-                    translation.SecurityMode = endpoint.SecurityMode;
-                    translation.SecurityPolicyUri = endpoint.SecurityPolicyUri;
-                    translation.ServerCertificate = endpoint.ServerCertificate;
-                    translation.TransportProfileUri = endpoint.TransportProfileUri;
-                    translation.UserIdentityTokens = endpoint.UserIdentityTokens;
-                    translation.Server = application;
-
-                    translations.Add(translation);
                 }
-            }
+            } while (matchPort && translations.Count == 0);
+
+            translations.Sort((ep1, ep2) => string.Compare(ep1.EndpointUrl, ep2.EndpointUrl, StringComparison.Ordinal));
 
             return translations;
         }
@@ -1186,6 +1247,9 @@ namespace Opc.Ua
             {
                 throw new ServiceResultException(StatusCodes.BadRequestHeaderInvalid);
             }
+
+            // mask valid diagnostic masks
+            requestHeader.ReturnDiagnostics &= (uint)DiagnosticsMasks.All;
         }
 
         /// <summary>
@@ -1311,8 +1375,22 @@ namespace Opc.Ua
 
             // load certificate chain.
             InstanceCertificateChain = new X509Certificate2Collection(InstanceCertificate);
-            List<CertificateIdentifier> issuers = new List<CertificateIdentifier>();
-            configuration.CertificateValidator.GetIssuers(InstanceCertificateChain, issuers).Wait();
+            var issuers = new List<CertificateIdentifier>();
+            var validationErrors = new Dictionary<X509Certificate2, ServiceResultException>();
+            configuration.CertificateValidator.GetIssuersNoExceptionsOnGetIssuer(InstanceCertificateChain, issuers, validationErrors).Wait();
+
+            if (validationErrors.Count > 0)
+            {
+                Utils.LogWarning("Issuer validation errors ignored on startup:");
+                // only list warning for errors to avoid that the server can not start
+                foreach (var error in validationErrors)
+                {
+                    if (error.Value != null)
+                    {
+                        Utils.LogCertificate(LogLevel.Warning, "- " + error.Value.Message, error.Key);
+                    }
+                }
+            }
 
             for (int i = 0; i < issuers.Count; i++)
             {
@@ -1432,7 +1510,7 @@ namespace Opc.Ua
                 m_activeThreadCount = 0;
 
 #if THREAD_SCHEDULER
-                m_queue = new Queue<IEndpointIncomingRequest>();
+                m_queue = new Queue<IEndpointIncomingRequest>(maxRequestCount);
                 m_totalThreadCount = 0;
 #endif
 
@@ -1498,8 +1576,16 @@ namespace Opc.Ua
                 bool monitorExit = true;
                 try
                 {
-                    // check able to schedule requests.
-                    if (m_stopped || m_queue.Count >= m_maxRequestCount)
+                    // check if the server is stopped
+                    if (m_stopped)
+                    {
+                        monitorExit = false;
+                        Monitor.Exit(m_lock);
+                        request.OperationCompleted(null, StatusCodes.BadServerHalted);
+                        Utils.LogTrace("Server halted.");
+                    }
+                    // check if we're able to schedule requests.
+                    else if (m_queue.Count >= m_maxRequestCount)
                     {
                         // too many operations
                         totalThreadCount = m_totalThreadCount;
@@ -1507,7 +1593,7 @@ namespace Opc.Ua
                         monitorExit = false;
                         Monitor.Exit(m_lock);
 
-                        request.OperationCompleted(null, StatusCodes.BadTooManyOperations);
+                        request.OperationCompleted(null, StatusCodes.BadServerTooBusy);
 
                         Utils.LogTrace("Too many operations. Total: {0} Active: {1}",
                             totalThreadCount, activeThreadCount);
@@ -1551,7 +1637,8 @@ namespace Opc.Ua
 #else
                 if (m_stopped)
                 {
-                    request.OperationCompleted(null, StatusCodes.BadTooManyOperations);
+                    request.OperationCompleted(null, StatusCodes.BadServerHalted);
+                    Utils.LogTrace("Server halted.");
                     return;
                 }
 
@@ -1559,7 +1646,7 @@ namespace Opc.Ua
                 if (activeThreadCount >= m_maxRequestCount)
                 {
                     Interlocked.Decrement(ref m_activeThreadCount);
-                    request.OperationCompleted(null, StatusCodes.BadTooManyOperations);
+                    request.OperationCompleted(null, StatusCodes.BadServerTooBusy);
                     Utils.LogWarning("Too many operations. Active thread count: {0}", m_activeThreadCount);
                     return;
                 }
@@ -1595,7 +1682,7 @@ namespace Opc.Ua
                             m_activeThreadCount--;
 
                             // wait for a request. end the thread if no activity.
-                            if (m_stopped || (!Monitor.Wait(m_lock, 30000) && m_totalThreadCount > m_minThreadCount))
+                            if (m_stopped || (!Monitor.Wait(m_lock, 15_000) && m_totalThreadCount > m_minThreadCount))
                             {
                                 m_totalThreadCount--;
                                 Utils.LogTrace("Thread ended: {0:X8}. Total: {1} Active: {2}",
@@ -1637,7 +1724,7 @@ namespace Opc.Ua
             private int m_minThreadCount;
             private int m_maxRequestCount;
 #if THREAD_SCHEDULER
-            private object m_lock = new object();
+            private readonly object m_lock = new object();
             private Queue<IEndpointIncomingRequest> m_queue;
             private int m_totalThreadCount;
 #endif

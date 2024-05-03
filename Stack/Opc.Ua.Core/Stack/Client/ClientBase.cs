@@ -13,13 +13,14 @@
 using System;
 using System.Collections;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Opc.Ua
 {
     /// <summary>
 	/// The client side interface with a UA server.
 	/// </summary>
-    public partial class ClientBase : IClientBase, IDisposable
+    public partial class ClientBase : IClientBase
     {
         #region Constructors
         /// <summary>
@@ -35,9 +36,7 @@ namespace Opc.Ua
         #endregion
 
         #region IDisposable Members
-        /// <summary>
-        /// Frees any unmanaged resources.
-        /// </summary>
+        /// <inheritdoc/>
         public void Dispose()
         {
             Dispose(true);
@@ -56,66 +55,35 @@ namespace Opc.Ua
         #endregion
 
         #region Public Properties
-        /// <summary>
-        /// The description of the endpoint.
-        /// </summary>
+        /// <inheritdoc/>
         public EndpointDescription Endpoint
         {
             get
             {
-                ITransportChannel channel = TransportChannel;
-
-                if (channel != null)
-                {
-                    return channel.EndpointDescription;
-                }
-
-                return null;
+                return NullableTransportChannel?.EndpointDescription;
             }
         }
 
-        /// <summary>
-        /// The configuration for the endpoint.
-        /// </summary>
+        /// <inheritdoc/>
         public EndpointConfiguration EndpointConfiguration
         {
             get
             {
-                ITransportChannel channel = TransportChannel;
-
-                if (channel != null)
-                {
-                    return channel.EndpointConfiguration;
-                }
-
-                return null;
+                return NullableTransportChannel?.EndpointConfiguration;
             }
         }
 
-        /// <summary>
-        /// The message context used when serializing messages.
-        /// </summary>
-        /// <value>The message context.</value>
+        /// <inheritdoc/>
         public IServiceMessageContext MessageContext
         {
             get
             {
-                ITransportChannel channel = TransportChannel;
-
-                if (channel != null)
-                {
-                    return channel.MessageContext;
-                }
-
-                return null;
+                return NullableTransportChannel?.MessageContext;
             }
         }
 
-        /// <summary>
-        /// Gets or set the channel being wrapped by the client object.
-        /// </summary>
-        /// <value>The transport channel.</value>
-        public ITransportChannel TransportChannel
+        /// <inheritdoc/>
+        public ITransportChannel NullableTransportChannel
         {
             get
             {
@@ -131,11 +99,38 @@ namespace Opc.Ua
 
                 return channel;
             }
+        }
+
+        /// <inheritdoc/>
+        public ITransportChannel TransportChannel
+        {
+            get
+            {
+                ITransportChannel channel = m_channel;
+
+                if (channel != null)
+                {
+                    if (m_disposed)
+                    {
+                        throw new ObjectDisposedException("ClientBase has been disposed.");
+                    }
+                }
+                else
+                {
+                    throw new ServiceResultException(StatusCodes.BadSecureChannelClosed, "Channel has been closed.");
+                }
+
+                return channel;
+            }
 
             protected set
             {
-                ITransportChannel channel = m_channel;
-                m_channel = null;
+                ITransportChannel channel = Interlocked.Exchange(ref m_channel, value);
+
+                if (ReferenceEquals(channel, value))
+                {
+                    return;
+                }
 
                 if (channel != null)
                 {
@@ -149,13 +144,13 @@ namespace Opc.Ua
                         // ignore errors.
                     }
                 }
-
-                m_channel = value;
             }
         }
 
         /// <summary>
         /// The channel being wrapped by the client object.
+        /// Note: deprecated, only to fulfill a few references
+        /// in the generated code.
         /// </summary>
         internal IChannelBase InnerChannel
         {
@@ -172,10 +167,7 @@ namespace Opc.Ua
             }
         }
 
-        /// <summary>
-        /// What diagnostics the server should return in the response.
-        /// </summary>
-        /// <value>The diagnostics.</value>
+        /// <inheritdoc/>
         public DiagnosticsMasks ReturnDiagnostics
         {
             get
@@ -189,83 +181,59 @@ namespace Opc.Ua
             }
         }
 
-        /// <summary>
-        /// Sets the timeout for an operation.
-        /// </summary>
+        /// <inheritdoc/>
         public int OperationTimeout
         {
             get
             {
-                ITransportChannel channel = TransportChannel;
-
-                if (channel != null)
-                {
-                    return m_channel.OperationTimeout;
-                }
-
-                return 0;
+                return NullableTransportChannel?.OperationTimeout ?? 0;
             }
 
             set
             {
-                ITransportChannel channel = TransportChannel;
-
+                ITransportChannel channel = NullableTransportChannel;
                 if (channel != null)
                 {
-                    m_channel.OperationTimeout = value;
+                    channel.OperationTimeout = value;
                 }
-            }
-        }
-
-        /// <summary>
-        /// Gets a value that indicates whether to use the TransportChannel when sending requests.
-        /// </summary>
-        protected bool UseTransportChannel
-        {
-            get
-            {
-                ITransportChannel channel = TransportChannel;
-
-                if (channel == null)
-                {
-                    throw new ObjectDisposedException("TransportChannel is not available.");
-                }
-
-                return m_useTransportChannel;
             }
         }
         #endregion
 
         #region Public Methods
-        /// <summary>
-        /// Attach the channel to an already created client.
-        /// </summary>
-        /// <param name="channel">Channel to be used by the client</param>
-        public void AttachChannel(ITransportChannel channel)
+        /// <inheritdoc/>
+        public virtual void AttachChannel(ITransportChannel channel)
         {
             InitializeChannel(channel);
         }
 
-        /// <summary>
-        /// Detach the channel.
-        /// </summary>
-        public void DetachChannel()
+        /// <inheritdoc/>
+        public virtual void DetachChannel()
         {
-            m_channel = null;
+            Interlocked.Exchange(ref m_channel, null);
         }
 
-        /// <summary>
-        /// Closes the channel.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual StatusCode Close()
         {
-            if (m_channel != null)
+            ITransportChannel channel = Interlocked.Exchange(ref m_channel, null);
+            channel?.Close();
+
+            m_authenticationToken = null;
+            return StatusCodes.Good;
+        }
+
+        /// <inheritdoc/>
+        public async virtual Task<StatusCode> CloseAsync(CancellationToken ct = default)
+        {
+            ITransportChannel channel = Interlocked.Exchange(ref m_channel, null);
+            if (channel != null)
             {
-                m_channel.Close();
-                m_channel = null;
+                await channel.CloseAsync(ct).ConfigureAwait(false);
             }
 
             m_authenticationToken = null;
+
             return StatusCodes.Good;
         }
 
@@ -297,12 +265,11 @@ namespace Opc.Ua
         /// <param name="channel"></param>
         protected void InitializeChannel(ITransportChannel channel)
         {
-            m_channel = channel;
+            Interlocked.Exchange(ref m_channel, channel);
+
             m_useTransportChannel = true;
 
-            UaChannelBase uaChannel = channel as UaChannelBase;
-
-            if (uaChannel != null)
+            if (channel is UaChannelBase uaChannel)
             {
                 m_useTransportChannel = uaChannel.m_uaBypassChannel != null || uaChannel.UseBinaryEncoding;
             }
@@ -313,18 +280,40 @@ namespace Opc.Ua
         /// </summary>
         protected void CloseChannel()
         {
-            if (m_channel != null)
+            ITransportChannel channel = Interlocked.Exchange(ref m_channel, null);
+
+            if (channel != null)
             {
                 try
                 {
-                    m_channel.Close();
+                    channel.Close();
+                    channel.Dispose();
                 }
                 catch
                 {
                     // ignore errors.
                 }
+            }
+        }
 
-                DisposeChannel();
+        /// <summary>
+        /// Closes the channel.
+        /// </summary>
+        protected async Task CloseChannelAsync(CancellationToken ct)
+        {
+            ITransportChannel channel = Interlocked.Exchange(ref m_channel, null);
+
+            if (channel != null)
+            {
+                try
+                {
+                    await channel.CloseAsync(ct).ConfigureAwait(false);
+                    channel.Dispose();
+                }
+                catch
+                {
+                    // ignore errors.
+                }
             }
         }
 
@@ -333,18 +322,15 @@ namespace Opc.Ua
         /// </summary>
         protected void DisposeChannel()
         {
-            if (m_channel != null)
-            {
-                try
-                {
-                    m_channel.Dispose();
-                }
-                catch
-                {
-                    // ignore errors.
-                }
+            ITransportChannel channel = Interlocked.Exchange(ref m_channel, null);
 
-                m_channel = null;
+            try
+            {
+                channel?.Dispose();
+            }
+            catch
+            {
+                // ignore errors.
             }
         }
 
@@ -598,7 +584,7 @@ namespace Opc.Ua
         #endregion
 
         #region Private Fields
-        private object m_lock = new object();
+        private readonly object m_lock = new object();
         private ITransportChannel m_channel;
         private NodeId m_authenticationToken;
         private DiagnosticsMasks m_returnDiagnostics;
@@ -606,75 +592,6 @@ namespace Opc.Ua
         private int m_pendingRequestCount;
         private bool m_disposed;
         private bool m_useTransportChannel;
-        #endregion
-    }
-
-    /// <summary>
-	/// The client side interface with a UA server.
-	/// </summary>
-    public partial class SessionClient : ISessionClient
-    {
-        #region IDisposable Implementation
-        /// <summary>
-        /// An overrideable version of the Dispose.
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                m_sessionId = null;
-            }
-
-            base.Dispose(disposing);
-        }
-        #endregion
-
-        #region Public Properties
-        /// <summary>
-        /// The server assigned identifier for the current session.
-        /// </summary>
-        /// <value>The session id.</value>
-        public NodeId SessionId
-        {
-            get
-            {
-                return m_sessionId;
-            }
-        }
-
-        /// <summary>
-        /// Whether a session has beed created with the server.
-        /// </summary>
-        /// <value><c>true</c> if connected; otherwise, <c>false</c>.</value>
-        public bool Connected
-        {
-            get
-            {
-                return m_sessionId != null;
-            }
-        }
-        #endregion
-
-        #region Protected Methods
-        /// <summary>
-        /// Called when a new session is created.
-        /// </summary>
-        /// <param name="sessionId">The session id.</param>
-        /// <param name="sessionCookie">The session cookie.</param>
-        public virtual void SessionCreated(NodeId sessionId, NodeId sessionCookie)
-        {
-            lock (m_lock)
-            {
-                m_sessionId = sessionId;
-                AuthenticationToken = sessionCookie;
-            }
-        }
-        #endregion
-
-        #region Private Fields
-        private object m_lock = new object();
-        private NodeId m_sessionId;
         #endregion
     }
 }

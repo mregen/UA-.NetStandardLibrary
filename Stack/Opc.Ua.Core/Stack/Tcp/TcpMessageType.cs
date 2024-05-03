@@ -48,7 +48,7 @@ namespace Opc.Ua.Bindings
         /// A chunk for a generic message.
         /// </summary>
         public const uint MessageIntermediate = Message | Intermediate;
-        
+
         /// <summary>
         /// A chunk for a generic message.
         /// </summary>
@@ -124,12 +124,13 @@ namespace Opc.Ua.Bindings
                 case ReverseHello:
                 case Acknowledge:
                 case Error:
-                    {
-                        return true;
-                    }
+                {
+                    return true;
+                }
             }
 
-            if (((messageType & ChunkTypeMask) != Final) && ((messageType & ChunkTypeMask) != Intermediate))
+            uint chunkTypeMask = messageType & ChunkTypeMask;
+            if ((chunkTypeMask != Final) && (chunkTypeMask != Intermediate) && (chunkTypeMask != Abort))
             {
                 return false;
             }
@@ -139,14 +140,14 @@ namespace Opc.Ua.Bindings
                 case Message:
                 case Open:
                 case Close:
-                    {
-                        break;
-                    }
+                {
+                    break;
+                }
 
                 default:
-                    {
-                        return false;
-                    }
+                {
+                    return false;
+                }
             }
 
             return true;
@@ -236,22 +237,35 @@ namespace Opc.Ua.Bindings
         /// <summary>
         /// The default buffer size to use for communication.
         /// </summary>
-        public const int DefaultMaxBufferSize = 65535;
+        public const int DefaultMaxBufferSize = UInt16.MaxValue;
 
         /// <summary>
         /// The default maximum chunk count for Request and Response messages.
         /// </summary>
-        public const int DefaultMaxChunkCount = 16;
+        public const int DefaultMaxChunkCount = 32;
 
         /// <summary>
         /// The default maximum message size.
         /// </summary>
+        /// <remarks>
+        /// This default is for the Tcp transport. <see cref="DefaultEncodingLimits.MaxMessageSize"/> for the generic default.
+        /// </remarks>
         public const int DefaultMaxMessageSize = DefaultMaxChunkCount * DefaultMaxBufferSize;
 
         /// <summary>
-        /// How long a connection will remain in the server after it goes into a faulted state.
+        /// The default maximum message size for the discovery channel.
         /// </summary>
-        public const int DefaultChannelLifetime = 60000;
+        public const int DefaultDiscoveryMaxMessageSize = DefaultMaxBufferSize;
+
+        /// <summary>
+        /// How long processing of a service call can take before it goes into a faulted state.
+        /// </summary>
+        public const int DefaultOperationTimeout = 120000;
+
+        /// <summary>
+        /// How long a secure channel will remain in the server after it goes into a faulted state.
+        /// </summary>
+        public const int DefaultChannelLifetime = 30000;
 
         /// <summary>
         /// How long a security token lasts before it needs to be renewed.

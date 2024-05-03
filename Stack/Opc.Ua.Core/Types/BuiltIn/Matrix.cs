@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.Serialization;
 using System.Text;
 
@@ -9,7 +10,7 @@ namespace Opc.Ua
     /// Wraps a multi-dimensional array for use within a Variant.
     /// </summary>
     [DataContract(Namespace = Namespaces.OpcUaXsd)]
-    public class Matrix : IFormattable
+    public class Matrix : ICloneable, IFormattable
     {
         #region Constructors
         /// <summary>
@@ -135,9 +136,8 @@ namespace Opc.Ua
                 return true;
             }
 
-            Matrix matrix = obj as Matrix;
 
-            if (matrix != null)
+            if (obj is Matrix matrix)
             {
                 if (!m_typeInfo.Equals(matrix.TypeInfo))
                 {
@@ -194,7 +194,7 @@ namespace Opc.Ua
             {
                 StringBuilder buffer = new StringBuilder();
 
-                buffer.AppendFormat("{0}[", m_elements.GetType().GetElementType().Name);
+                buffer.AppendFormat(formatProvider, "{0}[", m_elements.GetType().GetElementType().Name);
 
                 for (int ii = 0; ii < m_dimensions.Length; ii++)
                 {
@@ -216,6 +216,12 @@ namespace Opc.Ua
         #endregion
 
         #region ICloneable Members
+        /// <inheritdoc/>
+        public virtual object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
         /// <summary>
         /// Makes a deep copy of the object.
         /// </summary>
@@ -386,15 +392,14 @@ namespace Opc.Ua
             }
             catch (OverflowException)
             {
-                throw new ArgumentException("The dimensions of the matrix are invalid and overflow when used to calculate the size.");
+                throw ServiceResultException.Create(StatusCodes.BadEncodingLimitsExceeded,
+                    "The dimensions of the matrix are invalid and overflow when used to calculate the size.");
             }
             if ((maxArrayLength > 0) && (flatLength > maxArrayLength))
             {
-                throw ServiceResultException.Create(
-                    StatusCodes.BadEncodingLimitsExceeded,
+                throw ServiceResultException.Create(StatusCodes.BadEncodingLimitsExceeded,
                     "Maximum array length of {0} was exceeded while summing up to {1} from the array dimensions",
-                    maxArrayLength,
-                    flatLength
+                    maxArrayLength, flatLength
                     );
             }
 

@@ -506,7 +506,7 @@ namespace Opc.Ua.Server
 
         #region CreateAddressSpace Support Functions
         /// <summary>
-        /// Loads a node set from a file or resource and addes them to the set of predefined nodes.
+        /// Loads a node set from a file or resource and adds them to the set of predefined nodes.
         /// </summary>
         public virtual void LoadPredefinedNodes(
             ISystemContext context,
@@ -534,7 +534,7 @@ namespace Opc.Ua.Server
         }
 
         /// <summary>
-        /// Loads a node set from a file or resource and addes them to the set of predefined nodes.
+        /// Loads a node set from a file or resource and adds them to the set of predefined nodes.
         /// </summary>
         protected virtual NodeStateCollection LoadPredefinedNodes(ISystemContext context)
         {
@@ -542,7 +542,7 @@ namespace Opc.Ua.Server
         }
 
         /// <summary>
-        /// Loads a node set from a file or resource and addes them to the set of predefined nodes.
+        /// Loads a node set from a file or resource and adds them to the set of predefined nodes.
         /// </summary>
         protected virtual void LoadPredefinedNodes(
             ISystemContext context,
@@ -705,7 +705,7 @@ namespace Opc.Ua.Server
                 LocalReference referenceToRemove = new LocalReference(
                     (NodeId)reference.TargetId,
                     reference.ReferenceTypeId,
-                    reference.IsInverse,
+                    !reference.IsInverse,
                     node.NodeId);
 
                 referencesToRemove.Add(referenceToRemove);
@@ -1896,25 +1896,48 @@ namespace Opc.Ua.Server
                         continue;
                     }
 
-                    // check if the node is AnalogItem and the value is outside the InstrumentRange.
+                    // check if the node is AnalogItem and the values are outside the InstrumentRange.
                     AnalogItemState analogItemState = handle.Node as AnalogItemState;
                     if (analogItemState != null && analogItemState.InstrumentRange != null)
                     {
                         try
                         {
-                            double newValue = System.Convert.ToDouble(nodeToWrite.Value.Value);
-
-                            if (newValue > analogItemState.InstrumentRange.Value.High ||
-                                newValue < analogItemState.InstrumentRange.Value.Low)
+                            if (nodeToWrite.Value.Value is Array array)
                             {
-                                errors[ii] = StatusCodes.BadOutOfRange;
-                                continue;
+                                bool isOutOfRange = false;
+                                foreach (var arrayValue in array)
+                                {
+                                    double newValue = Convert.ToDouble(arrayValue, CultureInfo.InvariantCulture);
+                                    if (newValue > analogItemState.InstrumentRange.Value.High ||
+                                        newValue < analogItemState.InstrumentRange.Value.Low)
+                                    {
+                                        isOutOfRange = true;
+                                        break;
+                                    }
+                                }
+                                if (isOutOfRange)
+                                {
+                                    errors[ii] = StatusCodes.BadOutOfRange;
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                double newValue = Convert.ToDouble(nodeToWrite.Value.Value, CultureInfo.InvariantCulture);
+
+                                if (newValue > analogItemState.InstrumentRange.Value.High ||
+                                    newValue < analogItemState.InstrumentRange.Value.Low)
+                                {
+                                    errors[ii] = StatusCodes.BadOutOfRange;
+                                    continue;
+                                }
                             }
                         }
                         catch
                         {
                             //skip the InstrumentRange check if the transformation isn't possible.
                         }
+
                     }
 
 #if DEBUG
@@ -2153,7 +2176,7 @@ namespace Opc.Ua.Server
                     {
                         errors[ii] = StatusCodes.BadNodeIdUnknown;
 
-                        // must validate node in a seperate operation
+                        // must validate node in a separate operation
                         handle.Index = ii;
                         nodesToProcess.Add(handle);
 
@@ -2557,7 +2580,7 @@ namespace Opc.Ua.Server
                     {
                         errors[ii] = StatusCodes.BadNodeIdUnknown;
 
-                        // must validate node in a seperate operation
+                        // must validate node in a separate operation
                         handle.Index = ii;
                         nodesToProcess.Add(handle);
                         continue;
@@ -3317,7 +3340,7 @@ namespace Opc.Ua.Server
 
             if (monitoredNode.EventMonitoredItems != null)
             {
-                // remove existing monitored items with the same Id prior to insertion inorder to avoid duplicates
+                // remove existing monitored items with the same Id prior to insertion in order to avoid duplicates
                 // this is necessary since the SubscribeToEvents method is called also from ModifyMonitoredItemsForEvents
                 monitoredNode.EventMonitoredItems.RemoveAll(e => e.Id == monitoredItem.Id);
             }
@@ -3474,7 +3497,7 @@ namespace Opc.Ua.Server
                     // owned by this node manager.
                     itemToCreate.Processed = true;
 
-                    // must validate node in a seperate operation.
+                    // must validate node in a separate operation.
                     errors[ii] = StatusCodes.BadNodeIdUnknown;
 
                     handle.Index = ii;
@@ -4749,7 +4772,7 @@ namespace Opc.Ua.Server
         #endregion
 
         #region Private Fields
-        private object m_lock = new object();
+        private readonly object m_lock = new object();
         private IServerInternal m_server;
         private ServerSystemContext m_systemContext;
         private string[] m_namespaceUris;

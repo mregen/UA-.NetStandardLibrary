@@ -28,14 +28,11 @@
  * ======================================================================*/
 
 using System;
+using System.Globalization;
 using System.IO;
-using NUnit.Framework;
-using Opc.Ua;
 
 namespace Opc.Ua.Server.Tests
 {
-
-
     /// <summary>
     /// A NUnit trace logger replacement.
     /// </summary>
@@ -45,7 +42,7 @@ namespace Opc.Ua.Server.Tests
         private int m_traceMasks;
 
         /// <summary>
-        /// Create a serilog trace logger which replaces the default logging.
+        /// Create a nunit trace logger which replaces the default logging.
         /// </summary>
         public static NUnitTraceLogger Create(
             TextWriter writer,
@@ -89,7 +86,7 @@ namespace Opc.Ua.Server.Tests
                 {
                     m_writer.WriteLine(e.Exception);
                 }
-                m_writer.WriteLine(string.Format(e.Format, e.Arguments ?? Array.Empty<object>()));
+                m_writer.WriteLine(string.Format(CultureInfo.InvariantCulture, e.Format, e.Arguments ?? Array.Empty<object>()));
             }
         }
     }

@@ -31,6 +31,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using NUnit.Framework;
+using Assert = NUnit.Framework.Legacy.ClassicAssert;
 
 namespace Opc.Ua.Server.Tests
 {
@@ -66,6 +67,7 @@ namespace Opc.Ua.Server.Tests
             new ExpandedNodeId(TestData.Variables.Data_Static_Scalar_UInt32Value, TestData.Namespaces.TestData),
         };
 
+        // CTT simulation data
         public static readonly ExpandedNodeId[] NodeIdTestSetSimulation =
         {
             new ExpandedNodeId("Scalar_Simulation_SByte", Quickstarts.ReferenceServer.Namespaces.ReferenceServer),
@@ -80,8 +82,29 @@ namespace Opc.Ua.Server.Tests
             new ExpandedNodeId("Scalar_Simulation_Variant", Quickstarts.ReferenceServer.Namespaces.ReferenceServer),
         };
 
-        public static readonly ExpandedNodeId[] NodeIdMemoryBufferSimulation =
+        /// <summary>
+        /// Ref server test data node manager.
+        /// </summary>
+        public static readonly ExpandedNodeId[] NodeIdTestSetDataSimulation =
         {
+            new ExpandedNodeId(TestData.Variables.Data_Dynamic_Scalar_Int16Value, TestData.Namespaces.TestData),
+            new ExpandedNodeId(TestData.Variables.Data_Dynamic_Scalar_Int32Value, TestData.Namespaces.TestData),
+            new ExpandedNodeId(TestData.Variables.Data_Dynamic_Scalar_UInt16Value, TestData.Namespaces.TestData),
+            new ExpandedNodeId(TestData.Variables.Data_Dynamic_Scalar_UInt32Value, TestData.Namespaces.TestData),
+            new ExpandedNodeId(TestData.Variables.AnalogScalarValueObjectType_UInt32Value, TestData.Namespaces.TestData),
+            new ExpandedNodeId(TestData.Variables.Data_Dynamic_AnalogArray_ByteValue, TestData.Namespaces.TestData),
+            new ExpandedNodeId(TestData.Variables.Data_Dynamic_Scalar_VectorValue, TestData.Namespaces.TestData),
+            new ExpandedNodeId(TestData.Variables.Data_Dynamic_Scalar_VectorValue_X, TestData.Namespaces.TestData),
+            new ExpandedNodeId(TestData.Variables.Data_Dynamic_Structure_ScalarStructure, TestData.Namespaces.TestData),
+        };
+
+        public static readonly ExpandedNodeId[] NodeIdTestDataHistory =
+        {
+            new ExpandedNodeId(TestData.Variables.Data_Dynamic_Scalar_Int32Value, TestData.Namespaces.TestData),
+        };
+
+        public static readonly ExpandedNodeId[] NodeIdMemoryBufferSimulation =
+            {
             // dynamic variables from namespace MemoryBuffer
             new ExpandedNodeId("UInt32[64]", MemoryBuffer.Namespaces.MemoryBuffer + "/Instance"),
             new ExpandedNodeId("Double[40]", MemoryBuffer.Namespaces.MemoryBuffer + "/Instance"),
@@ -129,7 +152,7 @@ namespace Opc.Ua.Server.Tests
                     _ = services.Browse(requestHeader, null,
                         0, browseDescriptionCollection.Take(0).ToArray(),
                         out var results, out var infos));
-                Assert.AreEqual(StatusCodes.BadNothingToDo, sre.StatusCode);
+                Assert.AreEqual((StatusCode)StatusCodes.BadNothingToDo, (StatusCode)sre.StatusCode);
             }
 
             while (browseDescriptionCollection.Any())
@@ -144,7 +167,7 @@ namespace Opc.Ua.Server.Tests
                         _ = services.Browse(requestHeader, null,
                             0, browseDescriptionCollection,
                             out var results, out var infos));
-                    Assert.AreEqual(StatusCodes.BadTooManyOperations, sre.StatusCode);
+                    Assert.AreEqual((StatusCode)StatusCodes.BadTooManyOperations, (StatusCode)sre.StatusCode);
 
                     // Test if server responds with BadTooManyOperations
                     var tempBrowsePath = browseDescriptionCollection.Take((int)operationLimits.MaxNodesPerBrowse + 1).ToArray();
@@ -152,7 +175,7 @@ namespace Opc.Ua.Server.Tests
                         _ = services.Browse(requestHeader, null,
                             0, tempBrowsePath,
                             out var results, out var infos));
-                    Assert.AreEqual(StatusCodes.BadTooManyOperations, sre.StatusCode);
+                    Assert.AreEqual((StatusCode)StatusCodes.BadTooManyOperations, (StatusCode)sre.StatusCode);
                 }
 
                 bool repeatBrowse;
@@ -171,8 +194,8 @@ namespace Opc.Ua.Server.Tests
                         response = services.Browse(requestHeader, null,
                             requestedMaxReferencesPerNode, browseCollection,
                             out browseResultCollection, out diagnosticsInfoCollection);
-                        ServerFixtureUtils.ValidateResponse(response);
-                        ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticsInfoCollection, browseCollection);
+                        ServerFixtureUtils.ValidateResponse(response, browseResultCollection, browseCollection);
+                        ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticsInfoCollection, browseCollection, response.StringTable);
 
                         allResults.AddRange(browseResultCollection);
                     }
@@ -209,8 +232,8 @@ namespace Opc.Ua.Server.Tests
                     requestHeader.Timestamp = DateTime.UtcNow;
                     response = services.BrowseNext(requestHeader, false, continuationPoints,
                         out var browseNextResultCollection, out diagnosticsInfoCollection);
-                    ServerFixtureUtils.ValidateResponse(response);
-                    ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticsInfoCollection, continuationPoints);
+                    ServerFixtureUtils.ValidateResponse(response, browseNextResultCollection, continuationPoints);
+                    ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticsInfoCollection, continuationPoints, response.StringTable);
                     allResults.AddRange(browseNextResultCollection);
                     continuationPoints = ServerFixtureUtils.PrepareBrowseNext(browseNextResultCollection);
                 }
@@ -266,14 +289,14 @@ namespace Opc.Ua.Server.Tests
                     // Test if server responds with BadTooManyOperations
                     var sre = Assert.Throws<ServiceResultException>(() =>
                         _ = services.TranslateBrowsePathsToNodeIds(requestHeader, browsePaths, out var results, out var infos));
-                    Assert.AreEqual(StatusCodes.BadTooManyOperations, sre.StatusCode);
+                    Assert.AreEqual((StatusCode)StatusCodes.BadTooManyOperations, (StatusCode)sre.StatusCode);
                 }
                 var browsePathSnippet = (operationLimits.MaxNodesPerTranslateBrowsePathsToNodeIds > 0) ?
                     browsePaths.Take((int)operationLimits.MaxNodesPerTranslateBrowsePathsToNodeIds).ToArray() :
                     browsePaths;
                 ResponseHeader response = services.TranslateBrowsePathsToNodeIds(requestHeader, browsePathSnippet, out var browsePathResults, out var diagnosticInfos);
-                ServerFixtureUtils.ValidateResponse(response);
-                ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, browsePathSnippet);
+                ServerFixtureUtils.ValidateResponse(response, browsePathResults, browsePathSnippet);
+                ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, browsePathSnippet, response.StringTable);
                 allBrowsePaths.AddRange(browsePathResults);
                 foreach (var result in browsePathResults)
                 {
@@ -330,7 +353,7 @@ namespace Opc.Ua.Server.Tests
             var sre = Assert.Throws<ServiceResultException>(() =>
                 services.CreateMonitoredItems(requestHeader, id, TimestampsToReturn.Neither, itemsToCreate,
                     out MonitoredItemCreateResultCollection mockResults, out DiagnosticInfoCollection mockInfos));
-            Assert.AreEqual(StatusCodes.BadNothingToDo, sre.StatusCode);
+            Assert.AreEqual((StatusCode)StatusCodes.BadNothingToDo, (StatusCode)sre.StatusCode);
 
             // add item
             uint handleCounter = 1;
@@ -350,8 +373,8 @@ namespace Opc.Ua.Server.Tests
             });
             response = services.CreateMonitoredItems(requestHeader, id, TimestampsToReturn.Neither, itemsToCreate,
                 out MonitoredItemCreateResultCollection itemCreateResults, out DiagnosticInfoCollection diagnosticInfos);
-            ServerFixtureUtils.ValidateResponse(response);
-            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, itemsToCreate);
+            ServerFixtureUtils.ValidateResponse(response, itemCreateResults, itemsToCreate);
+            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, itemsToCreate, response.StringTable);
 
             // modify subscription
             response = services.ModifySubscription(requestHeader, id,
@@ -374,17 +397,17 @@ namespace Opc.Ua.Server.Tests
             };
             response = services.ModifyMonitoredItems(requestHeader, id, TimestampsToReturn.Both, itemsToModify,
                         out MonitoredItemModifyResultCollection modifyResults, out diagnosticInfos);
-            ServerFixtureUtils.ValidateResponse(response);
-            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, itemsToModify);
+            ServerFixtureUtils.ValidateResponse(response, modifyResults, itemsToModify);
+            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, itemsToModify, response.StringTable);
 
             // publish request
-            var acknoledgements = new SubscriptionAcknowledgementCollection();
-            response = services.Publish(requestHeader, acknoledgements,
+            var acknowledgements = new SubscriptionAcknowledgementCollection();
+            response = services.Publish(requestHeader, acknowledgements,
                         out uint subscriptionId, out UInt32Collection availableSequenceNumbers,
                         out bool moreNotifications, out NotificationMessage notificationMessage,
                         out StatusCodeCollection statuses, out diagnosticInfos);
-            ServerFixtureUtils.ValidateResponse(response);
-            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, acknoledgements);
+            ServerFixtureUtils.ValidateResponse(response, statuses, acknowledgements);
+            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, acknowledgements, response.StringTable);
             Assert.AreEqual(id, subscriptionId);
             Assert.AreEqual(0, availableSequenceNumbers.Count);
 
@@ -393,23 +416,23 @@ namespace Opc.Ua.Server.Tests
             var subscriptions = new UInt32Collection() { id };
             response = services.SetPublishingMode(requestHeader, enabled, subscriptions,
                         out statuses, out diagnosticInfos);
-            ServerFixtureUtils.ValidateResponse(response);
-            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, subscriptions);
+            ServerFixtureUtils.ValidateResponse(response, statuses, subscriptions);
+            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, subscriptions, response.StringTable);
 
             // wait some time to fill queue
             int loopCounter = (int)queueSize;
             Thread.Sleep(loopCounter * 1000);
 
-            acknoledgements = new SubscriptionAcknowledgementCollection();
+            acknowledgements = new SubscriptionAcknowledgementCollection();
             do
             {
                 // get publish responses
-                response = services.Publish(requestHeader, acknoledgements,
+                response = services.Publish(requestHeader, acknowledgements,
                     out subscriptionId, out availableSequenceNumbers,
                     out moreNotifications, out notificationMessage,
                     out statuses, out diagnosticInfos);
-                ServerFixtureUtils.ValidateResponse(response);
-                ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, acknoledgements);
+                ServerFixtureUtils.ValidateResponse(response, statuses, acknowledgements);
+                ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, acknowledgements, response.StringTable);
                 Assert.AreEqual(id, subscriptionId);
 
                 var dataChangeNotification = notificationMessage.NotificationData[0].Body as DataChangeNotification;
@@ -418,13 +441,13 @@ namespace Opc.Ua.Server.Tests
                                 dataChangeNotification?.MonitoredItems[0].Value.ToString(),
                                 notificationMessage.PublishTime);
 
-                acknoledgements.Clear();
-                acknoledgements.Add(new SubscriptionAcknowledgement() {
+                acknowledgements.Clear();
+                acknowledgements.Add(new SubscriptionAcknowledgement() {
                     SubscriptionId = id,
                     SequenceNumber = notificationMessage.SequenceNumber
                 });
 
-            } while (acknoledgements.Count > 0 && --loopCounter > 0);
+            } while (acknowledgements.Count > 0 && --loopCounter > 0);
 
             // republish
             response = services.Republish(requestHeader, subscriptionId, notificationMessage.SequenceNumber, out notificationMessage);
@@ -434,13 +457,13 @@ namespace Opc.Ua.Server.Tests
             enabled = false;
             response = services.SetPublishingMode(requestHeader, enabled, subscriptions,
                 out statuses, out diagnosticInfos);
-            ServerFixtureUtils.ValidateResponse(response);
-            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, subscriptions);
+            ServerFixtureUtils.ValidateResponse(response, statuses, subscriptions);
+            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, subscriptions, response.StringTable);
 
             // delete subscription
             response = services.DeleteSubscriptions(requestHeader, subscriptions, out statuses, out diagnosticInfos);
-            ServerFixtureUtils.ValidateResponse(response);
-            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, subscriptions);
+            ServerFixtureUtils.ValidateResponse(response, statuses, subscriptions);
+            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, subscriptions, response.StringTable);
         }
 
         /// <summary>
@@ -469,23 +492,26 @@ namespace Opc.Ua.Server.Tests
             // enable publishing
             var response = services.SetPublishingMode(requestHeader, true, subscriptionIds,
                         out var statuses, out var diagnosticInfos);
-            ServerFixtureUtils.ValidateResponse(response);
-            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, subscriptionIds);
+            ServerFixtureUtils.ValidateResponse(response, statuses, subscriptionIds);
+            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, subscriptionIds, response.StringTable);
 
             // wait some time to settle
             Thread.Sleep(1000);
 
-            // publish request
-            var acknoledgements = new SubscriptionAcknowledgementCollection();
-            response = services.Publish(requestHeader, acknoledgements,
+            // publish request (use invalid sequence number for status)
+            var acknowledgements = new SubscriptionAcknowledgementCollection() {
+                new SubscriptionAcknowledgement()
+                    { SubscriptionId = subscriptionId, SequenceNumber=123 }
+                };
+            response = services.Publish(requestHeader, acknowledgements,
                 out uint publishedId, out UInt32Collection availableSequenceNumbers,
                 out bool moreNotifications, out NotificationMessage notificationMessage,
-                out StatusCodeCollection _, out diagnosticInfos);
-            ServerFixtureUtils.ValidateResponse(response);
-            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, acknoledgements);
+                out statuses, out diagnosticInfos);
+            ServerFixtureUtils.ValidateResponse(response, statuses, acknowledgements);
+            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, acknowledgements, response.StringTable);
             Assert.AreEqual(subscriptionId, publishedId);
 
-            // static node, do not acknoledge
+            // static node, do not acknowledge
             Assert.AreEqual(1, availableSequenceNumbers.Count);
 
             return subscriptionIds;
@@ -506,16 +532,17 @@ namespace Opc.Ua.Server.Tests
             requestHeader.Timestamp = DateTime.UtcNow;
             var response = services.TransferSubscriptions(requestHeader, subscriptionIds, sendInitialData,
                 out TransferResultCollection transferResults, out DiagnosticInfoCollection diagnosticInfos);
-            Assert.AreEqual(StatusCodes.Good, response.ServiceResult.Code);
+            Assert.AreEqual((StatusCode)StatusCodes.Good, response.ServiceResult);
             Assert.AreEqual(subscriptionIds.Count, transferResults.Count);
-            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, subscriptionIds);
+            ServerFixtureUtils.ValidateResponse(response, transferResults, subscriptionIds);
+            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, subscriptionIds, response.StringTable);
 
             foreach (var transferResult in transferResults)
             {
                 TestContext.Out.WriteLine("TransferResult: {0}", transferResult.StatusCode);
                 if (expectAccessDenied)
                 {
-                    Assert.AreEqual(StatusCodes.BadUserAccessDenied, transferResult.StatusCode.Code);
+                    Assert.AreEqual((StatusCode)StatusCodes.BadUserAccessDenied, transferResult.StatusCode);
                 }
                 else
                 {
@@ -530,14 +557,14 @@ namespace Opc.Ua.Server.Tests
             }
 
             requestHeader.Timestamp = DateTime.UtcNow;
-            var acknoledgements = new SubscriptionAcknowledgementCollection();
-            response = services.Publish(requestHeader, acknoledgements,
+            var acknowledgements = new SubscriptionAcknowledgementCollection();
+            response = services.Publish(requestHeader, acknowledgements,
                 out uint publishedId, out UInt32Collection availableSequenceNumbers,
                 out bool moreNotifications, out NotificationMessage notificationMessage,
                 out StatusCodeCollection _, out diagnosticInfos);
-            Assert.AreEqual(StatusCodes.Good, response.ServiceResult.Code);
+            Assert.AreEqual((StatusCode)StatusCodes.Good, response.ServiceResult);
             ServerFixtureUtils.ValidateResponse(response);
-            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, acknoledgements);
+            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, acknowledgements, response.StringTable);
             Assert.AreEqual(subscriptionIds[0], publishedId);
             Assert.AreEqual(sendInitialData ? 1 : 0, notificationMessage.NotificationData.Count);
             if (sendInitialData)
@@ -551,7 +578,7 @@ namespace Opc.Ua.Server.Tests
 
             requestHeader.Timestamp = DateTime.UtcNow;
             response = services.DeleteSubscriptions(requestHeader, subscriptionIds, out StatusCodeCollection statusResults, out diagnosticInfos);
-            Assert.AreEqual(StatusCodes.Good, response.ServiceResult.Code);
+            Assert.AreEqual((StatusCode)StatusCodes.Good, response.ServiceResult);
         }
 
         /// <summary>
@@ -570,20 +597,20 @@ namespace Opc.Ua.Server.Tests
             Thread.Sleep(100);
 
             // publish request
-            var acknoledgements = new SubscriptionAcknowledgementCollection();
-            var response = services.Publish(requestHeader, acknoledgements,
+            var acknowledgements = new SubscriptionAcknowledgementCollection();
+            var response = services.Publish(requestHeader, acknowledgements,
                 out uint publishedId, out UInt32Collection availableSequenceNumbers,
                 out bool moreNotifications, out NotificationMessage notificationMessage,
                 out StatusCodeCollection _, out var diagnosticInfos);
             ServerFixtureUtils.ValidateResponse(response);
-            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, acknoledgements);
+            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, acknowledgements, response.StringTable);
             Assert.IsFalse(moreNotifications);
             Assert.IsTrue(subscriptionIds.Contains(publishedId));
             Assert.AreEqual(1, notificationMessage.NotificationData.Count);
             var statusMessage = notificationMessage.NotificationData[0].ToString();
             Assert.IsTrue(statusMessage.Contains("GoodSubscriptionTransferred"));
 
-            // static node, do not acknoledge
+            // static node, do not acknowledge
             if (availableSequenceNumbers != null)
             {
                 Assert.AreEqual(0, availableSequenceNumbers.Count);
@@ -591,9 +618,9 @@ namespace Opc.Ua.Server.Tests
 
             if (deleteSubscriptions)
             {
-                response = services.DeleteSubscriptions(requestHeader, subscriptionIds, out var _, out diagnosticInfos);
-                ServerFixtureUtils.ValidateResponse(response);
-                ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, subscriptionIds);
+                response = services.DeleteSubscriptions(requestHeader, subscriptionIds, out var statuses, out diagnosticInfos);
+                ServerFixtureUtils.ValidateResponse(response, statuses, subscriptionIds);
+                ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, subscriptionIds, response.StringTable);
             }
         }
         #endregion
@@ -648,8 +675,8 @@ namespace Opc.Ua.Server.Tests
             };
             var response = services.CreateMonitoredItems(requestHeader, subscriptionId, TimestampsToReturn.Neither, itemsToCreate,
                 out MonitoredItemCreateResultCollection itemCreateResults, out DiagnosticInfoCollection diagnosticInfos);
-            ServerFixtureUtils.ValidateResponse(response);
-            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, itemsToCreate);
+            ServerFixtureUtils.ValidateResponse(response, itemCreateResults, itemsToCreate);
+            ServerFixtureUtils.ValidateDiagnosticInfos(diagnosticInfos, itemsToCreate, response.StringTable);
         }
         #endregion
 

@@ -63,6 +63,7 @@ namespace Opc.Ua.Server
             m_minNonceLength = configuration.SecurityConfiguration.NonceLength;
 
             m_sessions = new Dictionary<NodeId, Session>();
+            m_lastSessionId = BitConverter.ToInt64(Utils.Nonce.CreateNonce(sizeof(long)), 0);
 
             // create a event to signal shutdown.
             m_shutdownEvent = new ManualResetEvent(true);
@@ -130,7 +131,7 @@ namespace Opc.Ua.Server
             {
                 // stop the monitoring thread.
                 m_shutdownEvent.Set();
-                
+
                 // dispose of session objects.
                 foreach (Session session in m_sessions.Values)
                 {
@@ -183,9 +184,9 @@ namespace Opc.Ua.Server
                         }
                     }
                 }
+
                 // can assign a simple identifier if secured.
                 authenticationToken = null;
-
                 if (!String.IsNullOrEmpty(context.ChannelContext.SecureChannelId))
                 {
                     if (context.ChannelContext.EndpointDescription.SecurityMode != MessageSecurityMode.None)
@@ -452,7 +453,7 @@ namespace Opc.Ua.Server
                     // find session.
                     if (!m_sessions.TryGetValue(requestHeader.AuthenticationToken, out session))
                     {
-                        var handler = m_validateSessionLessRequest;
+                        EventHandler<ValidateSessionLessRequestEventArgs> handler = m_validateSessionLessRequest;
 
                         if (handler != null)
                         {
@@ -472,6 +473,9 @@ namespace Opc.Ua.Server
 
                     // validate request header.
                     session.ValidateRequest(requestHeader, requestType);
+
+                    // validate user has permissions for additional info
+                    session.ValidateDiagnosticInfo(requestHeader);
 
                     // return context.
                     return new OperationContext(requestHeader, requestType, session);
@@ -548,6 +552,7 @@ namespace Opc.Ua.Server
                     case SessionEventReason.Created: { handler = m_sessionCreated; break; }
                     case SessionEventReason.Activated: { handler = m_sessionActivated; break; }
                     case SessionEventReason.Closing: { handler = m_sessionClosing; break; }
+                    case SessionEventReason.ChannelKeepAlive: { handler = m_sessionChannelKeepAlive; break; }
                 }
 
                 if (handler != null)
@@ -589,7 +594,8 @@ namespace Opc.Ua.Server
 
                     for (int ii = 0; ii < sessions.Length; ii++)
                     {
-                        if (sessions[ii].HasExpired)
+                        var session = sessions[ii];
+                        if (session.HasExpired)
                         {
                             // update diagnostics.
                             lock (m_server.DiagnosticsWriteLock)
@@ -601,6 +607,12 @@ namespace Opc.Ua.Server
                             m_server.ReportAuditCloseSessionEvent(null, sessions[ii], "Session/Timeout");
 
                             m_server.CloseSession(null, sessions[ii].Id, false);
+                        }
+                        // if a session had no activity for the last m_minSessionTimeout milliseconds, send a keep alive event.
+                        else if (session.ClientLastContactTime.AddMilliseconds(m_minSessionTimeout) < DateTime.UtcNow)
+                        {
+                            // signal the channel that the session is still active.
+                            RaiseSessionEvent(session, SessionEventReason.ChannelKeepAlive);
                         }
                     }
 
@@ -620,7 +632,7 @@ namespace Opc.Ua.Server
         #endregion
 
         #region Private Fields
-        private object m_lock = new object();
+        private readonly object m_lock = new object();
         private IServerInternal m_server;
         private Dictionary<NodeId, Session> m_sessions;
         private long m_lastSessionId;
@@ -634,10 +646,11 @@ namespace Opc.Ua.Server
         private int m_maxHistoryContinuationPoints;
         private int m_minNonceLength;
 
-        private object m_eventLock = new object();
+        private readonly object m_eventLock = new object();
         private event SessionEventHandler m_sessionCreated;
         private event SessionEventHandler m_sessionActivated;
         private event SessionEventHandler m_sessionClosing;
+        private event SessionEventHandler m_sessionChannelKeepAlive;
         private event ImpersonateEventHandler m_impersonateUser;
         private event EventHandler<ValidateSessionLessRequestEventArgs> m_validateSessionLessRequest;
         #endregion
@@ -699,6 +712,26 @@ namespace Opc.Ua.Server
                 lock (m_eventLock)
                 {
                     m_sessionClosing -= value;
+                }
+            }
+        }
+
+        /// <inheritdoc/>
+        public event SessionEventHandler SessionChannelKeepAlive
+        {
+            add
+            {
+                lock (m_eventLock)
+                {
+                    m_sessionChannelKeepAlive += value;
+                }
+            }
+
+            remove
+            {
+                lock (m_eventLock)
+                {
+                    m_sessionChannelKeepAlive -= value;
                 }
             }
         }
@@ -792,6 +825,11 @@ namespace Opc.Ua.Server
         event SessionEventHandler SessionClosing;
 
         /// <summary>
+        /// Raised to signal a channel that the session is still alive.
+        /// </summary>
+        event SessionEventHandler SessionChannelKeepAlive;
+
+        /// <summary>
         /// Raised before the user identity for a session is changed.
         /// </summary>
         event ImpersonateEventHandler ImpersonateUser;
@@ -815,7 +853,7 @@ namespace Opc.Ua.Server
     }
 
     /// <summary>
-    /// The possible reasons for a session related eventg. 
+    /// The possible reasons for a session related event. 
     /// </summary>
     public enum SessionEventReason
     {
@@ -837,7 +875,13 @@ namespace Opc.Ua.Server
         /// <summary>
         /// A session is about to be closed.
         /// </summary>
-        Closing
+        Closing,
+
+        /// <summary>
+        /// A keep alive to signal a channel that the session is still active.
+        /// Triggered by the session manager based on <see cref="ServerConfiguration.MinSessionTimeout"/>.
+        /// </summary>
+        ChannelKeepAlive
     }
 
     /// <summary>

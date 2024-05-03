@@ -29,11 +29,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Mono.Options;
 using Opc.Ua;
@@ -126,6 +128,7 @@ namespace Quickstarts
     /// <summary>
     /// An exception that occured and caused an exit of the application.
     /// </summary>
+    [Serializable]
     public class ErrorExitException : Exception
     {
         public ExitCode ExitCode { get; }
@@ -223,8 +226,41 @@ namespace Quickstarts
             string[] args,
             Mono.Options.OptionSet options,
             ref bool showHelp,
+            string environmentPrefix,
             bool noExtraArgs = true)
         {
+#if NET5_0_OR_GREATER
+            // Convert environment settings to command line flags
+            // because in some environments (e.g. docker cloud) it is
+            // the only supported way to pass arguments.
+            var config = new ConfigurationBuilder()
+                .AddEnvironmentVariables(environmentPrefix + "_")
+                .Build();
+
+            var argslist = args.ToList();
+            foreach (var option in options)
+            {
+                var names = option.GetNames();
+                string longest = names.MaxBy(s => s.Length);
+                if (longest != null && longest.Length >= 3)
+                {
+                    string envKey = config[longest.ToUpperInvariant()];
+                    if (envKey != null)
+                    {
+                        if (string.IsNullOrWhiteSpace(envKey) || option.OptionValueType == Mono.Options.OptionValueType.None)
+                        {
+                            argslist.Add("--" + longest);
+                        }
+                        else
+                        {
+                            argslist.Add("--" + longest + "=" + envKey);
+                        }
+                    }
+                }
+            }
+            args = argslist.ToArray();
+#endif
+
             IList<string> extraArgs = null;
             try
             {
@@ -275,20 +311,27 @@ namespace Quickstarts
             bool logConsole,
             LogLevel consoleLogLevel)
         {
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            TaskScheduler.UnobservedTaskException += Unobserved_TaskException;
+
             var loggerConfiguration = new LoggerConfiguration()
-                .Enrich.FromLogContext();
+                    .Enrich.FromLogContext();
 
             if (logConsole)
             {
                 loggerConfiguration.WriteTo.Console(
-                    restrictedToMinimumLevel: (LogEventLevel)consoleLogLevel
+                    restrictedToMinimumLevel: (LogEventLevel)consoleLogLevel,
+                    formatProvider: CultureInfo.InvariantCulture
                     );
             }
 #if DEBUG
             else
             {
                 loggerConfiguration
-                    .WriteTo.Debug(restrictedToMinimumLevel: (LogEventLevel)consoleLogLevel);
+                    .WriteTo.Debug(
+                        restrictedToMinimumLevel: (LogEventLevel)consoleLogLevel,
+                        formatProvider: CultureInfo.InvariantCulture
+                        );
             }
 #endif
             LogLevel fileLevel = LogLevel.Information;
@@ -361,12 +404,13 @@ namespace Quickstarts
         /// Create an event which is set if a user
         /// enters the Ctrl-C key combination.
         /// </summary>
-        public static ManualResetEvent CtrlCHandler()
+        public static ManualResetEvent CtrlCHandler(CancellationTokenSource cts)
         {
             var quitEvent = new ManualResetEvent(false);
             try
             {
                 Console.CancelKeyPress += (_, eArgs) => {
+                    cts.Cancel();
                     quitEvent.Set();
                     eArgs.Cancel = true;
                 };
@@ -377,6 +421,17 @@ namespace Quickstarts
             }
             return quitEvent;
         }
+
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs args)
+        {
+            Utils.LogCritical("Unhandled Exception: {0} IsTerminating: {1}", args.ExceptionObject, args.IsTerminating);
+        }
+
+        private static void Unobserved_TaskException(object sender, UnobservedTaskExceptionEventArgs args)
+        {
+            Utils.LogCritical("Unobserved Exception: {0} Observed: {1}", args.Exception, args.Observed);
+        }
+
     }
 }
 

@@ -28,27 +28,27 @@ namespace Opc.Ua
         public EndpointDescription(string url)
         {
             Initialize();
-            
+
             UriBuilder parsedUrl = new UriBuilder(url);
 
-            if (parsedUrl.Scheme != Utils.UriSchemeOpcTcp)
+            if (parsedUrl.Scheme.StartsWith(Utils.UriSchemeHttp, StringComparison.Ordinal))
             {
-                if (!parsedUrl.Path.EndsWith("/discovery"))
+                if (!parsedUrl.Path.EndsWith(ConfiguredEndpoint.DiscoverySuffix, StringComparison.OrdinalIgnoreCase))
                 {
-                    parsedUrl.Path += "/discovery";
+                    parsedUrl.Path += ConfiguredEndpoint.DiscoverySuffix;
                 }
             }
 
             Server.DiscoveryUrls.Add(parsedUrl.ToString());
 
-            EndpointUrl            = url;
-            Server.ApplicationUri  = url;
+            EndpointUrl = url;
+            Server.ApplicationUri = url;
             Server.ApplicationName = url;
-            SecurityMode           = MessageSecurityMode.None;
-            SecurityPolicyUri      = SecurityPolicies.None;
+            SecurityMode = MessageSecurityMode.None;
+            SecurityPolicyUri = SecurityPolicies.None;
         }
         #endregion
-        
+
         #region Public Properties
         /// <summary>
         /// The encodings supported by the configuration.
@@ -71,7 +71,7 @@ namespace Opc.Ua
                         return BinaryEncodingSupport.Required;
                     }
                 }
-    
+
                 return BinaryEncodingSupport.None;
             }
         }
@@ -81,7 +81,7 @@ namespace Opc.Ua
         /// </summary>
         public Uri ProxyUrl
         {
-            get { return m_proxyUrl;  }
+            get { return m_proxyUrl; }
             set { m_proxyUrl = value; }
         }
         #endregion
@@ -123,7 +123,7 @@ namespace Opc.Ua
         {
             // construct issuer type.
             string issuedTokenTypeText = issuedTokenType;
-            
+
             // find matching policy.
             foreach (UserTokenPolicy policy in m_userIdentityTokens)
             {
@@ -146,7 +146,7 @@ namespace Opc.Ua
             return null;
         }
         #endregion
-        
+
         #region Private Fields
         private Uri m_proxyUrl;
         #endregion

@@ -206,22 +206,23 @@ namespace Opc.Ua
             using (XmlWriter writer = XmlWriter.Create(ostrm, settings))
             {
                 XmlQualifiedName root = new XmlQualifiedName("ListOfNodeState", Namespaces.OpcUaXsd);
-                XmlEncoder encoder = new XmlEncoder(root, writer, messageContext);
-
-                encoder.SaveStringTable("NamespaceUris", "NamespaceUri", context.NamespaceUris);
-                encoder.SaveStringTable("ServerUris", "ServerUri", context.ServerUris);
-
-                for (int ii = 0; ii < this.Count; ii++)
+                using (XmlEncoder encoder = new XmlEncoder(root, writer, messageContext))
                 {
-                    NodeState state = this[ii];
+                    encoder.SaveStringTable("NamespaceUris", "NamespaceUri", context.NamespaceUris);
+                    encoder.SaveStringTable("ServerUris", "ServerUri", context.ServerUris);
 
-                    if (state != null)
+                    for (int ii = 0; ii < this.Count; ii++)
                     {
-                        state.SaveAsXml(context, encoder);
-                    }
-                }
+                        NodeState state = this[ii];
 
-                encoder.Close();
+                        if (state != null)
+                        {
+                            state.SaveAsXml(context, encoder);
+                        }
+                    }
+
+                    encoder.Close();
+                }
             }
         }
 
@@ -236,20 +237,21 @@ namespace Opc.Ua
             messageContext.ServerUris = context.ServerUris;
             messageContext.Factory = context.EncodeableFactory;
 
-            BinaryEncoder encoder = new BinaryEncoder(ostrm, messageContext);
-
-            encoder.SaveStringTable(context.NamespaceUris);
-            encoder.SaveStringTable(context.ServerUris);
-
-            encoder.WriteInt32(null, this.Count);
-
-            for (int ii = 0; ii < this.Count; ii++)
+            using (BinaryEncoder encoder = new BinaryEncoder(ostrm, messageContext, true))
             {
-                NodeState state = this[ii];
-                state.SaveAsBinary(context, encoder);
-            }
+                encoder.SaveStringTable(context.NamespaceUris);
+                encoder.SaveStringTable(context.ServerUris);
 
-            encoder.Close();
+                encoder.WriteInt32(null, this.Count);
+
+                for (int ii = 0; ii < this.Count; ii++)
+                {
+                    NodeState state = this[ii];
+                    state.SaveAsBinary(context, encoder);
+                }
+
+                encoder.Close();
+            }
         }
 
         /// <summary>
@@ -257,13 +259,13 @@ namespace Opc.Ua
         /// </summary>
         public void LoadFromBinary(ISystemContext context, Stream istrm, bool updateTables)
         {
-            ServiceMessageContext messageContext = new ServiceMessageContext();
+            ServiceMessageContext messageContext = new ServiceMessageContext {
+                NamespaceUris = context.NamespaceUris,
+                ServerUris = context.ServerUris,
+                Factory = context.EncodeableFactory
+            };
 
-            messageContext.NamespaceUris = context.NamespaceUris;
-            messageContext.ServerUris = context.ServerUris;
-            messageContext.Factory = context.EncodeableFactory;
-
-            using (BinaryDecoder decoder = new BinaryDecoder(istrm, messageContext))
+            using (var decoder = new BinaryDecoder(istrm, messageContext))
             {
                 // check if a namespace table was provided.
                 NamespaceTable namespaceUris = new NamespaceTable();
@@ -336,7 +338,6 @@ namespace Opc.Ua
 
             using (XmlReader reader = XmlReader.Create(istrm, Utils.DefaultXmlReaderSettings()))
             {
-                XmlQualifiedName root = new XmlQualifiedName("ListOfNodeState", Namespaces.OpcUaXsd);
                 XmlDecoder decoder = new XmlDecoder(null, reader, messageContext);
 
                 NamespaceTable namespaceUris = new NamespaceTable();
@@ -454,7 +455,7 @@ namespace Opc.Ua
     }
 
     /// <summary>
-    /// A class that creates instances of nodes based on the paramters provided.
+    /// A class that creates instances of nodes based on the parameters provided.
     /// </summary>
     public class NodeStateFactory
     {

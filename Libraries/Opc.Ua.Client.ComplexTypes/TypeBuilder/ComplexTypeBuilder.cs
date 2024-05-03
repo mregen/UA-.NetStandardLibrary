@@ -109,13 +109,15 @@ namespace Opc.Ua.Client.ComplexTypes
             switch (structureDefinition.StructureType)
             {
                 case StructureType.StructureWithOptionalFields: baseType = typeof(OptionalFieldsComplexType); break;
+                case StructureType.UnionWithSubtypedValues:
                 case StructureType.Union: baseType = typeof(UnionComplexType); break;
-                case StructureType.Structure:
-                default: baseType = typeof(BaseComplexType); break;
+                case StructureType.StructureWithSubtypedValues:
+                case StructureType.Structure: baseType = typeof(BaseComplexType); break;
+                default: throw new DataTypeNotSupportedException("Unsupported structure type");
             }
             var structureBuilder = m_moduleBuilder.DefineType(
                 GetFullQualifiedTypeName(name),
-                TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Serializable,
+                TypeAttributes.Public | TypeAttributes.Class,
                 baseType);
             structureBuilder.DataContractAttribute(m_targetNamespace);
             structureBuilder.StructureDefinitionAttribute(structureDefinition);

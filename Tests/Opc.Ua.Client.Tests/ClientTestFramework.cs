@@ -32,11 +32,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using NUnit.Framework;
 using Opc.Ua.Server.Tests;
 using Quickstarts.ReferenceServer;
+using Assert = NUnit.Framework.Legacy.ClassicAssert;
 
 namespace Opc.Ua.Client.Tests
 {
@@ -47,7 +49,8 @@ namespace Opc.Ua.Client.Tests
     {
         public static readonly object[] FixtureArgs = {
             new object [] { Utils.UriSchemeOpcTcp},
-            new object [] { Utils.UriSchemeHttps}
+            new object [] { Utils.UriSchemeHttps},
+            new object [] { Utils.UriSchemeOpcHttps},
         };
 
         public const int MaxReferences = 100;
@@ -70,12 +73,19 @@ namespace Opc.Ua.Client.Tests
         public Uri ServerUrl { get; private set; }
         public ExpandedNodeId[] TestSetStatic { get; private set; }
         public ExpandedNodeId[] TestSetSimulation { get; private set; }
-
+        public ExpandedNodeId[] TestSetDataSimulation { get; private set; }
+        public ExpandedNodeId[] TestSetHistory { get; private set; }
         public ClientTestFramework(string uriScheme = Utils.UriSchemeOpcTcp)
         {
             UriScheme = uriScheme;
             TestSetStatic = CommonTestWorkers.NodeIdTestSetStatic;
             TestSetSimulation = CommonTestWorkers.NodeIdTestSetSimulation;
+            TestSetDataSimulation = CommonTestWorkers.NodeIdTestSetDataSimulation;
+            TestSetHistory = CommonTestWorkers.NodeIdTestDataHistory;
+        }
+        public void InitializeSession(ISession session)
+        {
+            Session = session;
         }
 
         #region DataPointSources
@@ -97,7 +107,7 @@ namespace Opc.Ua.Client.Tests
         /// Setup a server and client fixture.
         /// </summary>
         /// <param name="writer">The test output writer.</param>
-        public async Task OneTimeSetUpAsync(TextWriter writer = null)
+        public async Task OneTimeSetUpAsync(TextWriter writer = null, bool securityNone = false, bool enableTracing = false, bool disableActivityLogging = false)
         {
             // pki directory root for test runs.
             PkiRoot = Path.GetTempPath() + Path.GetRandomFileName();
@@ -125,9 +135,10 @@ namespace Opc.Ua.Client.Tests
             if (customUrl == null)
             {
                 // start Ref server
-                ServerFixture = new ServerFixture<ReferenceServer> {
+                ServerFixture = new ServerFixture<ReferenceServer>(enableTracing, disableActivityLogging)
+                {
                     UriScheme = UriScheme,
-                    SecurityNone = true,
+                    SecurityNone = securityNone,
                     AutoAccept = true,
                     AllNodeManagers = true,
                     OperationLimits = true
@@ -139,10 +150,11 @@ namespace Opc.Ua.Client.Tests
                 }
 
                 await ServerFixture.LoadConfiguration(PkiRoot).ConfigureAwait(false);
-                ServerFixture.Config.TransportQuotas.MaxMessageSize =
-                ServerFixture.Config.TransportQuotas.MaxBufferSize = TransportQuotaMaxMessageSize;
+                ServerFixture.Config.TransportQuotas.MaxMessageSize = TransportQuotaMaxMessageSize;
                 ServerFixture.Config.TransportQuotas.MaxByteStringLength =
                 ServerFixture.Config.TransportQuotas.MaxStringLength = TransportQuotaMaxStringLength;
+                ServerFixture.Config.ServerConfiguration.UserTokenPolicies.Add(new UserTokenPolicy(UserTokenType.UserName));
+                ServerFixture.Config.ServerConfiguration.UserTokenPolicies.Add(new UserTokenPolicy(UserTokenType.Certificate));
                 ServerFixture.Config.ServerConfiguration.UserTokenPolicies.Add(
                     new UserTokenPolicy(UserTokenType.IssuedToken) { IssuedTokenType = Opc.Ua.Profiles.JwtUserToken });
 
@@ -150,10 +162,10 @@ namespace Opc.Ua.Client.Tests
                 ReferenceServer.TokenValidator = this.TokenValidator;
             }
 
-            ClientFixture = new ClientFixture();
+            ClientFixture = new ClientFixture(enableTracing, disableActivityLogging);
+
             await ClientFixture.LoadClientConfiguration(PkiRoot).ConfigureAwait(false);
-            ClientFixture.Config.TransportQuotas.MaxMessageSize =
-            ClientFixture.Config.TransportQuotas.MaxBufferSize = TransportQuotaMaxMessageSize;
+            ClientFixture.Config.TransportQuotas.MaxMessageSize = TransportQuotaMaxMessageSize;
             ClientFixture.Config.TransportQuotas.MaxByteStringLength =
             ClientFixture.Config.TransportQuotas.MaxStringLength = TransportQuotaMaxStringLength;
 
@@ -171,10 +183,12 @@ namespace Opc.Ua.Client.Tests
                 try
                 {
                     Session = await ClientFixture.ConnectAsync(ServerUrl, SecurityPolicies.Basic256Sha256).ConfigureAwait(false);
+                    Assert.NotNull(Session);
+                    Session.ReturnDiagnostics = DiagnosticsMasks.All;
                 }
                 catch (Exception e)
                 {
-                    Assert.Ignore("OneTimeSetup failed to create session, tests skipped. Error: {0}", e.Message);
+                    Assert.Warn($"OneTimeSetup failed to create session with {ServerUrl}, tests fail. Error: {e.Message}");
                 }
             }
         }
@@ -186,7 +200,7 @@ namespace Opc.Ua.Client.Tests
         {
             if (Session != null)
             {
-                Session.Close();
+                await Session.CloseAsync(5000, true).ConfigureAwait(false);
                 Session.Dispose();
                 Session = null;
             }
@@ -195,6 +209,7 @@ namespace Opc.Ua.Client.Tests
                 await ServerFixture.StopAsync().ConfigureAwait(false);
                 await Task.Delay(100).ConfigureAwait(false);
             }
+            Utils.SilentDispose(ClientFixture);
         }
 
         /// <summary>
@@ -210,7 +225,7 @@ namespace Opc.Ua.Client.Tests
                 }
                 catch (Exception e)
                 {
-                    Assert.Ignore("OneTimeSetup failed to create session, tests skipped. Error: {0}", e.Message);
+                    Assert.Ignore($"OneTimeSetup failed to create session, tests skipped. Error: {e.Message}");
                 }
             }
             if (ServerFixture == null)
@@ -257,6 +272,38 @@ namespace Opc.Ua.Client.Tests
         public IList<NodeId> GetTestSetSimulation(NamespaceTable namespaceUris)
         {
             return TestSetSimulation.Select(n => ExpandedNodeId.ToNodeId(n, namespaceUris)).Where(n => n != null).ToList();
+        }
+
+        /// <summary>
+        /// Return a test set of nodes all nodes with simulated values.
+        /// </summary>
+        /// <param name="namespaceUris">The namesapce table used in the session.</param>
+        /// <returns>The list of simulated test nodes.</returns>
+        public IList<NodeId> GetTestSetFullSimulation(NamespaceTable namespaceUris)
+        {
+            var simulation = TestSetSimulation.Select(n => ExpandedNodeId.ToNodeId(n, namespaceUris)).Where(n => n != null).ToList();
+            simulation.AddRange(TestSetDataSimulation.Select(n => ExpandedNodeId.ToNodeId(n, namespaceUris)).Where(n => n != null));
+            return simulation;
+        }
+
+        /// <summary>
+        /// Return a test data set of nodes with simulated values.
+        /// </summary>
+        /// <param name="namespaceUris">The namesapce table used in the session.</param>
+        /// <returns>The list of simulated test nodes.</returns>
+        public IList<NodeId> GetTestSetDataSimulation(NamespaceTable namespaceUris)
+        {
+            return TestSetDataSimulation.Select(n => ExpandedNodeId.ToNodeId(n, namespaceUris)).Where(n => n != null).ToList();
+        }
+
+        /// <summary>
+        /// Return a test set of nodes with history values.
+        /// </summary>
+        /// <param name="namespaceUris">The namesapce table used in the session.</param>
+        /// <returns>The list of test nodes.</returns>
+        public IList<NodeId> GetTestSetHistory(NamespaceTable namespaceUris)
+        {
+            return TestSetHistory.Select(n => ExpandedNodeId.ToNodeId(n, namespaceUris)).Where(n => n != null).ToList();
         }
         #endregion
 
@@ -364,6 +411,14 @@ namespace Opc.Ua.Client.Tests
                 return testSet.ToArray();
             }
             return Array.Empty<ExpandedNodeId>();
+        }
+
+        protected void Session_Closing(object sender, EventArgs e)
+        {
+            if (sender is ISession session)
+            {
+                TestContext.Out.WriteLine("Session_Closing: {0}", session.SessionId);
+            }
         }
         #endregion
     }

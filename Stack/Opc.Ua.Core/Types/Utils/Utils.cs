@@ -43,9 +43,15 @@ namespace Opc.Ua
         public const string UriSchemeHttp = "http";
 
         /// <summary>
-        /// The URI scheme for the HTTPS protocol.
+        /// The URI scheme for the HTTPS protocol, used in some legacy https
+        /// clients and servers but not compliant to spec version 1.04.
         /// </summary>
         public const string UriSchemeHttps = "https";
+
+        /// <summary>
+        /// The URI scheme for the UA HTTPS protocol.
+        /// </summary>
+        public const string UriSchemeOpcHttps = "opc.https";
 
         /// <summary>
         /// The URI scheme for the UA TCP protocol.
@@ -78,7 +84,9 @@ namespace Opc.Ua
         public static readonly string[] DefaultUriSchemes = new string[]
         {
             Utils.UriSchemeOpcTcp,
-            Utils.UriSchemeHttps
+            Utils.UriSchemeOpcHttps,
+            Utils.UriSchemeHttps,
+            Utils.UriSchemeOpcWss
         };
 
         /// <summary>
@@ -124,7 +132,7 @@ namespace Opc.Ua
         /// <summary>
         /// The default LocalFolder.
         /// </summary>
-        public static readonly string DefaultLocalFolder = Directory.GetCurrentDirectory();
+        public static string DefaultLocalFolder { get; set; } = Directory.GetCurrentDirectory();
 
         /// <summary>
         /// The full name of the Opc.Ua.Core assembly.
@@ -141,8 +149,19 @@ namespace Opc.Ua
         /// </summary>
         public static readonly ReadOnlyDictionary<string, string> DefaultBindings = new ReadOnlyDictionary<string, string>(
             new Dictionary<string, string>() {
-                { Utils.UriSchemeHttps, "Opc.Ua.Bindings.Https"}
+                { Utils.UriSchemeHttps, "Opc.Ua.Bindings.Https"},
+                { Utils.UriSchemeOpcHttps, "Opc.Ua.Bindings.Https"}
             });
+
+        /// <summary>
+        /// Returns <c>true</c> if the url starts with opc.https or https.
+        /// </summary>
+        /// <param name="url">The url</param>
+        public static bool IsUriHttpsScheme(string url)
+        {
+            return url.StartsWith(Utils.UriSchemeHttps, StringComparison.Ordinal) ||
+                url.StartsWith(Utils.UriSchemeOpcHttps, StringComparison.Ordinal);
+        }
         #endregion
 
         #region Trace Support
@@ -155,7 +174,7 @@ namespace Opc.Ua
 #endif
 
         private static string s_traceFileName = string.Empty;
-        private static object s_traceFileLock = new object();
+        private readonly static object s_traceFileLock = new object();
 
         /// <summary>
         /// The possible trace output mechanisms.
@@ -297,7 +316,7 @@ namespace Opc.Ua
             {
                 try
                 {
-                    output = String.Format(CultureInfo.InvariantCulture, message, args);
+                    output = string.Format(CultureInfo.InvariantCulture, message, args);
                 }
                 catch (Exception)
                 {
@@ -473,9 +492,7 @@ namespace Opc.Ua
             // append exception information.
             if (e != null)
             {
-                ServiceResultException sre = e as ServiceResultException;
-
-                if (sre != null)
+                if (e is ServiceResultException sre)
                 {
                     message.AppendFormat(CultureInfo.InvariantCulture, " {0} '{1}'", StatusCodes.GetBrowseName(sre.StatusCode), sre.Message);
                 }
@@ -1012,7 +1029,7 @@ namespace Opc.Ua
 
         #region String, Object and Data Convienence Functions
         /// <summary>
-        /// Supresses any exceptions while disposing the object.
+        /// Suppresses any exceptions while disposing the object.
         /// </summary>
         /// <remarks>
         /// Writes errors to trace output in DEBUG builds.
@@ -1024,7 +1041,7 @@ namespace Opc.Ua
         }
 
         /// <summary>
-        /// Supresses any exceptions while disposing the object.
+        /// Suppresses any exceptions while disposing the object.
         /// </summary>
         /// <remarks>
         /// Writes errors to trace output in DEBUG builds.
@@ -1567,7 +1584,7 @@ namespace Opc.Ua
         {
             if (source != null)
             {
-                return String.Format(CultureInfo.InvariantCulture, "{0}", source);
+                return string.Format(CultureInfo.InvariantCulture, "{0}", source);
             }
 
             return String.Empty;
@@ -1578,7 +1595,7 @@ namespace Opc.Ua
         /// </summary>
         public static string Format(string text, params object[] args)
         {
-            return String.Format(CultureInfo.InvariantCulture, text, args);
+            return string.Format(CultureInfo.InvariantCulture, text, args);
         }
 
         /// <summary>
@@ -1712,8 +1729,7 @@ namespace Opc.Ua
             }
 
             // copy arrays, any dimension.
-            Array array = value as Array;
-            if (array != null)
+            if (value is Array array)
             {
                 if (array.Rank == 1)
                 {
@@ -1754,344 +1770,15 @@ namespace Opc.Ua
             }
 
             // copy XmlNode.
-            XmlNode node = value as XmlNode;
-            if (node != null)
+            if (value is XmlNode node)
             {
                 return node.CloneNode(true);
             }
 
             // use ICloneable if supported
-            ICloneable cloneable = value as ICloneable;
-            if (cloneable != null)
+            if (value is ICloneable cloneable)
             {
                 return cloneable.Clone();
-            }
-
-            // copy ExtensionObject.
-            {
-                ExtensionObject castedObject = value as ExtensionObject;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy ExtensionObjectCollection.
-            {
-                ExtensionObjectCollection castedObject = value as ExtensionObjectCollection;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy EnumValueType.
-            {
-                EnumValueType castedObject = value as EnumValueType;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy LocalizedText.
-            {
-                LocalizedText castedObject = value as LocalizedText;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy Argument.
-            {
-                Argument castedObject = value as Argument;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy NodeId.
-            {
-                NodeId castedObject = value as NodeId;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy UInt32Collection.
-            {
-                UInt32Collection castedObject = value as UInt32Collection;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy QualifiedName.
-            {
-                QualifiedName castedObject = value as QualifiedName;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy ServerDiagnosticsSummaryDataType.
-            {
-                ServerDiagnosticsSummaryDataType castedObject = value as ServerDiagnosticsSummaryDataType;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy ApplicationDescription.
-            {
-                ApplicationDescription castedObject = value as ApplicationDescription;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy StringCollection.
-            {
-                StringCollection castedObject = value as StringCollection;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy UserTokenPolicyCollection.
-            {
-                UserTokenPolicyCollection castedObject = value as UserTokenPolicyCollection;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy UserTokenPolicy
-            {
-                UserTokenPolicy castedObject = value as UserTokenPolicy;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy SessionDiagnosticsDataType
-            {
-                SessionDiagnosticsDataType castedObject = value as SessionDiagnosticsDataType;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy ServiceCounterDataType
-            {
-                ServiceCounterDataType castedObject = value as ServiceCounterDataType;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy SessionSecurityDiagnosticsDataType
-            {
-                SessionSecurityDiagnosticsDataType castedObject = value as SessionSecurityDiagnosticsDataType;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy AnonymousIdentityToken
-            {
-                AnonymousIdentityToken castedObject = value as AnonymousIdentityToken;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy EventFilter.
-            {
-                EventFilter castedObject = value as EventFilter;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy DataChangeFilter.
-            {
-                DataChangeFilter castedObject = value as DataChangeFilter;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy SimpleAttributeOperandCollection.
-            {
-                SimpleAttributeOperandCollection castedObject = value as SimpleAttributeOperandCollection;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy SimpleAttributeOperand.
-            {
-                SimpleAttributeOperand castedObject = value as SimpleAttributeOperand;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy QualifiedNameCollection.
-            {
-                QualifiedNameCollection castedObject = value as QualifiedNameCollection;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy ContentFilter.
-            {
-                ContentFilter castedObject = value as ContentFilter;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy ContentFilterElement.
-            {
-                ContentFilterElement castedObject = value as ContentFilterElement;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-
-            // copy ContentFilterElementCollection.
-            {
-                ContentFilterElementCollection castedObject = value as ContentFilterElementCollection;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy SubscriptionDiagnosticsDataType.
-            {
-                SubscriptionDiagnosticsDataType castedObject = value as SubscriptionDiagnosticsDataType;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy UserNameIdentityToken.
-            {
-                UserNameIdentityToken castedObject = value as UserNameIdentityToken;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy ServerStatusDataType.
-            {
-                ServerStatusDataType castedObject = value as ServerStatusDataType;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy BuildInfo.
-            {
-                BuildInfo castedObject = value as BuildInfo;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy X509IdentityToken.
-            {
-                X509IdentityToken castedObject = value as X509IdentityToken;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy Opc.Ua.Range.
-            {
-                Opc.Ua.Range castedObject = value as Opc.Ua.Range;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy Opc.Ua.EUInformation
-            {
-                Opc.Ua.EUInformation castedObject = value as Opc.Ua.EUInformation;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy Opc.Ua.WriteValueCollection
-            {
-                Opc.Ua.WriteValueCollection castedObject = value as Opc.Ua.WriteValueCollection;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy Opc.Ua.WriteValue
-            {
-                Opc.Ua.WriteValue castedObject = value as Opc.Ua.WriteValue;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy Opc.Ua.DataValue
-            {
-                Opc.Ua.DataValue castedObject = value as Opc.Ua.DataValue;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy Opc.Ua.ExpandedNodeId
-            {
-                ExpandedNodeId castedObject = value as ExpandedNodeId;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy Opc.Ua.TimeZoneDataType
-            {
-                TimeZoneDataType castedObject = value as TimeZoneDataType;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
-            }
-            // copy Opc.Ua.LiteralOperand
-            {
-                LiteralOperand castedObject = value as LiteralOperand;
-                if (castedObject != null)
-                {
-                    return castedObject.MemberwiseClone();
-                }
             }
 
             //try to find the MemberwiseClone method by reflection.
@@ -2101,6 +1788,7 @@ namespace Opc.Ua
                 object clone = memberwiseCloneMethod.Invoke(value, null);
                 if (clone != null)
                 {
+                    Utils.LogTrace("MemberwiseClone without ICloneable in class '{0}'", type.FullName);
                     return clone;
                 }
             }
@@ -2112,6 +1800,7 @@ namespace Opc.Ua
                 object clone = cloneMethod.Invoke(value, null);
                 if (clone != null)
                 {
+                    Utils.LogTrace("Clone without ICloneable in class '{0}'", type.FullName);
                     return clone;
                 }
             }
@@ -2186,6 +1875,95 @@ namespace Opc.Ua
         }
 
         /// <summary>
+        /// Checks if two T values are equal based on IEquatable compare.
+        /// </summary>
+        public static bool IsEqual<T>(T value1, T value2) where T : IEquatable<T>
+        {
+            // check for reference equality.
+            if (Object.ReferenceEquals(value1, value2))
+            {
+                return true;
+            }
+
+            if (Object.ReferenceEquals(value1, null))
+            {
+                if (!Object.ReferenceEquals(value2, null))
+                {
+                    return value2.Equals(value1);
+                }
+
+                return true;
+            }
+
+            // use IEquatable comparer
+            return value1.Equals(value2);
+        }
+
+        /// <summary>
+        /// Checks if two IEnumerable T values are equal.
+        /// </summary>
+        public static bool IsEqual<T>(IEnumerable<T> value1, IEnumerable<T> value2) where T : IEquatable<T>
+        {
+            // check for reference equality.
+            if (Object.ReferenceEquals(value1, value2))
+            {
+                return true;
+            }
+
+            if (Object.ReferenceEquals(value1, null) || Object.ReferenceEquals(value2, null))
+            {
+                return false;
+            }
+
+            return value1.SequenceEqual(value2);
+        }
+
+        /// <summary>
+        /// Checks if two T[] values are equal.
+        /// </summary>
+        public static bool IsEqual<T>(T[] value1, T[] value2) where T : unmanaged, IEquatable<T>
+        {
+            // check for reference equality.
+            if (Object.ReferenceEquals(value1, value2))
+            {
+                return true;
+            }
+
+            if (Object.ReferenceEquals(value1, null) || Object.ReferenceEquals(value2, null))
+            {
+                return false;
+            }
+
+            return value1.SequenceEqual(value2);
+        }
+
+#if NETFRAMEWORK
+        [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int memcmp(byte[] b1, byte[] b2, long count);
+
+        /// <summary>
+        /// Fast memcpy version of byte[] compare. 
+        /// </summary>
+        public static bool IsEqual(byte[] value1, byte[] value2)
+        {
+            // check for reference equality.
+            if (Object.ReferenceEquals(value1, value2))
+            {
+                return true;
+            }
+
+            if (Object.ReferenceEquals(value1, null) || Object.ReferenceEquals(value2, null))
+            {
+                return false;
+            }
+
+            // Validate buffers are the same length.
+            // This also ensures that the count does not exceed the length of either buffer.  
+            return value1.Length == value2.Length && memcmp(value1, value2, value1.Length) == 0;
+        }
+#endif
+
+        /// <summary>
         /// Checks if two values are equal.
         /// </summary>
         public static bool IsEqual(object value1, object value2)
@@ -2197,9 +1975,9 @@ namespace Opc.Ua
             }
 
             // check for null values.
-            if (value1 == null)
+            if (Object.ReferenceEquals(value1, null))
             {
-                if (value2 != null)
+                if (!Object.ReferenceEquals(value2, null))
                 {
                     return value2.Equals(value1);
                 }
@@ -2208,12 +1986,12 @@ namespace Opc.Ua
             }
 
             // check for null values.
-            if (value2 == null)
+            if (Object.ReferenceEquals(value2, null))
             {
                 return value1.Equals(value2);
             }
 
-            // check that data types are the same.
+            // check that data types are not the same.
             if (value1.GetType() != value2.GetType())
             {
                 return value1.Equals(value2);
@@ -2226,17 +2004,13 @@ namespace Opc.Ua
             }
 
             // check for compareable objects.
-            IComparable comparable1 = value1 as IComparable;
-
-            if (comparable1 != null)
+            if (value1 is IComparable comparable1)
             {
                 return comparable1.CompareTo(value2) == 0;
             }
 
             // check for encodeable objects.
-            IEncodeable encodeable1 = value1 as IEncodeable;
-
-            if (encodeable1 != null)
+            if (value1 is IEncodeable encodeable1)
             {
                 if (!(value2 is IEncodeable encodeable2))
                 {
@@ -2247,9 +2021,7 @@ namespace Opc.Ua
             }
 
             // check for XmlElement objects.
-            XmlElement element1 = value1 as XmlElement;
-
-            if (element1 != null)
+            if (value1 is XmlElement element1)
             {
                 if (!(value2 is XmlElement element2))
                 {
@@ -2260,9 +2032,7 @@ namespace Opc.Ua
             }
 
             // check for arrays.
-            Array array1 = value1 as Array;
-
-            if (array1 != null)
+            if (value1 is Array array1)
             {
                 // arrays are greater than non-arrays.
                 if (!(value2 is Array array2))
@@ -2292,6 +2062,16 @@ namespace Opc.Ua
                     }
                 }
 
+                // handle byte[] special case fast
+                if (array1 is byte[] byteArray1 && array2 is byte[] byteArray2)
+                {
+#if NETFRAMEWORK
+                    return memcmp(byteArray1, byteArray2, byteArray1.Length) == 0;
+#else
+                    return byteArray1.SequenceEqual(byteArray2);
+#endif
+                }
+
                 IEnumerator enumerator1 = array1.GetEnumerator();
                 IEnumerator enumerator2 = array2.GetEnumerator();
 
@@ -2314,9 +2094,8 @@ namespace Opc.Ua
             }
 
             // check enumerables.
-            IEnumerable enumerable1 = value1 as IEnumerable;
 
-            if (enumerable1 != null)
+            if (value1 is IEnumerable enumerable1)
             {
                 // collections are greater than non-collections.
                 if (!(value2 is IEnumerable enumerable2))
@@ -2620,7 +2399,7 @@ namespace Opc.Ua
             // check if nothing to search for.
             if (extensions == null || extensions.Count == 0)
             {
-                return default(T);
+                return default;
             }
 
             // use the type name as the default.
@@ -2666,7 +2445,7 @@ namespace Opc.Ua
                 }
             }
 
-            return default(T);
+            return default;
         }
 
         /// <summary>
@@ -2750,7 +2529,7 @@ namespace Opc.Ua
                 extensions.Add(document.DocumentElement);
             }
         }
-        #endregion
+#endregion
 
         #region Reflection Helper Functions
         /// <summary>
@@ -2783,9 +2562,7 @@ namespace Opc.Ua
             {
                 for (int ii = 0; ii < attributes.Length; ii++)
                 {
-                    DataMemberAttribute contract = attributes[ii] as DataMemberAttribute;
-
-                    if (contract != null)
+                    if (attributes[ii] is DataMemberAttribute contract)
                     {
                         if (String.IsNullOrEmpty(contract.Name))
                         {
@@ -2937,9 +2714,14 @@ namespace Opc.Ua
         /// </summary>
         public static X509Certificate2 ParseCertificateBlob(byte[] certificateData)
         {
+
             // macOS X509Certificate2 constructor throws exception if a certchain is encoded
             // use AsnParser on macOS to parse for byteblobs,
+#if !NETFRAMEWORK
             bool useAsnParser = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+#else
+            bool useAsnParser = false;
+#endif
             try
             {
                 if (useAsnParser)
@@ -2972,7 +2754,11 @@ namespace Opc.Ua
             List<byte> certificatesBytes = new List<byte>(certificateData);
             // macOS X509Certificate2 constructor throws exception if a certchain is encoded
             // use AsnParser on macOS to parse for byteblobs,
+#if !NETFRAMEWORK
             bool useAsnParser = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+#else
+            bool useAsnParser = false;
+#endif
             while (certificatesBytes.Count > 0)
             {
                 X509Certificate2 certificate;
@@ -3140,7 +2926,7 @@ namespace Opc.Ua
             // convert label to UTF-8 byte sequence.
             if (!String.IsNullOrEmpty(label))
             {
-                seed = new UTF8Encoding().GetBytes(label);
+                seed = Encoding.UTF8.GetBytes(label);
             }
 
             // append data to label.

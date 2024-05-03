@@ -56,7 +56,7 @@ namespace Opc.Ua
     /// <seealso cref="Variant"/>
     /// <seealso cref="StatusCode"/>
     [DataContract(Namespace = Namespaces.OpcUaXsd)]
-    public class DataValue : IFormattable, IEquatable<DataValue>
+    public class DataValue : ICloneable, IFormattable, IEquatable<DataValue>
     {
         #region Constructors
         /// <summary>
@@ -214,9 +214,8 @@ namespace Opc.Ua
                 return true;
             }
 
-            DataValue value = obj as DataValue;
 
-            if (value != null)
+            if (obj is DataValue value)
             {
                 if (this.m_statusCode != value.m_statusCode)
                 {
@@ -245,7 +244,7 @@ namespace Opc.Ua
 
                 return Utils.IsEqual(this.m_value.Value, value.m_value.Value);
             }
-            
+
             return false;
         }
 
@@ -338,7 +337,7 @@ namespace Opc.Ua
         {
             if (format == null)
             {
-                return String.Format(formatProvider, "{0}", m_value);
+                return string.Format(formatProvider, "{0}", m_value);
             }
 
             throw new FormatException(Utils.Format("Invalid format string: '{0}'.", format));
@@ -346,6 +345,12 @@ namespace Opc.Ua
         #endregion
 
         #region ICloneable Members
+        /// <inheritdoc/>
+        public virtual object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
         /// <summary>
         /// Makes a deep copy of the object.
         /// </summary>
@@ -569,9 +574,8 @@ namespace Opc.Ua
                     return null;
                 }
 
-                ExtensionObject extension = value as ExtensionObject;
 
-                if (extension != null)
+                if (value is ExtensionObject extension)
                 {
                     value = extension.Body;
                 }
@@ -608,9 +612,8 @@ namespace Opc.Ua
                 return (T)this.Value;
             }
 
-            ExtensionObject extension = this.Value as ExtensionObject;
 
-            if (extension != null)
+            if (this.Value is ExtensionObject extension)
             {
                 if (typeof(T).IsInstanceOfType(extension.Body))
                 {
@@ -640,7 +643,7 @@ namespace Opc.Ua
     /// A strongly-typed collection of DataValues.
     /// </remarks>
     [CollectionDataContract(Name = "ListOfDataValue", Namespace = Namespaces.OpcUaXsd, ItemName = "DataValue")]
-    public partial class DataValueCollection : List<DataValue>
+    public partial class DataValueCollection : List<DataValue>, ICloneable
     {
         /// <summary>
         /// Initializes an empty collection.
@@ -697,6 +700,13 @@ namespace Opc.Ua
             return ToDataValueCollection(values);
         }
 
+        #region ICloneable
+        /// <inheritdoc/>
+        public virtual object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
         /// <summary>
         /// Creates a deep copy of the collection.
         /// </summary>
@@ -714,6 +724,7 @@ namespace Opc.Ua
 
             return clone;
         }
+        #endregion
     }
     #endregion
 
