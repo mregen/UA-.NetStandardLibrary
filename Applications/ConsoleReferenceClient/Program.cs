@@ -85,6 +85,8 @@ namespace Quickstarts.ConsoleReferenceClient
             int timeout = Timeout.Infinite;
             string logFile = null;
             string reverseConnectUrlString = null;
+            bool leakChannels = false;
+            bool forever = false;
 
             Mono.Options.OptionSet options = new Mono.Options.OptionSet {
                 usage,
@@ -107,6 +109,8 @@ namespace Quickstarts.ConsoleReferenceClient
                 { "v|verbose", "Verbose output", v => { if (v != null) verbose = true; } },
                 { "s|subscribe", "Subscribe", s => { if (s != null) subscribe = true; } },
                 { "rc|reverseconnect=", "Connect using the reverse connect endpoint. (e.g. rc=opc.tcp://localhost:65300)", (string url) => reverseConnectUrlString = url},
+                { "forever", "run inner connect/disconnect loop forever", f => { if (f != null) forever = true; } },
+                { "leakchannels", "Leave a channel leak open when disconnecting a session.", l => { if (l != null) leakChannels = true; } },
             };
 
             ReverseConnectManager reverseConnectManager = null;
@@ -190,14 +194,20 @@ namespace Quickstarts.ConsoleReferenceClient
                     {
                         if (timeout > 0)
                         {
-                            waitTime = timeout - (int)DateTime.UtcNow.Subtract(start).TotalMilliseconds;
-                            if (waitTime <= 0)
+                            if (!forever)
                             {
                                 break;
                             }
+                            else
+                            {
+                                waitTime = 0;
+                            }
                         }
 
-                        // create the UA Client object and connect to configured server.
+                        if (forever)
+                        {
+                            start = DateTime.UtcNow;
+                        }
 
                         using (UAClient uaClient = new UAClient(application.ApplicationConfiguration, reverseConnectManager, output, ClientBase.ValidateResponse) {
                             AutoAccept = autoAccept,
@@ -477,6 +487,15 @@ namespace Quickstarts.ConsoleReferenceClient
                                 output.WriteLine("Could not connect to server! Retry in 10 seconds or Ctrl-C to quit.");
                                 quit = quitEvent.WaitOne(Math.Min(10_000, waitTime));
                             }
+
+                            output.WriteLine("Client disconnected.");
+
+                            uaClient.Disconnect(leakChannels);
+                        }
+                        else
+                        {
+                            output.WriteLine("Could not connect to server! Retry in 10 seconds or Ctrl-C to quit.");
+                            quit = quitEvent.WaitOne(Math.Min(10_000, waitTime));
                         }
                     } while (!quit);
 
