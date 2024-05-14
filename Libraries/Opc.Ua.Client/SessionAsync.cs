@@ -1504,7 +1504,7 @@ namespace Opc.Ua.Client
                     connection,
                     transportChannel);
 
-                if (!(result is ChannelAsyncOperation<int> operation)) throw new ArgumentNullException(nameof(result));
+                if (!(result is IChannelAsyncOperation operation)) throw new ArgumentNullException(nameof(result));
 
                 try
                 {

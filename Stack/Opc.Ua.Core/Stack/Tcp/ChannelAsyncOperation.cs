@@ -20,7 +20,7 @@ namespace Opc.Ua.Bindings
     /// <summary>
     /// Stores the results of an asynchronous operation.
     /// </summary>
-    public class ChannelAsyncOperation<T> : IAsyncResult, IDisposable
+    public class ChannelAsyncOperation<T> : IChannelAsyncOperation
     {
         #region Constructors
         /// <summary>
@@ -102,22 +102,6 @@ namespace Opc.Ua.Bindings
         /// <summary>
         /// Called when an asynchronous operation completes.
         /// </summary>
-        public bool Fault(ServiceResult error)
-        {
-            return InternalComplete(true, error);
-        }
-
-        /// <summary>
-        /// Called when an asynchronous operation completes.
-        /// </summary>
-        public bool Fault(bool doNotBlock, ServiceResult error)
-        {
-            return InternalComplete(doNotBlock, error);
-        }
-
-        /// <summary>
-        /// Called when an asynchronous operation completes.
-        /// </summary>
         public bool Fault(uint code, string format, params object[] args)
         {
             return InternalComplete(true, ServiceResult.Create(code, format, args));
@@ -148,9 +132,40 @@ namespace Opc.Ua.Bindings
         }
 
         /// <summary>
-        /// The response returned from the server.
+        /// Stores additional state information associated with the operation.
         /// </summary>
-        public T End(int timeout, bool throwOnError = true)
+        public IDictionary<string, object> Properties
+        {
+            get
+            {
+                lock (m_lock)
+                {
+                    if (m_properties == null)
+                    {
+                        m_properties = new Dictionary<string, object>();
+                    }
+
+                    return m_properties;
+                }
+            }
+        }
+        #endregion
+
+        #region IChannelAsyncOperation Members
+        /// <inheritdoc/>
+        public bool Fault(ServiceResult error)
+        {
+            return InternalComplete(true, error);
+        }
+
+        /// <inheritdoc/>
+        public bool Fault(bool doNotBlock, ServiceResult error)
+        {
+            return InternalComplete(doNotBlock, error);
+        }
+
+        /// <inheritdoc/>
+        public void End(int timeout, bool throwOnError = true)
         {
             // check if the request has already completed.
             bool mustWait = false;
@@ -196,15 +211,11 @@ namespace Opc.Ua.Bindings
                 {
                     throw new ServiceResultException(m_error);
                 }
-
-                return m_response;
             }
         }
 
-        /// <summary>
-        /// The awaitable response returned from the server.
-        /// </summary>
-        public async Task<T> EndAsync(int timeout, bool throwOnError = true, CancellationToken ct = default)
+        /// <inheritdoc/>
+        public async Task EndAsync(int timeout, bool throwOnError = true, CancellationToken ct = default)
         {
             // check if the request has already completed.
             bool mustWait = false;
@@ -288,38 +299,15 @@ namespace Opc.Ua.Bindings
                 {
                     throw new ServiceResultException(m_error);
                 }
-
-                return m_response;
             }
         }
 
-        /// <summary>
-        /// Stores additional state information associated with the operation.
-        /// </summary>
-        public IDictionary<string, object> Properties
-        {
-            get
-            {
-                lock (m_lock)
-                {
-                    if (m_properties == null)
-                    {
-                        m_properties = new Dictionary<string, object>();
-                    }
-
-                    return m_properties;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Return the result of the operation.
-        /// </summary>
+        /// <inheritdoc/>
         public ServiceResult Error => m_error ?? ServiceResult.Good;
         #endregion
 
         #region IAsyncResult Members
-        /// <summary cref="IAsyncResult.AsyncState" />
+        /// <inheritdoc cref="IAsyncResult.AsyncState" />
         public object AsyncState
         {
             get
@@ -331,7 +319,7 @@ namespace Opc.Ua.Bindings
             }
         }
 
-        /// <summary cref="IAsyncResult.AsyncWaitHandle" />
+        /// <inheritdoc cref="IAsyncResult.AsyncWaitHandle" />
         public WaitHandle AsyncWaitHandle
         {
             get
@@ -348,7 +336,7 @@ namespace Opc.Ua.Bindings
             }
         }
 
-        /// <summary cref="IAsyncResult.CompletedSynchronously" />
+        /// <inheritdoc cref="IAsyncResult.CompletedSynchronously" />
         public bool CompletedSynchronously
         {
             get
@@ -360,7 +348,7 @@ namespace Opc.Ua.Bindings
             }
         }
 
-        /// <summary cref="IAsyncResult.IsCompleted" />
+        /// <inheritdoc cref="IAsyncResult.IsCompleted" />
         public bool IsCompleted
         {
             get
@@ -415,15 +403,8 @@ namespace Opc.Ua.Bindings
                     m_timer = null;
                 }
 
-                if (m_event != null)
-                {
-                    m_event.Set();
-                }
-
-                if (m_tcs != null)
-                {
-                    m_tcs.TrySetResult(true);
-                }
+                m_event?.Set();
+                m_tcs?.TrySetResult(true);
             }
 
             AsyncCallback callback = m_callback;

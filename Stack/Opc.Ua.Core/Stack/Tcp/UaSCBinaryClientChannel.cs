@@ -223,7 +223,7 @@ namespace Opc.Ua.Bindings
             {
                 try
                 {
-                    _ = await operation.EndAsync(timeout, false, ct).ConfigureAwait(false);
+                    await operation.EndAsync(timeout, false, ct).ConfigureAwait(false);
                     ValidateChannelCloseError(operation.Error);
                 }
                 catch (Exception e)

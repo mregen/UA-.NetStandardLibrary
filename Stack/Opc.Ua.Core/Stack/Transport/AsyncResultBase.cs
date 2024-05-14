@@ -18,7 +18,7 @@ namespace Opc.Ua
     /// <summary>
     /// A base class for AsyncResult objects 
     /// </summary>
-    public class AsyncResultBase : IAsyncResult, IDisposable
+    public class AsyncResultBase : IChannelAsyncOperation
     {
         #region Constructors
         /// <summary>
@@ -110,12 +110,7 @@ namespace Opc.Ua
         {
             get
             {
-                if (m_cts != null)
-                {
-                    return m_cts.Token;
-                }
-
-                return CancellationToken.None;
+                return m_cts?.Token ?? CancellationToken.None;
             }
         }
 
@@ -234,7 +229,7 @@ namespace Opc.Ua
             {
                 IsCompleted = true;
 
-                // signal an waiting threads.
+                // signal any waiting threads.
                 try
                 {
                     m_waitHandle?.Set();
@@ -249,6 +244,31 @@ namespace Opc.Ua
             // invoke callback.
             m_callback?.Invoke(this);
         }
+        #endregion
+
+        #region IChannelAsyncOperation Members
+        /// <inheritdoc/>
+        public bool Fault(ServiceResult error)
+        {
+        }
+
+        /// <inheritdoc/>
+        public bool Fault(bool doNotBlock, ServiceResult error)
+        {
+        }
+
+        /// <inheritdoc/>
+        public void End(int timeout, bool throwOnError = true)
+        {
+        }
+
+        /// <inheritdoc/>
+        public async Task EndAsync(int timeout, bool throwOnError = true, CancellationToken ct = default)
+        {
+        }
+
+        /// <inheritdoc/>
+        public ServiceResult Error => m_error ?? ServiceResult.Good;
         #endregion
 
         #region Private Members
