@@ -69,7 +69,7 @@ namespace Opc.Ua.Server
             :
             base(server, configuration)
         {
-            m_rejectedStorePath = configuration.SecurityConfiguration.RejectedCertificateStore.StorePath;
+            m_rejectedStorePath = configuration.SecurityConfiguration.RejectedCertificateStore?.StorePath;
             m_certificateGroups = new List<ServerCertificateGroup>();
             m_configuration = configuration;
             // TODO: configure cert groups in configuration
@@ -603,7 +603,12 @@ namespace Opc.Ua.Server
             ref byte[][] certificates)
         {
             HasApplicationSecureAdminAccess(context);
-
+            //No rejected store configured
+            if (m_rejectedStorePath == null)
+            {
+                certificates = Array.Empty<byte[]>();
+                return StatusCodes.Good;
+            }
             using (ICertificateStore store = CertificateStoreIdentifier.OpenStore(m_rejectedStorePath))
             {
                 X509Certificate2Collection collection = store.Enumerate().Result;

@@ -42,13 +42,14 @@ namespace Opc.Ua.Buffers
     {
         private const int DefaultChunkSize = 256;
         private const int MaxChunkSize = 65536;
-        private bool _clearArray;
+        private readonly bool _clearArray;
         private int _chunkSize;
-        private int _maxChunkSize;
+        private readonly int _maxChunkSize;
         private T[] _currentBuffer;
         private ArrayPoolBufferSegment<T> _firstSegment;
         private ArrayPoolBufferSegment<T> _nextSegment;
         private int _offset;
+        private bool _disposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ArrayPoolBufferWriter{T}"/> class.
@@ -77,6 +78,7 @@ namespace Opc.Ua.Buffers
             _chunkSize = defaultChunksize;
             _maxChunkSize = maxChunkSize;
             _currentBuffer = Array.Empty<T>();
+            _disposed = false;
         }
 
         /// <inheritdoc/>
@@ -93,11 +95,17 @@ namespace Opc.Ua.Buffers
 
                 _firstSegment = _nextSegment = null;
             }
+            _disposed = true;
         }
 
         /// <inheritdoc/>
         public void Advance(int count)
         {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(nameof(ArrayPoolBufferWriter<T>));
+            }
+
             if (count < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(count), $"{nameof(count)} must be non-negative.");
@@ -143,6 +151,11 @@ namespace Opc.Ua.Buffers
         /// </summary>
         public ReadOnlySequence<T> GetReadOnlySequence()
         {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(nameof(ArrayPoolBufferWriter<T>));
+            }
+
             AddSegment();
 
             if (_firstSegment == null || _nextSegment == null)
@@ -179,6 +192,11 @@ namespace Opc.Ua.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int CheckAndAllocateBuffer(int sizeHint)
         {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(nameof(ArrayPoolBufferWriter<T>));
+            }
+
             int remainingSpace = _currentBuffer.Length - _offset;
             if (remainingSpace < sizeHint || sizeHint == 0)
             {
