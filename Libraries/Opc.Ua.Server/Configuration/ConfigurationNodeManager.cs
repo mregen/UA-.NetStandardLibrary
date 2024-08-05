@@ -48,7 +48,8 @@ namespace Opc.Ua.Server
         /// </summary>
         /// <param name="identity">The user identity.</param>
         public SystemConfigurationIdentity(IUserIdentity identity)
-        :base(identity, new List<Role> {Role.SecurityAdmin, Role.ConfigureAdmin }){
+        : base(identity, new List<Role> { Role.SecurityAdmin, Role.ConfigureAdmin })
+        {
         }
     }
 
@@ -231,7 +232,7 @@ namespace Opc.Ua.Server
             }
         }
 
-        
+
 
         /// <summary>
         /// Gets and returns the <see cref="NamespaceMetadataState"/> node associated with the specified NamespaceUri
@@ -638,14 +639,14 @@ namespace Opc.Ua.Server
             //TODO support multiple Application Instance Certificates
             if (certificateTypeId != null)
             {
-                certificateTypeIds = new NodeId[1] {certificateTypeId };
+                certificateTypeIds = new NodeId[1] { certificateTypeId };
                 certificates = new byte[1][];
-                certificates[0] = certificateGroup.ApplicationCertificate.Certificate.GetRawCertData();
+                certificates[0] = certificateGroup.ApplicationCertificate.Certificate.RawData;
             }
             else
             {
                 certificateTypeIds = new NodeId[0];
-                certificates = new byte[0][];
+                certificates = Array.Empty<byte[]>();
             }
 
             return ServiceResult.Good;
