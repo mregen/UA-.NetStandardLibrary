@@ -2455,7 +2455,7 @@ namespace Opc.Ua.Client
 
                 ValidateServerEndpoints(serverEndpoints);
 
-                ValidateServerCertificateApplicationUri(m_endpoint, serverCertificate);
+                ValidateServerCertificateApplicationUri(serverCertificate, m_endpoint);
 
                 ValidateServerSignature(serverCertificate, serverSignature, clientCertificateData, clientCertificateChainData, clientNonce);
 
@@ -5364,42 +5364,7 @@ namespace Opc.Ua.Client
         {
             if (serverCertificate != null)
             {
-                var applicationUri = endpoint?.Description?.Server?.ApplicationUri;
-
-                // check that an ApplicatioUri is specified for the Endpoint
-                if (string.IsNullOrEmpty(applicationUri))
-                {
-                    throw ServiceResultException.Create(
-                        StatusCodes.BadCertificateUriInvalid,
-                        "Server did not return an ApplicationUri in the EndpointDescription.");
-                }
-
-                var certificateApplicationUris = X509Utils.GetApplicationUrisFromCertificate(serverCertificate);
-                if (certificateApplicationUris.Count == 0)
-                {
-                    throw ServiceResultException.Create(
-                            StatusCodes.BadCertificateUriInvalid,
-                            "The Server Certificate ({1}) does not contain an applicationUri.",
-                            serverCertificate.Subject);
-                }
-
-                bool noMatch = true;
-                foreach (var certificateApplicationUri in certificateApplicationUris)
-                {
-                    if (string.Equals(certificateApplicationUri, applicationUri, StringComparison.Ordinal))
-                    {
-                        noMatch = false;
-                        break;
-                    }
-                }
-
-                if (noMatch)
-                {
-                    throw ServiceResultException.Create(
-                        StatusCodes.BadCertificateUriInvalid,
-                        "The Application in the EndpointDescription ({0}) is not in the Server Certificate ({1}).",
-                        applicationUri, serverCertificate.Subject);
-                }
+                m_configuration.CertificateValidator.ValidateApplicationUri(serverCertificate, endpoint);
             }
         }
 
