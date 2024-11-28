@@ -243,11 +243,11 @@ namespace Opc.Ua.Bindings
         {
             if (m_channels?.TryRemove(channelId, out _) == true)
             {
-                Utils.LogInfo("ChannelId {0}: closed", channelId);
+                Utils.LogTrace("ChannelId {0}: closed", channelId);
             }
             else
             {
-                Utils.LogInfo("ChannelId {0}: closed channel not found", channelId);
+                Utils.LogInfo("ChannelId {0}: closed, but channel was not found", channelId);
             }
         }
 
@@ -578,7 +578,10 @@ namespace Opc.Ua.Bindings
                             channel.Attach(channelId, e.AcceptSocket);
 
                             // save the channel for shutdown and reconnects.
-                            m_channels.TryAdd(channelId, channel);
+                            if (!m_channels.TryAdd(channelId, channel))
+                            {
+                                Utils.LogInfo("Failed to add channel {0} to the list of channels.", channelId);
+                            }
                         }
                         catch (Exception ex)
                         {
