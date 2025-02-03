@@ -2792,14 +2792,19 @@ namespace Opc.Ua
                     return ReadUInt32("SwitchField");
                 }
 
-                uint switchField = 1;
-                foreach (var propertyName in switches)
+                foreach (var ii in context)
                 {
-                    if (context.TryGetValue(propertyName, out _))
+                    if (ii.Key == "UaTypeId")
                     {
-                        return switchField;
+                        continue;
                     }
-                    switchField++;
+
+                    var index = switches.IndexOf(ii.Key);
+
+                    if (index >= 0)
+                    {
+                        return (uint)index;
+                    }
                 }
             }
 
@@ -2821,19 +2826,22 @@ namespace Opc.Ua
                     return ReadUInt32("EncodingMask");
                 }
 
-                uint encodingMask = 0;
-                uint mask = 1;
+                uint mask = 0;
 
-                foreach (var propertyName in masks)
+                foreach (var fieldName in masks)
                 {
-                    if (context.TryGetValue(propertyName, out _))
+                    if (context.ContainsKey(fieldName))
                     {
-                        encodingMask |= mask;
+                        var index = masks.IndexOf(fieldName);
+
+                        if (index >= 0)
+                        {
+                            mask |= (uint)(1<<index);
+                        }
                     }
-                    mask <<= 1;
                 }
 
-                return encodingMask;
+                return mask;
             }
 
             return 0;
