@@ -68,7 +68,7 @@ stages:
     parameters:
       configuration: Release
       framework: net6.0
-      agents: '@{ windows = "windows-2022"; linux="ubuntu-22.04"; mac = "macOS-12"}'
+      agents: '@{ windows = "windows-2022"; linux="ubuntu-22.04"; mac = "macOS-15"}'
       jobnamesuffix: net60
       customtestarget: net6.0
 - stage: testreleasepr
@@ -102,6 +102,16 @@ stages:
       framework: net8.0
       configuration: Release
       jobnamesuffix: net80
+- stage: testnet90
+  dependsOn: [build]
+  displayName: 'Test .NET 9.0'
+  condition: and(succeeded(), ne(variables.ScheduledBuild, 'False'))
+  jobs:
+  - template: .azurepipelines/test.yml
+    parameters:
+      framework: net9.0
+      configuration: Release
+      jobnamesuffix: net90
 - stage: testnet462
   dependsOn: [build]
   displayName: 'Test .NET 4.6.2'

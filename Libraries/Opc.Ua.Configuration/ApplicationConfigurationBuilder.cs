@@ -66,6 +66,12 @@ namespace Opc.Ua.Configuration
 
         #region Public Methods
         /// <inheritdoc/>
+        public IApplicationConfigurationBuilderGlobalConfiguration SetHiResClockDisabled(bool disableHiResClock)
+        {
+            ApplicationConfiguration.DisableHiResClock = disableHiResClock;
+            return this;
+        }
+        /// <inheritdoc/>
         public IApplicationConfigurationBuilderClientSelected AsClient()
         {
             switch (ApplicationInstance.ApplicationType)
@@ -137,7 +143,7 @@ namespace Opc.Ua.Configuration
                     StorePath = DefaultCertificateStorePath(TrustlistType.IssuerUser, pkiRoot)
                 },
                 // rejected store
-                RejectedCertificateStore = new CertificateTrustList() {
+                RejectedCertificateStore = new CertificateStoreIdentifier() {
                     StoreType = rejectedRootType,
                     StorePath = DefaultCertificateStorePath(TrustlistType.Rejected, rejectedRoot)
                 },
@@ -178,7 +184,7 @@ namespace Opc.Ua.Configuration
                     StorePath = DefaultCertificateStorePath(TrustlistType.Issuer, issuerRoot)
                 },
                 // rejected store
-                RejectedCertificateStore = new CertificateTrustList() {
+                RejectedCertificateStore = new CertificateStoreIdentifier() {
                     StoreType = rejectedRootType,
                     StorePath = DefaultCertificateStorePath(TrustlistType.Rejected, rejectedRoot)
                 },
@@ -370,6 +376,13 @@ namespace Opc.Ua.Configuration
         {
             if (userTokenPolicy == null) throw new ArgumentNullException(nameof(userTokenPolicy));
             ApplicationConfiguration.ServerConfiguration.UserTokenPolicies.Add(userTokenPolicy);
+            return this;
+        }
+
+        /// <inheritdoc/>
+        public IApplicationConfigurationBuilderSecurityOptions SetMaxRejectedCertificates(int maxRejectedCertificates)
+        {
+            ApplicationConfiguration.SecurityConfiguration.MaxRejectedCertificates = maxRejectedCertificates;
             return this;
         }
 
@@ -773,6 +786,13 @@ namespace Opc.Ua.Configuration
         }
 
         /// <inheritdoc/>
+        public IApplicationConfigurationBuilderServerOptions SetHttpsMutualTls(bool mutualTlsEnabeld)
+        {
+            ApplicationConfiguration.ServerConfiguration.HttpsMutualTls = mutualTlsEnabeld;
+            return this;
+        }
+
+        /// <inheritdoc/>
         public IApplicationConfigurationBuilderClientOptions SetDefaultSessionTimeout(int defaultSessionTimeout)
         {
             ApplicationConfiguration.ClientConfiguration.DefaultSessionTimeout = defaultSessionTimeout;
@@ -1017,6 +1037,7 @@ namespace Opc.Ua.Configuration
             securityConfiguration.SuppressNonceValidationErrors = false;
             securityConfiguration.SendCertificateChain = true;
             securityConfiguration.MinimumCertificateKeySize = CertificateFactory.DefaultKeySize;
+            securityConfiguration.MaxRejectedCertificates = 5;
         }
 
         /// <summary>

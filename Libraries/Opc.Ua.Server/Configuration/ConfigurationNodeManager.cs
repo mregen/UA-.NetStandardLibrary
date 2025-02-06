@@ -32,7 +32,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using System.Xml;
 
 namespace Opc.Ua.Server
 {
@@ -69,7 +68,11 @@ namespace Opc.Ua.Server
             :
             base(server, configuration)
         {
-            m_rejectedStorePath = configuration.SecurityConfiguration.RejectedCertificateStore?.StorePath;
+            string rejectedStorePath = configuration.SecurityConfiguration.RejectedCertificateStore?.StorePath;
+            if (!string.IsNullOrEmpty(rejectedStorePath))
+            {
+                m_rejectedStore = new CertificateStoreIdentifier(rejectedStorePath);
+            }
             m_certificateGroups = new List<ServerCertificateGroup>();
             m_configuration = configuration;
             // TODO: configure cert groups in configuration
@@ -78,8 +81,8 @@ namespace Opc.Ua.Server
                 BrowseName = Opc.Ua.BrowseNames.DefaultApplicationGroup,
                 CertificateTypes = new NodeId[] { ObjectTypeIds.RsaSha256ApplicationCertificateType },
                 ApplicationCertificate = configuration.SecurityConfiguration.ApplicationCertificate,
-                IssuerStorePath = configuration.SecurityConfiguration.TrustedIssuerCertificates.StorePath,
-                TrustedStorePath = configuration.SecurityConfiguration.TrustedPeerCertificates.StorePath
+                IssuerStore = new CertificateStoreIdentifier(configuration.SecurityConfiguration.TrustedIssuerCertificates.StorePath),
+                TrustedStore = new CertificateStoreIdentifier(configuration.SecurityConfiguration.TrustedPeerCertificates.StorePath)
             };
             m_certificateGroups.Add(defaultApplicationGroup);
         }
@@ -216,8 +219,8 @@ namespace Opc.Ua.Server
                     certGroup.CertificateTypes;
                 certGroup.Node.TrustList.Handle = new TrustList(
                     certGroup.Node.TrustList,
-                    certGroup.TrustedStorePath,
-                    certGroup.IssuerStorePath,
+                    certGroup.TrustedStore,
+                    certGroup.IssuerStore,
                     new TrustList.SecureAccess(HasApplicationSecureAdminAccess),
                     new TrustList.SecureAccess(HasApplicationSecureAdminAccess));
                 certGroup.Node.ClearChangeMasks(systemContext, true);
@@ -306,7 +309,7 @@ namespace Opc.Ua.Server
         /// <seealso cref="StatusCodes.BadUserAccessDenied"/>
         public void HasApplicationSecureAdminAccess(ISystemContext context)
         {
-            HasApplicationSecureAdminAccess(context, "");
+            HasApplicationSecureAdminAccess(context, null);
         }
 
 
@@ -317,7 +320,7 @@ namespace Opc.Ua.Server
         /// <param name="_"></param>
         /// <exception cref="ServiceResultException"/>
         /// <seealso cref="StatusCodes.BadUserAccessDenied"/>
-        public void HasApplicationSecureAdminAccess(ISystemContext context, string _)
+        public void HasApplicationSecureAdminAccess(ISystemContext context, CertificateStoreIdentifier _)
         {
             OperationContext operationContext = (context as SystemContext)?.OperationContext as OperationContext;
             if (operationContext != null)
@@ -382,12 +385,12 @@ namespace Opc.Ua.Server
                     {
                         foreach (byte[] issuerRawCert in issuerCertificates)
                         {
-                            var newIssuerCert = new X509Certificate2(issuerRawCert);
+                            var newIssuerCert = X509CertificateLoader.LoadCertificate(issuerRawCert);
                             newIssuerCollection.Add(newIssuerCert);
                         }
                     }
 
-                    newCert = new X509Certificate2(certificate);
+                    newCert = X509CertificateLoader.LoadCertificate(certificate);
                 }
                 catch
                 {
@@ -442,8 +445,18 @@ namespace Opc.Ua.Server
                         case null:
                         case "":
                         {
-                            X509Certificate2 certWithPrivateKey = certificateGroup.ApplicationCertificate.LoadPrivateKeyEx(passwordProvider).Result;
-                            var exportableKey = X509Utils.CreateCopyWithPrivateKey(certWithPrivateKey, false);
+                            X509Certificate2 exportableKey;
+                            //use the new generated private key if one exists and matches the provided public key
+                            if (certificateGroup.TemporaryApplicationCertificate != null && X509Utils.VerifyRSAKeyPair(newCert, certificateGroup.TemporaryApplicationCertificate))
+                            {
+                                exportableKey = X509Utils.CreateCopyWithPrivateKey(certificateGroup.TemporaryApplicationCertificate, false);
+                            }
+                            else
+                            {
+                                X509Certificate2 certWithPrivateKey = certificateGroup.ApplicationCertificate.LoadPrivateKeyEx(passwordProvider).Result;
+                                exportableKey = X509Utils.CreateCopyWithPrivateKey(certWithPrivateKey, false);
+                            }
+
                             updateCertificate.CertificateWithPrivateKey = CertificateFactory.CreateCertificateWithPrivateKey(newCert, exportableKey);
                             break;
                         }
@@ -459,6 +472,10 @@ namespace Opc.Ua.Server
                             break;
                         }
                     }
+                    //dispose temporary new private key as it is no longer needed
+                    certificateGroup.TemporaryApplicationCertificate?.Dispose();
+                    certificateGroup.TemporaryApplicationCertificate = null;
+
                     updateCertificate.IssuerCollection = newIssuerCollection;
                     updateCertificate.SessionId = context.SessionId;
                 }
@@ -482,11 +499,13 @@ namespace Opc.Ua.Server
                             var passwordProvider = m_configuration.SecurityConfiguration.CertificatePasswordProvider;
                             appStore.Add(updateCertificate.CertificateWithPrivateKey, passwordProvider?.GetPassword(certificateGroup.ApplicationCertificate)).Wait();
                             // keep only track of cert without private key
-                            var certOnly = new X509Certificate2(updateCertificate.CertificateWithPrivateKey.RawData);
+                            var certOnly = X509CertificateLoader.LoadCertificate(updateCertificate.CertificateWithPrivateKey.RawData);
                             updateCertificate.CertificateWithPrivateKey.Dispose();
                             updateCertificate.CertificateWithPrivateKey = certOnly;
                         }
-                        using (ICertificateStore issuerStore = CertificateStoreIdentifier.OpenStore(certificateGroup.IssuerStorePath))
+
+                        ICertificateStore issuerStore = certificateGroup.IssuerStore.OpenStore();
+                        try
                         {
                             foreach (var issuer in updateCertificate.IssuerCollection)
                             {
@@ -500,6 +519,10 @@ namespace Opc.Ua.Server
                                     // ignore error if issuer cert already exists
                                 }
                             }
+                        }
+                        finally
+                        {
+                            issuerStore?.Close();
                         }
 
                         Server.ReportCertificateUpdatedAuditEvent(context, objectId, method, inputArguments, certificateGroupId, certificateTypeId);
@@ -543,11 +566,30 @@ namespace Opc.Ua.Server
                 throw new ArgumentNullException(nameof(subjectName));
             }
 
-            // TODO: implement regeneratePrivateKey
-            // TODO: use nonce for generating the private key
 
-            var passwordProvider = m_configuration.SecurityConfiguration.CertificatePasswordProvider;
+            certificateGroup.TemporaryApplicationCertificate?.Dispose();
+            certificateGroup.TemporaryApplicationCertificate = null;
+
+            ICertificatePasswordProvider passwordProvider = m_configuration.SecurityConfiguration.CertificatePasswordProvider;
             X509Certificate2 certWithPrivateKey = certificateGroup.ApplicationCertificate.LoadPrivateKeyEx(passwordProvider).Result;
+
+            if (regeneratePrivateKey)
+            {
+                ushort keySize = (ushort)(certWithPrivateKey.GetRSAPublicKey()?.KeySize ?? 0);
+
+                certWithPrivateKey = CertificateFactory.CreateCertificate(
+                    m_configuration.ApplicationUri,
+                    null,
+                    certificateGroup.ApplicationCertificate.SubjectName,
+                    null)
+                    .SetNotBefore(DateTime.Today.AddDays(-1))
+                    .SetNotAfter(DateTime.Today.AddDays(14))
+                    .SetRSAKeySize(keySize)
+                    .CreateForRSA();
+
+                certificateGroup.TemporaryApplicationCertificate = certWithPrivateKey;
+            }
+
             Utils.LogCertificate(Utils.TraceMasks.Security, "Create signing request: ", certWithPrivateKey);
             certificateRequest = CertificateFactory.CreateSigningRequest(certWithPrivateKey, X509Utils.GetDomainsFromCertificate(certWithPrivateKey));
             return ServiceResult.Good;
@@ -603,13 +645,16 @@ namespace Opc.Ua.Server
             ref byte[][] certificates)
         {
             HasApplicationSecureAdminAccess(context);
-            //No rejected store configured
-            if (m_rejectedStorePath == null)
+
+            // No rejected store configured
+            if (m_rejectedStore == null)
             {
                 certificates = Array.Empty<byte[]>();
                 return StatusCodes.Good;
             }
-            using (ICertificateStore store = CertificateStoreIdentifier.OpenStore(m_rejectedStorePath))
+
+            ICertificateStore store = m_rejectedStore.OpenStore();
+            try
             {
                 X509Certificate2Collection collection = store.Enumerate().Result;
                 List<byte[]> rawList = new List<byte[]>();
@@ -618,6 +663,10 @@ namespace Opc.Ua.Server
                     rawList.Add(cert.RawData);
                 }
                 certificates = rawList.ToArray();
+            }
+            finally
+            {
+                store?.Close();
             }
 
             return StatusCodes.Good;
@@ -800,15 +849,16 @@ namespace Opc.Ua.Server
             public CertificateGroupState Node;
             public NodeId[] CertificateTypes;
             public CertificateIdentifier ApplicationCertificate;
-            public string IssuerStorePath;
-            public string TrustedStorePath;
+            public CertificateStoreIdentifier IssuerStore;
+            public CertificateStoreIdentifier TrustedStore;
             public UpdateCertificateData UpdateCertificate;
+            public X509Certificate2 TemporaryApplicationCertificate;
         }
 
         private ServerConfigurationState m_serverConfigurationNode;
         private ApplicationConfiguration m_configuration;
         private IList<ServerCertificateGroup> m_certificateGroups;
-        private readonly string m_rejectedStorePath;
+        private CertificateStoreIdentifier m_rejectedStore;
         private Dictionary<string, NamespaceMetadataState> m_namespaceMetadataStates = new Dictionary<string, NamespaceMetadataState>();
         #endregion
     }

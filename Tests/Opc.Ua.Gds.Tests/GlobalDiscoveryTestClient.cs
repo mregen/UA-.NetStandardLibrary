@@ -55,7 +55,8 @@ namespace Opc.Ua.Gds.Tests
         public IUserIdentity Anonymous { get; private set; }
         public ApplicationTestData OwnApplicationTestData { get; private set; }
         public ApplicationConfiguration Configuration { get; private set; }
-        #region public methods
+
+        #region Public methods
         public async Task LoadClientConfiguration(int port = -1)
         {
             ApplicationInstance.MessageDlg = new ApplicationMessageDlg();
@@ -201,10 +202,11 @@ namespace Opc.Ua.Gds.Tests
             return File.ReadAllText(Utils.ReplaceSpecialFolderNames(Configuration.TraceConfiguration.OutputFilePath));
         }
         #endregion
+
         #region Private Methods
         private async Task ApplyNewApplicationInstanceCertificateAsync(byte[] certificate, byte[] privateKey)
         {
-            using (var x509 = new X509Certificate2(certificate))
+            using (var x509 = X509CertificateLoader.LoadCertificate(certificate))
             {
                 var certWithPrivateKey = CertificateFactory.CreateCertificateWithPEMPrivateKey(x509, privateKey);
                 m_client.Configuration.SecurityConfiguration.ApplicationCertificate = new CertificateIdentifier(certWithPrivateKey);
