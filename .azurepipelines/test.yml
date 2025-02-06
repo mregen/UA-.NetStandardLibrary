@@ -47,10 +47,10 @@ jobs:
       packageType: 'sdk'
       version: '6.0.x'
   - task: UseDotNet@2
-    displayName: 'Install .NET 8.0'
+    displayName: 'Install .NET 9.0'
     inputs:
       packageType: 'sdk'
-      version: '8.0.x'
+      version: '9.0.x'
   - task: NuGetToolInstaller@1
     inputs:
       versionSpec: '>=5.8.x'
@@ -59,6 +59,20 @@ jobs:
     inputs:
       targetType: filePath
       filePath: ./.azurepipelines/set-version.ps1
+  - task: DownloadSecureFile@1
+    name: fuzzingartifacts
+    displayName: 'Download Fuzzing artifacts'
+    inputs:
+      secureFile: 'FuzzingArtifacts.zip'
+  - task: ExtractFiles@1
+    displayName: 'Extract Fuzzing artifacts'
+    condition: ne(variables['fuzzingartifacts.secureFilePath'], '')
+    inputs:
+      archiveFilePatterns: '$(Agent.TempDirectory)/FuzzingArtifacts.zip'
+      destinationFolder: ./Fuzzing/Encoders/Fuzz.Tests
+      cleanDestinationFolder: false
+      overwriteExistingFiles: true
+    continueOnError: true
   - task: DotNetCoreCLI@2
     displayName: Restore ${{ parameters.configuration }}
     inputs:

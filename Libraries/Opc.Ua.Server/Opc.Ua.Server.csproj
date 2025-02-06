@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyName>Opc.Ua.Server</AssemblyName>
     <TargetFrameworks>$(LibTargetFrameworks)</TargetFrameworks>
-    <PackageId>OPCFoundation.NetStandard.Opc.Ua.Server</PackageId>
+    <PackageId>$(PackagePrefix).Opc.Ua.Server</PackageId>
+    <AssemblyName>$(AssemblyPrefix).Server</AssemblyName>
     <RootNamespace>Opc.Ua.Server</RootNamespace>
     <Description>OPC UA Server Class Library</Description>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
@@ -25,7 +25,7 @@
     <ProjectReference Include="..\..\Stack\Opc.Ua.Core\Opc.Ua.Core.csproj" />
     <ProjectReference Include="..\Opc.Ua.Configuration\Opc.Ua.Configuration.csproj" />
   </ItemGroup>
-  
+
   <Target Name="GetPackagingOutputs" />
   
 </Project>

@@ -165,6 +165,11 @@ namespace Opc.Ua.Bindings
         public const int MessageTypeAndSize = 8;
 
         /// <summary>
+        /// The minimum send or receive buffer size for an ECC security profile.
+        /// </summary>
+        public const int ECCMinBufferSize = 1024;
+
+        /// <summary>
         /// The minimum send or receive buffer size.
         /// </summary>
         public const int MinBufferSize = 8192;
@@ -292,6 +297,11 @@ namespace Opc.Ua.Bindings
         /// The fraction of the lifetime to wait before renewing a token.
         /// </summary>
         public const double TokenRenewalPeriod = 0.75;
+
+        /// <summary>
+        /// The fraction of the lifetime to jitter renewing a token.
+        /// </summary>
+        public const double TokenRenewalJitterPeriod = 0.05;
 
         /// <summary>
         /// The fraction of the lifetime to wait before forcing the activation of the renewed token.

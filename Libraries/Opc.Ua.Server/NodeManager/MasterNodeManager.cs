@@ -421,10 +421,9 @@ namespace Opc.Ua.Server
             // allocate a new table (using arrays instead of collections because lookup efficiency is critical).
             INodeManager[][] namespaceManagers = new INodeManager[m_server.NamespaceUris.Count][];
 
+            m_readWriterLockSlim.EnterWriteLock();
             try
             {
-                m_readWriterLockSlim.EnterWriteLock();
-
                 // copy existing values.
                 for (int ii = 0; ii < m_namespaceManagers.Length; ii++)
                 {
@@ -490,10 +489,9 @@ namespace Opc.Ua.Server
             // allocate a new table (using arrays instead of collections because lookup efficiency is critical).
             INodeManager[][] namespaceManagers = new INodeManager[m_server.NamespaceUris.Count][];
 
+            m_readWriterLockSlim.EnterWriteLock();
             try
             {
-                m_readWriterLockSlim.EnterWriteLock();
-
                 // copy existing values.
                 for (int ii = 0; ii < m_namespaceManagers.Length; ii++)
                 {
@@ -559,10 +557,9 @@ namespace Opc.Ua.Server
             // use the namespace index to select the node manager.
             int index = nodeId.NamespaceIndex;
 
+            m_readWriterLockSlim.EnterReadLock();
             try
             {
-                m_readWriterLockSlim.EnterReadLock();
-           
                 // check if node managers are registered - use the core node manager if unknown.
                 if (index >= m_namespaceManagers.Length || m_namespaceManagers[index] == null)
                 {
@@ -815,7 +812,7 @@ namespace Opc.Ua.Server
         /// <summary>
         /// Updates the diagnostics return parameter.
         /// </summary>
-        private void UpdateDiagnostics(
+        protected void UpdateDiagnostics(
             OperationContext context,
             bool diagnosticsExist,
             ref DiagnosticInfoCollection diagnosticInfos)
@@ -1371,7 +1368,7 @@ namespace Opc.Ua.Server
         /// <summary>
         /// Returns the set of references that meet the filter criteria.
         /// </summary>
-        private ServiceResult Browse(
+        protected ServiceResult Browse(
             OperationContext context,
             ViewDescription view,
             uint maxReferencesPerNode,
@@ -3233,7 +3230,7 @@ namespace Opc.Ua.Server
         /// <returns></returns>
         protected internal static ServiceResult ValidateRolePermissions(OperationContext context, NodeMetadata nodeMetadata, PermissionType requestedPermission)
         {
-            if (context.Session == null || nodeMetadata == null || requestedPermission == PermissionType.None)
+            if (nodeMetadata == null || requestedPermission == PermissionType.None)
             {
                 // no permission is required hence the validation passes
                 return StatusCodes.Good;
@@ -3323,7 +3320,7 @@ namespace Opc.Ua.Server
                 }
             }
 
-            var currentRoleIds = context.Session.Identity.GrantedRoleIds;
+            var currentRoleIds = context.UserIdentity.GrantedRoleIds;
             if (currentRoleIds == null || currentRoleIds.Count == 0)
             {
                 return ServiceResult.Create(StatusCodes.BadUserAccessDenied, "Current user has no granted role.");

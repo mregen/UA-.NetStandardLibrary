@@ -29,6 +29,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using MQTTnet;
@@ -37,6 +38,7 @@ using MQTTnet.Formatter;
 using MQTTnet.Protocol;
 using Opc.Ua.PubSub.Encoding;
 using Opc.Ua.PubSub.PublishedData;
+using DataSet = Opc.Ua.PubSub.PublishedData.DataSet;
 
 namespace Opc.Ua.PubSub.Transport
 {
@@ -58,7 +60,8 @@ namespace Opc.Ua.PubSub.Transport
 
         private CertificateValidator m_certificateValidator;
         private MqttClientTlsOptions m_mqttClientTlsOptions;
-
+        private MqttClientOptions m_publisherMqttClientOptions;
+        private MqttClientOptions m_subscriberMqttClientOptions;
         private readonly List<MqttMetadataPublisher> m_metaDataPublishers = new List<MqttMetadataPublisher>();
         #endregion
 
@@ -77,6 +80,64 @@ namespace Opc.Ua.PubSub.Transport
         /// Gets the scheme of the Url.
         /// </summary>
         public string UrlScheme { get => m_urlScheme; }
+
+        /// <summary>
+        /// Gets and sets the MqttClientOptions for the publisher connection
+        /// </summary>
+        public MqttClientOptions PublisherMqttClientOptions
+        {
+            get
+            {
+                if (!IsRunning)
+                {
+                    return m_publisherMqttClientOptions;
+                }
+                else
+                {
+                    throw new InvalidConstraintException("Can't access PublisherMqttClientOptions if connection is started");
+                }
+            }
+            set
+            {
+                if (!IsRunning)
+                {
+                    m_publisherMqttClientOptions = value;
+                }
+                else
+                {
+                    throw new InvalidConstraintException("Can't change PublisherMqttClientOptions if connection is started");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets and sets the MqttClientOptions for the subscriber connection
+        /// </summary>
+        public MqttClientOptions SubscriberMqttClientOptions
+        {
+            get
+            {
+                if (!IsRunning)
+                {
+                    return m_subscriberMqttClientOptions;
+                }
+                else
+                {
+                    throw new InvalidConstraintException("Can't access SubscriberMqttClientOptions if connection is started");
+                }
+            }
+            set
+            {
+                if (!IsRunning)
+                {
+                    m_subscriberMqttClientOptions = value;
+                }
+                else
+                {
+                    throw new InvalidConstraintException("Can't change SubscriberMqttClientOptions if connection is started");
+                }
+            }
+        }
         #endregion Public Properties
 
         #region Constants
@@ -112,6 +173,10 @@ namespace Opc.Ua.PubSub.Transport
             {
                 Utils.Trace(Utils.TraceMasks.Error, "The current MessageMapping {0} does not have a valid message creator", m_messageMapping);
             }
+
+            m_publisherMqttClientOptions = GetMqttClientOptions();
+            m_subscriberMqttClientOptions = GetMqttClientOptions();
+
             Utils.Trace("MqttPubSubConnection with name '{0}' was created.", pubSubConnectionDataType.Name);
         }
         #endregion
@@ -345,7 +410,11 @@ namespace Opc.Ua.PubSub.Transport
 
             MqttClient publisherClient = null;
             MqttClient subscriberClient = null;
-            MqttClientOptions mqttOptions = GetMqttClientOptions();
+
+            if (m_publisherMqttClientOptions == null)
+            {
+                m_publisherMqttClientOptions = GetMqttClientOptions();
+            }
 
             int nrOfPublishers = Publishers.Count;
             int nrOfSubscribers = GetAllDataSetReaders().Count;
@@ -355,7 +424,7 @@ namespace Opc.Ua.PubSub.Transport
             {
                 publisherClient = (MqttClient)await MqttClientCreator.GetMqttClientAsync(
                     m_reconnectIntervalSeconds,
-                    mqttOptions,
+                    m_publisherMqttClientOptions,
                     null).ConfigureAwait(false);
             }
 
@@ -391,9 +460,14 @@ namespace Opc.Ua.PubSub.Transport
                     }
                 }
 
+                if (m_subscriberMqttClientOptions == null)
+                {
+                    m_subscriberMqttClientOptions = GetMqttClientOptions();
+                }
+
                 subscriberClient = (MqttClient)await MqttClientCreator.GetMqttClientAsync(
                     m_reconnectIntervalSeconds,
-                    mqttOptions,
+                    m_subscriberMqttClientOptions,
                     ProcessMqttMessage,
                     topics).ConfigureAwait(false);
             }
@@ -643,6 +717,17 @@ namespace Opc.Ua.PubSub.Transport
                 return null;
             }
 
+            // Setup data needed also in mqttClientOptionsBuilder
+            if ((connectionUri.Scheme == Utils.UriSchemeMqtt) || (connectionUri.Scheme == Utils.UriSchemeMqtts))
+            {
+                if (!String.IsNullOrEmpty(connectionUri.Host))
+                {
+                    m_brokerHostName = connectionUri.Host;
+                    m_brokerPort = (connectionUri.Port > 0) ? connectionUri.Port : ((connectionUri.Scheme == Utils.UriSchemeMqtt) ? 1883 : 8883);
+                    m_urlScheme = connectionUri.Scheme;
+                }
+            }
+
             ITransportProtocolConfiguration transportProtocolConfiguration =
                 new MqttClientProtocolConfiguration(PubSubConnectionConfiguration.ConnectionProperties);
 
@@ -654,6 +739,7 @@ namespace Opc.Ua.PubSub.Transport
                     .ProtocolVersion;
                 // create uniques client id
                 string clientId = $"ClientId_{new Random().Next():D10}";
+
                 // MQTTS mqttConnection.
                 if (connectionUri.Scheme == Utils.UriSchemeMqtts)
                 {
@@ -663,9 +749,9 @@ namespace Opc.Ua.PubSub.Transport
                     var x509Certificate2s = new List<X509Certificate2>();
                     if (mqttTlsOptions?.Certificates != null)
                     {
-                        foreach (X509Certificate x509cert in mqttTlsOptions?.Certificates.X509Certificates)
+                        foreach (X509Certificate2 x509cert in mqttTlsOptions?.Certificates.X509Certificates)
                         {
-                            x509Certificate2s.Add(new X509Certificate2(x509cert.Handle));
+                            x509Certificate2s.Add(X509CertificateLoader.LoadCertificate(x509cert.RawData));
                         }
                     }
 
@@ -720,6 +806,8 @@ namespace Opc.Ua.PubSub.Transport
                     // Set user credentials.
                     if (mqttProtocolConfiguration.UseCredentials)
                     {
+                        // Following Password usage in both cases is correct since it is the Password position
+                        // to be taken into account for the UserName to be read properly
                         mqttClientOptionsBuilder.WithCredentials(
                             new System.Net.NetworkCredential(string.Empty, mqttProtocolConfiguration.UserName)
                                 .Password,
@@ -764,7 +852,7 @@ namespace Opc.Ua.PubSub.Transport
         /// <param name="context">The context of the validation</param>
         private bool ValidateBrokerCertificate(MqttClientCertificateValidationEventArgs context)
         {
-            var brokerCertificate = new X509Certificate2(context.Certificate.GetRawCertData());
+            var brokerCertificate = X509CertificateLoader.LoadCertificate(context.Certificate.GetRawCertData());
 
             try
             {
