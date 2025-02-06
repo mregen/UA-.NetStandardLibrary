@@ -27,6 +27,7 @@
  * http://opcfoundation.org/License/MIT/1.00/
  * ======================================================================*/
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Opc.Ua;
@@ -182,7 +183,11 @@ namespace Boiler
 
                 if (text != null)
                 {
+#if NET6_0_OR_GREATER
+                    text = text.Replace("X0", unitLabel, StringComparison.Ordinal);
+#else
                     text = text.Replace("X0", unitLabel);
+#endif
                 }
 
                 displayName = new LocalizedText(displayName.Locale, text);
@@ -300,7 +305,7 @@ namespace Boiler
         {
             // TBD
         }
-        #endregion
+#endregion
 
         #region Private Fields
         private ushort m_namespaceIndex;

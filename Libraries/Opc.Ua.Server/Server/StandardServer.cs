@@ -478,14 +478,7 @@ namespace Opc.Ua.Server
                             InstanceCertificateChain != null &&
                             InstanceCertificateChain.Count > 1)
                         {
-                            List<byte> serverCertificateChain = new List<byte>();
-
-                            for (int i = 0; i < InstanceCertificateChain.Count; i++)
-                            {
-                                serverCertificateChain.AddRange(InstanceCertificateChain[i].RawData);
-                            }
-
-                            serverCertificate = serverCertificateChain.ToArray();
+                            serverCertificate = Utils.CreateCertificateChainBlob(InstanceCertificateChain);
                         }
                         else
                         {
@@ -2592,7 +2585,7 @@ namespace Opc.Ua.Server
 
             OperationContext context = ServerInternal.SessionManager.ValidateRequest(requestHeader, requestType);
 
-            ServerUtils.EventLog.ServerCall(context.RequestType.ToString(), context.RequestId);
+            ServerUtils.EventLog.ServerCallNative(context.RequestType, context.RequestId);
 
             // notify the request manager.
             ServerInternal.RequestManager.RequestReceived(context);

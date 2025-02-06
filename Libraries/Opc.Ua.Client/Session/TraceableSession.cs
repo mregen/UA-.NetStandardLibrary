@@ -287,7 +287,7 @@ namespace Opc.Ua.Client
 
         /// <inheritdoc/>
         public bool CheckDomain => m_session.CheckDomain;
-        
+
         /// <inheritdoc/>
         public ContinuationPointPolicy ContinuationPointPolicy
         {
@@ -659,6 +659,15 @@ namespace Opc.Ua.Client
             using (Activity activity = ActivitySource.StartActivity())
             {
                 m_session.ReadValues(variableIds, expectedTypes, out values, out errors);
+            }
+        }
+
+        /// <inheritdoc/>
+        public byte[] ReadByteStringInChunks(NodeId nodeId)
+        {
+            using (Activity activity = ActivitySource.StartActivity())
+            {
+                return m_session.ReadByteStringInChunks(nodeId);
             }
         }
 
@@ -1280,18 +1289,17 @@ namespace Opc.Ua.Client
             {
                 m_session.ManagedBrowse(requestHeader, view, nodesToBrowse, maxResultsToReturn, browseDirection, referenceTypeId, includeSubtypes, nodeClassMask, out result, out errors);
             }
-
         }
 
         /// <inheritdoc/>        
-        public async Task<(
+        public Task<(
             IList<ReferenceDescriptionCollection>,
             IList<ServiceResult>
             )> ManagedBrowseAsync(RequestHeader requestHeader, ViewDescription view, IList<NodeId> nodesToBrowse, uint maxResultsToReturn, BrowseDirection browseDirection, NodeId referenceTypeId, bool includeSubtypes, uint nodeClassMask, CancellationToken ct = default)
         {
             using (Activity activity = ActivitySource.StartActivity())
             {
-                return await m_session.ManagedBrowseAsync(requestHeader, view, nodesToBrowse, maxResultsToReturn, browseDirection, referenceTypeId, includeSubtypes, nodeClassMask, ct);
+                return m_session.ManagedBrowseAsync(requestHeader, view, nodesToBrowse, maxResultsToReturn, browseDirection, referenceTypeId, includeSubtypes, nodeClassMask, ct);
             }
         }
 

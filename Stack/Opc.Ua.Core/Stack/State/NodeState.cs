@@ -3089,9 +3089,7 @@ namespace Opc.Ua
                         }
 
                         // look up new node id.
-                        NodeId newId = null;
-
-                        if (mappingTable.TryGetValue(oldId, out newId))
+                        if (mappingTable.TryGetValue(oldId, out NodeId newId))
                         {
                             referencesToRemove.Add(reference);
                             referencesToAdd.Add(new NodeStateReference(reference.ReferenceTypeId, reference.IsInverse, newId));
@@ -3667,9 +3665,9 @@ namespace Opc.Ua
                         result = onReadAccessRestrictions(context, this, ref accessRestrictions);
                     }
 
-                    if (ServiceResult.IsGood(result))
+                    if (ServiceResult.IsGood(result) && accessRestrictions != null)
                     {
-                        value = accessRestrictions;
+                        value = (ushort)accessRestrictions;
                     }
 
                     if (value != null || result != null)

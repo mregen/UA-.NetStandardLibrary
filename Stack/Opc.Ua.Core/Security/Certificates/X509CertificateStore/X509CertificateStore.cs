@@ -15,7 +15,6 @@
 */
 
 using System;
-using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -123,6 +122,9 @@ namespace Opc.Ua
         public string StorePath => m_storePath;
 
         /// <inheritdoc/>
+        public bool NoPrivateKeys => m_noPrivateKeys;
+
+        /// <inheritdoc/>
         public Task<X509Certificate2Collection> Enumerate()
         {
             using (X509Store store = new X509Store(m_storeName, m_storeLocation))
@@ -151,7 +153,7 @@ namespace Opc.Ua
                     else if (certificate.HasPrivateKey && m_noPrivateKeys)
                     {
                         // ensure no private key is added to store
-                        using (var publicKey = new X509Certificate2(certificate.RawData))
+                        using (var publicKey = X509CertificateLoader.LoadCertificate(certificate.RawData))
                         {
                             store.Add(publicKey);
                         }
@@ -248,7 +250,6 @@ namespace Opc.Ua
 
             foreach (X509CRL crl in crls)
             {
-
                 if (!X509Utils.CompareDistinguishedName(crl.IssuerName, issuer.SubjectName))
                 {
                     continue;
@@ -296,8 +297,15 @@ namespace Opc.Ua
                 byte[][] rawCrls = store.EnumerateCrls();
                 foreach (byte[] rawCrl in rawCrls)
                 {
-                    var crl = new X509CRL(rawCrl);
-                    crls.Add(crl);
+                    try
+                    {
+                        var crl = new X509CRL(rawCrl);
+                        crls.Add(crl);
+                    }
+                    catch (Exception e)
+                    {
+                        Utils.LogError(e, "Failed to parse CRL in store {0}.", store.Name);
+                    }
                 }
             }
             return Task.FromResult(crls);
@@ -396,6 +404,12 @@ namespace Opc.Ua
 
                 return Task.FromResult(store.DeleteCrl(crl.RawData));
             }
+        }
+
+        /// <inheritdoc/>
+        public Task AddRejected(X509Certificate2Collection certificates, int maxCertificates)
+        {
+            return Task.CompletedTask;
         }
 
         private bool m_noPrivateKeys;
