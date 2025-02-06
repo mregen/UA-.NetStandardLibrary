@@ -55,6 +55,12 @@
     <None Include="..\Fuzz\Testcases.Xml\**\*.*">
       <Link>Testcases\%(RecursiveDir)%(FileName)%(Extension)</Link>
     </None>
+    <None Include="..\Fuzz\Testcases.Certificates\**\*.*">
+      <Link>Testcases\%(RecursiveDir)%(FileName)%(Extension)</Link>
+    </None>
+    <None Include="..\Fuzz\Testcases.CRLs\**\*.*">
+      <Link>Testcases\%(RecursiveDir)%(FileName)%(Extension)</Link>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -67,6 +73,14 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="..\Fuzz\Testcases.Xml\**\*.*">
+      <Link>Testcases\%(RecursiveDir)%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="..\Fuzz\Testcases.Certificates\**\*.*">
+      <Link>Testcases\%(RecursiveDir)%(FileName)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="..\Fuzz\Testcases.CRLs\**\*.*">
       <Link>Testcases\%(RecursiveDir)%(FileName)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -1,6 +1,6 @@
 <ReadResponse xmlns="http://opcfoundation.org/UA/2008/02/Types.xsd">
   <ResponseHeader>
-    <Timestamp>2024-05-03T13:00:39.3472074Z</Timestamp>
+    <Timestamp>2024-07-28T11:39:48.2721707Z</Timestamp>
     <RequestHandle>42</RequestHandle>
     <ServiceResult>
       <Code>0</Code>
@@ -57,9 +57,9 @@
       <StatusCode>
         <Code>0</Code>
       </StatusCode>
-      <SourceTimestamp>2024-05-03T13:01:39.3471774Z</SourceTimestamp>
+      <SourceTimestamp>2024-07-28T11:40:48.2721073Z</SourceTimestamp>
       <SourcePicoseconds>10</SourcePicoseconds>
-      <ServerTimestamp>2024-05-03T13:00:39.3471774Z</ServerTimestamp>
+      <ServerTimestamp>2024-07-28T11:39:48.2721073Z</ServerTimestamp>
       <ServerPicoseconds>100</ServerPicoseconds>
     </DataValue>
     <DataValue>
@@ -71,9 +71,9 @@
       <StatusCode>
         <Code>2157772800</Code>
       </StatusCode>
-      <SourceTimestamp>2024-05-03T13:01:39.3471774Z</SourceTimestamp>
+      <SourceTimestamp>2024-07-28T11:40:48.2721073Z</SourceTimestamp>
       <SourcePicoseconds>0</SourcePicoseconds>
-      <ServerTimestamp>2024-05-03T13:00:39.3471774Z</ServerTimestamp>
+      <ServerTimestamp>2024-07-28T11:39:48.2721073Z</ServerTimestamp>
       <ServerPicoseconds>0</ServerPicoseconds>
     </DataValue>
     <DataValue>
@@ -85,9 +85,9 @@
       <StatusCode>
         <Code>0</Code>
       </StatusCode>
-      <SourceTimestamp>2024-05-03T13:01:39.3471774Z</SourceTimestamp>
+      <SourceTimestamp>2024-07-28T11:40:48.2721073Z</SourceTimestamp>
       <SourcePicoseconds>0</SourcePicoseconds>
-      <ServerTimestamp>2024-05-03T13:00:39.3471774Z</ServerTimestamp>
+      <ServerTimestamp>2024-07-28T11:39:48.2721073Z</ServerTimestamp>
       <ServerPicoseconds>0</ServerPicoseconds>
     </DataValue>
     <DataValue>
@@ -99,9 +99,41 @@
       <StatusCode>
         <Code>0</Code>
       </StatusCode>
-      <SourceTimestamp>2024-05-03T13:00:39.3471774Z</SourceTimestamp>
+      <SourceTimestamp>2024-07-28T11:39:48.2721073Z</SourceTimestamp>
       <SourcePicoseconds>0</SourcePicoseconds>
       <ServerTimestamp>0001-01-01T00:00:00</ServerTimestamp>
+      <ServerPicoseconds>0</ServerPicoseconds>
+    </DataValue>
+    <DataValue>
+      <Value>
+        <Value>
+          <Matrix>
+            <Elements>
+              <ListOfByte>
+                <Byte>1</Byte>
+                <Byte>2</Byte>
+                <Byte>3</Byte>
+                <Byte>4</Byte>
+                <Byte>11</Byte>
+                <Byte>22</Byte>
+                <Byte>33</Byte>
+                <Byte>44</Byte>
+              </ListOfByte>
+            </Elements>
+            <Dimensions>
+              <Int32>2</Int32>
+              <Int32>2</Int32>
+              <Int32>2</Int32>
+            </Dimensions>
+          </Matrix>
+        </Value>
+      </Value>
+      <StatusCode>
+        <Code>0</Code>
+      </StatusCode>
+      <SourceTimestamp>0001-01-01T00:00:00</SourceTimestamp>
+      <SourcePicoseconds>0</SourcePicoseconds>
+      <ServerTimestamp>2024-07-28T11:39:48.2721073Z</ServerTimestamp>
       <ServerPicoseconds>0</ServerPicoseconds>
     </DataValue>
   </Results>
