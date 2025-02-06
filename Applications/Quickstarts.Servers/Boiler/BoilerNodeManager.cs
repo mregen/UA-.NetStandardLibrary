@@ -183,7 +183,7 @@ namespace Boiler
 
                 if (text != null)
                 {
-                    text = text.Replace("X0", unitLabel);
+                    text = text.Replace("X0", unitLabel, StringComparison.Ordinal);
                 }
 
                 displayName = new LocalizedText(displayName.Locale, text);
