@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyName>Opc.Ua.Gds.Server.Common</AssemblyName>
+    <AssemblyName>$(AssemblyPrefix).Gds.Server.Common</AssemblyName>
     <TargetFrameworks>$(LibTargetFrameworks)</TargetFrameworks>
-    <PackageId>OPCFoundation.NetStandard.Opc.Ua.Gds.Server.Common</PackageId>
+    <PackageId>$(PackagePrefix).Opc.Ua.Gds.Server.Common</PackageId>
     <RootNamespace>Opc.Ua.Gds.Server</RootNamespace>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <Description>OPC UA GDS Server Class Library</Description>
@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BouncyCastle.Cryptography" Version="2.4.0" />
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.5.0" />
   </ItemGroup>
   
   <ItemGroup>

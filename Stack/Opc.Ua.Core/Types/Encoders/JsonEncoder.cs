@@ -13,6 +13,7 @@
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -407,7 +408,6 @@ namespace Opc.Ua
 
             if (!string.IsNullOrEmpty(fieldName))
             {
-                m_writer.Write(s_quotation);
                 EscapeString(fieldName);
                 m_writer.Write(s_quotationColon);
             }
@@ -436,7 +436,6 @@ namespace Opc.Ua
 
             if (!string.IsNullOrEmpty(fieldName))
             {
-                m_writer.Write(s_quotation);
                 EscapeString(fieldName);
                 m_writer.Write(s_quotationColon);
             }
@@ -594,21 +593,22 @@ namespace Opc.Ua
         /// Using a span to escape the string, write strings to stream writer if possible.
         /// </summary>
         /// <param name="value"></param>
-        private void EscapeString(string value)
+        private void EscapeString(ReadOnlySpan<char> value)
         {
-            ReadOnlySpan<char> charSpan = value.AsSpan();
             int lastOffset = 0;
 
-            for (int i = 0; i < charSpan.Length; i++)
+            m_writer.Write(s_quotation);
+
+            for (int i = 0; i < value.Length; i++)
             {
                 bool found = false;
-                char ch = charSpan[i];
+                char ch = value[i];
 
                 for (int ii = 0; ii < m_specialChars.Length; ii++)
                 {
                     if (m_specialChars[ii] == ch)
                     {
-                        WriteSpan(ref lastOffset, charSpan, i);
+                        WriteSpan(ref lastOffset, value, i);
                         m_writer.Write('\\');
                         m_writer.Write(m_substitution[ii]);
                         found = true;
@@ -618,7 +618,7 @@ namespace Opc.Ua
 
                 if (!found && ch < 32)
                 {
-                    WriteSpan(ref lastOffset, charSpan, i);
+                    WriteSpan(ref lastOffset, value, i);
                     m_writer.Write('\\');
                     m_writer.Write('u');
                     m_writer.Write(((int)ch).ToString("X4", CultureInfo.InvariantCulture));
@@ -631,7 +631,7 @@ namespace Opc.Ua
             }
             else
             {
-                WriteSpan(ref lastOffset, charSpan, charSpan.Length);
+                WriteSpan(ref lastOffset, value, value.Length);
             }
         }
 
@@ -658,6 +658,8 @@ namespace Opc.Ua
         /// <param name="value"></param>
         private void EscapeString(string value)
         {
+            m_writer.Write(s_quotation);
+
             foreach (char ch in value)
             {
                 bool found = false;
@@ -703,22 +705,37 @@ namespace Opc.Ua
             }
         }
 
-        private void WriteSimpleField(string fieldName, string value)
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+        private void WriteSimpleField(string fieldName, string value, EscapeOptions options = EscapeOptions.None)
+        {
+            // unlike Span<byte>, Span<char> can not become null, handle the case here
+            if (value == null)
+            {
+                WriteSimpleFieldNull(fieldName);
+                return;
+            }
+
+            WriteSimpleFieldAsSpan(fieldName, value.AsSpan(), options);
+        }
+
+        private void WriteSimpleFieldAsSpan(string fieldName, ReadOnlySpan<char> value, EscapeOptions options)
         {
             if (!string.IsNullOrEmpty(fieldName))
             {
-                if (value == null)
-                {
-                    return;
-                }
-
                 if (m_commaRequired)
                 {
                     m_writer.Write(s_comma);
                 }
 
-                m_writer.Write(s_quotation);
-                EscapeString(fieldName);
+                if ((options & EscapeOptions.NoFieldNameEscape) == EscapeOptions.NoFieldNameEscape)
+                {
+                    m_writer.Write(s_quotation);
+                    m_writer.Write(fieldName);
+                }
+                else
+                {
+                    EscapeString(fieldName);
+                }
                 m_writer.Write(s_quotationColon);
             }
             else
@@ -729,19 +746,28 @@ namespace Opc.Ua
                 }
             }
 
-            if (value != null)
+            if ((options & EscapeOptions.Quotes) == EscapeOptions.Quotes)
             {
-                m_writer.Write(value);
+                if ((options & EscapeOptions.NoValueEscape) == EscapeOptions.NoValueEscape)
+                {
+                    m_writer.Write(s_quotation);
+                    m_writer.Write(value);
+                }
+                else
+                {
+                    EscapeString(value);
+                }
+                m_writer.Write(s_quotation);
             }
             else
             {
-                m_writer.Write(s_null);
+                m_writer.Write(value);
             }
 
             m_commaRequired = true;
         }
-
-        private void WriteSimpleField(string fieldName, string value, EscapeOptions options)
+#else
+        private void WriteSimpleField(string fieldName, string value, EscapeOptions options = EscapeOptions.None)
         {
             if (!string.IsNullOrEmpty(fieldName))
             {
@@ -755,9 +781,9 @@ namespace Opc.Ua
                     m_writer.Write(s_comma);
                 }
 
-                m_writer.Write(s_quotation);
                 if ((options & EscapeOptions.NoFieldNameEscape) == EscapeOptions.NoFieldNameEscape)
                 {
+                    m_writer.Write(s_quotation);
                     m_writer.Write(fieldName);
                 }
                 else
@@ -778,9 +804,9 @@ namespace Opc.Ua
             {
                 if ((options & EscapeOptions.Quotes) == EscapeOptions.Quotes)
                 {
-                    m_writer.Write(s_quotation);
                     if ((options & EscapeOptions.NoValueEscape) == EscapeOptions.NoValueEscape)
                     {
+                        m_writer.Write(s_quotation);
                         m_writer.Write(value);
                     }
                     else
@@ -801,6 +827,7 @@ namespace Opc.Ua
 
             m_commaRequired = true;
         }
+#endif
 
         /// <summary>
         /// Writes a boolean to the stream.
@@ -1011,26 +1038,7 @@ namespace Opc.Ua
         /// Writes a UTC date/time to the stream.
         /// </summary>
         public void WriteDateTime(string fieldName, DateTime value)
-        {
-            if (fieldName != null && !IncludeDefaultValues && value == DateTime.MinValue)
-            {
-                WriteSimpleFieldNull(fieldName);
-                return;
-            }
-
-            if (value <= DateTime.MinValue)
-            {
-                WriteSimpleField(fieldName, "\"0001-01-01T00:00:00Z\"");
-            }
-            else if (value >= DateTime.MaxValue)
-            {
-                WriteSimpleField(fieldName, "\"9999-12-31T23:59:59Z\"");
-            }
-            else
-            {
-                WriteSimpleField(fieldName, ConvertUniversalTimeToString(value), EscapeOptions.Quotes | EscapeOptions.NoValueEscape);
-            }
-        }
+            => WriteDateTime(fieldName, value, EscapeOptions.None);
 
         /// <summary>
         /// Writes a GUID to the stream.
@@ -1098,6 +1106,7 @@ namespace Opc.Ua
         /// <summary>
         /// Writes a byte string to the stream.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2265:Do not compare Span<T> to 'null' or 'default'", Justification = "Null compare works with ReadOnlySpan<byte>")]
         public void WriteByteString(string fieldName, ReadOnlySpan<byte> value)
         {
             if (value == null)
@@ -1112,7 +1121,35 @@ namespace Opc.Ua
                 throw new ServiceResultException(StatusCodes.BadEncodingLimitsExceeded);
             }
 
-            WriteSimpleField(fieldName, Convert.ToBase64String(value), EscapeOptions.Quotes | EscapeOptions.NoValueEscape);
+            if (value.Length > 0)
+            {
+                const int maxStackLimit = 1024;
+                int length = ((value.Length + 2) / 3) * 4;
+                char[] arrayPool = null;
+                Span<char> chars = length <= maxStackLimit ?
+                    stackalloc char[length] :
+                    (arrayPool = ArrayPool<char>.Shared.Rent(length)).AsSpan(0, length);
+                try
+                {
+                    bool success = Convert.TryToBase64Chars(value, chars, out int charsWritten, Base64FormattingOptions.None);
+                    if (success)
+                    {
+                        WriteSimpleFieldAsSpan(fieldName, chars.Slice(0, charsWritten), EscapeOptions.Quotes | EscapeOptions.NoValueEscape);
+                        return;
+                    }
+
+                    throw new ServiceResultException(StatusCodes.BadEncodingError, "Failed to convert ByteString to Base64");
+                }
+                finally
+                {
+                    if (arrayPool != null)
+                    {
+                        ArrayPool<char>.Shared.Return(arrayPool);
+                    }
+                }
+            }
+
+            WriteSimpleField(fieldName, "\"\"");
         }
 #endif
 
@@ -1332,32 +1369,7 @@ namespace Opc.Ua
         /// Writes an StatusCode to the stream.
         /// </summary>
         public void WriteStatusCode(string fieldName, StatusCode value)
-        {
-            if (fieldName != null && !IncludeDefaultValues && value == StatusCodes.Good)
-            {
-                WriteSimpleFieldNull(fieldName);
-                return;
-            }
-
-            if (EncodingToUse == JsonEncodingType.Reversible || EncodingToUse == JsonEncodingType.Compact)
-            {
-                WriteUInt32(fieldName, value.Code);
-                return;
-            }
-
-            // Verbose and NonReversible
-            PushStructure(fieldName);
-            if (value != StatusCodes.Good)
-            {
-                WriteSimpleField("Code", value.Code.ToString(CultureInfo.InvariantCulture), EscapeOptions.NoFieldNameEscape);
-                string symbolicId = StatusCode.LookupSymbolicId(value.CodeBits);
-                if (!string.IsNullOrEmpty(symbolicId))
-                {
-                    WriteSimpleField("Symbol", symbolicId, EscapeOptions.Quotes | EscapeOptions.NoFieldNameEscape);
-                }
-            }
-            PopStructure();
-        }
+            => WriteStatusCode(fieldName, value, EscapeOptions.None);
 
         /// <summary>
         /// Writes a DiagnosticInfo to the stream.
@@ -1461,7 +1473,6 @@ namespace Opc.Ua
 
                 if (!string.IsNullOrEmpty(fieldName))
                 {
-                    m_writer.Write(s_quotation);
                     EscapeString(fieldName);
                     m_writer.Write(s_quotationColon);
                 }
@@ -1506,12 +1517,12 @@ namespace Opc.Ua
 
                 if (value.StatusCode != StatusCodes.Good)
                 {
-                    WriteStatusCode("StatusCode", value.StatusCode);
+                    WriteStatusCode("StatusCode", value.StatusCode, EscapeOptions.NoFieldNameEscape);
                 }
 
                 if (value.SourceTimestamp != DateTime.MinValue)
                 {
-                    WriteDateTime("SourceTimestamp", value.SourceTimestamp);
+                    WriteDateTime("SourceTimestamp", value.SourceTimestamp, EscapeOptions.NoFieldNameEscape);
 
                     if (value.SourcePicoseconds != 0)
                     {
@@ -1521,7 +1532,7 @@ namespace Opc.Ua
 
                 if (value.ServerTimestamp != DateTime.MinValue)
                 {
-                    WriteDateTime("ServerTimestamp", value.ServerTimestamp);
+                    WriteDateTime("ServerTimestamp", value.ServerTimestamp, EscapeOptions.NoFieldNameEscape);
 
                     if (value.ServerPicoseconds != 0)
                     {
@@ -1651,7 +1662,7 @@ namespace Opc.Ua
             {
                 PushStructure(fieldName);
 
-                value?.Encode(this);
+                value.Encode(this);
 
                 PopStructure();
             }
@@ -2429,7 +2440,7 @@ namespace Opc.Ua
             {
                 throw ServiceResultException.Create(
                     StatusCodes.BadEncodingError,
-                    "With Array as top level, encodeables array with filename will create invalid json");
+                    "With Array as top level, encodeables array with fieldname will create invalid json");
             }
             else
             {
@@ -2567,7 +2578,7 @@ namespace Opc.Ua
         }
 
         /// <summary>
-        /// Writes an Variant array to the stream.
+        /// Writes a Variant array to the stream.
         /// </summary>
         public void WriteObjectArray(string fieldName, IList<object> values)
         {
@@ -2726,6 +2737,107 @@ namespace Opc.Ua
 
         #region Private Methods
         /// <summary>
+        /// Push structure with an option to not escape a known fieldname.
+        /// </summary>
+        private void PushStructure(string fieldName, EscapeOptions escapeOptions = EscapeOptions.None)
+        {
+            m_nestingLevel++;
+
+            if (m_commaRequired)
+            {
+                m_writer.Write(s_comma);
+            }
+
+            if (!string.IsNullOrEmpty(fieldName))
+            {
+                if ((escapeOptions & EscapeOptions.NoFieldNameEscape) != 0)
+                {
+                    m_writer.Write(s_quotation);
+                    m_writer.Write(fieldName);
+                }
+                else
+                {
+                    EscapeString(fieldName);
+                }
+                m_writer.Write(s_quotationColon);
+            }
+            else if (!m_commaRequired)
+            {
+                if (m_nestingLevel == 1 && !m_topLevelIsArray)
+                {
+                    m_levelOneSkipped = true;
+                    return;
+                }
+            }
+
+            m_commaRequired = false;
+            m_writer.Write(s_leftCurlyBrace);
+        }
+
+        /// <summary>
+        /// Writes an StatusCode to the stream.
+        /// </summary>
+        private void WriteStatusCode(string fieldName, StatusCode value, EscapeOptions escapeOptions)
+        {
+            if (fieldName != null && !IncludeDefaultValues && value == StatusCodes.Good)
+            {
+                WriteSimpleFieldNull(fieldName);
+                return;
+            }
+
+            if (EncodingToUse == JsonEncodingType.Reversible || EncodingToUse == JsonEncodingType.Compact)
+            {
+                WriteUInt32(fieldName, value.Code);
+                return;
+            }
+
+            // Verbose and NonReversible
+            PushStructure(fieldName, escapeOptions);
+            if (value != StatusCodes.Good)
+            {
+                WriteSimpleField("Code", value.Code.ToString(CultureInfo.InvariantCulture), EscapeOptions.NoFieldNameEscape | EscapeOptions.NoValueEscape);
+                string symbolicId = StatusCode.LookupSymbolicId(value.CodeBits);
+                if (!string.IsNullOrEmpty(symbolicId))
+                {
+                    WriteSimpleField("Symbol", symbolicId, EscapeOptions.Quotes | EscapeOptions.NoFieldNameEscape | EscapeOptions.NoValueEscape);
+                }
+            }
+            PopStructure();
+        }
+
+        /// <summary>
+        /// Writes a UTC date/time to the stream. Reduce escape overhead for fieldname.
+        /// </summary>
+        private void WriteDateTime(string fieldName, DateTime value, EscapeOptions escapeOptions)
+        {
+            if (fieldName != null && !IncludeDefaultValues && value == DateTime.MinValue)
+            {
+                WriteSimpleFieldNull(fieldName);
+                return;
+            }
+
+            escapeOptions |= EscapeOptions.NoValueEscape;
+            if (value <= DateTime.MinValue)
+            {
+                WriteSimpleField(fieldName, "\"0001-01-01T00:00:00Z\"", escapeOptions);
+            }
+            else if (value >= DateTime.MaxValue)
+            {
+                WriteSimpleField(fieldName, "\"9999-12-31T23:59:59Z\"", escapeOptions);
+            }
+            else
+            {
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+                Span<char> valueString = stackalloc char[DateTimeRoundTripKindLength];
+                ConvertUniversalTimeToString(value, valueString, out int charsWritten);
+                WriteSimpleFieldAsSpan(fieldName, valueString.Slice(0, charsWritten), escapeOptions | EscapeOptions.Quotes);
+#else
+                WriteSimpleField(fieldName, ConvertUniversalTimeToString(value), escapeOptions | EscapeOptions.Quotes);
+#endif
+            }
+        }
+
+        /// <summary>
         /// Returns true if a simple field can be written.
         /// </summary>
         private bool CheckForSimpleFieldNull<T>(string fieldName, IList<T> values)
@@ -2825,7 +2937,7 @@ namespace Opc.Ua
 
                 if (value.InnerStatusCode != StatusCodes.Good)
                 {
-                    WriteStatusCode("InnerStatusCode", value.InnerStatusCode);
+                    WriteStatusCode("InnerStatusCode", value.InnerStatusCode, EscapeOptions.NoFieldNameEscape);
                 }
 
                 if (value.InnerDiagnosticInfo != null)
@@ -2941,19 +3053,59 @@ namespace Opc.Ua
             m_nestingLevel++;
         }
 
+        // The length of the DateTime string encoded by "o"
+        internal const int DateTimeRoundTripKindLength = 28;
+        // the index of the last digit which can be omitted if 0
+        const int DateTimeRoundTripKindLastDigit = DateTimeRoundTripKindLength - 2;
+        // the index of the first digit which can be omitted (7 digits total)
+        const int DateTimeRoundTripKindFirstDigit = DateTimeRoundTripKindLastDigit - 7;
+
         /// <summary>
         /// Write Utc time in the format "yyyy-MM-dd'T'HH:mm:ss.FFFFFFFK".
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+        internal static void ConvertUniversalTimeToString(DateTime value, Span<char> valueString, out int charsWritten)
+        {
+            // Note: "o" is a shortcut for "yyyy-MM-dd'T'HH:mm:ss.FFFFFFFK" and implicitly
+            // uses invariant culture and gregorian calendar, but executes up to 10 times faster.
+            // But in contrary to the explicit format string, trailing zeroes are not omitted!
+            if (value.Kind != DateTimeKind.Utc)
+            {
+                value.ToUniversalTime().TryFormat(valueString, out charsWritten, "o", CultureInfo.InvariantCulture);
+            }
+            else
+            {
+                value.TryFormat(valueString, out charsWritten, "o", CultureInfo.InvariantCulture);
+            }
+
+            Debug.Assert(charsWritten == DateTimeRoundTripKindLength);
+
+            // check if trailing zeroes can be omitted
+            int i = DateTimeRoundTripKindLastDigit;
+            while (i > DateTimeRoundTripKindFirstDigit)
+            {
+                if (valueString[i] != '0')
+                {
+                    break;
+                }
+                i--;
+            }
+
+            if (i < DateTimeRoundTripKindLastDigit)
+            {
+                // check if the decimal point has to be removed too
+                if (i == DateTimeRoundTripKindFirstDigit)
+                {
+                    i--;
+                }
+                valueString[i + 1] = 'Z';
+                charsWritten = i + 2;
+            }
+        }
+#else
         internal static string ConvertUniversalTimeToString(DateTime value)
         {
-            // The length of the DateTime string encoded by "o"
-            const int DateTimeRoundTripKindLength = 28;
-            // the index of the last digit which can be omitted if 0
-            const int DateTimeRoundTripKindLastDigit = DateTimeRoundTripKindLength - 2;
-            // the index of the first digit which can be omitted (7 digits total)
-            const int DateTimeRoundTripKindFirstDigit = DateTimeRoundTripKindLastDigit - 7;
-
             // Note: "o" is a shortcut for "yyyy-MM-dd'T'HH:mm:ss.FFFFFFFK" and implicitly
             // uses invariant culture and gregorian calendar, but executes up to 10 times faster.
             // But in contrary to the explicit format string, trailing zeroes are not omitted!
@@ -2982,6 +3134,7 @@ namespace Opc.Ua
 
             return valueString;
         }
+#endif
         #endregion
     }
 }

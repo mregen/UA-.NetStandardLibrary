@@ -27,8 +27,6 @@
  * http://opcfoundation.org/License/MIT/1.00/
  * ======================================================================*/
 
-#pragma warning disable SYSLIB0057 // Type or member is obsolete
-
 using System;
 using System.IO;
 using System.Linq;
@@ -162,7 +160,7 @@ public static partial class Testcases
             TestNewRawDataMessage(rawData);
 
             // should not throw an exception
-            _ = new X509Certificate2(rawData);
+            _ = X509CertificateLoader.LoadCertificate(rawData);
             FuzzableCode.FuzzCertificateChainDecoderCore(rawData,false);
             FuzzableCode.FuzzCertificateChainDecoderCore(rawData, true);
 
@@ -174,7 +172,7 @@ public static partial class Testcases
             TestNewRawDataMessage(rawData);
 
             // should not throw an exception
-            _ = new X509Certificate2(rawData);
+            _ = X509CertificateLoader.LoadCertificate(rawData);
             FuzzableCode.FuzzCertificateChainDecoderCore(rawData, false);
             FuzzableCode.FuzzCertificateChainDecoderCore(rawData, true);
 
@@ -190,7 +188,7 @@ public static partial class Testcases
             FuzzableCode.FuzzCertificateChainDecoderCore(rawData, true);
 
             // should not throw an exception
-            _ = new X509Certificate2(rawData);
+            _ = X509CertificateLoader.LoadCertificate(rawData);
             _ = Utils.ParseCertificateBlob(rawData, false);
             _ = Utils.ParseCertificateBlob(rawData, true);
             _ = Utils.ParseCertificateChainBlob(rawData, false);

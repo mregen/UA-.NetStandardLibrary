@@ -107,9 +107,7 @@ public static partial class FuzzableCode
     {
         try
         {
-#pragma warning disable SYSLIB0057 // Type or member is obsolete
-            return new X509Certificate2(serialized.ToArray());
-#pragma warning restore SYSLIB0057 // Type or member is obsolete
+            return X509CertificateLoader.LoadCertificate(serialized.ToArray());
         }
         catch (CryptographicException)
         {

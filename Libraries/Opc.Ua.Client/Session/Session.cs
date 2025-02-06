@@ -4883,10 +4883,10 @@ namespace Opc.Ua.Client
         /// <summary>
         /// Create a dictionary of attributes to read for a nodeclass.
         /// </summary>
-        private SortedDictionary<uint, DataValue> CreateAttributes(NodeClass nodeclass = NodeClass.Unspecified, bool optionalAttributes = true)
+        private Dictionary<uint, DataValue> CreateAttributes(NodeClass nodeclass = NodeClass.Unspecified, bool optionalAttributes = true)
         {
             // Attributes to read for all types of nodes
-            var attributes = new SortedDictionary<uint, DataValue>() {
+            var attributes = new Dictionary<uint, DataValue>() {
                 { Attributes.NodeId, null },
                 { Attributes.NodeClass, null },
                 { Attributes.BrowseName, null },
@@ -4944,7 +4944,7 @@ namespace Opc.Ua.Client
 
                 default:
                     // build complete list of attributes.
-                    attributes = new SortedDictionary<uint, DataValue> {
+                    attributes = new Dictionary<uint, DataValue> {
                         { Attributes.NodeId, null },
                         { Attributes.NodeClass, null },
                         { Attributes.BrowseName, null },
@@ -6084,6 +6084,7 @@ namespace Opc.Ua.Client
             // ignore messages with a subscription that has been deleted.
             if (subscription != null)
             {
+#if DEBUG
                 // Validate publish time and reject old values.
                 if (notificationMessage.PublishTime.AddMilliseconds(subscription.CurrentPublishingInterval * subscription.CurrentLifetimeCount) < DateTime.UtcNow)
                 {
@@ -6095,12 +6096,15 @@ namespace Opc.Ua.Client
                 {
                     Utils.LogTrace("PublishTime {0} in publish response is newer than actual time for SubscriptionId {1}.", notificationMessage.PublishTime.ToLocalTime(), subscription.Id);
                 }
+#endif
+                // save the information that more notifications are expected
+                notificationMessage.MoreNotifications = moreNotifications;
+
+                // save the string table that came with the notification.
+                notificationMessage.StringTable = responseHeader.StringTable;
 
                 // update subscription cache.
-                subscription.SaveMessageInCache(
-                    availableSequenceNumbers,
-                    notificationMessage,
-                    responseHeader.StringTable);
+                subscription.SaveMessageInCache(availableSequenceNumbers, notificationMessage);
 
                 // raise the notification.
                 NotificationEventHandler publishEventHandler = m_Publish;
