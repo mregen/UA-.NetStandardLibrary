@@ -164,7 +164,7 @@ public static partial class Testcases
             FuzzableCode.FuzzCertificateChainDecoderCore(rawData,false);
             FuzzableCode.FuzzCertificateChainDecoderCore(rawData, true);
 
-            string fileName = Path.Combine(pathTarget, $"certificate.bin".ToLowerInvariant());
+            string fileName = Path.Combine(pathTarget, "certificate.bin");
             File.WriteAllBytes(fileName, rawData);
 
             // Test the fuzz targets with the message.
@@ -176,7 +176,7 @@ public static partial class Testcases
             FuzzableCode.FuzzCertificateChainDecoderCore(rawData, false);
             FuzzableCode.FuzzCertificateChainDecoderCore(rawData, true);
 
-            fileName = Path.Combine(pathTarget, $"rootcertificate.bin".ToLowerInvariant());
+            fileName = Path.Combine(pathTarget, "rootcertificate.bin");
             File.WriteAllBytes(fileName, rawData);
 
             // Create a binary blob chain.
@@ -194,7 +194,7 @@ public static partial class Testcases
             _ = Utils.ParseCertificateChainBlob(rawData, false);
             _ = Utils.ParseCertificateChainBlob(rawData, true);
 
-            fileName = Path.Combine(pathTarget, $"certificatechain.bin".ToLowerInvariant());
+            fileName = Path.Combine(pathTarget, "certificatechain.bin");
             File.WriteAllBytes(fileName, rawData);
         }
 
@@ -209,7 +209,7 @@ public static partial class Testcases
             byte[] rawData = rootCrl.RawData;
             TestNewRawDataMessage(rawData);
 
-            string fileName = Path.Combine(pathTarget, $"emptyroot.crl".ToLowerInvariant());
+            string fileName = Path.Combine(pathTarget, "emptyroot.crl");
             File.WriteAllBytes(fileName, rawData);
 
             // create a CRL with a revoked certificate
@@ -219,7 +219,7 @@ public static partial class Testcases
             rawData = revokedRootCrl.RawData;
             TestNewRawDataMessage(rawData);
 
-            fileName = Path.Combine(pathTarget, $"root.crl".ToLowerInvariant());
+            fileName = Path.Combine(pathTarget, "root.crl");
             File.WriteAllBytes(fileName, rawData);
 
             // create a CRL which revokes the leaf certificate
@@ -232,7 +232,7 @@ public static partial class Testcases
             rawData = x509CRL.RawData;
             TestNewRawDataMessage(rawData);
 
-            fileName = Path.Combine(pathTarget, $"leaf.crl".ToLowerInvariant());
+            fileName = Path.Combine(pathTarget, "leaf.crl");
             File.WriteAllBytes(fileName, rawData);
         }
     }

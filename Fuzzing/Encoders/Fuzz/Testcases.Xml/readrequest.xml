@@ -1,17 +1,23 @@
 <ReadRequest xmlns="http://opcfoundation.org/UA/2008/02/Types.xsd">
   <RequestHeader>
-    <Timestamp>2024-07-28T11:39:47.593243Z</Timestamp>
+    <Timestamp>2025-02-06T05:50:42.9259436Z</Timestamp>
     <RequestHandle>422</RequestHandle>
     <ReturnDiagnostics>1023</ReturnDiagnostics>
     <TimeoutHint>10000</TimeoutHint>
     <AdditionalHeader />
   </RequestHeader>
-  <MaxAge>0</MaxAge>
+  <MaxAge>1000</MaxAge>
   <TimestampsToReturn>Source_0</TimestampsToReturn>
   <NodesToRead>
     <ReadValueId>
       <NodeId>
-        <Identifier>i=4444</Identifier>
+        <Identifier>i=123</Identifier>
+      </NodeId>
+      <AttributeId>25</AttributeId>
+    </ReadValueId>
+    <ReadValueId>
+      <NodeId>
+        <Identifier>ns=2;i=4444</Identifier>
       </NodeId>
       <AttributeId>5</AttributeId>
     </ReadValueId>
@@ -24,13 +30,13 @@
     </ReadValueId>
     <ReadValueId>
       <NodeId>
-        <Identifier>g=d40b2cbf-c4b9-4e82-a334-325c78f35146</Identifier>
+        <Identifier>g=ef982ce2-00b2-4306-8338-beb422db6f3c</Identifier>
       </NodeId>
       <AttributeId>4</AttributeId>
     </ReadValueId>
     <ReadValueId>
       <NodeId>
-        <Identifier>i=4444</Identifier>
+        <Identifier>ns=2;i=4444</Identifier>
       </NodeId>
       <AttributeId>17</AttributeId>
     </ReadValueId>
