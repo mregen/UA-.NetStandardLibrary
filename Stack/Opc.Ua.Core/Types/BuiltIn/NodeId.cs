@@ -865,9 +865,8 @@ namespace Opc.Ua
         /// <summary>
         /// Returns an instance of a null NodeId.
         /// </summary>
-        public static NodeId Null => s_Null;
-
-        private static readonly NodeId s_Null = new NodeId();
+        public static NodeId Null => s_null;
+        private static readonly NodeId s_null = new NodeId();
         #endregion
 
         #region Public Methods (and some Internals)
@@ -1001,6 +1000,7 @@ namespace Opc.Ua
         /// </summary>
         internal void SetNamespaceIndex(ushort value)
         {
+            ValidateNodeIdNullIsNotModified();
             m_namespaceIndex = value;
         }
 
@@ -1009,6 +1009,7 @@ namespace Opc.Ua
         /// </summary>
         internal void SetIdentifier(IdType idType, object value)
         {
+            ValidateNodeIdNullIsNotModified();
             m_identifierType = idType;
 
             switch (idType)
@@ -1038,6 +1039,8 @@ namespace Opc.Ua
         /// </summary>
         internal void SetIdentifier(string value, IdType idType)
         {
+            ValidateNodeIdNullIsNotModified();
+
             m_identifierType = idType;
             SetIdentifier(IdType.String, value);
         }
@@ -1495,6 +1498,8 @@ namespace Opc.Ua
             }
             set
             {
+                ValidateNodeIdNullIsNotModified();
+
                 NodeId nodeId = NodeId.Parse(value);
 
                 m_namespaceIndex = nodeId.NamespaceIndex;
@@ -1859,6 +1864,19 @@ namespace Opc.Ua
                 }
             }
         }
+
+        /// <summary>
+        /// Validate that the immutable NodeId.Null is not overwritten.
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        [Conditional("DEBUG")]
+        private void ValidateNodeIdNullIsNotModified()
+        {
+            if (ReferenceEquals(this, s_null))
+            {
+                throw new InvalidOperationException("Cannot modify the immutable NodeId.Null.");
+            }
+        }
         #endregion
 
         #region Private Fields
@@ -1993,6 +2011,7 @@ namespace Opc.Ua
         /// </summary>
         public ushort[] ServerMappings { get; set; }
     }
+
     #region NodeIdComparer Class
     /// <summary>
     /// Helper which implements a NodeId IEqualityComparer for Linq queries.

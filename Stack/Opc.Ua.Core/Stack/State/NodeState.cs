@@ -4309,7 +4309,7 @@ namespace Opc.Ua
         {
             PropertyState property = new PropertyState<T>(this);
 
-            property.ReferenceTypeId = ReferenceTypes.HasProperty;
+            property.ReferenceTypeId = ReferenceTypeIds.HasProperty;
             property.ModellingRuleId = null;
             property.TypeDefinitionId = VariableTypeIds.PropertyType;
             property.SymbolicName = propertyName;
