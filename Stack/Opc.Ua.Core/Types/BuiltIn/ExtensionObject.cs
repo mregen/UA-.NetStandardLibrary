@@ -717,7 +717,8 @@ namespace Opc.Ua
                 // check for null Id.
                 if (m_typeId.IsNull)
                 {
-                    return NodeId.Null;
+                    // note: this NodeId is modified when the ExtensionObject is deserialized.
+                    return new NodeId();
                 }
 
                 return ExpandedNodeId.ToNodeId(m_typeId, m_context.NamespaceUris);
@@ -805,10 +806,7 @@ namespace Opc.Ua
     /// <summary>
     /// The types of encodings that may used with an object.
     /// </summary>
-    /// <remarks>
-    /// The types of encodings that may used with an object.
-    /// </remarks>
-    public enum ExtensionObjectEncoding
+    public enum ExtensionObjectEncoding : byte
     {
         /// <summary>
         /// The extension object has no body.
