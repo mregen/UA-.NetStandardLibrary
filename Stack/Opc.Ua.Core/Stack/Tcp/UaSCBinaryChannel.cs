@@ -131,6 +131,8 @@ namespace Opc.Ua.Bindings
             m_maxResponseChunkCount = CalculateChunkCount(m_maxResponseMessageSize, TcpMessageLimits.MinBufferSize);
 
             CalculateSymmetricKeySizes();
+
+            m_lastActiveTickCount = HiResClock.TickCount;
         }
         #endregion
 
@@ -495,8 +497,8 @@ namespace Opc.Ua.Bindings
                 args.BufferList = buffers;
                 args.Completed += OnWriteComplete;
                 args.UserToken = state;
-                if (m_socket == null ||
-                    !m_socket.SendAsync(args))
+                var socket = m_socket;
+                if (socket == null || !socket.SendAsync(args))
                 {
                     // I/O completed synchronously
                     if (args.IsSocketError || (args.BytesTransferred < buffers.TotalSize))
@@ -883,7 +885,7 @@ namespace Opc.Ua.Bindings
 
         private TcpChannelStateEventHandler m_StateChanged;
 
-        private int m_lastActiveTickCount = HiResClock.TickCount;
+        private int m_lastActiveTickCount;
         #endregion
     }
 
