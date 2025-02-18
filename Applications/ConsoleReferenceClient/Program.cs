@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -70,10 +71,13 @@ namespace Quickstarts.ConsoleReferenceClient
             bool autoAccept = false;
             string username = null;
             string userpassword = null;
+            string userCertificateThumbprint = null;
+            string userCertificatePassword = null;
             bool logConsole = false;
             bool appLog = false;
             bool renewCertificate = false;
             bool loadTypes = false;
+            bool managedbrowseall = false;
             bool browseall = false;
             bool fetchall = false;
             bool jsonvalues = false;
@@ -95,6 +99,8 @@ namespace Quickstarts.ConsoleReferenceClient
                 { "nsec|nosecurity", "select endpoint with security NONE, least secure if unavailable", s => noSecurity = s != null },
                 { "un|username=", "the name of the user identity for the connection", (string u) => username = u },
                 { "up|userpassword=", "the password of the user identity for the connection", (string u) => userpassword = u },
+                { "uc|usercertificate=", "the thumbprint of the user certificate for the user identity", (string u) => userCertificateThumbprint = u },
+                { "ucp|usercertificatepassword=", "the password of the  user certificate for the user identity", (string u) => userCertificatePassword = u },
                 { "c|console", "log to console", c => logConsole = c != null },
                 { "l|log", "log app output", c => appLog = c != null },
                 { "p|password=", "optional password for private key", (string p) => password = p },
@@ -103,6 +109,7 @@ namespace Quickstarts.ConsoleReferenceClient
                 { "logfile=", "custom file name for log output", l => { if (l != null) { logFile = l; } } },
                 { "lt|loadtypes", "Load custom types", lt => { if (lt != null) loadTypes = true; } },
                 { "as|assets", "Detect Asset information", a => { if (a != null) assets = true; } },
+                { "m|managedbrowseall", "Browse all references using the MangedBrowseAsync method", m => { if (m != null) managedbrowseall = true; } },
                 { "b|browseall", "Browse all references", b => { if (b != null) browseall = true; } },
                 { "f|fetchall", "Fetch all nodes", f => { if (f != null) fetchall = true; } },
                 { "j|json", "Output all Values as JSON", j => { if (j != null) jsonvalues = true; } },
@@ -209,46 +216,106 @@ namespace Quickstarts.ConsoleReferenceClient
                             start = DateTime.UtcNow;
                         }
 
-                        using (UAClient uaClient = new UAClient(application.ApplicationConfiguration, reverseConnectManager, output, ClientBase.ValidateResponse) {
-                            AutoAccept = autoAccept,
-                            SessionLifeTime = 60_000,
-                        })
+                    // create the UA Client object and connect to configured server.
+                    using (UAClient uaClient = new UAClient(application.ApplicationConfiguration, reverseConnectManager, output, ClientBase.ValidateResponse) {
+                        AutoAccept = autoAccept,
+                        SessionLifeTime = 60_000,
+                    })
+                    {
+                        // set user identity of type username/pw
+                        if (!string.IsNullOrEmpty(username))
                         {
-                            // set user identity
-                            if (!String.IsNullOrEmpty(username))
+                            uaClient.UserIdentity = new UserIdentity(username, userpassword ?? string.Empty);
+                        }
+
+                        // set user identity of type certificate
+                        if (!string.IsNullOrEmpty(userCertificateThumbprint))
+                        {
+                            CertificateIdentifier userCertificateIdentifier =
+                                await FindUserCertificateIdentifierAsync(userCertificateThumbprint,
+                                    application.ApplicationConfiguration.SecurityConfiguration.TrustedUserCertificates).ConfigureAwait(false);
+
+                            if (userCertificateIdentifier != null)
                             {
-                                uaClient.UserIdentity = new UserIdentity(username, userpassword ?? string.Empty);
+                                uaClient.UserIdentity = new UserIdentity(userCertificateIdentifier, new CertificatePasswordProvider(userCertificatePassword ?? string.Empty));
+                            }
+                            else
+                            {
+                                output.WriteLine($"Failed to load user certificate with Thumbprint {userCertificateThumbprint}");
+                            }
+                        }
+
+                        bool connected = await uaClient.ConnectAsync(serverUrl.ToString(), !noSecurity, quitCTS.Token).ConfigureAwait(false);
+                        if (connected)
+                        {
+                            output.WriteLine("Connected! Ctrl-C to quit.");
+
+                            // enable subscription transfer
+                            uaClient.ReconnectPeriod = 1000;
+                            uaClient.ReconnectPeriodExponentialBackoff = 10000;
+                            uaClient.Session.MinPublishRequestCount = 3;
+                            uaClient.Session.TransferSubscriptionsOnReconnect = true;
+                            var samples = new ClientSamples(output, ClientBase.ValidateResponse, quitEvent, verbose);
+                            if (loadTypes)
+                            {
+                                var complexTypeSystem = await samples.LoadTypeSystemAsync(uaClient.Session).ConfigureAwait(false);
                             }
 
-                            bool connected = await uaClient.ConnectAsync(serverUrl.ToString(), !noSecurity, quitCTS.Token).ConfigureAwait(false);
-                            if (connected)
+                            if (browseall || fetchall || jsonvalues || managedbrowseall)
                             {
-                                output.WriteLine("Connected! Ctrl-C to quit.");
+                                NodeIdCollection variableIds = null;
+                                NodeIdCollection variableIdsManagedBrowse = null;
+                                ReferenceDescriptionCollection referenceDescriptions = null;
+                                ReferenceDescriptionCollection referenceDescriptionsFromManagedBrowse = null;
 
-                                // enable subscription transfer
-                                uaClient.ReconnectPeriod = 1000;
-                                uaClient.ReconnectPeriodExponentialBackoff = 10000;
-                                uaClient.Session.MinPublishRequestCount = 3;
-                                uaClient.Session.TransferSubscriptionsOnReconnect = true;
-                                var samples = new ClientSamples(output, ClientBase.ValidateResponse, quitEvent, verbose);
-                                if (loadTypes)
+                                if (browseall)
+                                {
+                                    output.WriteLine("Browse the full address space.");
+                                    referenceDescriptions =
+                                        await samples.BrowseFullAddressSpaceAsync(uaClient, Objects.RootFolder).ConfigureAwait(false);
+                                    variableIds = new NodeIdCollection(referenceDescriptions
+                                        .Where(r => r.NodeClass == NodeClass.Variable && r.TypeDefinition.NamespaceIndex != 0)
+                                        .Select(r => ExpandedNodeId.ToNodeId(r.NodeId, uaClient.Session.NamespaceUris)));
+                                }
+
+                                if (managedbrowseall)
+                                {
+                                    output.WriteLine("ManagedBrowse the full address space.");
+                                    referenceDescriptionsFromManagedBrowse =
+                                        await samples.ManagedBrowseFullAddressSpaceAsync(uaClient, Objects.RootFolder).ConfigureAwait(false);
+                                    variableIdsManagedBrowse = new NodeIdCollection(referenceDescriptionsFromManagedBrowse
+                                        .Where(r => r.NodeClass == NodeClass.Variable && r.TypeDefinition.NamespaceIndex != 0)
+                                        .Select(r => ExpandedNodeId.ToNodeId(r.NodeId, uaClient.Session.NamespaceUris)));
+                                }
+
+                                // treat managedBrowseall result like browseall results if the latter is missing
+                                if (!browseall && managedbrowseall)
+                                {
+                                    referenceDescriptions = referenceDescriptionsFromManagedBrowse;
+                                    browseall = managedbrowseall;
+                                }
+
+                                IList<INode> allNodes = null;
+                                if (fetchall)
+                                {
+                                    allNodes = await samples.FetchAllNodesNodeCacheAsync(uaClient, Objects.RootFolder, true, true, false).ConfigureAwait(false);
+                                    variableIds = new NodeIdCollection(allNodes
+                                        .Where(r => r.NodeClass == NodeClass.Variable && r is VariableNode && ((VariableNode)r).DataType.NamespaceIndex != 0)
+                                        .Select(r => ExpandedNodeId.ToNodeId(r.NodeId, uaClient.Session.NamespaceUris)));
+                                }
+
+                                if (jsonvalues && variableIds != null)
                                 {
                                     await samples.LoadTypeSystemAsync(uaClient.Session).ConfigureAwait(false);
                                 }
 
                                 if (browseall || fetchall || jsonvalues)
                                 {
-                                    NodeIdCollection variableIds = null;
-                                    ReferenceDescriptionCollection referenceDescriptions = null;
-                                    if (browseall)
-                                    {
-                                        referenceDescriptions =
-                                            await samples.BrowseFullAddressSpaceAsync(uaClient, Objects.RootFolder).ConfigureAwait(false);
-                                        variableIds = new NodeIdCollection(referenceDescriptions
-                                            .Where(r => r.NodeClass == NodeClass.Variable && r.TypeDefinition.NamespaceIndex != 0)
-                                            .Select(r => ExpandedNodeId.ToNodeId(r.NodeId, uaClient.Session.NamespaceUris)));
-                                    }
-                                    IList<INode> allNodes = null;
+                                    // subscribe to 1000 random variables
+                                    const int MaxVariables = 1000;
+                                    NodeCollection variables = new NodeCollection();
+                                    Random random = new Random(62541);
+                                  
                                     if (fetchall)
                                     {
                                         allNodes = await samples.FetchAllNodesNodeCacheAsync(uaClient, Objects.RootFolder, true, true, false).ConfigureAwait(false);
@@ -416,51 +483,42 @@ namespace Quickstarts.ConsoleReferenceClient
                                         }
                                     }
 
-                                    if (jsonvalues && variableIds != null)
-                                    {
-                                        var (allValues, results) = await samples.ReadAllValuesAsync(uaClient, variableIds).ConfigureAwait(false);
-                                    }
+                                    await samples.SubscribeAllValuesAsync(uaClient,
+                                        variableIds: new NodeCollection(variables),
+                                        samplingInterval: 100,
+                                        publishingInterval: 1000,
+                                        queueSize: 10,
+                                        lifetimeCount: 60,
+                                        keepAliveCount: 2).ConfigureAwait(false);
 
-                                    if (subscribe && (browseall || fetchall))
+                                    // Wait for DataChange notifications from MonitoredItems
+                                    output.WriteLine("Subscribed to {0} variables. Press Ctrl-C to exit.", MaxVariables);
+
+                                    // free unused memory
+                                    uaClient.Session.NodeCache.Clear();
+
+                                    waitTime = timeout - (int)DateTime.UtcNow.Subtract(start).TotalMilliseconds;
+                                    DateTime endTime = waitTime > 0 ? DateTime.UtcNow.Add(TimeSpan.FromMilliseconds(waitTime)) : DateTime.MaxValue;
+                                    var variableIterator = variables.GetEnumerator();
+                                    while (!quit && endTime > DateTime.UtcNow)
                                     {
-                                        // subscribe to 100 random variables
-                                        const int MaxVariables = 100;
-                                        NodeCollection variables = new NodeCollection();
-                                        Random random = new Random(62541);
-                                        if (fetchall)
+                                        if (variableIterator.MoveNext())
                                         {
-                                            variables.AddRange(allNodes
-                                                .Where(r => r.NodeClass == NodeClass.Variable && r.NodeId.NamespaceIndex > 1)
-                                                .Select(r => ((VariableNode)r))
-                                                .OrderBy(o => random.Next())
-                                                .Take(MaxVariables));
+                                            try
+                                            {
+                                                var value = await uaClient.Session.ReadValueAsync(variableIterator.Current.NodeId).ConfigureAwait(false);
+                                                output.WriteLine("Value of {0} is {1}", variableIterator.Current.NodeId, value);
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                output.WriteLine("Error reading value of {0}: {1}", variableIterator.Current.NodeId, ex.Message);
+                                            }
                                         }
-                                        else if (browseall)
+                                        else
                                         {
-                                            var variableReferences = referenceDescriptions
-                                                .Where(r => r.NodeClass == NodeClass.Variable && r.NodeId.NamespaceIndex > 1)
-                                                .Select(r => r.NodeId)
-                                                .OrderBy(o => random.Next())
-                                                .Take(MaxVariables)
-                                                .ToList();
-                                            variables.AddRange(uaClient.Session.NodeCache.Find(variableReferences).Cast<Node>());
+                                            variableIterator = variables.GetEnumerator();
                                         }
-
-                                        await samples.SubscribeAllValuesAsync(uaClient,
-                                            variableIds: new NodeCollection(variables),
-                                            samplingInterval: 1000,
-                                            publishingInterval: 5000,
-                                            queueSize: 10,
-                                            lifetimeCount: 12,
-                                            keepAliveCount: 2).ConfigureAwait(false);
-
-                                        // Wait for DataChange notifications from MonitoredItems
-                                        output.WriteLine("Subscribed to {0} variables. Press Ctrl-C to exit.", MaxVariables);
-                                        quit = quitEvent.WaitOne(timeout > 0 ? waitTime : Timeout.Infinite);
-                                    }
-                                    else
-                                    {
-                                        quit = true;
+                                        quit = quitEvent.WaitOne(500);
                                     }
                                 }
                                 else
@@ -551,6 +609,33 @@ namespace Quickstarts.ConsoleReferenceClient
         {
             if (Object.ReferenceEquals(node, null)) return 0;
             return node.NodeId.GetHashCode();
+        }
+        /// <summary>
+        /// returns a CertificateIdentifier of the Certificate with the specified thumbprint if it is found in the trustedUserCertificates TrustList
+        /// </summary>
+        /// <param name="thumbprint">the thumbprint of the certificate to select</param>
+        /// <param name="trustedUserCertificates">the trustlist of the user certificates</param>
+        /// <returns>Certificate Identifier</returns>
+        private static async Task<CertificateIdentifier> FindUserCertificateIdentifierAsync(string thumbprint, CertificateTrustList trustedUserCertificates)
+        {
+            CertificateIdentifier userCertificateIdentifier = null;
+
+            // get user certificate with matching thumbprint
+            X509Certificate2Collection userCertifiactesWithMatchingThumbprint =
+                (await trustedUserCertificates
+                .GetCertificates().ConfigureAwait(false))
+                .Find(X509FindType.FindByThumbprint, thumbprint, false);
+
+            // create Certificate Identifier
+            if (userCertifiactesWithMatchingThumbprint.Count == 1)
+            {
+                userCertificateIdentifier = new CertificateIdentifier(userCertifiactesWithMatchingThumbprint[0]) {
+                    StorePath = trustedUserCertificates.StorePath,
+                    StoreType = trustedUserCertificates.StoreType
+                };
+            }
+
+            return userCertificateIdentifier;
         }
     }
 }

@@ -30,6 +30,7 @@
 using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Opc.Ua.Core.Tests
 {
@@ -79,14 +80,26 @@ namespace Opc.Ua.Core.Tests
         {
             if (Interlocked.CompareExchange(ref m_disposed, 1, 0) == 0)
             {
-                CleanupValidatorAndStores(true);
+                CleanupValidatorAndStoresAsync(true).GetAwaiter().GetResult();
                 m_issuerStore = null;
                 m_trustedStore = null;
                 m_rejectedStore = null;
                 var path = Utils.ReplaceSpecialFolderNames(m_pkiRoot);
-                if (Directory.Exists(path))
+                int retries = 5;
+                while (retries-- > 0)
                 {
-                    Directory.Delete(path, true);
+                    try
+                    {
+                        if (Directory.Exists(path))
+                        {
+                            Directory.Delete(path, true);
+                        }
+                        retries = 0;
+                    }
+                    catch (IOException)
+                    {
+                        Thread.Sleep(1000);
+                    }
                 }
             }
         }
@@ -138,12 +151,13 @@ namespace Opc.Ua.Core.Tests
         /// <summary>
         /// Clean up (delete) the content of the issuer and trusted store.
         /// </summary>
-        public void CleanupValidatorAndStores(bool dispose = false)
+        public async Task CleanupValidatorAndStoresAsync(bool dispose = false)
         {
-            TestUtils.CleanupTrustList(m_issuerStore, dispose);
-            TestUtils.CleanupTrustList(m_trustedStore, dispose);
-            TestUtils.CleanupTrustList(m_rejectedStore, dispose);
+            await TestUtils.CleanupTrustListAsync(m_issuerStore, dispose).ConfigureAwait(false);
+            await TestUtils.CleanupTrustListAsync(m_trustedStore, dispose).ConfigureAwait(false);
+            await TestUtils.CleanupTrustListAsync(m_rejectedStore, dispose).ConfigureAwait(false);
         }
+
 
         #region Private Fields
         private int m_disposed;

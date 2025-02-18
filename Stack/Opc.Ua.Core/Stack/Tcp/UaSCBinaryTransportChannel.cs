@@ -70,6 +70,16 @@ namespace Opc.Ua.Bindings
         #endregion
 
         #region ITransportChannel Members
+
+        /// <summary>
+        /// Called when the token changes
+        /// </summary>
+        public event ChannelTokenActivatedEventHandler OnTokenActivated
+        {
+            add => m_OnTokenActivated += value;
+            remove => m_OnTokenActivated -= value;
+        }
+
         /// <summary>
         /// A masking indicating which features are implemented.
         /// </summary>
@@ -359,9 +369,11 @@ namespace Opc.Ua.Bindings
             if (channel == null)
             {
                 channel = CreateChannel();
-                if (Interlocked.CompareExchange(ref m_channel, channel, null) != null)
+                var currentChannel = Interlocked.CompareExchange(ref m_channel, channel, null);
+                if (currentChannel != null)
                 {
-                    channel = m_channel;
+                    Utils.SilentDispose(channel);
+                    channel = currentChannel;
                 }
             }
 
@@ -423,13 +435,13 @@ namespace Opc.Ua.Bindings
             EndpointConfiguration configuration = m_settings.Configuration;
             m_quotas = new ChannelQuotas {
                 MaxBufferSize = configuration.MaxBufferSize,
-                MaxMessageSize = configuration.MaxMessageSize,
+                MaxMessageSize = TcpMessageLimits.AlignRoundMaxMessageSize(configuration.MaxMessageSize),
                 ChannelLifetime = configuration.ChannelLifetime,
                 SecurityTokenLifetime = configuration.SecurityTokenLifetime,
                 MessageContext = new ServiceMessageContext() {
                     MaxArrayLength = configuration.MaxArrayLength,
                     MaxByteStringLength = configuration.MaxByteStringLength,
-                    MaxMessageSize = configuration.MaxMessageSize,
+                    MaxMessageSize = TcpMessageLimits.AlignRoundMaxMessageSize(configuration.MaxMessageSize),
                     MaxStringLength = configuration.MaxStringLength,
                     MaxEncodingNestingLevels = configuration.MaxEncodingNestingLevels,
                     MaxDecoderRecoveries = configuration.MaxDecoderRecoveries,
@@ -480,6 +492,9 @@ namespace Opc.Ua.Bindings
                 channel.ReverseSocket = true;
             }
 
+            // Register the token changed event handler with the internal channel
+            channel.OnTokenActivated =
+                (current, previous) => m_OnTokenActivated?.Invoke(this, current, previous);
             return channel;
         }
         #endregion
@@ -492,6 +507,7 @@ namespace Opc.Ua.Bindings
         private ChannelQuotas m_quotas;
         private BufferManager m_bufferManager;
         private UaSCUaBinaryClientChannel m_channel;
+        private event ChannelTokenActivatedEventHandler m_OnTokenActivated;
         private IMessageSocketFactory m_messageSocketFactory;
         #endregion
     }

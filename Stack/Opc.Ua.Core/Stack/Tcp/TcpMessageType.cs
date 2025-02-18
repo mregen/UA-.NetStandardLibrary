@@ -165,6 +165,11 @@ namespace Opc.Ua.Bindings
         public const int MessageTypeAndSize = 8;
 
         /// <summary>
+        /// The minimum send or receive buffer size for an ECC security profile.
+        /// </summary>
+        public const int ECCMinBufferSize = 1024;
+
+        /// <summary>
         /// The minimum send or receive buffer size.
         /// </summary>
         public const int MinBufferSize = 8192;
@@ -242,15 +247,16 @@ namespace Opc.Ua.Bindings
         /// <summary>
         /// The default maximum chunk count for Request and Response messages.
         /// </summary>
-        public const int DefaultMaxChunkCount = 32;
+        public const int DefaultMaxChunkCount = DefaultMaxMessageSize / MinBufferSize;
 
         /// <summary>
         /// The default maximum message size.
         /// </summary>
         /// <remarks>
+        /// The default is 2MB. Ensure to set this to a value aligned to <see cref="MinBufferSize"/>.
         /// This default is for the Tcp transport. <see cref="DefaultEncodingLimits.MaxMessageSize"/> for the generic default.
         /// </remarks>
-        public const int DefaultMaxMessageSize = DefaultMaxChunkCount * DefaultMaxBufferSize;
+        public const int DefaultMaxMessageSize = MinBufferSize * 256;
 
         /// <summary>
         /// The default maximum message size for the discovery channel.
@@ -293,6 +299,11 @@ namespace Opc.Ua.Bindings
         public const double TokenRenewalPeriod = 0.75;
 
         /// <summary>
+        /// The fraction of the lifetime to jitter renewing a token.
+        /// </summary>
+        public const double TokenRenewalJitterPeriod = 0.05;
+
+        /// <summary>
         /// The fraction of the lifetime to wait before forcing the activation of the renewed token.
         /// </summary>
         public const double TokenActivationPeriod = 0.95;
@@ -301,5 +312,17 @@ namespace Opc.Ua.Bindings
         /// The certificates that have the key size larger than KeySizeExtraPadding need an extra padding byte in the transport message
         /// </summary>
         public const int KeySizeExtraPadding = 2048;
+
+        /// <summary>
+        /// Aligns the max message size to the nearest min buffer size.
+        /// </summary>
+        /// <remarks>
+        /// Align user configured maximum message size to avoid rounding errors in other UA implementations.
+        /// </remarks>
+        public static int AlignRoundMaxMessageSize(int value)
+        {
+            int alignmentMask = MinBufferSize - 1;
+            return (value + alignmentMask) & ~alignmentMask;
+        }
     }
 }

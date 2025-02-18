@@ -503,7 +503,7 @@ namespace Opc.Ua.Test
         {
             Array array = GetRandomArray(builtInType, useBoundaryValues, length, fixedLength);
             Variant[] variants = new Variant[array.Length];
-            TypeInfo typeInfo = new TypeInfo(builtInType, ValueRanks.Scalar);
+            TypeInfo typeInfo = TypeInfo.CreateScalar(builtInType);
 
             for (int ii = 0; ii < variants.Length; ii++)
             {
@@ -903,7 +903,7 @@ namespace Opc.Ua.Test
         {
             NodeId nodeId = GetRandomNodeId();
             ushort serverIndex = m_serverUris.Count == 0 ? (ushort)0 : (ushort)m_random.NextInt32(m_serverUris.Count - 1);
-            return new ExpandedNodeId(nodeId, m_namespaceUris.GetString(nodeId.NamespaceIndex), serverIndex);
+            return new ExpandedNodeId(nodeId, nodeId.NamespaceIndex > 0 ? m_namespaceUris.GetString(nodeId.NamespaceIndex) : null, serverIndex);
         }
         #endregion
 

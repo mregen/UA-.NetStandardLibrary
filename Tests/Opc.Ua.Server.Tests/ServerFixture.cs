@@ -31,6 +31,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Opc.Ua.Configuration;
 
 namespace Opc.Ua.Server.Tests
@@ -48,6 +49,7 @@ namespace Opc.Ua.Server.Tests
         public bool LogConsole { get; set; }
         public bool AutoAccept { get; set; }
         public bool OperationLimits { get; set; }
+        public int MaxChannelCount { get; set; } = 10;
         public int ReverseConnectTimeout { get; set; }
         public bool AllNodeManagers { get; set; }
         public int TraceMasks { get; set; } = Utils.TraceMasks.Error | Utils.TraceMasks.StackTrace | Utils.TraceMasks.Security | Utils.TraceMasks.Information;
@@ -129,10 +131,10 @@ namespace Opc.Ua.Server.Tests
                 });
             }
 
-            serverConfig.SetMaxMessageQueueSize(20);
-            serverConfig.SetDiagnosticsEnabled(true);
-            serverConfig.SetAuditingEnabled(true);
-            serverConfig.SetMaxChannelCount(10);
+            serverConfig.SetMaxChannelCount(MaxChannelCount)
+                .SetMaxMessageQueueSize(20)
+                .SetDiagnosticsEnabled(true)
+                .SetAuditingEnabled(true);
 
             if (ReverseConnectTimeout != 0)
             {
@@ -241,6 +243,17 @@ namespace Opc.Ua.Server.Tests
         public void SetTraceOutput(TextWriter writer)
         {
             m_traceLogger.SetWriter(writer);
+        }
+
+        /// <summary>
+        /// Adjust the Log level for the tracer
+        /// </summary>
+        public void SetTraceOutputLevel(LogLevel logLevel = LogLevel.Debug)
+        {
+            if (m_traceLogger != null)
+            {
+                m_traceLogger.MinimumLogLevel = logLevel;
+            }
         }
 
         /// <summary>

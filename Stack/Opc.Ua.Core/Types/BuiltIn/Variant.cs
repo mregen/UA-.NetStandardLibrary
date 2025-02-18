@@ -35,7 +35,7 @@ namespace Opc.Ua
     /// <br/></para>
     /// </remarks>
     [DataContract(Namespace = Namespaces.OpcUaXsd)]
-    public partial struct Variant : ICloneable, IFormattable, IEquatable<Variant>
+    public struct Variant : ICloneable, IFormattable, IEquatable<Variant>
     {
         #region Constructors
         /// <summary>
@@ -103,6 +103,18 @@ namespace Opc.Ua
         }
 
         /// <summary>
+        /// Constructs a Variant
+        /// </summary>
+        /// <param name="value">The value to store.</param>
+        /// <param name="typeInfo">The type information for the value.</param>
+        public Variant(Array value, TypeInfo typeInfo)
+        {
+            m_value = null;
+            m_typeInfo = typeInfo;
+            SetArray(value, typeInfo);
+        }
+
+        /// <summary>
         /// Initializes the object with an object value.
         /// </summary>
         /// <remarks>
@@ -114,6 +126,16 @@ namespace Opc.Ua
             m_value = null;
             m_typeInfo = TypeInfo.Construct(value);
             Set(value, m_typeInfo);
+        }
+
+        /// <summary>
+        /// Initializes the variant with an Array value and the type information.
+        /// </summary>
+        public Variant(Array value)
+        {
+            m_value = value;
+            m_typeInfo = TypeInfo.Construct(value);
+            SetArray(value, m_typeInfo);
         }
 
         /// <summary>
@@ -805,25 +827,26 @@ namespace Opc.Ua
                 TypeInfo typeInfo = null;
 
                 // create decoder.
-                XmlDecoder decoder = new XmlDecoder(value, MessageContextExtension.CurrentContext);
-
-                try
+                using (XmlDecoder decoder = new XmlDecoder(value, MessageContextExtension.CurrentContext))
                 {
-                    // read value.
-                    object body = decoder.ReadVariantContents(out typeInfo);
-                    Set(body, typeInfo);
-                }
-                catch (Exception e)
-                {
-                    throw ServiceResultException.Create(
-                        StatusCodes.BadDecodingError,
-                        e,
-                        "Error decoding Variant value.");
-                }
-                finally
-                {
-                    // close decoder.
-                    decoder.Close();
+                    try
+                    {
+                        // read value.
+                        object body = decoder.ReadVariantContents(out typeInfo);
+                        Set(body, typeInfo);
+                    }
+                    catch (Exception e)
+                    {
+                        throw ServiceResultException.Create(
+                            StatusCodes.BadDecodingError,
+                            e,
+                            "Error decoding Variant value.");
+                    }
+                    finally
+                    {
+                        // close decoder.
+                        decoder.Close();
+                    }
                 }
             }
         }

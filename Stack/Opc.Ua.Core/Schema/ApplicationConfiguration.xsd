@@ -46,6 +46,7 @@
         </xs:annotation>
       </xs:element>
       <xs:element name="RejectedCertificateStore" type="CertificateStoreIdentifier" minOccurs="0" />
+      <xs:element name="MaxRejectedCertificates" type="xs:int" minOccurs="0" />
       <xs:element name="AutoAcceptUntrustedCertificates" type="xs:boolean" minOccurs="0" />
       <xs:element name="UserRoleDirectory" type="xs:string"  minOccurs="0" nillable="true" />
       <xs:element name="RejectSHA1SignedCertificates" type="xs:boolean" minOccurs="0" />
@@ -167,6 +168,7 @@
           <xs:element name="ReverseConnect" type="ReverseConnectServerConfiguration" minOccurs="0" />
           <xs:element name="OperationLimits" type="OperationLimits" minOccurs="0" />
           <xs:element name="AuditingEnabled" type="xs:boolean" minOccurs="0" />
+          <xs:element name="HttpsMutualTls" type="xs:boolean" minOccurs="0" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>

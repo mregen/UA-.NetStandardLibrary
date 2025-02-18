@@ -30,6 +30,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Opc.Ua.Security;
 
 namespace Opc.Ua.Client
 {
@@ -280,14 +281,10 @@ namespace Opc.Ua.Client
                         selectedEndpoint = endpoint;
                     }
 
-                    // The security level is a relative measure assigned by the server to the 
-                    // endpoints that it returns. Clients should always pick the highest level
-                    // unless they have a reason not too.
-                    // Some servers however, mess this up a bit. So prefer a higher SecurityMode
-                    // over the SecurityLevel.
-                    if (endpoint.SecurityMode > selectedEndpoint.SecurityMode
-                        || (endpoint.SecurityMode == selectedEndpoint.SecurityMode
-                            && endpoint.SecurityLevel > selectedEndpoint.SecurityLevel))
+
+                    //Select endpoint if it has a higher calculated security level, than the previously selected one
+                    if (SecuredApplication.CalculateSecurityLevel(endpoint.SecurityMode, endpoint.SecurityPolicyUri)
+                        > SecuredApplication.CalculateSecurityLevel(selectedEndpoint.SecurityMode, selectedEndpoint.SecurityPolicyUri))
                     {
                         selectedEndpoint = endpoint;
                     }
@@ -310,7 +307,7 @@ namespace Opc.Ua.Client
         public static Uri GetDiscoveryUrl(string discoveryUrl)
         {
             // needs to add the '/discovery' back onto non-UA TCP URLs.
-            if (discoveryUrl.StartsWith(Utils.UriSchemeHttp, StringComparison.Ordinal))
+            if (Utils.IsUriHttpRelatedScheme(discoveryUrl))
             {
                 if (!discoveryUrl.EndsWith(ConfiguredEndpoint.DiscoverySuffix, StringComparison.OrdinalIgnoreCase))
                 {

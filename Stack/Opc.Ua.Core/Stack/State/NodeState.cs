@@ -1275,11 +1275,11 @@ namespace Opc.Ua
         /// <param name="reader">The stream to read.</param>
         public void LoadFromXml(ISystemContext context, XmlReader reader)
         {
-            ServiceMessageContext messageContext = new ServiceMessageContext();
-
-            messageContext.NamespaceUris = context.NamespaceUris;
-            messageContext.ServerUris = context.ServerUris;
-            messageContext.Factory = context.EncodeableFactory;
+            ServiceMessageContext messageContext = new ServiceMessageContext {
+                NamespaceUris = context.NamespaceUris,
+                ServerUris = context.ServerUris,
+                Factory = context.EncodeableFactory
+            };
 
             reader.MoveToContent();
 
@@ -1298,31 +1298,32 @@ namespace Opc.Ua
             this.SymbolicName = symbolicName.Name;
             this.BrowseName = new QualifiedName(symbolicName.Name, (ushort)namespaceIndex);
 
-            XmlDecoder decoder = new XmlDecoder(null, reader, messageContext);
-
-            // check if a namespace table was provided.
-            NamespaceTable namespaceUris = new NamespaceTable();
-
-            if (!decoder.LoadStringTable("NamespaceUris", "NamespaceUri", namespaceUris))
+            using (XmlDecoder decoder = new XmlDecoder(null, reader, messageContext))
             {
-                namespaceUris = null;
+                // check if a namespace table was provided.
+                NamespaceTable namespaceUris = new NamespaceTable();
+
+                if (!decoder.LoadStringTable("NamespaceUris", "NamespaceUri", namespaceUris))
+                {
+                    namespaceUris = null;
+                }
+
+                // check if a server uri table was provided.
+                StringTable serverUris = new StringTable();
+
+                if (!decoder.LoadStringTable("ServerUris", "ServerUri", serverUris))
+                {
+                    serverUris = null;
+                }
+
+                // setup the mappings to use during decoding.
+                decoder.SetMappingTables(namespaceUris, serverUris);
+
+                // update the node and children.
+                Update(context, decoder);
+                UpdateReferences(context, decoder);
+                UpdateChildren(context, decoder);
             }
-
-            // check if a server uri table was provided.
-            StringTable serverUris = new StringTable();
-
-            if (!decoder.LoadStringTable("ServerUris", "ServerUri", serverUris))
-            {
-                serverUris = null;
-            }
-
-            // setup the mappings to use during decoding.
-            decoder.SetMappingTables(namespaceUris, serverUris);
-
-            // update the node and children.
-            Update(context, decoder);
-            UpdateReferences(context, decoder);
-            UpdateChildren(context, decoder);
         }
 
         /// <summary>
@@ -3088,9 +3089,7 @@ namespace Opc.Ua
                         }
 
                         // look up new node id.
-                        NodeId newId = null;
-
-                        if (mappingTable.TryGetValue(oldId, out newId))
+                        if (mappingTable.TryGetValue(oldId, out NodeId newId))
                         {
                             referencesToRemove.Add(reference);
                             referencesToAdd.Add(new NodeStateReference(reference.ReferenceTypeId, reference.IsInverse, newId));
@@ -3666,9 +3665,9 @@ namespace Opc.Ua
                         result = onReadAccessRestrictions(context, this, ref accessRestrictions);
                     }
 
-                    if (ServiceResult.IsGood(result))
+                    if (ServiceResult.IsGood(result) && accessRestrictions != null)
                     {
-                        value = accessRestrictions;
+                        value = (ushort)accessRestrictions;
                     }
 
                     if (value != null || result != null)
@@ -4310,7 +4309,7 @@ namespace Opc.Ua
         {
             PropertyState property = new PropertyState<T>(this);
 
-            property.ReferenceTypeId = ReferenceTypes.HasProperty;
+            property.ReferenceTypeId = ReferenceTypeIds.HasProperty;
             property.ModellingRuleId = null;
             property.TypeDefinitionId = VariableTypeIds.PropertyType;
             property.SymbolicName = propertyName;

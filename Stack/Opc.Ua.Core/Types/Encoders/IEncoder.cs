@@ -11,6 +11,7 @@
 */
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Xml;
 
@@ -27,8 +28,12 @@ namespace Opc.Ua
         EncodingType EncodingType { get; }
 
         /// <summary>
-        /// Selects the reversible encoding type.
+        /// If the encoder is configured to produce a reversible encoding.
         /// </summary>
+        /// <remarks>
+        /// The BinaryEncoder and XmlEncoder in this library are reversible encoders.
+        /// For a JsonEncoder, reversability depends on the encoding type.
+        /// </remarks>
         bool UseReversibleEncoding { get; }
 
         /// <summary>
@@ -149,12 +154,23 @@ namespace Opc.Ua
         void WriteByteString(string fieldName, byte[] value);
 
         /// <summary>
-        /// Writes an XmlElement to the stream.
+        /// Writes a byte string to the stream with a given index and count.
+        /// </summary>
+        void WriteByteString(string fieldName, byte[] value, int index, int count);
+
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+        /// <summary>
+        /// Writes a byte string to the stream.
+        /// </summary>
+        void WriteByteString(string fieldName, ReadOnlySpan<byte> value);
+#endif
+        /// <summary>
+        /// Writes a XmlElement to the stream.
         /// </summary>
         void WriteXmlElement(string fieldName, XmlElement value);
 
         /// <summary>
-        /// Writes an NodeId to the stream.
+        /// Writes a NodeId to the stream.
         /// </summary>
         void WriteNodeId(string fieldName, NodeId value);
 
@@ -164,32 +180,32 @@ namespace Opc.Ua
         void WriteExpandedNodeId(string fieldName, ExpandedNodeId value);
 
         /// <summary>
-        /// Writes an StatusCode to the stream.
+        /// Writes a StatusCode to the stream.
         /// </summary>
         void WriteStatusCode(string fieldName, StatusCode value);
 
         /// <summary>
-        /// Writes an DiagnosticInfo to the stream.
+        /// Writes a DiagnosticInfo to the stream.
         /// </summary>
         void WriteDiagnosticInfo(string fieldName, DiagnosticInfo value);
 
         /// <summary>
-        /// Writes an QualifiedName to the stream.
+        /// Writes a QualifiedName to the stream.
         /// </summary>
         void WriteQualifiedName(string fieldName, QualifiedName value);
 
         /// <summary>
-        /// Writes an LocalizedText to the stream.
+        /// Writes a LocalizedText to the stream.
         /// </summary>
         void WriteLocalizedText(string fieldName, LocalizedText value);
 
         /// <summary>
-        /// Writes an Variant array to the stream.
+        /// Writes a Variant array to the stream.
         /// </summary>
         void WriteVariant(string fieldName, Variant value);
 
         /// <summary>
-        /// Writes an DataValue array to the stream.
+        /// Writes a DataValue array to the stream.
         /// </summary>
         void WriteDataValue(string fieldName, DataValue value);
 

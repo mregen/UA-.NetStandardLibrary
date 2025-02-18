@@ -265,6 +265,9 @@ namespace Opc.Ua.Configuration
 
         /// <inheritdoc cref="ServerConfiguration.AuditingEnabled"/>
         IApplicationConfigurationBuilderServerOptions SetAuditingEnabled(bool auditingEnabled);
+
+        /// <inheritdoc cref="ServerConfiguration.HttpsMutualTls"/>
+        IApplicationConfigurationBuilderServerOptions SetHttpsMutualTls(bool mTlsEnabled);
     }
 
     /// <summary>
@@ -447,10 +450,21 @@ namespace Opc.Ua.Configuration
     /// Add security options to the configuration.
     /// </summary>
     public interface IApplicationConfigurationBuilderSecurityOptions :
+        IApplicationConfigurationBuilderGlobalConfiguration,
         IApplicationConfigurationBuilderTraceConfiguration,
         IApplicationConfigurationBuilderExtension,
         IApplicationConfigurationBuilderCreate
     {
+        /// <summary>
+        /// The number of rejected certificates to keep in the store.
+        /// </summary>
+        /// <param name="maxRejectedCertificates">
+        /// The number of certificates to keep in the rejected store before it is updated.
+        /// <see langword="0"/> to keep all rejected certificates.
+        /// A negative number to keep no history.
+        /// </param>
+        IApplicationConfigurationBuilderSecurityOptions SetMaxRejectedCertificates(int maxRejectedCertificates);
+
         /// <summary>
         /// Whether an unknown application certificate should be accepted
         /// once all other security checks passed.
@@ -527,6 +541,20 @@ namespace Opc.Ua.Configuration
         /// <param name="elementName">The name of the extension, null to use the name.</param>
         /// <param name="value">The object to add and encode.</param>
         IApplicationConfigurationBuilderExtension AddExtension<T>(XmlQualifiedName elementName, object value);
+    }
+
+    /// <summary>
+    /// Add some global configuration settings.
+    /// </summary>
+    public interface IApplicationConfigurationBuilderGlobalConfiguration :
+        IApplicationConfigurationBuilderCreate,
+        IApplicationConfigurationBuilderTraceConfiguration
+    {
+        /// <summary>
+        /// Set the high resolution clock to disabled or enabled.
+        /// </summary>
+        /// <param name="hiResClockDisabled"><value><c>true</c> if high resolution clock is disabled; otherwise, <c>false</c>.</value></param>
+        IApplicationConfigurationBuilderGlobalConfiguration SetHiResClockDisabled(bool hiResClockDisabled);
     }
 
     /// <summary>

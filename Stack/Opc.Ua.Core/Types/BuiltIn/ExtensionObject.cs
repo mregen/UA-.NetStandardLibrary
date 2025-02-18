@@ -709,7 +709,6 @@ namespace Opc.Ua
             get
             {
                 // must use the XML encoding id if encoding in an XML stream.
-
                 if (m_body is IEncodeable encodeable)
                 {
                     return ExpandedNodeId.ToNodeId(encodeable.XmlEncodingId, m_context.NamespaceUris);
@@ -718,7 +717,8 @@ namespace Opc.Ua
                 // check for null Id.
                 if (m_typeId.IsNull)
                 {
-                    return NodeId.Null;
+                    // note: this NodeId is modified when the ExtensionObject is deserialized.
+                    return new NodeId();
                 }
 
                 return ExpandedNodeId.ToNodeId(m_typeId, m_context.NamespaceUris);
@@ -766,29 +766,29 @@ namespace Opc.Ua
                 }
 
                 // create decoder.
-                XmlDecoder decoder = new XmlDecoder(value, m_context);
-
-                // read body.
-                Body = decoder.ReadExtensionObjectBody(m_typeId);
-
-                // clear the type id for encodeables.
-
-                if (m_body is IEncodeable encodeable)
+                using (XmlDecoder decoder = new XmlDecoder(value, m_context))
                 {
-                    m_typeId = ExpandedNodeId.Null;
-                }
+                    // read body.
+                    Body = decoder.ReadExtensionObjectBody(m_typeId);
 
-                // close decoder.
-                try
-                {
-                    decoder.Close(true);
-                }
-                catch (Exception e)
-                {
-                    throw new ServiceResultException(
-                        StatusCodes.BadDecodingError,
-                        Utils.Format("Did not read all of a extension object body: '{0}'", m_typeId),
-                        e);
+                    // clear the type id for encodeables.
+                    if (m_body is IEncodeable)
+                    {
+                        m_typeId = ExpandedNodeId.Null;
+                    }
+
+                    // close decoder.
+                    try
+                    {
+                        decoder.Close(true);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new ServiceResultException(
+                            StatusCodes.BadDecodingError,
+                            Utils.Format("Did not read all of a extension object body: '{0}'", m_typeId),
+                            e);
+                    }
                 }
             }
         }
@@ -806,10 +806,7 @@ namespace Opc.Ua
     /// <summary>
     /// The types of encodings that may used with an object.
     /// </summary>
-    /// <remarks>
-    /// The types of encodings that may used with an object.
-    /// </remarks>
-    public enum ExtensionObjectEncoding
+    public enum ExtensionObjectEncoding : byte
     {
         /// <summary>
         /// The extension object has no body.

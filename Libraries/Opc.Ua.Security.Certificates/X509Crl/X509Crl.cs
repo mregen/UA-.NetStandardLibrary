@@ -50,6 +50,7 @@ namespace Opc.Ua.Security.Certificates
         public X509CRL(string filePath) : this()
         {
             RawData = File.ReadAllBytes(filePath);
+            EnsureDecoded();
         }
 
         /// <summary>
@@ -58,6 +59,7 @@ namespace Opc.Ua.Security.Certificates
         public X509CRL(byte[] crl) : this()
         {
             RawData = crl;
+            EnsureDecoded();
         }
 
         /// <summary>
@@ -78,6 +80,7 @@ namespace Opc.Ua.Security.Certificates
                 m_crlExtensions.Add(extension);
             }
             RawData = crl.RawData;
+            EnsureDecoded();
         }
 
         /// <summary>
@@ -91,6 +94,23 @@ namespace Opc.Ua.Security.Certificates
             m_revokedCertificates = new List<RevokedCertificate>();
             m_crlExtensions = new X509ExtensionCollection();
         }
+
+        /// <summary>
+        /// Loads a CRL from a memory buffer, ignores the signature for fuzz testing of the ASN.1 decoder.
+        /// </summary>
+        internal X509CRL(byte[] crl, bool ignoreSignature) : this()
+        {
+            RawData = crl;
+            if (!ignoreSignature)
+            {
+                EnsureDecoded();
+            }
+            else
+            {
+                m_decoded = true;
+                DecodeCrl(crl);
+            }
+        }
         #endregion
 
         #region IX509CRL Interface
@@ -99,7 +119,6 @@ namespace Opc.Ua.Security.Certificates
         {
             get
             {
-                EnsureDecoded();
                 return m_issuerName;
             }
         }
@@ -112,7 +131,6 @@ namespace Opc.Ua.Security.Certificates
         {
             get
             {
-                EnsureDecoded();
                 return m_thisUpdate;
             }
         }
@@ -122,7 +140,6 @@ namespace Opc.Ua.Security.Certificates
         {
             get
             {
-                EnsureDecoded();
                 return m_nextUpdate;
             }
         }
@@ -132,7 +149,6 @@ namespace Opc.Ua.Security.Certificates
         {
             get
             {
-                EnsureDecoded();
                 return m_hashAlgorithmName;
             }
         }
@@ -142,7 +158,6 @@ namespace Opc.Ua.Security.Certificates
         {
             get
             {
-                EnsureDecoded();
                 return m_revokedCertificates.AsReadOnly();
             }
         }
@@ -152,7 +167,6 @@ namespace Opc.Ua.Security.Certificates
         {
             get
             {
-                EnsureDecoded();
                 return m_crlExtensions;
             }
         }

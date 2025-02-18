@@ -10,7 +10,16 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
 
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
+using System.Text;
+
+#if NET8_0_OR_GREATER
+using System.Collections.Frozen;
+#endif
 
 namespace Opc.Ua
 {
@@ -21,58 +30,63 @@ namespace Opc.Ua
     {
         #region Static Helper Functions
         /// <summary>
-		/// Returns the browse name for the attribute.
+        /// Creates a dictionary of browse names for the status codes.
+        /// </summary>
+        private static readonly Lazy<ReadOnlyDictionary<uint, string>> BrowseNames = new Lazy<ReadOnlyDictionary<uint, string>>(CreateBrowseNamesDictionary);
+
+        /// <summary>
+		/// Returns the browse utf8BrowseName for the attribute.
 		/// </summary>
         public static string GetBrowseName(uint identifier)
         {
-            FieldInfo[] fields = typeof(StatusCodes).GetFields(BindingFlags.Public | BindingFlags.Static);
-
-            foreach (FieldInfo field in fields)
+            if (BrowseNames.Value.TryGetValue(identifier, out var browseName))
             {
-                if (identifier == (uint)field.GetValue(typeof(StatusCodes)))
-                {
-                    return field.Name;
-                }
+                return browseName;
             }
 
-            return System.String.Empty;
+            return string.Empty;
         }
 
         /// <summary>
         /// Returns the browse names for all attributes.
         /// </summary>
-        public static string[] GetBrowseNames()
+        public static IReadOnlyCollection<string> GetBrowseNames()
         {
-            FieldInfo[] fields = typeof(StatusCodes).GetFields(BindingFlags.Public | BindingFlags.Static);
-
-            int ii = 0;
-
-            string[] names = new string[fields.Length];
-
-            foreach (FieldInfo field in fields)
-            {
-                names[ii++] = field.Name;
-            }
-
-            return names;
+            return BrowseNames.Value.Values;
         }
 
         /// <summary>
-        /// Returns the id for the attribute with the specified browse name.
+        /// Returns the id for the attribute with the specified browse utf8BrowseName.
         /// </summary>
         public static uint GetIdentifier(string browseName)
         {
-            FieldInfo[] fields = typeof(StatusCodes).GetFields(BindingFlags.Public | BindingFlags.Static);
-
-            foreach (FieldInfo field in fields)
+            foreach (var field in BrowseNames.Value)
             {
-                if (field.Name == browseName)
+                if (field.Value == browseName)
                 {
-                    return (uint)field.GetValue(typeof(StatusCodes));
+                    return field.Key;
                 }
             }
 
             return 0;
+        }
+        #endregion
+
+        #region Private Methods
+        private static ReadOnlyDictionary<uint, string> CreateBrowseNamesDictionary()
+        {
+            FieldInfo[] fields = typeof(StatusCodes).GetFields(BindingFlags.Public | BindingFlags.Static);
+
+            var keyValuePairs = new Dictionary<uint, string>();
+            foreach (FieldInfo field in fields)
+            {
+                keyValuePairs.Add((uint)field.GetValue(typeof(StatusCodes)), field.Name);
+            }
+#if NET8_0_OR_GREATER
+            return keyValuePairs.ToFrozenDictionary().AsReadOnly();
+#else
+            return new ReadOnlyDictionary<uint, string>(keyValuePairs);
+#endif
         }
         #endregion
     }

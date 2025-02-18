@@ -29,6 +29,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
@@ -43,9 +44,10 @@ namespace Opc.Ua.Gds.Tests
         public GlobalDiscoveryServerClient GDSClient => m_client;
         public static bool AutoAccept = false;
 
-        public GlobalDiscoveryTestClient(bool autoAccept)
+        public GlobalDiscoveryTestClient(bool autoAccept, string storeType = CertificateStoreType.Directory)
         {
             AutoAccept = autoAccept;
+            m_storeType = storeType;
         }
 
         public IUserIdentity AppUser { get; private set; }
@@ -53,15 +55,28 @@ namespace Opc.Ua.Gds.Tests
         public IUserIdentity Anonymous { get; private set; }
         public ApplicationTestData OwnApplicationTestData { get; private set; }
         public ApplicationConfiguration Configuration { get; private set; }
-        #region public methods
+
+        #region Public methods
         public async Task LoadClientConfiguration(int port = -1)
         {
             ApplicationInstance.MessageDlg = new ApplicationMessageDlg();
+
+            string configSectionName = "Opc.Ua.GlobalDiscoveryTestClient";
+            if (m_storeType == CertificateStoreType.X509Store)
+            {
+                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    throw new PlatformNotSupportedException("X509 Store with crls is only supported on Windows");
+                }
+                configSectionName = "Opc.Ua.GlobalDiscoveryTestClientX509Stores";
+            }
+
             m_application = new ApplicationInstance {
                 ApplicationName = "Global Discovery Client",
                 ApplicationType = ApplicationType.Client,
-                ConfigSectionName = "Opc.Ua.GlobalDiscoveryTestClient"
+                ConfigSectionName = configSectionName
             };
+
 
 #if USE_FILE_CONFIG
             // load the application configuration.
@@ -187,10 +202,11 @@ namespace Opc.Ua.Gds.Tests
             return File.ReadAllText(Utils.ReplaceSpecialFolderNames(Configuration.TraceConfiguration.OutputFilePath));
         }
         #endregion
+
         #region Private Methods
         private async Task ApplyNewApplicationInstanceCertificateAsync(byte[] certificate, byte[] privateKey)
         {
-            using (var x509 = new X509Certificate2(certificate))
+            using (var x509 = X509CertificateLoader.LoadCertificate(certificate))
             {
                 var certWithPrivateKey = CertificateFactory.CreateCertificateWithPEMPrivateKey(x509, privateKey);
                 m_client.Configuration.SecurityConfiguration.ApplicationCertificate = new CertificateIdentifier(certWithPrivateKey);
@@ -276,6 +292,7 @@ namespace Opc.Ua.Gds.Tests
 
         private GlobalDiscoveryServerClient m_client;
         private ApplicationInstance m_application;
+        private string m_storeType;
 
     }
 

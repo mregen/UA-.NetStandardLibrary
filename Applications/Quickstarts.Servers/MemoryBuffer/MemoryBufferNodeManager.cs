@@ -38,6 +38,7 @@ using Opc.Ua;
 using Opc.Ua.Server;
 using Opc.Ua.Sample;
 using System.Reflection;
+using System.Globalization;
 
 namespace MemoryBuffer
 {
@@ -207,7 +208,11 @@ namespace MemoryBuffer
                         return null;
                     }
 
+#if NET6_0_OR_GREATER
+                    int index = id.IndexOf('[', StringComparison.Ordinal);
+#else
                     int index = id.IndexOf('[');
+#endif
 
                     if (index == -1)
                     {
@@ -234,7 +239,7 @@ namespace MemoryBuffer
                     }
 
                     // check range on offset.
-                    uint offset = Convert.ToUInt32(offsetText);
+                    uint offset = Convert.ToUInt32(offsetText, CultureInfo.InvariantCulture);
 
                     if (offset >= buffer.SizeInBytes.Value)
                     {
@@ -535,7 +540,7 @@ namespace MemoryBuffer
 
             return ServiceResult.Good;
         }
-        #endregion
+#endregion
 
         #region Private Fields
         private MemoryBufferConfiguration m_configuration;

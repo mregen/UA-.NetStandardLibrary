@@ -30,7 +30,9 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Security.Policy;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Opc.Ua.Configuration;
 using Opc.Ua.Server.Tests;
@@ -207,7 +209,15 @@ namespace Opc.Ua.Client.Tests
         /// </summary>
         public async Task<ISession> ConnectAsync(Uri url, string securityProfile, EndpointDescriptionCollection endpoints = null, IUserIdentity userIdentity = null)
         {
-            return await ConnectAsync(await GetEndpointAsync(url, securityProfile, endpoints).ConfigureAwait(false), userIdentity).ConfigureAwait(false);
+            string uri = url.AbsoluteUri;
+            Uri getEndpointsUrl = url;
+            if (uri.StartsWith(Utils.UriSchemeHttp, StringComparison.Ordinal) ||
+                Utils.IsUriHttpsScheme(uri))
+            {
+                getEndpointsUrl = CoreClientUtils.GetDiscoveryUrl(uri);
+            }
+            
+            return await ConnectAsync(await GetEndpointAsync(getEndpointsUrl, securityProfile, endpoints).ConfigureAwait(false), userIdentity).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -360,6 +370,17 @@ namespace Opc.Ua.Client.Tests
         }
 
         /// <summary>
+        /// Adjust the Log level for the tracer
+        /// </summary>
+        public void SetTraceOutputLevel(LogLevel logLevel = LogLevel.Debug)
+        {
+            if(m_traceLogger != null)
+            {
+                m_traceLogger.MinimumLogLevel = logLevel;
+            }
+        }
+
+        /// <summary>
         /// Configures Activity Listener and registers with Activity Source.
         /// </summary>
         public void StartActivityListenerInternal(bool disableActivityLogging)
@@ -394,7 +415,6 @@ namespace Opc.Ua.Client.Tests
             ActivitySource.AddActivityListener(ActivityListener);
         }
 
-
         /// <summary>
         /// Disposes Activity Listener and unregisters from Activity Source.
         /// </summary>
@@ -410,7 +430,7 @@ namespace Opc.Ua.Client.Tests
         {
             if (ServiceResult.IsBad(e.Status))
             {
-                session?.Dispose();
+                Utils.LogError("Session '{0}' keep alive error: {1}", session.SessionName, e.Status);
             }
         }
         #endregion

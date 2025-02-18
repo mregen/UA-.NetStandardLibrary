@@ -99,6 +99,7 @@ namespace Opc.Ua.Gds.Tests
             return testDataSet;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "SYSLIB1045:Convert to 'GeneratedRegexAttribute'.", Justification = "Tests")]
         private ApplicationTestData RandomApplicationTestData()
         {
             // TODO: set to discoveryserver
@@ -169,6 +170,7 @@ namespace Opc.Ua.Gds.Tests
             return serverCapabilities;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "SYSLIB1045:Convert to 'GeneratedRegexAttribute'.", Justification = "Test")]
         private string RandomLocalHost()
         {
             string localhost = Regex.Replace(m_dataGenerator.GetRandomSymbol("en").Trim().ToLower(), @"[^\w\d]", "");
@@ -299,10 +301,13 @@ namespace Opc.Ua.Gds.Tests
             {
                 await store.Delete(cert.Thumbprint).ConfigureAwait(false);
             }
-            var crls = await store.EnumerateCRLs().ConfigureAwait(false);
-            foreach (var crl in crls)
+            if (store.SupportsCRLs)
             {
-                await store.DeleteCRL(crl).ConfigureAwait(false);
+                var crls = await store.EnumerateCRLs().ConfigureAwait(false);
+                foreach (var crl in crls)
+                {
+                    await store.DeleteCRL(crl).ConfigureAwait(false);
+                }
             }
             if (dispose)
             {
@@ -349,7 +354,7 @@ namespace Opc.Ua.Gds.Tests
             return url;
         }
 
-        public static async Task<GlobalDiscoveryTestServer> StartGDS(bool clean)
+        public static async Task<GlobalDiscoveryTestServer> StartGDS(bool clean, string storeType = CertificateStoreType.Directory)
         {
             GlobalDiscoveryTestServer server = null;
             int testPort = ServerFixtureUtils.GetNextFreeIPPort();
@@ -360,7 +365,7 @@ namespace Opc.Ua.Gds.Tests
                 try
                 {
                     server = new GlobalDiscoveryTestServer(true);
-                    await server.StartServer(clean, testPort).ConfigureAwait(false);
+                    await server.StartServer(clean, testPort, storeType).ConfigureAwait(false);
                 }
                 catch (ServiceResultException sre)
                 {

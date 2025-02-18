@@ -10,27 +10,28 @@
   <Choose>
     <When Condition="'$(TargetFramework)' == 'net462'">
     </When>
-    <When Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <When Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
     </When>
     <Otherwise>
       <PropertyGroup Condition="'$(DisableECCTests)' != 'true'">
         <DefineConstants>$(DefineConstants);ECC_SUPPORT</DefineConstants>
       </PropertyGroup>
-      <ItemGroup Condition="'$(TargetFramework)' != 'net48'">
+      <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
         <PackageReference Include="System.Security.Cryptography.Cng" Version="5.0.0" />
       </ItemGroup>
     </Otherwise>
   </Choose>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
-    <PackageReference Include="NUnit" Version="4.1.0" />
-    <PackageReference Include="NUnit.Console" Version="3.17.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="NUnit" Version="4.3.2" />
+    <PackageReference Include="NUnit.Console" Version="3.19.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="6.0.2">
+    <PackageReference Include="coverlet.collector" Version="6.0.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -38,7 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\Common\Main.cs"/>
+    <Compile Include="..\Common\Main.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,6 +51,13 @@
     <Content Include="Assets\*.*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.146">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>
