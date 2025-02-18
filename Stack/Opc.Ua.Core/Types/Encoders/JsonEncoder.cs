@@ -3513,7 +3513,7 @@ namespace Opc.Ua
                     {
                         m_writer.Write(s_comma);
                     }
-                    WriteVariantContents(copy, new TypeInfo(typeInfo.BuiltInType, 1));
+                    WriteVariantContents(copy, TypeInfo.CreateArray(typeInfo.BuiltInType));
                     index += arrayLen;
                 }
                 else
